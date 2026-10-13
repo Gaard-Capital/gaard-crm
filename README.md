@@ -19,6 +19,8 @@ python3 -m http.server 8765
 
 Then open http://localhost:8765/index.html
 
+OR go open https://gaard-capital.github.io/gaard-crm/
+
 ## Put it on the web
 
 GitHub Pages serves this repository as it stands.
