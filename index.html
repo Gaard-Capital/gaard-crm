@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-14.9">
+<meta name="build-version" content="2026-10-14.11">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -502,6 +502,22 @@ table.edit tr:last-child td{border-bottom:none}
 .multi-menu .pick-opt:hover,.multi-menu .pick-opt:focus-visible{background:var(--surface-3)}
 .multi-menu .pick-opt[aria-checked="true"]{background:var(--accent-soft);color:var(--accent-strong);font-weight:600}
 .multi.pick>.btn{min-width:150px;justify-content:space-between}
+/* The filters as one joined bar: rounded at the two ends, a hairline between
+   controls, and the search box filling the space on the right. */
+.filters.fbar{gap:0;flex-wrap:wrap;align-items:stretch;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-pill);box-shadow:var(--shadow);padding:0 8px;width:100%}
+.fbar>*{display:flex;align-items:center}
+.fbar>*+*:not(.sr-only){border-left:1px solid var(--line)}
+.fbar .btn,.fbar .multi>.btn,.fbar input,.fbar select{border:0 !important;box-shadow:none !important;background:transparent;border-radius:0;height:40px}
+.fbar .multi>.btn,.fbar>.btn{padding:0 14px;min-width:0}
+.fbar .multi.pick>.btn{min-width:0;gap:8px}
+.fbar .btn[aria-pressed="true"],.fbar .multi>.btn[aria-expanded="true"]{background:var(--accent-soft);color:var(--accent-strong)}
+.fbar>:first-child>.btn,.fbar>.btn:first-child{border-radius:var(--radius-pill) 0 0 var(--radius-pill)}
+.fbar>:last-child>.btn,.fbar>.btn:last-child{border-radius:0 var(--radius-pill) var(--radius-pill) 0}
+.fbar-row{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-bottom:13px}
+.fbar-row .filters.fbar{width:auto;flex:0 1 auto;margin-bottom:0}
+.fbar-search{flex:1 1 240px;min-width:220px;display:flex}
+.fbar-search input[type=search]{width:100%;min-width:0;height:42px;padding:0 18px;border:1px solid var(--line);border-radius:var(--radius-pill);background:var(--surface);box-shadow:var(--shadow);font-weight:500}
+@media (max-width:820px){ .filters.fbar{border-radius:var(--radius-lg)} }
 /* Thin scrollbars without the arrow buttons */
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-button{display:none;width:0;height:0}
@@ -2504,7 +2520,7 @@ function stateFilter(){
       <div class="multi-foot"><button class="btn btn-sm" type="button" id="flt-state-none">All states</button><span class="spacer"></span><button class="btn btn-sm" type="button" id="flt-state-close">Done</button></div>
     </div>` : ''}</div>`;
 }
-function filterBar({ compact=false } = {}){
+function filterBar({ compact=false, extra='', search='' } = {}){
   const f = UI.filters;
   const r = Metrics.range(f);
   /* A single-choice filter: a pill button and a rounded menu, like the states. */
@@ -2517,11 +2533,9 @@ function filterBar({ compact=false } = {}){
         `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${String(o.value) === String(cur.value)}" data-pick="${key}" data-value="${esc(o.value)}">${esc(o.label)}</button>`).join('')}</div>` : ''}
     </div>`; };
   const segOptions = [{value:'All',label:'All segments'}, ...SEGMENTS.filter(x => f.group === 'All' || !f.group || x.group === f.group).map(x => ({ value:x.code, label:x.name }))];
-  const moreOn = UI.moreFilters;
-  const moreCount = ['group','outcome'].filter(k => f[k] && f[k] !== 'All').length;
-  /* Four controls people reach for every day stay visible. The rest sit behind
-     one button, so the page opens calm instead of showing ten dropdowns. */
-  return `<div class="filters" role="group" aria-label="Filters">
+  /* One bar of filters, rounded at its two ends; the search box, where a page
+     has one, is a second rounded bar beside it on the same line. */
+  return `<div class="fbar-row"><div class="filters fbar" role="group" aria-label="Filters">
     ${sel('period','Period', Metrics.PERIODS.map(p => ({ value:p.key, label:p.label })))}
     ${f.period === 'custom' ? `<label class="sr-only" for="flt-from">From</label><input type="date" id="flt-from" data-filter="from" value="${esc(f.from)}" title="From date" style="min-width:150px">
        <label class="sr-only" for="flt-to">To</label><input type="date" id="flt-to" data-filter="to" value="${esc(f.to)}" title="To date" style="min-width:150px">` : ''}
@@ -2529,14 +2543,10 @@ function filterBar({ compact=false } = {}){
     ${sel('segment','Segment', segOptions)}
     ${sel('channel','Channel', [{value:'All',label:'All channels'}, ...CHANNELS.map(c => ({ value:c.code, label:c.name }))])}
     ${sel('stage','Stage', [{value:'All',label:'All stages'}, ...STAGES.map(x => ({ value:x.code, label:x.label }))])}
-    <button class="btn btn-sm" type="button" id="flt-more" aria-pressed="${moreOn}" aria-expanded="${moreOn}">More filters${moreCount ? ` (${moreCount})` : ''}</button>
-    ${Metrics.isActive(f) ? `<button class="btn btn-sm" type="button" id="flt-clear">Clear all</button>` : ''}
-    <span class="spacer"></span><span class="count">${(() => { const rest = Metrics.describe(f).filter(x => x !== r.label); return rest.length ? esc(rest.join(' \u00b7 ')) : ''; })()}</span>
-  </div>
-  ${moreOn ? `<div class="filters" style="margin-top:-8px">
+    ${extra}
     ${sel('group','Segment group', [{value:'All',label:'All segment groups'}, ...SEGMENT_GROUPS])}
-    ${sel('outcome','Outcome', [{value:'All',label:'All outcomes'}, ...OUTCOMES.map(o => ({ value:o.code, label:o.label }))])}
-  </div>` : ''}`;
+    ${Metrics.isActive(f) ? `<button class="btn btn-sm" type="button" id="flt-clear">Clear all</button>` : ''}
+  </div>${search ? `<div class="fbar-search">${search}</div>` : ''}</div>`;
 }
 function bindFilters(root, rerender){
   const setFilter = (key, value) => {
@@ -3463,7 +3473,14 @@ Views.contacts = { title:'Contacts',
   render(params){
     const st = UI.contacts, f = UI.filters;
     const leadBy = new Map(Metrics.leads(f).map(l => [l.contact_id, l]));
-    let rows = Repo.contacts.all().filter(c => leadBy.has(c.id));
+    /* Everyone outreach has reached, plus the people not written to yet, as long
+       as they fit the filters that apply before any outreach: state, segment,
+       how we met, and the date they were added. */
+    const span = Metrics.range(f), added = c => c.sourced_on || dayOf(c.created_at) || '';
+    const waiting = c => contactInFilters(c, f) && (!f.channel || f.channel === 'All' || c.source_channel_code === f.channel)
+      && (!f.stage || f.stage === 'All') && (!f.outcome || f.outcome === 'All')
+      && (!span.from || (added(c) >= span.from && (!span.to || added(c) <= span.to)));
+    let rows = Repo.contacts.all().filter(c => leadBy.has(c.id) || waiting(c));
     if (params.org) rows = rows.filter(c => c.organization_id === Number(params.org));
     if (params.flag === 'bounced') rows = rows.filter(c => c.email_status === 'bounced' || c.email_status === 'wrong_person');
     if (params.flag === 'dnc') rows = rows.filter(c => c.do_not_contact);
@@ -3483,7 +3500,12 @@ Views.contacts = { title:'Contacts',
     rows = sortRows(rows, st.sort, st.dir, getters);
     const total = rows.length, page = rows.slice(st.page*st.pageSize, (st.page+1)*st.pageSize);
     const org = params.org ? Repo.organizations.byId(Number(params.org)) : null;
-    const flagBtn = (k,l) => `<a class="btn btn-sm" href="${href('contacts',{flag:k})}" aria-pressed="${params.flag===k}">${l}</a>`;
+    /* The labelled lists (wrong email, do not contact, ...) as one choice in the bar. */
+    const FLAGS = [['', 'All contacts'], ['bounced', 'Wrong email'], ['dnc', 'Do not contact'], ['university', 'No cold email (In person only)'], ['newsletter', 'Newsletter']];
+    const flagOpen = UI.openPick === 'flag', curFlag = FLAGS.find(([k]) => k === (params.flag || '')) || FLAGS[0];
+    const flagPick = `<div class="multi pick"><button class="btn" type="button" data-pick-btn="flag" aria-haspopup="true" aria-expanded="${flagOpen}" title="Show a labelled list">${esc(curFlag[1])}<span class="caret">${flagOpen ? '&#9652;' : '&#9662;'}</span></button>
+      ${flagOpen ? `<div class="multi-menu" role="menu" aria-label="Lists">${FLAGS.map(([k, l]) =>
+        `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${k === curFlag[0]}" data-flag-go="${k}">${esc(l)}</button>`).join('')}</div>` : ''}</div>`;
 
     /* The expanded thread, shown in a row of its own under the contact. */
     const threadPanel = c => {
@@ -3509,7 +3531,7 @@ Views.contacts = { title:'Contacts',
        reach them, the money, then the outcome, the status and the next date.
        What this application adds sits to the right of all of that. */
     const row = (c, nth) => {
-      const l = leadBy.get(c.id), a2 = latest.get(c.id), n = Repo.contacts.nextReminder(c.id);
+      const l = leadBy.get(c.id) || { touches: 0, source_channel_code: c.source_channel_code }, a2 = latest.get(c.id), n = Repo.contacts.nextReminder(c.id);
       const open = st.expanded.has(c.id);
       const tps = Repo.contacts.touchpoints(c.id);
       const firstTouch = tps.filter(t => TT.get(t.touch_type)?.outreach).slice(-1)[0] || tps[tps.length-1];
@@ -3527,8 +3549,8 @@ Views.contacts = { title:'Contacts',
         ${cell(esc(c.first_name || ''), 'first_name')}
         ${cell(esc(c.email || ''), 'email')}
         ${cell(orgNameOf(c) ? esc(orgNameOf(c)) : '<span class="muted">Individual</span>', 'org')}
-        ${cell(link(orgRec && orgRec.website))}
-        ${cell(link(c.linkedin_url))}
+        ${cell(link(orgRec && orgRec.website) || '&nbsp;')}
+        ${cell(link(c.linkedin_url) || '&nbsp;')}
         <td class="num ed" data-edit="aum" data-id="${c.id}">${aum != null ? fmtUSD(aum) : '<span class="muted">-</span>'}</td>
         ${cell(esc(c.notes || ''), 'notes')}
         <td title="${esc(firstTouch ? outLabel(firstTouch.outcome_code) + ', ' + fmtDate(firstTouch.touched_at) : '')}">${firstTouch ? outcomePill(firstTouch.outcome_code) : '<span class="muted">-</span>'}</td>
@@ -3556,10 +3578,10 @@ Views.contacts = { title:'Contacts',
         ? `${fmtInt(total)} people are on the newsletter. The Newsletter column turns anybody on or off, and an outcome that counts as interest adds them on its own.`
         : `The master list, every year of it${org ? ', showing ' + esc(org.name) : ''}, oldest first. Click a cell to change it, a heading to sort, or a correspondence cell to read the thread. The name opens the full record.`}</p></div>
       <div class="page-actions">${demoTag}<button class="btn btn-primary" type="button" id="new-contact">New contact</button></div></div>
-    ${filterBar({ compact:true })}
-    <div class="filters"><label class="sr-only" for="c-q">Search</label><input type="search" id="c-q" placeholder="Search name, email, organization, LinkedIn" value="${esc(st.q)}">
-      ${news ? '' : `${flagBtn('bounced','Wrong email')}${flagBtn('dnc','Do not contact')}${flagBtn('university','No cold email (In person only)')}${flagBtn('newsletter','Newsletter')}`}
-      ${!news && (params.flag||params.org) ? `<a class="btn btn-sm" href="${href('contacts')}">Clear</a>` : ''}
+    ${filterBar({ compact:true, extra: news ? '' : flagPick,
+      search: `<label class="sr-only" for="c-q">Search</label><input type="search" id="c-q" placeholder="Search name, email, organization, LinkedIn" value="${esc(st.q)}">` })}
+    <div class="filters">
+      ${!news && params.org ? `<a class="btn btn-sm" href="${href('contacts')}">Show everyone</a>` : ''}
       ${st.expanded.size ? `<button class="btn btn-sm" type="button" id="c-collapse">Collapse ${st.expanded.size} open</button>` : ''}
       <span class="spacer"></span>
       <span class="zoomer"><button class="btn btn-sm" type="button" data-zoom="-1" aria-label="Zoom out" ${st.zoom<=60?'disabled':''}>&minus;</button>
@@ -3583,6 +3605,8 @@ Views.contacts = { title:'Contacts',
     bindSort(root, st, render); bindPager(root, st, render); bindRowNav(root); bindFilters(root, render);
     root.querySelector('#c-q').addEventListener('input', debounce(e => { st.q = e.target.value; st.page = 0; render(); }, 220));
     root.querySelector('#new-contact').addEventListener('click', () => openAddContact(params.org ? Number(params.org) : null));
+    root.querySelectorAll('[data-flag-go]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); UI.openPick = null; st.page = 0;
+      location.hash = href('contacts', b.dataset.flagGo ? { flag: b.dataset.flagGo } : {}); }));
     root.querySelector('#c-cols')?.addEventListener('click', e => { e.stopPropagation(); UI.openCols = !UI.openCols; UI.openPick = null; UI.openState = false; render(); });
     const saveCols = labels => { try { localStorage.setItem(SHEET_COLS_KEY, JSON.stringify(labels)); } catch (e) { /* private window */ } render(); };
     root.querySelectorAll('[data-col]').forEach(cb => cb.addEventListener('change', () =>
