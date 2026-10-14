@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-14.2">
+<meta name="build-version" content="2026-10-14.4">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -640,7 +640,15 @@ const REFERENCE = {
     { code:'onboarding_task',    label:'Onboarding step' },
     { code:'rfp_deadline',       label:'RFP deadline' },
     { code:'portfolio_review',   label:'Portfolio review' },
+    { code:'in_person',          label:'Reach out in person' },
     { code:'custom',             label:'Other' },
+  ],
+  /* Email domains that get a label on sight (public.flag_rules). 'university'
+     means no cold email: reach out in person (is_university_affiliated); any
+     other flag puts the contact on do not contact. Editable in Settings. */
+  flag_rules: [
+    { id:1, match_on:'email_domain', pattern:'utah.edu', flag:'university', reason:'University: reach out in person', is_active:true },
+    { id:2, match_on:'email_domain', pattern:'byu.edu',  flag:'university', reason:'University: reach out in person', is_active:true },
   ],
   /* How often a funded account gets a performance review. Months, because that
      is how the conversation goes: "we owe them a report in February". */
@@ -897,11 +905,53 @@ const Persist = {
   clear(){ try { localStorage.removeItem(STORAGE_KEY); } catch(e){} },
 };
 
+/* public.domain_matches(): ".edu" matches any domain ending in .edu, and
+   "utah.edu" matches utah.edu and every subdomain of it (law.utah.edu). */
+const domainMatches = (domain, pattern) => {
+  const d = String(domain || '').toLowerCase(), p = String(pattern || '').trim().toLowerCase();
+  if (!d || !p) return false;
+  return p[0] === '.' ? d.endsWith(p) : d === p || d.endsWith('.' + p); };
+/* The flag rules contacts_before_write applies. 'university' marks the contact
+   no cold email, in person only; any other flag puts them on do not contact.
+   As in the database, a rule only ever sets a flag: removing one clears nothing. */
+function applyFlagRules(c, rules){
+  const email = String(c.email || '').trim().toLowerCase(), domain = email.split('@')[1] || '';
+  for (const r of rules || []){
+    if (!r.is_active) continue;
+    const hit = r.match_on === 'email_domain' ? domainMatches(domain, r.pattern)
+      : r.match_on === 'email' ? email !== '' && email === String(r.pattern).trim().toLowerCase() : false;
+    if (!hit) continue;
+    if (r.flag === 'university') c.is_university_affiliated = true;
+    else if (!c.do_not_contact){ c.do_not_contact = true; c.dnc_reason = c.dnc_reason || r.reason || 'Matches the do-not-contact list';
+      c.dnc_on = c.dnc_on || new Date().toISOString().slice(0,10); }
+  }
+  return c;
+}
+/* Someone who is in person only and has nothing open gets one reminder to
+   reach out personally, instead of joining the cold email queue. */
+function addInPersonReminder(st, c){
+  if (!c.is_university_affiliated || c.do_not_contact) return;
+  if (st.reminders.some(r => r.contact_id === c.id && (r.status === 'open' || r.status === 'snoozed'))) return;
+  st.reminders.push({ id: Math.max(0, ...st.reminders.map(r => r.id)) + 1, reminder_type:'in_person', contact_id: c.id,
+    organization_id: c.organization_id ?? null, opportunity_id:null, rfp_id:null, touchpoint_id:null,
+    due_on: new Date().toISOString().slice(0,10), title: `Reach out in person: ${c.full_name}`,
+    details: `No cold email: this address is on the "Don't cold email" list in Settings. Reach out personally: a call, a coffee, or an introduction.`,
+    follow_up_style:'personalized', assigned_to: c.owner_id ?? st.settings.default_owner_id, status:'open', snoozed_until:null,
+    created_by:'rule', created_at: new Date().toISOString().slice(0,19) });
+}
+
 const Store = {
   state: null, version: 0, listeners: [], undoStack: [], dirty: false,
-  init(){ const saved = Persist.load(); this.state = (saved && saved.dirty && saved.contacts) ? saved : this.fresh(); this.dirty = !!this.state.dirty; this.version = 1; },
-  fresh(){ const t = hydrate(DB_SNAPSHOT); return { ...t, settings: { firm_name:'GAARD Capital', default_owner_id: 1, assumed_fee_rate: 0.0045,
-    templates: JSON.parse(JSON.stringify(MERGE_TEMPLATES)), loaded_at: new Date().toISOString() }, dirty:false }; },
+  init(){ const saved = Persist.load(); this.state = (saved && saved.dirty && saved.contacts) ? saved : this.fresh();
+    // Edits saved before flag rules existed get the defaults
+    if (!this.state.flag_rules) this.state.flag_rules = JSON.parse(JSON.stringify(REFERENCE.flag_rules));
+    this.dirty = !!this.state.dirty; this.version = 1; },
+  fresh(){ const t = hydrate(DB_SNAPSHOT);
+    const st = { ...t, flag_rules: JSON.parse(JSON.stringify(REFERENCE.flag_rules)),
+      settings: { firm_name:'GAARD Capital', default_owner_id: 1, assumed_fee_rate: 0.0045,
+      templates: JSON.parse(JSON.stringify(MERGE_TEMPLATES)), loaded_at: new Date().toISOString() }, dirty:false };
+    st.contacts.forEach(c => applyFlagRules(c, st.flag_rules));
+    return st; },
   subscribe(fn){ this.listeners.push(fn); },
   commit(label, mutator, { undoable = true, silent = false } = {}){
     const snap = undoable ? JSON.stringify(this.state) : null;
@@ -979,7 +1029,10 @@ const Repo = {
     neverContacted: memo(() => { const tps = Repo._tpByContact();
       return Repo.contacts.all().filter(c => !(tps.get(c.id) || []).some(t => TT.get(t.touch_type)?.outreach))
         .sort((a,b) => String(b.created_at || '').localeCompare(String(a.created_at || ''))); }),
-    update: (id, patch, label = 'Contact updated') => Store.commit(label, st => { const c = st.contacts.find(x => x.id === id); if (c){ Object.assign(c, patch); c.full_name = [c.first_name, c.last_name].filter(Boolean).join(' ').trim(); } }),
+    update: (id, patch, label = 'Contact updated') => Store.commit(label, st => { const c = st.contacts.find(x => x.id === id); if (c){
+      const oldEmail = c.email; Object.assign(c, patch); c.full_name = [c.first_name, c.last_name].filter(Boolean).join(' ').trim();
+      // A new address is checked against the flag rules; an unchanged one is left as edited
+      if ('email' in patch && patch.email !== oldEmail){ applyFlagRules(c, st.flag_rules); addInPersonReminder(st, c); } } }),
     create: (fields, { silent } = {}) => Store.commit('Contact created', st => {
       const c = { id: Math.max(0, ...st.contacts.map(x => x.id)) + 1, email_status:'unverified', newsletter_status:'not_subscribed',
         is_university_affiliated:false, do_not_contact:false, follow_up_style:'standard_check_in', owner_id: st.settings.default_owner_id,
@@ -987,9 +1040,34 @@ const Repo = {
       c.full_name = [c.first_name, c.last_name].filter(Boolean).join(' ').trim();
       c.email_key = (c.email || '').toLowerCase() || null;
       c.linkedin_key = (c.linkedin_url || '').toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/+$/,'') || null;
-      st.contacts.push(c); return c; }, { silent }),
+      applyFlagRules(c, st.flag_rules);
+      st.contacts.push(c); addInPersonReminder(st, c); return c; }, { silent }),
     search: memo(() => { const orgs = Repo._orgIx(); return Store.state.contacts.map(c => ({ c,
       h: [c.full_name, c.email, c.title, c.linkedin_url, orgs.get(c.organization_id)?.name].filter(Boolean).join(' ').toLowerCase() })); }),
+  },
+
+  flagRules: {
+    /** select * from flag_rules order by pattern */
+    all: memo(() => (Store.state.flag_rules || []).slice().sort((a,b) => String(a.pattern).localeCompare(String(b.pattern)))),
+    /** Contacts whose email a rule matches, flagged already or not. */
+    matches: rule => Store.state.contacts.filter(c => domainMatches(String(c.email || '').split('@')[1], rule.pattern)),
+    /** insert into flag_rules, then select reapply_flag_rules(). Existing
+        contacts that match are labelled; nobody gets a reminder for it. */
+    add: rule => {
+      const pattern = String(rule.pattern || '').trim().toLowerCase().replace(/^@/, '');
+      const fresh = Repo.flagRules.matches({ pattern }).filter(c => rule.flag === 'university' ? !c.is_university_affiliated : !c.do_not_contact).length;
+      return Store.commit(`Rule added for ${pattern}${fresh ? `: ${fresh} contact${fresh === 1 ? '' : 's'} labelled` : ''}`, st => {
+        st.flag_rules = st.flag_rules || [];
+        const r = { id: Math.max(0, ...st.flag_rules.map(x => x.id)) + 1, match_on:'email_domain', is_active:true,
+          created_at: new Date().toISOString().slice(0,19), ...rule, pattern };
+        st.flag_rules.push(r);
+        st.contacts.forEach(c => applyFlagRules(c, [r]));
+        return r; }); },
+    /** update flag_rules set ... where id = $1 */
+    update: (id, patch) => Store.commit('Rule updated', st => { const r = (st.flag_rules || []).find(x => x.id === id); if (!r) return;
+      Object.assign(r, patch); if (r.is_active) st.contacts.forEach(c => applyFlagRules(c, [r])); }),
+    /** delete from flag_rules where id = $1 */
+    remove: id => Store.commit('Rule removed', st => { st.flag_rules = (st.flag_rules || []).filter(x => x.id !== id); }),
   },
 
   touchpoints: {
@@ -2062,7 +2140,7 @@ const contactFlags = c => [
   c.do_not_contact ? '<span class="pill warnflag">Do not contact</span>' : '',
   c.email_status === 'bounced' ? '<span class="pill warnflag">Bounced</span>' : '',
   c.email_status === 'wrong_person' ? '<span class="pill warnflag">Wrong person</span>' : '',
-  c.is_university_affiliated ? '<span class="pill uni">University</span>' : '',
+  c.is_university_affiliated ? '<span class="pill uni" title="No cold email: reach out in person">No cold email (In person only)</span>' : '',
   c.newsletter_status === 'subscribed' ? '<span class="tag">Newsletter</span>' : '',
 ].filter(Boolean).join(' ');
 const demoTag = '<span class="demo-tag" title="Fictional data, loaded from the database snapshot">Demo data</span>';
@@ -2224,6 +2302,7 @@ const Merge = {
       do-not-contact list, and a bounced address has nowhere to go. */
   blocked(c){
     if (c.do_not_contact) return 'On the do-not-contact list';
+    if (c.is_university_affiliated) return 'No cold email (in person only)';
     if (!c.email) return 'No email address on file';
     if (c.email_status === 'bounced') return 'Last email bounced, address needs fixing';
     if (c.email_status === 'wrong_person') return 'No longer at this organization';
@@ -2670,7 +2749,11 @@ Views.mailmerge = { title:'Emails to send',
               return last ? `${outcomePill(last.outcome_code)}<span class="sub">${fmtDate(last.touched_at, { month:'short', day:'numeric' })}, ${esc(TT.get(last.touch_type)?.name || last.touch_type)}</span>` : '<span class="muted">Never contacted</span>'; })()}</td></tr>`; }).join('')
           : `<tr><td colspan="4">${emptyState('Nobody is due','Switch the list above to Everyone, or widen the filters.')}</td></tr>`}
         </tbody></table></div>
-        ${blocked.length ? `<div class="card-foot">${blocked.length} ${blocked.length === 1 ? 'person is' : 'people are'} greyed out. They are on the do-not-contact list, or their address bounced, so the database will not let you write to them.</div>` : ''}</section>
+        ${blocked.length ? (() => { const inPerson = blocked.filter(r => r.blocked === 'No cold email (in person only)').length, other = blocked.length - inPerson;
+          return `<div class="card-foot">${[
+            inPerson ? `<b>${inPerson} ${inPerson === 1 ? 'person' : 'people'} left out: in person only.</b> Their address is on the "Don't cold email" list in Settings; reach out personally instead.` : '',
+            other ? `${other} ${other === 1 ? 'person is' : 'people are'} greyed out because they are on the do-not-contact list or their address bounced, so the database will not let you write to them.` : ''
+          ].filter(Boolean).join(' ')}</div>`; })() : ''}</section>
 
       <section class="card"><div class="card-head"><h2>What ${preview ? esc(preview.contact.full_name) : 'they'} will read</h2>
         <span class="sub">${esc(tpl.name)}</span></div>
@@ -3159,7 +3242,7 @@ Views.contacts = { title:'Contacts',
       <div class="page-actions">${demoTag}<button class="btn btn-primary" type="button" id="new-contact">New contact</button></div></div>
     ${filterBar({ compact:true })}
     <div class="filters"><label class="sr-only" for="c-q">Search</label><input type="search" id="c-q" placeholder="Search name, email, organization, LinkedIn" value="${esc(st.q)}">
-      ${news ? '' : `${flagBtn('bounced','Wrong email')}${flagBtn('dnc','Do not contact')}${flagBtn('university','University')}${flagBtn('newsletter','Newsletter')}`}
+      ${news ? '' : `${flagBtn('bounced','Wrong email')}${flagBtn('dnc','Do not contact')}${flagBtn('university','No cold email (In person only)')}${flagBtn('newsletter','Newsletter')}`}
       ${!news && (params.flag||params.org) ? `<a class="btn btn-sm" href="${href('contacts')}">Clear</a>` : ''}
       ${st.expanded.size ? `<button class="btn btn-sm" type="button" id="c-collapse">Collapse ${st.expanded.size} open</button>` : ''}
       <span class="spacer"></span>
@@ -3392,7 +3475,7 @@ Views.contact = { title:'Contact',
     ${c.do_not_contact ? `<div class="banner danger"><b>Do not contact.</b> ${esc(c.dnc_reason || 'Asked not to be contacted')}${c.dnc_on ? ' (' + fmtDate(c.dnc_on) + ')' : ''}. The database refuses outreach to this contact.</div>` : ''}
     ${c.email_status === 'bounced' ? `<div class="banner warn"><b>Email bounced.</b> ${esc(c.email||'')} is on the wrong-email list. Fixing the address clears this and the reminder together.</div>` : ''}
     ${c.email_status === 'wrong_person' ? `<div class="banner warn"><b>Wrong person.</b> They are no longer at this organization. Find someone else with leadership authority.</div>` : ''}
-    ${c.is_university_affiliated ? `<div class="banner demo"><b>University email.</b> The founder may know them, so consider a personal reach-out before any campaign.</div>` : ''}
+    ${c.is_university_affiliated ? `<div class="banner demo"><b>No cold email (in person only).</b> This address is on the "Don't cold email" list in Settings (universities, and organizations Gaard reaches through people). The mail merge leaves them out; reach out personally.</div>` : ''}
     <div class="split">
       <div style="display:flex;flex-direction:column;gap:14px">
         <section class="card"><div class="card-head"><h2>Contact</h2><span class="sub">${esc(c.email_status || '')}</span></div><div class="card-body"><dl class="kv">
@@ -3458,11 +3541,13 @@ Views.contact = { title:'Contact',
         { key:'email_status', label:'Email status', type:'select', value:c.email_status||'unverified', options:['unverified','valid','bounced','wrong_person'] },
         { key:'newsletter_status', label:'Newsletter', type:'select', value:c.newsletter_status||'not_subscribed', options:['not_subscribed','subscribed','unsubscribed'] },
         { key:'do_not_contact', label:'Do not contact', type:'select', value:String(!!c.do_not_contact), options:[{value:'false',label:'No'},{value:'true',label:'Yes'}] },
+        { key:'is_university_affiliated', label:'No cold email (in person only)', type:'select', value:String(!!c.is_university_affiliated), options:[{value:'false',label:'No'},{value:'true',label:'Yes'}] },
         { key:'state', label:'State', value:c.state||'' }, { key:'city', label:'City', value:c.city||'' },
         { key:'prospect_aum', label:'Prospect AUM ($)', type:'number', step:'1000', value:c.prospect_aum ?? '' },
         { key:'notes', label:'Notes', type:'textarea', rows:3, span:true, value:c.notes||'' } ]});
       if (!out) return;
-      const patch = { ...out, do_not_contact: out.do_not_contact === 'true', prospect_aum: out.prospect_aum === '' ? null : Number(out.prospect_aum) };
+      const patch = { ...out, do_not_contact: out.do_not_contact === 'true', is_university_affiliated: out.is_university_affiliated === 'true',
+        prospect_aum: out.prospect_aum === '' ? null : Number(out.prospect_aum) };
       if (patch.email && patch.email !== c.email && c.email_status === 'bounced') patch.email_status = 'unverified';
       Repo.contacts.update(c.id, patch);
     });
@@ -3536,7 +3621,7 @@ Views.organizations = { title:'Organizations',
         <td>${next ? `<span class="pill st-${Repo.reminders.bucket(next)}">${fmtShort(next.due_on)}</span>` : '<span class="muted">-</span>'}</td>
         <td class="num" title="Every touchpoint logged against this organization">${fmtInt(touches)}</td>
         ${cell(esc(o.notes || ''), 'notes')}
-        <td>${[o.is_university_affiliated ? '<span class="pill uni">University</span>' : '', o.do_not_contact ? '<span class="pill warnflag">Do not contact</span>' : ''].filter(Boolean).join(' ') || '<span class="muted">-</span>'}</td></tr>
+        <td>${[o.is_university_affiliated ? '<span class="pill uni" title="No cold email: reach out in person">No cold email (In person only)</span>' : '', o.do_not_contact ? '<span class="pill warnflag">Do not contact</span>' : ''].filter(Boolean).join(' ') || '<span class="muted">-</span>'}</td></tr>
       ${open ? `<tr class="threadrow"><td colspan="16">${peoplePanel(o)}</td></tr>` : ''}`;
     };
 
@@ -3582,7 +3667,7 @@ Views.organizations = { title:'Organizations',
         { key:'org_type', label:'Type', value:'' }, { key:'website', label:'Website', value:'' },
         { key:'city', label:'City', value:'' }, { key:'state', label:'State', value:'UT' },
         { key:'reported_aum', label:'Reported AUM ($)', type:'number', step:'1000', value:'' },
-        { key:'is_university_affiliated', label:'University affiliated', type:'select', value:'false', options:[{value:'false',label:'No'},{value:'true',label:'Yes'}] },
+        { key:'is_university_affiliated', label:'No cold email (in person only)', type:'select', value:'false', options:[{value:'false',label:'No'},{value:'true',label:'Yes'}] },
         { key:'notes', label:'Notes', type:'textarea', rows:3, span:true, value:'' } ]});
       if (!out || !out.name) return;
       const key = Intelligence.orgKey(out.name);
@@ -3740,7 +3825,7 @@ Views.organization = { title:'Organization',
     const rems = Repo.organizations.openReminders(o.id), rfps = Repo.organizations.rfps(o.id);
     const latest = Repo.contacts.latestTouch();
     return `<div class="page-head"><div><a href="${href('organizations')}" class="small">All organizations</a><h1 style="margin-top:2px">${esc(o.name)}</h1>
-      <p>${segPill(o.segment_code)} ${esc(o.org_type||'')} &middot; ${esc([o.city,o.state].filter(Boolean).join(', '))}${o.is_university_affiliated ? ' &middot; University affiliated' : ''}</p></div>
+      <p>${segPill(o.segment_code)} ${esc(o.org_type||'')} &middot; ${esc([o.city,o.state].filter(Boolean).join(', '))}${o.is_university_affiliated ? ' &middot; No cold email (in person only)' : ''}</p></div>
       <div class="page-actions"><button class="btn" type="button" id="o-edit">Edit</button>${opp ? `<button class="btn" type="button" id="o-opp">Opportunity</button>` : ''}<button class="btn btn-primary" type="button" id="o-add">Add contact</button></div></div>
     ${o.do_not_contact ? `<div class="banner danger"><b>Do not contact.</b> ${esc(o.dnc_reason||'')}</div>` : ''}
     <div class="aum-cols" style="margin-bottom:14px">
@@ -3790,7 +3875,7 @@ Views.organization = { title:'Organization',
         { key:'org_type', label:'Type', value:o.org_type||'' }, { key:'website', label:'Website', value:o.website||'' },
         { key:'city', label:'City', value:o.city||'' }, { key:'state', label:'State', value:o.state||'' },
         { key:'reported_aum', label:'Reported AUM ($)', type:'number', step:'1000', value:o.reported_aum ?? '' },
-        { key:'is_university_affiliated', label:'University affiliated', type:'select', value:String(!!o.is_university_affiliated), options:[{value:'false',label:'No'},{value:'true',label:'Yes'}] },
+        { key:'is_university_affiliated', label:'No cold email (in person only)', type:'select', value:String(!!o.is_university_affiliated), options:[{value:'false',label:'No'},{value:'true',label:'Yes'}] },
         { key:'notes', label:'Notes', type:'textarea', rows:3, span:true, value:o.notes||'' } ]});
       if (out) Repo.organizations.update(o.id, { ...out, reported_aum: out.reported_aum === '' ? null : Number(out.reported_aum), is_university_affiliated: out.is_university_affiliated === 'true' });
     });
@@ -4045,6 +4130,8 @@ Views.import = { title:'Import',
         <p class="muted small" style="margin-top:12px">${r.extras} value${r.extras===1?'':'s'} from columns the CRM does not map were kept on the contact as extra data, so nothing from the sheet was lost.</p>
         ${r.awaiting_first ? `<div class="banner demo" style="margin:16px 0 0"><b>${fmtInt(r.awaiting_first)} of the new contacts came in with no outreach date.</b>
           Nobody has been marked No response: they are waiting for a first email, and sending it is what records the date.</div>` : ''}
+        ${r.in_person ? `<div class="banner demo" style="margin:16px 0 0"><b>${fmtInt(r.in_person)} of the new contacts are no cold email: in person.</b>
+          Their address is on the "Don't cold email" list in Settings, so they are left out of the mail merge and each has a reminder to reach out personally.</div>` : ''}
         <div class="page-actions" style="margin-top:16px">
           ${r.awaiting_first ? `<a class="btn btn-primary btn-xl" href="${href('mailmerge',{source:'first'})}">Write the first email</a>` : ''}
           <a class="btn" href="${href('contacts')}">Open contacts</a><a class="btn" href="${href('reminders')}">Open reminders</a><button class="btn" type="button" id="im-again">Import another file</button></div></div></section>`; }
@@ -4185,7 +4272,7 @@ Views.import = { title:'Import',
 /** process_import_batch: one approved row becomes an organization, a contact, a
     touchpoint and the reminder that touchpoint's outcome schedules. */
 function commitBatch(analysis, defaults){
-  const out = { contacts:0, orgs:0, touchpoints:0, reminders:0, merged:0, skipped:0, extras:0, awaiting_first:0 };
+  const out = { contacts:0, orgs:0, touchpoints:0, reminders:0, merged:0, skipped:0, extras:0, awaiting_first:0, in_person:0 };
   Store.commit('Batch committed', st => {
     const now = new Date().toISOString().slice(0,19), today = now.slice(0,10);
     /* Every contact from this run carries the same batch stamp, so the first
@@ -4237,18 +4324,23 @@ function commitBatch(analysis, defaults){
           prospect_aum: v.aum && v.aum.amount != null && !org ? v.aum.amount : null,
           source_channel_code: v.source_channel_code || defaults.channel, source_detail: v.source_detail || null,
           source_event_id: null, referred_by_contact_id: null, sourced_on: v.sourced_on || today,
-          is_university_affiliated: /\.edu\b/i.test(v.email || ''), do_not_contact: false, dnc_reason: null,
+          is_university_affiliated: false, do_not_contact: false, dnc_reason: null,
           newsletter_status: 'not_subscribed', follow_up_style: 'standard_check_in', owner_id: st.settings.default_owner_id,
           notes: v.notes || null, legacy_ref: 'Import ' + today, import_batch: batch, created_at: now };
         if (Object.keys(r.extras).length){ contact.extra_fields = { ...r.extras }; out.extras += Object.keys(r.extras).length; }
+        applyFlagRules(contact, st.flag_rules);
         st.contacts.push(contact); out.contacts++; madeNew = true;
       }
       if (!contact){ out.skipped++; continue; }
 
       // The outreach the row records, and whatever the outcome triggers.
       // A row with no outreach date and no outcome leaves the contact untouched:
-      // it waits in the first-outreach queue instead of being marked No response.
-      if (madeNew && !(v.touched_at || v.outcome_code || v.outcome_raw)) out.awaiting_first++;
+      // it waits in the first-outreach queue instead of being marked No response,
+      // unless an in-person rule matched, in which case it gets that reminder.
+      if (madeNew && !(v.touched_at || v.outcome_code || v.outcome_raw)){
+        if (contact.is_university_affiliated && !contact.do_not_contact){ addInPersonReminder(st, contact); out.in_person++; }
+        else out.awaiting_first++;
+      }
       if (v.touched_at || v.outcome_code || v.outcome_raw){
         const code = v.outcome_code || 'NO_RESPONSE';
         const type = OUT.get(code)?.applies?.[0] || 'email';
@@ -4298,6 +4390,26 @@ Views.settings = { title:'Settings',
         </tbody></table>
         <p class="muted small" style="margin-top:10px">Segment is what kind of client they are. Channel is how we met them. They are separate columns, so every count can be cut by both.</p></div></section>
 
+      <section class="card col-12" id="flag-rules"><div class="card-head"><h2>Don't cold email these addresses</h2><span class="sub">By the end of the email address, like utah.edu. Checked whenever a contact is added or their email changes.</span></div>
+        <div class="card-body">
+        <table class="edit"><thead><tr><th>Domain</th><th>Rule</th><th>Reason</th><th class="num">Contacts</th><th>On</th><th></th></tr></thead><tbody>
+        ${Repo.flagRules.all().map(r => `<tr><td class="mono"><b>${esc(r.pattern)}</b></td>
+          <td><select data-fr-flag="${r.id}" style="width:auto" aria-label="Rule for ${esc(r.pattern)}">
+            <option value="university" ${r.flag === 'university' ? 'selected' : ''}>No cold email (in person only)</option>
+            <option value="do_not_contact" ${r.flag !== 'university' ? 'selected' : ''}>Do not contact</option></select></td>
+          <td><input data-fr-reason="${r.id}" type="text" value="${esc(r.reason || '')}" aria-label="Reason for ${esc(r.pattern)}"></td>
+          <td class="num">${fmtInt(Repo.flagRules.matches(r).length)}</td>
+          <td><input type="checkbox" data-fr-active="${r.id}" ${r.is_active ? 'checked' : ''} aria-label="${esc(r.pattern)} rule is on"></td>
+          <td><button class="btn btn-sm" type="button" data-fr-del="${r.id}">Remove</button></td></tr>`).join('')
+          || '<tr><td colspan="6" class="muted">No rules yet.</td></tr>'}
+        </tbody></table>
+        <div class="filters" style="margin-top:12px">
+          <label class="sr-only" for="fr-pattern">Domain</label><input id="fr-pattern" type="text" placeholder="utah.edu, or .edu for every school" style="max-width:280px">
+          <label class="sr-only" for="fr-flag">Rule</label><select id="fr-flag" style="width:auto"><option value="university">No cold email (in person only)</option><option value="do_not_contact">Do not contact</option></select>
+          <button class="btn btn-sm btn-primary" type="button" id="fr-add">Add</button></div>
+        <p class="muted small" style="margin-top:10px"><b>No cold email (in person only)</b> keeps the person out of the mail merge and gives them a reminder to reach out personally. <b>Do not contact</b> blocks every email and call.
+          <span class="mono">utah.edu</span> also covers its subdomains (<span class="mono">law.utah.edu</span>); start with a dot, <span class="mono">.edu</span>, to cover every address ending that way.
+          A rule only ever adds a label: removing one does not clear people already labelled. Change those on the contact.</p></div></section>
       <section class="card col-12" id="integrations"><div class="card-head"><h2>What is not connected yet</h2><span class="sub">Written down so nothing in here pretends to work</span></div>
         <div class="card-body"><dl class="kv" style="grid-template-columns:200px 1fr">
         <dt>Sending email</dt><dd><b>Not connected.</b> The merge screen fills the letters and records that you sent them; the sending itself happens in your own mailbox. To make the button really send, three things are needed: a sending service or mailbox (Resend and Gmail were both raised on 3 October), a verified sending domain so the mail is not junked, and a reply address that posts replies back in, which is what would turn No response into a real outcome without anybody typing it.</dd>
@@ -4367,6 +4479,24 @@ Views.settings = { title:'Settings',
       st.settings.default_owner_id = Number(root.querySelector('#s-owner').value);
       st.settings.assumed_fee_rate = Number(root.querySelector('#s-fee').value) || 0; });
     ['#s-firm','#s-owner','#s-fee'].forEach(id => root.querySelector(id).addEventListener('change', save));
+    const addRule = () => {
+      const pattern = root.querySelector('#fr-pattern').value.trim().toLowerCase()
+        .replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/^.*@/, '').replace(/\/.*$/, '');
+      if (!/^\.?[a-z0-9-]+(\.[a-z0-9-]+)*$/.test(pattern) || !pattern.replace(/^\./, '').length){
+        Toast.show('Type a domain such as utah.edu, or .edu for every school', { kind:'warn' }); return; }
+      if (Repo.flagRules.all().some(r => r.pattern === pattern)){ Toast.show(pattern + ' already has a rule', { kind:'warn' }); return; }
+      const flag = root.querySelector('#fr-flag').value;
+      Repo.flagRules.add({ pattern, flag, reason: flag === 'university' ? 'University: reach out in person' : 'Matches the do-not-contact list' });
+    };
+    root.querySelector('#fr-add').addEventListener('click', addRule);
+    root.querySelector('#fr-pattern').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); addRule(); } });
+    root.querySelectorAll('[data-fr-flag]').forEach(el => el.addEventListener('change', () => Repo.flagRules.update(Number(el.dataset.frFlag), { flag: el.value })));
+    root.querySelectorAll('[data-fr-reason]').forEach(el => el.addEventListener('change', () => Repo.flagRules.update(Number(el.dataset.frReason), { reason: el.value.trim() })));
+    root.querySelectorAll('[data-fr-active]').forEach(el => el.addEventListener('change', () => Repo.flagRules.update(Number(el.dataset.frActive), { is_active: el.checked })));
+    root.querySelectorAll('[data-fr-del]').forEach(b => b.addEventListener('click', async () => {
+      const r = Repo.flagRules.all().find(x => x.id === Number(b.dataset.frDel)); if (!r) return;
+      if (await Modal.confirm({ title:'Remove the rule for ' + r.pattern, message:'New contacts with this domain will no longer be labelled. People already labelled keep the label; change those on the contact.', okLabel:'Remove', danger:true }))
+        Repo.flagRules.remove(r.id); }));
     const saveTemplates = () => {
       const list = [...root.querySelectorAll('[data-tpl]')].reduce((acc, el) => {
         const i = Number(el.dataset.tpl);
