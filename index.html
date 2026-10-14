@@ -17,12 +17,12 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-14.4">
+<meta name="build-version" content="2026-10-14.6">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Montserrat:wght@300;400;500&family=Poppins:wght@400;500;600&display=swap">
 <style>
 /* ============================================================
    DESIGN TOKENS
@@ -127,7 +127,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn-group .btn{border:none;background:transparent;height:30px;border-radius:var(--radius-pill);color:var(--ink-2)}
 .btn-group .btn:hover{background:rgba(255,255,255,.7)}
 .btn-group .btn[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
-input[type=text],input[type=email],input[type=number],input[type=date],input[type=search],input[type=tel],input[type=url],select,textarea{
+input[type=text],input[type=email],input[type=password],input[type=number],input[type=date],input[type=search],input[type=tel],input[type=url],select,textarea{
   height:36px;border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface);padding:0 11px;width:100%;min-width:0}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
 textarea{height:auto;padding:9px 11px;line-height:1.5;resize:vertical}
@@ -508,13 +508,55 @@ table.edit tr:last-child td{border-bottom:none}
 .stepnum{width:25px;height:25px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:12.5px;font-weight:600;flex:none}
 .stephead h2{font-size:15.5px;font-weight:600}
 .stephead .sub{color:var(--ink-3);font-size:12.5px;font-weight:400}
+/* ---------- Sign-in gate ----------
+   Dressed like gaard.capital: the Wasatch photograph under a dark wash, the
+   white shield logo, a light geometric heading (Montserrat stands in for the
+   site's licensed Gotham), Poppins for text, and the site's blue button. */
+.gate{--gaard-blue:#1C6DBD;--gaard-blue-dark:#165A9C;position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:32px 16px;overflow:auto;
+  background:linear-gradient(rgba(12,16,22,.58),rgba(12,16,22,.72)),url("https://gaard.capital/wp-content/uploads/autumn-wasatch-1200.jpg") center/cover no-repeat,#1d2430;
+  font-family:'Poppins',var(--font)}
+.gate[hidden]{display:none}
+.gate-wrap{width:100%;max-width:430px;display:grid;gap:20px;justify-items:center}
+.gate-logo img{display:block;height:54px;width:auto}
+.gate-title{font-family:'Montserrat',var(--font);font-weight:300;font-size:40px;line-height:1.08;letter-spacing:-.01em;color:#fff;text-align:center;margin:0}
+.gate-sub{color:rgba(255,255,255,.86);font-size:14px;text-align:center;margin:-8px 0 4px;max-width:36ch}
+.gate-card{width:100%;background:#fff;border-radius:6px;box-shadow:0 18px 50px rgba(0,0,0,.35);padding:26px 26px 22px;color:#0C0C0C}
+.gate-card h1{font-family:'Montserrat',var(--font);font-weight:500;font-size:22px;letter-spacing:0;margin-bottom:6px}
+.gate-card p{color:#4a4f57;margin:0 0 14px;font-size:13.5px}
+.gate-card form{display:grid;gap:12px}
+.gate-card input{border-radius:4px;font-family:'Poppins',var(--font)}
+.gate-card .btn-primary{justify-content:center;width:100%;background:var(--gaard-blue);border-color:var(--gaard-blue);border-radius:3px;font-family:'Poppins',var(--font);font-weight:600;min-height:44px}
+.gate-card .btn-primary:hover{background:var(--gaard-blue-dark);border-color:var(--gaard-blue-dark)}
+.gate-card .btn-primary::after{content:'\203A';margin-left:8px;font-size:18px;line-height:1}
+.gate-card .linkish{color:var(--gaard-blue)}
+.gate-card .gate-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px;font-size:12.5px}
+@media (max-width:480px){ .gate-title{font-size:30px} .gate-card{padding:22px 18px 18px} }
+/* ---------- The account menu behind the initials ---------- */
+.user-btn{display:flex;align-items:center;gap:9px;background:none;border:0;padding:4px 4px 4px 8px;border-radius:var(--radius-pill);font:inherit;color:inherit;cursor:pointer;text-align:right}
+.user-btn:hover,.user-btn[aria-expanded="true"]{background:var(--surface-3)}
+.user-wrap{position:relative}
+.user-menu{position:absolute;right:0;top:calc(100% + 8px);width:240px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:6px;z-index:70;white-space:normal}
+.user-menu[hidden]{display:none}
+.user-menu .who{padding:9px 10px 10px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:12px;color:var(--ink-3)}
+.user-menu .who b{display:block;font-size:13px;color:var(--ink)}
+.user-menu a,.user-menu button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:var(--radius);background:none;border:0;font:inherit;font-size:13px;color:var(--ink);text-decoration:none;cursor:pointer}
+.user-menu a:hover,.user-menu button:hover,.user-menu a:focus-visible,.user-menu button:focus-visible{background:var(--surface-2)}
+.user-menu .danger{color:var(--danger)}
+.gate-card .gate-err{color:var(--danger);font-size:12.5px;margin:0}
+.gate-card .gate-ok{color:var(--good);font-size:12.5px;margin:0}
+.gate-qr{display:grid;place-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:10px;margin:4px 0 10px}
+.gate-qr img{width:180px;height:180px}
+.gate-secret{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all;color:var(--ink-3)}
+.linkish{background:none;border:0;padding:0;font:inherit;color:var(--accent);text-decoration:underline;cursor:pointer}
+.linkish:hover{color:var(--accent-strong)}
+.live-note{margin-bottom:14px}
 </style>
 </head>
 <body>
 <aside class="sidebar">
   <div class="brand"><div class="brand-mark">G</div><div><span class="brand-name">GAARD Capital</span><span class="brand-sub">CRM</span></div></div>
   <nav class="nav" id="nav" aria-label="Main"></nav>
-  <div class="sidebar-foot"><strong>Prototype on a database snapshot.</strong>Fictional data. Edits stay in this browser.</div>
+  <div class="sidebar-foot" id="sidebar-foot"><strong>Prototype on a database snapshot.</strong>Fictional data. Edits stay in this browser.</div>
 </aside>
 <header class="topbar">
   <div class="crumb" id="crumb">Dashboard</div>
@@ -530,6 +572,7 @@ table.edit tr:last-child td{border-bottom:none}
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div class="modal-back" id="modal-back" hidden><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"></div></div>
 <div class="tooltip" id="tooltip" hidden role="status"></div>
+<div class="gate" id="gate" hidden></div>
 
 <script>
 'use strict';
@@ -964,8 +1007,21 @@ const Store = {
   },
   undo(){ const u = this.undoStack.pop(); if (!u) return; this.state = JSON.parse(u.snap); this.version++; this.persistSoon(); this.listeners.forEach(f => f('undo')); Toast.show('Undid: ' + u.label); },
   persistSoon: debounce(() => Store.persist(), 200),
-  persist(){ if (Persist.available) Persist.save(this.state); },
-  reset(){ Persist.clear(); this.undoStack = []; this.state = this.fresh(); this.dirty = false; this.version++; this.listeners.forEach(f => f('reset')); },
+  /* The live database is never copied into browser storage. */
+  persist(){ if (Persist.available && !this.live) Persist.save(this.state); },
+  reset(){ if (this.live) return Live.reload();
+    Persist.clear(); this.undoStack = []; this.state = this.fresh(); this.dirty = false; this.version++; this.listeners.forEach(f => f('reset')); },
+  /** Swap the snapshot for the rows read from Supabase. Same tables, same
+      columns, so every screen works unchanged. */
+  useLive(tables, member){
+    const prev = this.state && this.state.settings;
+    this.state = { ...tables, dirty:false,
+      flag_rules: tables.flag_rules && tables.flag_rules.length ? tables.flag_rules : JSON.parse(JSON.stringify(REFERENCE.flag_rules)),
+      settings: { firm_name: prev?.firm_name || 'GAARD Capital', default_owner_id: member.id, assumed_fee_rate: prev?.assumed_fee_rate ?? 0.0045,
+        templates: prev?.templates || JSON.parse(JSON.stringify(MERGE_TEMPLATES)), loaded_at: new Date().toISOString() } };
+    this.live = true; this.dirty = false; this.undoStack = []; this.version++;
+    this.listeners.forEach(f => f('live'));
+  },
 };
 const memo = fn => { let v = -1, cache = new Map(); return (...a) => { if (v !== Store.version){ v = Store.version; cache = new Map(); } const k = a.length ? JSON.stringify(a) : ''; if (!cache.has(k)) cache.set(k, fn(...a)); return cache.get(k); }; };
 
@@ -2143,7 +2199,7 @@ const contactFlags = c => [
   c.is_university_affiliated ? '<span class="pill uni" title="No cold email: reach out in person">No cold email (In person only)</span>' : '',
   c.newsletter_status === 'subscribed' ? '<span class="tag">Newsletter</span>' : '',
 ].filter(Boolean).join(' ');
-const demoTag = '<span class="demo-tag" title="Fictional data, loaded from the database snapshot">Demo data</span>';
+let demoTag = '<span class="demo-tag" title="Fictional data, loaded from the database snapshot">Demo data</span>';
 
 function sortRows(rows, key, dir, getters={}){
   const g = getters[key] || (r => r[key]); const m = dir === 'asc' ? 1 : -1;
@@ -4574,8 +4630,29 @@ function renderNav(){
     `<a href="${href(n)}" ${cur===n?'aria-current="page"':''}>${icon}${esc(l)}${n==='reminders' && due ? `<span class="cnt ${overdue?'hot':''}">${due}</span>` : ''}</a>`).join('');
   const who = Repo.teamName(Repo.settings().default_owner_id) || '';
   const initials = who.split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0].toUpperCase()).join('') || 'GC';
-  document.getElementById('topbar-user').innerHTML = `<span><b>${esc(who)}</b><br><span class="muted" style="font-size:11.5px">${esc(Repo.settings().firm_name)}</span></span><span class="avatar" aria-hidden="true">${esc(initials)}</span>`;
+  const box = document.getElementById('topbar-user'), wasOpen = box.querySelector('.user-menu') && !box.querySelector('.user-menu').hidden;
+  box.innerHTML = `<div class="user-wrap"><button class="user-btn" type="button" id="user-btn" aria-haspopup="menu" aria-expanded="${wasOpen}" aria-controls="user-menu">
+      <span><b>${esc(who)}</b><br><span class="muted" style="font-size:11.5px">${esc(Repo.settings().firm_name)}</span></span><span class="avatar" aria-hidden="true">${esc(initials)}</span></button>
+    <div class="user-menu" id="user-menu" role="menu" ${wasOpen ? '' : 'hidden'}>
+      <div class="who"><b>${esc(who || 'Gaard team')}</b>${Store.live ? esc(Live.email || '') + '<br>Live database' : 'Demo data'}</div>
+      <a role="menuitem" href="${href('settings')}">Settings</a>
+      ${Store.live ? `<button role="menuitem" type="button" data-um="reload">Reload from the database</button>
+        <button role="menuitem" type="button" class="danger" data-um="out">Sign out</button>`
+        : `<button role="menuitem" type="button" data-um="in">Sign in to the live database</button>`}
+    </div></div>`;
+  const btn = box.querySelector('#user-btn'), menu = box.querySelector('#user-menu');
+  const setOpen = open => { menu.hidden = !open; btn.setAttribute('aria-expanded', String(open)); if (open) menu.querySelector('a,button')?.focus(); };
+  btn.addEventListener('click', e => { e.stopPropagation(); setOpen(menu.hidden); });
+  menu.addEventListener('click', e => e.stopPropagation());
+  menu.querySelector('a')?.addEventListener('click', () => setOpen(false));
+  menu.querySelector('[data-um="reload"]')?.addEventListener('click', () => { setOpen(false); Live.reload(); });
+  menu.querySelector('[data-um="out"]')?.addEventListener('click', () => Live.signOut());
+  menu.querySelector('[data-um="in"]')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
 }
+/* The account menu closes on a click elsewhere or Escape. */
+document.addEventListener('click', () => { const m = document.getElementById('user-menu'); if (m && !m.hidden){ m.hidden = true; document.getElementById('user-btn')?.setAttribute('aria-expanded', 'false'); } });
+document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const m = document.getElementById('user-menu');
+  if (m && !m.hidden){ m.hidden = true; const b = document.getElementById('user-btn'); b?.setAttribute('aria-expanded', 'false'); b?.focus(); } });
 function render(){
   const t0 = performance.now();
   const { name, params } = Router.current, view = Views[name], main = document.getElementById('main');
@@ -4589,7 +4666,10 @@ function render(){
   const focus = act && main.contains(act) && act.id
     ? { id: act.id, start: act.selectionStart, end: act.selectionEnd } : null;
   try {
-    main.innerHTML = tabStrip(name) + view.render(params) + `<div class="foot"><span>Fictional demonstration data from the database snapshot. No real client records, no email connection, no live database.</span><span>${esc(Repo.settings().firm_name)} CRM &middot; ${fmtInt(Repo.contacts.all().length)} contacts</span></div>`;
+    const liveNote = Store.live ? `<div class="banner warn live-note"><b>Live database, view only for now.</b>&nbsp;These are the rows in Supabase. Changes made here are not saved yet: to change something, edit it in Supabase, then press Reload at the bottom of the sidebar.</div>` : '';
+    main.innerHTML = tabStrip(name) + liveNote + view.render(params) + `<div class="foot"><span>${Store.live
+      ? 'Live data read from Supabase at ' + esc(fmtDateTime(new Date(Repo.settings().loaded_at))) + '. No email connection yet.'
+      : 'Fictional demonstration data from the database snapshot. No real client records, no email connection, no live database.'}</span><span>${esc(Repo.settings().firm_name)} CRM &middot; ${fmtInt(Repo.contacts.all().length)} contacts</span></div>`;
     view.mount(main, params);
   } catch (err){
     console.error(err);
@@ -4667,14 +4747,219 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && UI.openSta
   document.addEventListener('keydown', e => { if (e.key === '/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){ e.preventDefault(); input.focus(); } });
 })();
 
-try {
-  Store.init();
-  route();
-  window.GaardCRM = { Store, Repo, Metrics, Intelligence, Rules, REFERENCE, DB_SNAPSHOT };
-} catch (err){
-  console.error(err);
-  document.getElementById('main').innerHTML = `<div class="empty"><b>The CRM could not start.</b>${esc(err.message)}</div>`;
+/* ======================================================================
+   SIGN-IN AND THE LIVE DATABASE
+   Supabase Auth with email and password, then a six-digit code from an
+   authenticator app: the database only answers two-step sessions (aal2, see
+   db/001). Every table is then read into the Store, so the screens work
+   unchanged. Step one is view only: edits are not written back yet.
+   ====================================================================== */
+const SUPABASE_URL = 'https://fgweqsoflzvxkbxgozor.supabase.co';
+/* The publishable key is meant to sit in the page. What protects the data is
+   row level security, the team list and the second factor, never this key. */
+const SUPABASE_KEY = 'sb_publishable_epTAy8_dmaWwrDkRIB4SyA_GgtGrLaq';
+const MODE_KEY = 'gaard_mode';
+const loadScript = src => new Promise((resolve, reject) => {
+  const s = document.createElement('script'); s.src = src; s.onload = resolve;
+  s.onerror = () => reject(new Error('Could not reach ' + new URL(src).host + '. Check the internet connection.'));
+  document.head.appendChild(s); });
+
+const Live = {
+  client: null, member: null, email: '',
+  TABLES: ['organizations','contacts','touchpoints','opportunities','reminders','events','campaigns','rfps','team_members','email_messages','flag_rules'],
+  async sb(){
+    if (this.client) return this.client;
+    if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js');
+    this.client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+    return this.client; },
+  /** select * from <table> order by id, a thousand rows at a time (the API's page size). */
+  async fetchAll(table){
+    const sb = await this.sb(), out = [];
+    for (let from = 0; ; from += 1000){
+      const { data, error } = await sb.from(table).select('*').order('id').range(from, from + 999);
+      if (error) throw new Error(`Reading ${table}: ${error.message}`);
+      out.push(...data); if (data.length < 1000) break; }
+    return out; },
+  async load(onStatus){
+    const tables = {}; let done = 0;
+    await Promise.all(this.TABLES.map(async t => { tables[t] = await this.fetchAll(t);
+      if (onStatus) onStatus(`Reading the database: ${++done} of ${this.TABLES.length} tables`); }));
+    return tables; },
+  enter(tables){
+    Store.useLive(tables, this.member);
+    demoTag = '<span class="demo-tag" title="Rows read from Supabase">Live database</span>';
+    try { localStorage.setItem(MODE_KEY, 'live'); } catch (e) { /* private window */ }
+    Gate.hide(); renderSideFoot(); },
+  async reload(){
+    Gate.show('loading');
+    try { this.enter(await this.load(s => Gate.status(s))); route(); Toast.show('Reloaded from the database', { kind:'ok' }); }
+    catch (e){ Gate.show('error', e.message); } },
+  async signOut(){
+    try { await (await this.sb()).auth.signOut(); } catch (e) { /* signed out anyway */ }
+    try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ }
+    location.hash = ''; location.reload(); },
+};
+
+/* The sign-in screens, drawn over the app until the data is in. */
+const Gate = {
+  view: 'signin', msg: '', ok: '', factorId: null, qr: null, secret: null,
+  el(){ return document.getElementById('gate'); },
+  show(view, msg = '', ok = ''){ this.view = view; this.msg = msg; this.ok = ok; this.el().hidden = false; this.render(); },
+  hide(){ this.el().hidden = true; },
+  status(text){ const s = this.el().querySelector('#g-status'); if (s) s.textContent = text; },
+  render(){
+    const v = this.view, links = (...l) => `<div class="gate-links">${l.join('')}</div>`;
+    const link = (id, text) => `<button class="linkish" type="button" id="${id}">${esc(text)}</button>`;
+    const note = (this.msg ? `<p class="gate-err" role="alert">${esc(this.msg)}</p>` : '') + (this.ok ? `<p class="gate-ok" role="status">${esc(this.ok)}</p>` : '');
+    const field = (id, label, type, extra = '') => `<label class="f"><span>${label}</span><input id="${id}" type="${type}" ${extra} required></label>`;
+    const views = {
+      signin: `<h1>Sign in</h1><p>Use the email Jon added to the team list.</p>
+        <form id="g-form">${field('g-email', 'Email', 'email', 'autocomplete="username"')}${field('g-pass', 'Password', 'password', 'autocomplete="current-password"')}
+        ${note}<button class="btn btn-primary" type="submit">Sign in</button></form>
+        ${links(link('g-to-signup', 'Create an account'), link('g-to-forgot', 'Forgot your password?'), link('g-demo', 'Use the demo data instead'))}`,
+      signup: `<h1>Create your account</h1><p>Use the email that is on the Gaard team list. Anyone else can sign up but will see nothing.</p>
+        <form id="g-form">${field('g-email', 'Email', 'email', 'autocomplete="username"')}${field('g-pass', 'Password (at least 8 characters)', 'password', 'autocomplete="new-password" minlength="8"')}
+        ${note}<button class="btn btn-primary" type="submit">Create account</button></form>${links(link('g-to-signin', 'I already have an account'))}`,
+      forgot: `<h1>Reset your password</h1><p>We email you a link to choose a new one.</p>
+        <form id="g-form">${field('g-email', 'Email', 'email', 'autocomplete="username"')}${note}<button class="btn btn-primary" type="submit">Send the link</button></form>
+        ${links(link('g-to-signin', 'Back to sign in'))}`,
+      newpassword: `<h1>Choose a new password</h1>
+        <form id="g-form">${field('g-pass', 'New password (at least 8 characters)', 'password', 'autocomplete="new-password" minlength="8"')}${note}<button class="btn btn-primary" type="submit">Save password</button></form>`,
+      enroll: `<h1>Set up two-step sign-in</h1><p>Scan this with an authenticator app (Google Authenticator, Microsoft Authenticator or 1Password), then type the 6-digit code it shows. You do this once.</p>
+        <div class="gate-qr"><img alt="QR code for your authenticator app" src="${esc(this.qr || '')}"></div>
+        <p class="gate-secret">No camera? Type this key into the app instead: ${esc(this.secret || '')}</p>
+        <form id="g-form">${field('g-code', '6-digit code', 'text', 'inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"')}${note}<button class="btn btn-primary" type="submit">Turn it on</button></form>
+        ${links(link('g-out', 'Sign out'))}`,
+      verify: `<h1>Enter your code</h1><p>Open your authenticator app and type the 6-digit code for Gaard CRM.</p>
+        <form id="g-form">${field('g-code', '6-digit code', 'text', 'inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"')}${note}<button class="btn btn-primary" type="submit">Continue</button></form>
+        ${links(link('g-out', 'Sign out'))}`,
+      loading: `<h1>Opening the CRM</h1><p id="g-status" role="status">Connecting</p>`,
+      nomember: `<h1>Not on the team list yet</h1><p>You are signed in as <b>${esc(Live.email)}</b>, but this email is not on the Gaard team list, so the database shows nothing. Ask Jon to add you.</p>
+        ${links(link('g-out', 'Sign out'), link('g-demo', 'Use the demo data instead'))}`,
+      error: `<h1>Something went wrong</h1>${note}${links(link('g-to-signin', 'Try again'), link('g-demo', 'Use the demo data instead'))}`,
+    };
+    this.el().innerHTML = `<div class="gate-wrap">
+      <div class="gate-logo"><img src="https://gaard.capital/wp-content/uploads/logo-1.png" alt="Gaard Capital LLC" width="156" height="54"></div>
+      <h2 class="gate-title">Client<br>Relationships</h2>
+      <p class="gate-sub">The Gaard team's CRM: outreach, follow-ups and the pipeline in one place.</p>
+      <div class="gate-card">${views[v] || views.signin}</div></div>`;
+    this.bind();
+  },
+  bind(){
+    const $ = id => this.el().querySelector('#' + id), val = id => ($(id)?.value || '').trim();
+    $('g-to-signup')?.addEventListener('click', () => this.show('signup'));
+    $('g-to-signin')?.addEventListener('click', () => this.show('signin'));
+    $('g-to-forgot')?.addEventListener('click', () => this.show('forgot'));
+    $('g-demo')?.addEventListener('click', openDemo);
+    $('g-out')?.addEventListener('click', () => Live.signOut());
+    const form = $('g-form'); if (!form) return;
+    (form.querySelector('input') || {}).focus?.();
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = form.querySelector('button[type=submit]'); btn.disabled = true;
+      try { await this.submit(this.view, val); } catch (err){ this.show(this.view, err.message || String(err)); }
+      finally { if (btn.isConnected) btn.disabled = false; }
+    });
+  },
+  async submit(v, val){
+    const sb = await Live.sb(), here = location.origin + location.pathname;
+    if (v === 'signin'){
+      const { error } = await sb.auth.signInWithPassword({ email: val('g-email'), password: val('g-pass') });
+      if (error) return this.show('signin', /invalid login/i.test(error.message) ? 'Wrong email or password.'
+        : /not confirmed/i.test(error.message) ? 'This email is not confirmed yet. Open the link in the confirmation email, or ask Tien to confirm it.' : error.message);
+      return afterSignIn();
+    }
+    if (v === 'signup'){
+      const { data, error } = await sb.auth.signUp({ email: val('g-email'), password: val('g-pass'), options: { emailRedirectTo: here } });
+      if (error) return this.show('signup', error.message);
+      // Supabase answers an existing email as if it worked, and changes nothing
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0)
+        return this.show('signin', 'This email already has an account, so nothing was created and the password was not changed. Sign in with the existing password, or use "Forgot your password?".');
+      if (data.session) return afterSignIn();
+      return this.show('signin', '', 'Account created. Open the confirmation link we emailed you, then sign in here. No email after a few minutes? Ask Tien to confirm it.');
+    }
+    if (v === 'forgot'){
+      const { error } = await sb.auth.resetPasswordForEmail(val('g-email'), { redirectTo: here });
+      if (error) return this.show('forgot', error.message);
+      return this.show('signin', '', 'If that email has an account, a reset link is on its way.');
+    }
+    if (v === 'newpassword'){
+      const { error } = await sb.auth.updateUser({ password: val('g-pass') });
+      if (error) return this.show('newpassword', error.message);
+      return afterSignIn();
+    }
+    if (v === 'enroll' || v === 'verify'){
+      const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: this.factorId, code: val('g-code') });
+      if (error) return this.show(v, 'That code did not work. The code changes every 30 seconds, so try the one showing now.');
+      return openLive();
+    }
+  },
+};
+
+/** After the password: the second factor, set up the first time. */
+async function afterSignIn(){
+  const sb = await Live.sb();
+  Gate.show('loading'); Gate.status('Checking two-step sign-in');
+  const { data: aal, error } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (error) return Gate.show('signin', error.message);
+  if (aal.currentLevel === 'aal2') return openLive();
+  const { data: f, error: e2 } = await sb.auth.mfa.listFactors();
+  if (e2) return Gate.show('signin', e2.message);
+  const verified = (f.totp || []).find(x => x.status === 'verified');
+  if (verified){ Gate.factorId = verified.id; return Gate.show('verify'); }
+  // A setup that was started and never finished is cleared, then begun again
+  for (const x of (f.all || []).filter(x => x.status !== 'verified')) await sb.auth.mfa.unenroll({ factorId: x.id });
+  const { data: en, error: e3 } = await sb.auth.mfa.enroll({ factorType:'totp', friendlyName:'Gaard CRM' });
+  if (e3) return Gate.show('signin', e3.message);
+  Gate.factorId = en.id; Gate.qr = en.totp.qr_code; Gate.secret = en.totp.secret;
+  return Gate.show('enroll');
 }
+/** Past both steps: are we on the team list? Then read the database. */
+async function openLive(){
+  const sb = await Live.sb();
+  Gate.show('loading'); Gate.status('Checking the team list');
+  const { data: { user } } = await sb.auth.getUser(); Live.email = user?.email || '';
+  const { data: me, error } = await sb.rpc('my_access');
+  if (error) return Gate.show('error', error.message);
+  if (!me || !me.member) return Gate.show('nomember');
+  Live.member = me;
+  try { Live.enter(await Live.load(s => Gate.status(s))); route(); }
+  catch (e){ Gate.show('error', e.message); }
+}
+function openDemo(){
+  try { localStorage.setItem(MODE_KEY, 'demo'); } catch (e) { /* private window */ }
+  Gate.hide(); Store.init(); route(); renderSideFoot();
+}
+function renderSideFoot(){
+  const el = document.getElementById('sidebar-foot'); if (!el) return;
+  el.innerHTML = Store.live
+    ? `<strong>Live database.</strong>${esc(Live.member?.name || Live.email)}<br><button class="linkish" type="button" id="sf-reload">Reload</button> &middot; <button class="linkish" type="button" id="sf-out">Sign out</button>`
+    : `<strong>Demo data.</strong>Fictional, kept in this browser.<br><button class="linkish" type="button" id="sf-in">Sign in to the live database</button>`;
+  el.querySelector('#sf-reload')?.addEventListener('click', () => Live.reload());
+  el.querySelector('#sf-out')?.addEventListener('click', () => Live.signOut());
+  el.querySelector('#sf-in')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
+}
+
+/* Start: demo if that was the last choice, otherwise the sign-in screen
+   (skipped when a session is still valid). */
+(async () => {
+  window.GaardCRM = { Store, Repo, Metrics, Intelligence, Rules, REFERENCE, DB_SNAPSHOT, Live };
+  let mode = null; try { mode = localStorage.getItem(MODE_KEY); } catch (e) { /* private window */ }
+  const recovering = /type=recovery/.test(location.hash);
+  try {
+    if (mode === 'demo' && !recovering) return openDemo();
+    Gate.show('loading');
+    const sb = await Live.sb();
+    sb.auth.onAuthStateChange(ev => { if (ev === 'PASSWORD_RECOVERY') Gate.show('newpassword'); });
+    const { data: { session } } = await sb.auth.getSession();
+    if (recovering) return;
+    if (session) return afterSignIn();
+    Gate.show('signin');
+  } catch (err){
+    console.error(err);
+    Gate.show('error', err.message);
+  }
+})();
 </script>
 </body>
 </html>
