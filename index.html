@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-14.1">
+<meta name="build-version" content="2026-10-14.2">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -373,6 +373,25 @@ select.undecided{border-color:var(--warn);box-shadow:0 0 0 2px var(--warn-soft)}
 .summary-nums{display:flex;gap:30px;font-size:13px;flex-wrap:wrap}
 .summary-nums b{font-size:27px;display:block;font-weight:600;letter-spacing:-.02em}
 .import-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* An (i) beside a page title. Hover, focus or tap opens a short explanation,
+   so the page itself carries only what you act on. */
+.title-row{display:flex;align-items:center;gap:8px}
+.info-pop{position:relative;display:inline-flex}
+.info-btn{width:22px;height:22px;padding:0;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-3);
+  font:600 12.5px/1 var(--font);font-style:italic;cursor:help;display:inline-grid;place-items:center}
+.info-btn:hover,.info-pop:focus-within .info-btn{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft)}
+.info-panel{position:absolute;top:100%;left:-8px;padding-top:8px;width:min(460px, calc(100vw - 32px));z-index:60;display:none}
+.info-pop:hover .info-panel,.info-pop:focus-within .info-panel{display:block}
+.info-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:14px 16px;font-size:12.5px;color:var(--ink-2)}
+.info-card h3{margin-bottom:8px;color:var(--ink)}
+.info-card dl{display:grid;grid-template-columns:118px 1fr;gap:7px 12px;margin:0}
+.info-card dt{font-weight:600;color:var(--ink)} .info-card dd{margin:0}
+.info-card .foot-note{margin:10px 0 0;padding-top:9px;border-top:1px solid var(--line);color:var(--ink-3)}
+@media (max-width:640px){
+  .title-row{position:relative} .info-pop{position:static}
+  .info-panel{left:0;width:calc(100vw - 32px)}
+  .info-card dl{grid-template-columns:1fr;gap:2px} .info-card dd{margin-bottom:6px}
+}
 
 /* ---------- Charts ---------- */
 .chart{width:100%;display:block;overflow:visible}
@@ -4082,22 +4101,24 @@ Views.import = { title:'Import',
       </tbody></table></div>`;
     }
 
-    return `<div class="page-head"><div><h1>Import</h1><p>Paste the cleaned rows from a sourcing sheet. Columns are mapped, every row is checked against the master list, and flagged rows need approval before anything is written.</p></div><div class="page-actions">${demoTag}</div></div>
-    <div class="import-grid">
+    return `<div class="page-head"><div><div class="title-row"><h1>Import</h1>
+        <div class="info-pop"><button class="info-btn" type="button" aria-label="What the checks do" aria-describedby="im-checks">i</button>
+          <div class="info-panel" role="tooltip" id="im-checks"><div class="info-card"><h3>What the checks do</h3><dl>
+            <dt>Already on file</dt><dd>The email or LinkedIn matches a contact. The row is added to that person, never saved twice.</dd>
+            <dt>Same person again</dt><dd>Reached last year and again now: one contact with two outreach dates. Nothing is replaced.</dd>
+            <dt>Known organization</dt><dd>A new person at an organization on file is linked to it.</dd>
+            <dt>Needs review</dt><dd>A near match, like a nickname or a typo in the organization. You decide same or new.</dd>
+            <dt>Outcome wording</dt><dd>"no reply", "NR" and "no response" all become No response. The original text is kept.</dd>
+            <dt>AUM</dt><dd>Kept in dollars. If it is unclear what kind, the row is flagged, not guessed.</dd>
+          </dl><p class="foot-note">Nothing is written until you commit. Skipped rows are left out, and Cancel discards the batch.</p></div></div></div></div>
+      <p>Paste the cleaned rows from a sourcing sheet. Columns are mapped, every row is checked against the master list, and flagged rows need approval before anything is written.</p></div><div class="page-actions">${demoTag}</div></div>
+    <div style="max-width:860px">
       <section class="card"><div class="card-head"><h2>Paste rows or upload a CSV</h2><span class="sub">Header row expected</span></div><div class="card-body">
         <label class="f"><span>Rows</span><textarea id="im-text" rows="13" placeholder="Date,Source,Contact,First Name,Email,Org,Website,LinkedIn,Notes,Date Outreached,Outcome,Next Steps">${esc(st.text)}</textarea></label>
         <div class="page-actions" style="margin-top:10px"><button class="btn btn-primary" type="button" id="im-read">Read columns</button><button class="btn" type="button" id="im-example">Load the demo batch</button>
           <label class="btn" for="im-file">Upload .csv</label><input type="file" id="im-file" accept=".csv,text/csv,.tsv,.txt" class="sr-only"></div>
         <p class="muted small" style="margin-top:10px">The demo batch is the 31-row file from the repository, in the sheet's own column order and deliberately messy: mixed case emails with stray spaces, people already on file, new people at organizations we know, an organization written three different ways, free-text outcomes, and AUM that does not say what kind it is.</p></div></section>
-      <section class="card"><div class="card-head"><h2>What the checks do</h2></div><div class="card-body"><dl class="kv" style="grid-template-columns:170px 1fr">
-        <dt>Already on file</dt><dd>The email or the LinkedIn URL matches an existing contact, in any capitalization or URL format. These are the unique keys the database enforces, so a duplicate cannot be saved even by accident. Adding the row to that contact keeps both: the person stays one record, and this year's outreach is logged alongside last year's rather than replacing it.</dd>
-        <dt>The same name twice</dt><dd>A contact reached in 2025 and again in 2026 is one person with two outreach dates, not two contacts and not a duplicate to delete. Nothing is ever removed by the import: the worst a row can do is be skipped, which leaves the file and the record exactly as they were.</dd>
-        <dt>New person, known organization</dt><dd>Nobody matches, but the organization does. The row is linked to it and the people already there are listed, which is the row 2500 against row 600 hunt done for you.</dd>
-        <dt>Needs review</dt><dd>A near miss: a nickname of someone at the same organization, or an organization name with a typo or a different legal suffix. A person decides same or new, then runs it again.</dd>
-        <dt>Outcome wording</dt><dd>Free text from the old sheets is matched against the alias list, so "no reply", "NR" and "no response" all land on the same standardized outcome. The original wording is kept.</dd>
-        <dt>AUM</dt><dd>Kept in dollars. If the column does not say whether it is reported, expected or funded, the value is preserved and the row is flagged rather than guessed at.</dd>
-        <dt>Your decision</dt><dd>Every row gets a suggestion. Rows with nothing to flag are set and need no attention; flagged rows wait for you to confirm or change the suggestion, and the batch cannot be committed until each one has. Skipping a row simply leaves it out: nothing is deleted and the spreadsheet is untouched. Cancel discards the whole batch without writing anything.</dd>
-      </dl></div></section></div>`;
+    </div>`;
   },
   mount(root){
     const st = UI.import;
