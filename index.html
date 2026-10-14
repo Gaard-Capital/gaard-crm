@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-14.6">
+<meta name="build-version" content="2026-10-14.7">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -373,6 +373,13 @@ select.undecided{border-color:var(--warn);box-shadow:0 0 0 2px var(--warn-soft)}
 .summary-nums{display:flex;gap:30px;font-size:13px;flex-wrap:wrap}
 .summary-nums b{font-size:27px;display:block;font-weight:600;letter-spacing:-.02em}
 .import-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.linkish{background:none;border:0;padding:0;font:inherit;color:var(--accent);text-decoration:underline;cursor:pointer}
+.linkish:hover{color:var(--accent-strong)}
+#im-drop.dragging{outline:2px dashed var(--accent);outline-offset:4px}
+.replies td{vertical-align:top}
+.replies .reply-text{white-space:pre-wrap;font-size:12px;line-height:1.5;color:var(--ink-2);max-height:7.5em;overflow:hidden;margin-top:4px}
+.replies input[list]{width:100%;min-width:240px}
+.replies .effect{font-size:12px;color:var(--ink-3);margin-top:5px;max-width:280px}
 /* An (i) beside a page title. Hover, focus or tap opens a short explanation,
    so the page itself carries only what you act on. */
 .title-row{display:flex;align-items:center;gap:8px}
@@ -1001,11 +1008,11 @@ const Store = {
     const out = mutator(this.state);
     this.state.dirty = true; this.dirty = true; this.version++;
     if (snap){ this.undoStack.push({ label, snap }); if (this.undoStack.length > 12) this.undoStack.shift(); }
-    this.persistSoon(); this.listeners.forEach(f => f(label));
+    this.persistSoon(); if (this.live) Live.save(); this.listeners.forEach(f => f(label));
     if (!silent) Toast.show(label, snap ? { action:'Undo', onAction: () => this.undo() } : {});
     return out;
   },
-  undo(){ const u = this.undoStack.pop(); if (!u) return; this.state = JSON.parse(u.snap); this.version++; this.persistSoon(); this.listeners.forEach(f => f('undo')); Toast.show('Undid: ' + u.label); },
+  undo(){ const u = this.undoStack.pop(); if (!u) return; this.state = JSON.parse(u.snap); this.version++; this.persistSoon(); if (this.live) Live.save(); this.listeners.forEach(f => f('undo')); Toast.show('Undid: ' + u.label); },
   persistSoon: debounce(() => Store.persist(), 200),
   /* The live database is never copied into browser storage. */
   persist(){ if (Persist.available && !this.live) Persist.save(this.state); },
@@ -2008,6 +2015,203 @@ const Intelligence = (() => {
   }
   return { parseCSV, autoMap, analyze, classifyAUM, mapOutcome, mapSegment, mapChannel, parseDate, orgKey, emailKey, linkedinKey, orgSimilarity, jaro, TARGETS, THRESH };
 })();
+
+/* ---- Client replies ----
+   Pasted email text, or a screenshot read by Ocr, split into one block per
+   reply. Each is matched to a contact by the addresses in it and given an
+   outcome from its wording. A person confirms before anything is saved, and
+   anything unclear is left for them to choose. No AI and no mailbox access. */
+const Replies = (() => {
+  const OWN_DOMAINS = ['gaard.capital'];
+  const SYSTEM = /^(mailer-daemon|postmaster|no-?reply|do-?not-?reply)@/i;
+  const EMAIL_RE = /[A-Z0-9._%+'-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+  /* Jon's six, in the order the dropdown shows them, then the rarer ones. */
+  const MAIN = ['INTERESTED', 'NOT_NOW', 'NOT_INTERESTED', 'BOUNCED', 'OUT_OF_OFFICE', 'UNSUBSCRIBE'];
+  const MORE = ['HAS_ADVISOR', 'WRONG_PERSON', 'REFERRED_INTERNALLY'];
+  /* First match wins, so order matters: a bounce or an auto-reply is read
+     before the words inside it, and "not interested" before "interested". */
+  const RULES = [
+    ['BOUNCED',             /delivery status notification|delivery (has )?failed|undeliverable|(couldn'?t|could not|wasn'?t) be(en)? delivered|address not found|recipient address rejected|mailbox (unavailable|not found)|user unknown|message not delivered/i],
+    ['OUT_OF_OFFICE',       /out of (the )?office|automatic reply|auto-?reply|away from (the |my )?(office|desk)|on (vacation|holiday|leave|maternity leave|paternity leave)|limited access to (my )?email|i('?m| am) currently away|will be back|returning (to the office )?on/i],
+    ['UNSUBSCRIBE',         /unsubscribe|remove me|take me off|do not (contact|email|e-mail)|don'?t (contact|email|e-mail)|stop (emailing|contacting|sending)|no (further|more) (emails|contact)|opt(ed)? out/i],
+    ['WRONG_PERSON',        /no longer (with|at|work|employed)|(has|have) left (the|our) (company|organization|firm)|not the right person|wrong person|has retired/i],
+    ['REFERRED_INTERNALLY', /(reach out|speak|talk) (to|with) (my colleague|our (cfo|treasurer|director|controller))|better person (to|for)|copying (my colleague|our)/i],
+    ['HAS_ADVISOR',         /(happy|satisfied|pleased) with (our|the) (current|existing)|already (have|has|work with|working with) (an? )?(advisor|adviser|manager|firm)/i],
+    ['NOT_INTERESTED',      /not interested|no,? thank(s| you)|we('?re| are) (all )?set|not a (good )?fit|pass on (this|it)|(must|will) decline|not something we/i],
+    ['NOT_NOW',             /not (right )?now|not at this time|not the right time|maybe (later|next)|(next|later this|early next) (year|quarter|month|spring|summer|fall)|(reach out|check back|circle back|follow up|touch base)( with (me|us))?( again)? (in|after|next|later)|after (the|our) (board|budget|fiscal)|revisit/i],
+    ['INTERESTED',          /interested|let'?s (talk|chat|connect|set up|schedule|meet)|happy to (chat|talk|meet|connect|hop on)|(set up|schedule) a (call|time|meeting)|would (love|like) to (learn|hear|talk|chat|meet)|tell me more|more (information|info|details)|what times? works?|(are you|you'?re) (free|available)|sounds (good|great|interesting)/i],
+  ];
+  const own = e => OWN_DOMAINS.some(d => String(e || '').toLowerCase().endsWith('@' + d));
+
+  /** Rows from a sheet have a header and a separator on every line; replies do not. */
+  function looksLikeRows(text){
+    const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n').filter(l => l.trim());
+    if (lines.length < 2 || /^\s*from\s*:/im.test(text)) return false;
+    if ((lines[0].match(/\t/g) || []).length >= 2) return true;
+    return (lines[0].match(/,/g) || []).length >= 3 && !/@/.test(lines[0])
+      && lines.slice(1, 4).every(l => (l.match(/,/g) || []).length >= 2);
+  }
+  /** One block per reply: each starts at a "From:" line, or at a line that is
+      only "Name <address>", which is how Gmail shows the sender. */
+  function split(text){
+    const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n');
+    const starts = [];
+    lines.forEach((l, i) => { if (/^\s*from\s*:/i.test(l) || /^\s*[^<>@:\n]{1,80}<[^<>\s@]+@[^<>\s]+>\s*$/.test(l)) starts.push(i); });
+    if (!starts.length || (starts[0] > 0 && lines.slice(0, starts[0]).join(' ').trim())) starts.unshift(0);
+    return starts.map((s, k) => lines.slice(s, starts[k + 1] ?? lines.length).join('\n').trim()).filter(Boolean);
+  }
+  /** Headers off the top, our own quoted email off the bottom. */
+  function parse(block){
+    const lines = block.split('\n'), head = {};
+    let i = 0;
+    for (; i < Math.min(lines.length, 14); i++){
+      const l = lines[i].trim(), m = l.match(/^(from|to|cc|sent|date|subject)\s*:\s*(.*)$/i);
+      if (m){ head[m[1].toLowerCase()] = m[2].trim(); continue; }
+      if (!head.from && /<[^<>\s@]+@[^<>\s]+>/.test(l)){ head.from = l; continue; }
+      if (!l || /^to (me|[^,]{1,60})$/i.test(l) || (/^(mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s/i.test(l) && /\d/.test(l))) continue;
+      break;
+    }
+    let body = lines.slice(i).join('\n');
+    const cut = body.search(/^\s*(on .{3,160}wrote:|-{2,}\s*original message|_{5,}|>|sent from my )/im);
+    if (cut > 0) body = body.slice(0, cut);
+    const fromEmail = ((head.from || '').match(EMAIL_RE) || [])[0] || null;
+    const fromName = (head.from || '').replace(/<[^>]*>/g, '').replace(EMAIL_RE, '').replace(/["']/g, '').trim() || null;
+    return { fromEmail, fromName, subject: head.subject || null, body: body.trim() };
+  }
+  function classify(text){
+    const hits = RULES.filter(([, re]) => re.test(text)).map(([code]) => code);
+    return { code: hits[0] || null, sure: hits.length === 1 };
+  }
+  /** "I am out of the office until October 20" gives the day they are back. */
+  function returnDate(text){
+    const m = String(text).match(/(?:until|return(?:ing)?(?: to the office)?(?: on)?|back(?: in the office)?(?: on)?)\s+(?:on\s+)?(?:(?:mon|tues?|wed(?:nes)?|thu(?:rs)?|fri|sat(?:ur)?|sun)(?:day)?,?\s+)?((?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s+\d{4})?|\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/i);
+    if (!m) return null;
+    const today = Rules.startOfDay(new Date());
+    let d;
+    if (m[1].includes('/')){ const [mo, da, yr] = m[1].split('/').map(Number); d = new Date(yr ? (yr < 100 ? 2000 + yr : yr) : today.getFullYear(), mo - 1, da, 12); }
+    else { const s = m[1].replace(/(\d)(st|nd|rd|th)/i, '$1').replace('.', ''); d = new Date(/\d{4}/.test(s) ? s : s + ' ' + today.getFullYear()); d.setHours(12); }
+    if (isNaN(d)) return null;
+    if (d < today && !/\d{4}/.test(m[1])) d.setFullYear(d.getFullYear() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+  /** A reply comes from the person; a bounce names the failed address in its body. */
+  function findContact(block, p, code){
+    const byEmail = new Map(Repo.contacts.all().filter(c => c.email).map(c => [c.email.trim().toLowerCase(), c]));
+    const addrs = [...new Set((block.match(EMAIL_RE) || []).map(e => e.toLowerCase()))].filter(e => !SYSTEM.test(e) && !own(e));
+    const order = code === 'BOUNCED' ? addrs : [p.fromEmail && p.fromEmail.toLowerCase(), ...addrs].filter(Boolean);
+    for (const e of order){ const c = byEmail.get(e); if (c) return { contact: c, how: 'email' }; }
+    if (p.fromName && code !== 'BOUNCED'){ const n = p.fromName.toLowerCase();
+      const c = Repo.contacts.all().find(x => x.full_name && x.full_name.toLowerCase() === n); if (c) return { contact: c, how: 'name' }; }
+    return { contact: null, how: null };
+  }
+  function read(text){
+    const out = [];
+    for (const block of split(text)){
+      const p = parse(block);
+      if (own(p.fromEmail) || (!p.body && !p.subject)) continue;   // our own email, quoted back
+      const cls = classify((p.subject || '') + '\n' + p.body);
+      const m = findContact(block, p, cls.code);
+      out.push({ ...p, code: cls.code, sure: cls.sure, contact_id: m.contact ? m.contact.id : null, matchedBy: m.how,
+        ooo_return_on: cls.code === 'OUT_OF_OFFICE' ? returnDate(p.body) : null });
+    }
+    return out;
+  }
+  /** The email a reply answers: the latest one we sent that person. */
+  const lastSent = (st, contactId) => st.touchpoints
+    .filter(t => t.contact_id === contactId && t.direction !== 'inbound' && (t.touch_type === 'email' || t.touch_type === 'check_in'))
+    .sort((a, b) => String(b.touched_at).localeCompare(String(a.touched_at)))[0] || null;
+  /** What saving this outcome will do, in a few words. */
+  function effect(code, returnOn){
+    const r = OUT.get(code); if (!r) return '';
+    const bits = [];
+    if (r.stage) bits.push(r.stage === 'lost' ? 'Marked as lost' : 'Moves to ' + stageLabel(r.stage));
+    if (r.dnc) bits.push('Blocks all contact');
+    if (r.bad_email) bits.push('Marks the email wrong');
+    if (r.reminder && r.next_days != null) bits.push((RT.get(r.reminder) || 'Follow up') + (returnOn ? ' the day after ' + fmtDate(returnOn) : ' in ' + r.next_days + ' days'));
+    if (!r.reminder && !r.stage && !r.dnc) bits.push('No more follow-ups');
+    return bits.join('. ');
+  }
+  /** update touchpoints set outcome_code, responded_at ... then the outcome rules,
+      plus the reply itself into email_messages. With no email on file to
+      answer, the reply is logged as its own touch. */
+  function save(items){
+    const moved = [], counts = {};
+    let saved = 0;
+    Store.commit(`Saved ${items.length} repl${items.length === 1 ? 'y' : 'ies'}`, st => {
+      const now = new Date().toISOString().slice(0, 19);
+      for (const it of items){
+        const contact = st.contacts.find(c => c.id === it.contact_id), rule = OUT.get(it.code);
+        if (!contact || !rule) continue;
+        let t = lastSent(st, contact.id);
+        if (!t || !(t.outcome_code == null || t.outcome_code === 'NO_RESPONSE' || t.outcome_code === 'OUT_OF_OFFICE')){
+          t = { id: Math.max(0, ...st.touchpoints.map(x => x.id)) + 1, contact_id: contact.id, organization_id: contact.organization_id ?? null,
+            touch_type:'email', direction:'inbound', touched_at: now, subject: it.subject, owner_id: st.settings.default_owner_id, created_at: now };
+          st.touchpoints.push(t);
+        }
+        Object.assign(t, { outcome_code: it.code, outcome_status:'confirmed', response_excerpt: String(it.body || '').slice(0, 400),
+          responded_at: rule.response ? now : (t.responded_at || null), ooo_return_on: it.ooo_return_on || null,
+          follow_up_on: !it.ooo_return_on && rule.next_days != null ? Rules.addDays(new Date(), rule.next_days).toISOString().slice(0, 10) : null,
+          confirmed_by: st.settings.default_owner_id, confirmed_at: now, updated_at: now });
+        st.email_messages.push({ id: Math.max(0, ...st.email_messages.map(x => x.id)) + 1, contact_id: contact.id, touchpoint_id: t.id,
+          mailbox: null, external_id: null, thread_id: null, direction:'inbound', from_email: it.fromEmail || contact.email,
+          to_emails: [], cc_emails: [], subject: it.subject, body_text: it.body, sent_at: now, is_auto_reply: it.code === 'OUT_OF_OFFICE', created_at: now });
+        Rules.applyOutcome(st, t, m => moved.push(m));
+        counts[it.code] = (counts[it.code] || 0) + 1; saved++;
+      }
+    });
+    return { saved, counts, moved };
+  }
+  /** Six people whose latest email still says No response, one reply of each kind. */
+  function demo(){
+    const picks = [], seen = new Set();
+    for (const t of Repo.touchpoints.all()){
+      if (picks.length >= 6) break;
+      if (seen.has(t.contact_id)) continue;
+      seen.add(t.contact_id);
+      if (t.touch_type !== 'email' || t.direction === 'inbound' || t.outcome_code !== 'NO_RESPONSE') continue;
+      const c = Repo.contacts.byId(t.contact_id);
+      if (c && c.email && !c.do_not_contact && !c.is_university_affiliated) picks.push(c);
+    }
+    if (picks.length < 6) return '';
+    const [a, b, c, d, e, f] = picks;
+    const back = Rules.addDays(new Date(), 9).toLocaleDateString('en-US', { month:'long', day:'numeric' });
+    const subj = 'Re: A short introduction from GAARD Capital';
+    return [
+      `From: ${a.full_name} <${a.email}>\nSubject: ${subj}\n\nHi Jon,\n\nThanks for reaching out. We would like to learn more. Could we set up a call next week? Tuesday afternoon works for me.\n\n${a.first_name}\n\nOn Mon, Oct 6 at 9:14 AM Jon <jon@gaard.capital> wrote:\n> Hi ${a.first_name}, I am with GAARD Capital...`,
+      `From: ${b.full_name} <${b.email}>\nSubject: Automatic reply: A short introduction from GAARD Capital\n\nThank you for your email. I am out of the office until ${back} with limited access to email.`,
+      `From: ${c.full_name} <${c.email}>\nSubject: ${subj}\n\nJon, not right now. We are in the middle of our budget. Could you check back after our board meeting in January?\n\n${c.first_name}`,
+      `From: ${d.full_name} <${d.email}>\nSubject: ${subj}\n\nThanks for the note, but we're all set.`,
+      `From: ${e.full_name} <${e.email}>\nSubject: ${subj}\n\nPlease remove me from your list.`,
+      `From: Mail Delivery Subsystem <mailer-daemon@googlemail.com>\nSubject: Delivery Status Notification (Failure)\n\nAddress not found\n\nYour message wasn't delivered to ${f.email} because the address couldn't be found, or is unable to receive mail.`,
+    ].join('\n\n');
+  }
+  return { looksLikeRows, read, save, effect, demo, MAIN, MORE };
+})();
+
+/* ---- Reading screenshots ----
+   Tesseract.js reads the text in an image inside the browser: the image is
+   never uploaded. The library is fetched from the CDN the first time someone
+   adds a screenshot, not when the page loads. */
+const Ocr = {
+  lib: null,
+  load(){
+    return this.lib || (this.lib = new Promise((resolve, reject) => {
+      if (window.Tesseract) return resolve(window.Tesseract);
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+      s.onload = () => resolve(window.Tesseract);
+      s.onerror = () => { this.lib = null; reject(new Error('The screenshot reader could not be downloaded. Check the internet connection and try again.')); };
+      document.head.appendChild(s);
+    }));
+  },
+  async read(image, onStatus){
+    onStatus('Getting the screenshot reader ready. The first time takes a few seconds.');
+    const T = await this.load();
+    const worker = await T.createWorker('eng', 1, { logger: m => { if (m.status === 'recognizing text') onStatus(`Reading the screenshot: ${Math.round(m.progress * 100)}%`); } });
+    try { const { data } = await worker.recognize(image); return data.text || ''; }
+    finally { await worker.terminate(); }
+  },
+};
 
 /* ======================================================================
    SECTION 6. RULES
@@ -4179,6 +4383,44 @@ const STATUS_PILL = { existing_contact:'g-definite', new_contact_existing_org:'g
 Views.import = { title:'Import',
   render(){
     const st = UI.import || (UI.import = { step:1, text:'', parsed:null, mapping:[], analysis:null, result:null, defaults:{ segment:'ORG_NONPROFIT', channel:'COLD_EMAIL' } });
+    if (st.repliesResult){ const r = st.repliesResult;
+      return `<div class="page-head"><div><h1>Replies saved</h1><p>${fmtDateTime(new Date())}. Each reply updated its contact's outcome, and the follow-ups were rescheduled by the outcome rules.</p></div></div>
+      <section class="card" style="max-width:860px"><div class="card-body">
+        <div class="summary-nums">${Object.entries(r.counts).map(([code, n]) => `<div><b>${n}</b>${esc(outLabel(code))}</div>`).join('')}</div>
+        ${r.moved.length ? `<div class="banner demo" style="margin:16px 0 0"><b>Pipeline</b>&nbsp;${r.moved.map(esc).join(' ')}</div>` : ''}
+        <div class="page-actions" style="margin-top:16px"><a class="btn btn-primary" href="${href('reminders')}">Open follow-ups</a><a class="btn" href="${href('pipeline')}">Open the pipeline</a>
+          <button class="btn" type="button" id="im-again">Paste more</button></div></div></section>`;
+    }
+    if (st.step === 'replies' && st.replies){
+      const list = st.replies;
+      const people = Repo.contacts.all().filter(c => c.email);
+      const label = c => `${c.full_name} · ${c.email}`;
+      const ready = list.filter(r => r.contact_id && r.code && r.code !== 'skip').length;
+      const missing = list.filter(r => r.code !== 'skip' && !(r.contact_id && r.code)).length;
+      const opt = (code, cur) => `<option value="${code}" ${code === cur ? 'selected' : ''}>${esc(outLabel(code))}</option>`;
+      return `<div class="page-head"><div><h1>Client replies</h1><p>${list.length} repl${list.length === 1 ? 'y' : 'ies'} read. Each is matched to a contact by email address and given an outcome from its wording. Check them, change anything that is wrong, then save.</p></div>
+        <div class="page-actions"><button class="btn" type="button" id="im-back-r">Back</button><button class="btn btn-primary" type="button" id="im-save-r" ${ready ? '' : 'disabled'}>Save ${ready} repl${ready === 1 ? 'y' : 'ies'}</button></div></div>
+      ${missing ? `<div class="banner warn"><b>${missing} repl${missing === 1 ? 'y needs' : 'ies need'} a contact or an outcome.</b> Choose one, or set it to Skip. Until then ${missing === 1 ? 'it is' : 'they are'} left out.</div>` : ''}
+      <datalist id="im-people">${people.map(c => `<option value="${esc(label(c))}"></option>`).join('')}</datalist>
+      <div class="table-wrap"><table class="grid replies"><thead><tr><th>Reply</th><th>Contact</th><th>Outcome</th></tr></thead><tbody>
+        ${list.map((r, i) => { const c = r.contact_id ? Repo.contacts.byId(r.contact_id) : null, org = c ? Repo.contacts.organization(c.id) : null;
+          return `<tr class="${r.code !== 'skip' && !(r.contact_id && r.code) ? 'flagrow' : ''}">
+          <td style="max-width:420px"><span class="name">${esc(r.fromName || r.fromEmail || 'Unknown sender')}</span><span class="sub">${esc(r.subject || '')}</span>
+            <div class="reply-text">${esc(r.body.slice(0, 600))}</div></td>
+          <td><label class="sr-only" for="im-rc-${i}">Contact for reply ${i + 1}</label>
+            <input id="im-rc-${i}" list="im-people" data-rcontact="${i}" value="${c ? esc(label(c)) : ''}" placeholder="Type a name or email">
+            <span class="sub">${c ? esc([org && org.name, r.matchedBy === 'name' ? 'matched by name, check it' : r.matchedBy === 'chosen' ? 'chosen by you' : 'matched by email'].filter(Boolean).join(' · ')) : '<span style="color:var(--warn);font-weight:600">Not found. Type the name.</span>'}</span></td>
+          <td><label class="sr-only" for="im-ro-${i}">Outcome for reply ${i + 1}</label>
+            <select id="im-ro-${i}" data-rout="${i}" style="width:auto" class="${r.code ? '' : 'undecided'}">
+              ${r.code ? '' : '<option value="" selected>Choose an outcome</option>'}
+              <optgroup label="Jon's six">${Replies.MAIN.map(x => opt(x, r.code)).join('')}</optgroup>
+              <optgroup label="Other">${Replies.MORE.map(x => opt(x, r.code)).join('')}</optgroup>
+              <option value="skip" ${r.code === 'skip' ? 'selected' : ''}>Skip this reply</option>
+            </select>
+            ${r.code && r.code !== 'skip' && !r.sure ? '<span class="sub" style="color:var(--warn);font-weight:600">Suggested, check it</span>' : ''}
+            <div class="effect">${r.code === 'skip' ? 'Left out' : esc(Replies.effect(r.code, r.ooo_return_on))}</div></td></tr>`; }).join('')}
+      </tbody></table></div>`;
+    }
     if (st.result){ const r = st.result;
       return `<div class="page-head"><div><h1>Batch committed</h1><p>${fmtDateTime(new Date())}. Every approved row became the records it describes.</p></div></div>
       <section class="card" style="max-width:860px"><div class="card-body">
@@ -4186,7 +4428,7 @@ Views.import = { title:'Import',
         <p class="muted small" style="margin-top:12px">${r.extras} value${r.extras===1?'':'s'} from columns the CRM does not map were kept on the contact as extra data, so nothing from the sheet was lost.</p>
         ${r.awaiting_first ? `<div class="banner demo" style="margin:16px 0 0"><b>${fmtInt(r.awaiting_first)} of the new contacts came in with no outreach date.</b>
           Nobody has been marked No response: they are waiting for a first email, and sending it is what records the date.</div>` : ''}
-        ${r.in_person ? `<div class="banner demo" style="margin:16px 0 0"><b>${fmtInt(r.in_person)} of the new contacts are no cold email: in person.</b>
+        ${r.in_person ? `<div class="banner demo" style="margin:16px 0 0"><b>${fmtInt(r.in_person)} of the new contacts are marked No cold email (in person only).</b>
           Their address is on the "Don't cold email" list in Settings, so they are left out of the mail merge and each has a reminder to reach out personally.</div>` : ''}
         <div class="page-actions" style="margin-top:16px">
           ${r.awaiting_first ? `<a class="btn btn-primary btn-xl" href="${href('mailmerge',{source:'first'})}">Write the first email</a>` : ''}
@@ -4253,14 +4495,18 @@ Views.import = { title:'Import',
             <dt>Needs review</dt><dd>A near match, like a nickname or a typo in the organization. You decide same or new.</dd>
             <dt>Outcome wording</dt><dd>"no reply", "NR" and "no response" all become No response. The original text is kept.</dd>
             <dt>AUM</dt><dd>Kept in dollars. If it is unclear what kind, the row is flagged, not guessed.</dd>
+            <dt>Client replies</dt><dd>Matched to the contact by email address. The outcome is suggested from the wording; you confirm each one.</dd>
+            <dt>Screenshots</dt><dd>Read on this computer. The image is never uploaded.</dd>
           </dl><p class="foot-note">Nothing is written until you commit. Skipped rows are left out, and Cancel discards the batch.</p></div></div></div></div>
-      <p>Paste the cleaned rows from a sourcing sheet. Columns are mapped, every row is checked against the master list, and flagged rows need approval before anything is written.</p></div><div class="page-actions">${demoTag}</div></div>
+      <p>Paste rows from a sheet, or the replies clients sent back. Rows are checked against the master list; replies are matched to the person and given an outcome. Nothing is written until you confirm.</p></div><div class="page-actions">${demoTag}</div></div>
     <div style="max-width:860px">
-      <section class="card"><div class="card-head"><h2>Paste rows or upload a CSV</h2><span class="sub">Header row expected</span></div><div class="card-body">
-        <label class="f"><span>Rows</span><textarea id="im-text" rows="13" placeholder="Date,Source,Contact,First Name,Email,Org,Website,LinkedIn,Notes,Date Outreached,Outcome,Next Steps">${esc(st.text)}</textarea></label>
-        <div class="page-actions" style="margin-top:10px"><button class="btn btn-primary" type="button" id="im-read">Read columns</button><button class="btn" type="button" id="im-example">Load the demo batch</button>
+      <section class="card" id="im-drop"><div class="card-head"><h2>Paste rows, replies or a screenshot</h2><span class="sub">Rows need their header row</span></div><div class="card-body">
+        <label class="f"><span>Paste here</span><textarea id="im-text" rows="13" placeholder="Rows copied from Excel, with the header row&#10;&#10;or the text of client replies, one after another&#10;&#10;or a screenshot: press Ctrl+V here, or drop the image on this box">${esc(st.text)}</textarea></label>
+        <p class="muted small" id="im-ocr" role="status" ${st.ocrMsg ? '' : 'hidden'} style="margin-top:8px">${esc(st.ocrMsg || '')}</p>
+        <div class="page-actions" style="margin-top:10px"><button class="btn btn-primary" type="button" id="im-read">Read it</button>
+          <label class="btn" for="im-img">Add a screenshot</label><input type="file" id="im-img" accept="image/*" class="sr-only">
           <label class="btn" for="im-file">Upload .csv</label><input type="file" id="im-file" accept=".csv,text/csv,.tsv,.txt" class="sr-only"></div>
-        <p class="muted small" style="margin-top:10px">The demo batch is the 31-row file from the repository, in the sheet's own column order and deliberately messy: mixed case emails with stray spaces, people already on file, new people at organizations we know, an organization written three different ways, free-text outcomes, and AUM that does not say what kind it is.</p></div></section>
+        <p class="muted small" style="margin-top:12px">Try it: <button class="linkish" type="button" id="im-example">load the demo batch</button>, 31 messy rows from a sourcing sheet, or <button class="linkish" type="button" id="im-demo-replies">load demo replies</button>, six answers to emails already on file, one of each kind.</p></div></section>
     </div>`;
   },
   mount(root){
@@ -4276,8 +4522,62 @@ Views.import = { title:'Import',
     const read = text => { st.text = text; const p = Intelligence.parseCSV(text);
       if (!p.rows.length){ Toast.show('No data rows found. A header row plus at least one record is needed.', { kind:'warn' }); return; }
       st.parsed = p; st.mapping = p.headers.map(h => Intelligence.autoMap(h)); st.step = 2; render(); };
-    root.querySelector('#im-read')?.addEventListener('click', () => read(root.querySelector('#im-text').value));
+    /* One box takes both: rows go to column mapping, anything else is read as replies. */
+    const readReplies = text => { st.text = text; const list = Replies.read(text);
+      if (!list.length){ Toast.show('No reply found. Paste the email text, including the From line if you can.', { kind:'warn' }); return; }
+      st.replies = list; st.ocrMsg = ''; st.step = 'replies'; render(); };
+    const readAny = text => {
+      if (!String(text || '').trim()){ Toast.show('Paste rows, replies or a screenshot first.', { kind:'warn' }); return; }
+      return Replies.looksLikeRows(text) ? read(text) : readReplies(text); };
+    root.querySelector('#im-read')?.addEventListener('click', () => readAny(root.querySelector('#im-text').value));
     root.querySelector('#im-example')?.addEventListener('click', () => { root.querySelector('#im-text').value = DEMO_BATCH_CSV; read(DEMO_BATCH_CSV); });
+    root.querySelector('#im-demo-replies')?.addEventListener('click', () => { const text = Replies.demo();
+      if (!text){ Toast.show('Not enough emails on file to make the demo replies.', { kind:'warn' }); return; }
+      root.querySelector('#im-text').value = text; readReplies(text); });
+    root.querySelector('#im-text')?.addEventListener('input', e => { st.text = e.target.value; });
+
+    /* Screenshots: pasted, dropped, or chosen. The text read from the image goes
+       into the box so it can be checked; an empty box is read straight away. */
+    const ocrMsg = text => { st.ocrMsg = text; const el = root.querySelector('#im-ocr'); if (el){ el.hidden = !text; el.textContent = text; } };
+    const readImage = async file => {
+      const ta = root.querySelector('#im-text'), wasEmpty = !ta.value.trim();
+      try {
+        const text = (await Ocr.read(file, ocrMsg)).trim();
+        if (!text){ ocrMsg('No text found in that image. Try a sharper screenshot.'); return; }
+        const box = root.querySelector('#im-text') || ta;
+        box.value = (box.value.trim() ? box.value.trim() + '\n\n' : '') + text; st.text = box.value;
+        ocrMsg('Read from the screenshot. Check the text if a name looks wrong.');
+        if (wasEmpty) readReplies(box.value);
+      } catch (err){ ocrMsg(err.message || 'The screenshot could not be read.'); }
+    };
+    root.querySelector('#im-img')?.addEventListener('change', e => { const f = e.target.files[0]; if (f) readImage(f); e.target.value = ''; });
+    root.querySelector('#im-text')?.addEventListener('paste', e => {
+      const item = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/'));
+      if (item){ e.preventDefault(); readImage(item.getAsFile()); } });
+    const drop = root.querySelector('#im-drop');
+    if (drop){
+      drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragging'); });
+      drop.addEventListener('dragleave', () => drop.classList.remove('dragging'));
+      drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('dragging');
+        const f = e.dataTransfer.files[0]; if (!f) return;
+        if (f.type.startsWith('image/')) return readImage(f);
+        const rd = new FileReader(); rd.onload = () => readAny(String(rd.result || '')); rd.readAsText(f); });
+    }
+
+    /* The replies review */
+    root.querySelector('#im-back-r')?.addEventListener('click', () => { st.step = 1; st.replies = null; render(); });
+    root.querySelectorAll('[data-rout]').forEach(sel => sel.addEventListener('change', () => {
+      const r = st.replies[Number(sel.dataset.rout)]; r.code = sel.value || null; r.sure = true; render(); }));
+    root.querySelectorAll('[data-rcontact]').forEach(inp => inp.addEventListener('change', () => {
+      const r = st.replies[Number(inp.dataset.rcontact)], v = inp.value.trim().toLowerCase();
+      const email = (v.match(/[^\s·]+@[^\s·]+/) || [])[0];
+      const c = Repo.contacts.all().find(x => x.email && (x.email.trim().toLowerCase() === email || `${x.full_name} · ${x.email}`.toLowerCase() === v))
+        || Repo.contacts.all().find(x => x.full_name && x.full_name.toLowerCase() === v);
+      r.contact_id = c ? c.id : null; r.matchedBy = c ? 'chosen' : null; render(); }));
+    root.querySelector('#im-save-r')?.addEventListener('click', () => {
+      const items = st.replies.filter(r => r.contact_id && r.code && r.code !== 'skip');
+      if (!items.length) return;
+      st.repliesResult = Replies.save(items); render(); });
     root.querySelector('#im-file')?.addEventListener('change', e => { const file = e.target.files[0]; if (!file) return;
       const rd = new FileReader(); rd.onload = () => read(String(rd.result||'')); rd.onerror = () => Toast.show('That file could not be read.', { kind:'warn' }); rd.readAsText(file); });
     root.querySelectorAll('[data-map]').forEach(sel => sel.addEventListener('change', () => { st.mapping[Number(sel.dataset.map)] = sel.value; render(); }));
@@ -4637,6 +4937,7 @@ function renderNav(){
       <div class="who"><b>${esc(who || 'Gaard team')}</b>${Store.live ? esc(Live.email || '') + '<br>Live database' : 'Demo data'}</div>
       <a role="menuitem" href="${href('settings')}">Settings</a>
       ${Store.live ? `<button role="menuitem" type="button" data-um="reload">Reload from the database</button>
+        <button role="menuitem" type="button" data-um="pass">Change password</button>
         <button role="menuitem" type="button" class="danger" data-um="out">Sign out</button>`
         : `<button role="menuitem" type="button" data-um="in">Sign in to the live database</button>`}
     </div></div>`;
@@ -4647,6 +4948,16 @@ function renderNav(){
   menu.querySelector('a')?.addEventListener('click', () => setOpen(false));
   menu.querySelector('[data-um="reload"]')?.addEventListener('click', () => { setOpen(false); Live.reload(); });
   menu.querySelector('[data-um="out"]')?.addEventListener('click', () => Live.signOut());
+  menu.querySelector('[data-um="pass"]')?.addEventListener('click', async () => {
+    setOpen(false);
+    const out = await Modal.form({ title:'Change your password', okLabel:'Save password', fields:[
+      { key:'p1', label:'New password', type:'password', hint:'at least 8 characters' }, { key:'p2', label:'Type it again', type:'password' } ] });
+    if (!out) return;
+    if (out.p1.length < 8) return Toast.show('The password needs at least 8 characters. Nothing was changed.', { kind:'warn' });
+    if (out.p1 !== out.p2) return Toast.show('The two passwords are different. Nothing was changed.', { kind:'warn' });
+    const { error } = await (await Live.sb()).auth.updateUser({ password: out.p1 });
+    Toast.show(error ? 'Not changed: ' + error.message : 'Password changed', { kind: error ? 'warn' : 'ok' });
+  });
   menu.querySelector('[data-um="in"]')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
 }
 /* The account menu closes on a click elsewhere or Escape. */
@@ -4666,7 +4977,7 @@ function render(){
   const focus = act && main.contains(act) && act.id
     ? { id: act.id, start: act.selectionStart, end: act.selectionEnd } : null;
   try {
-    const liveNote = Store.live ? `<div class="banner warn live-note"><b>Live database, view only for now.</b>&nbsp;These are the rows in Supabase. Changes made here are not saved yet: to change something, edit it in Supabase, then press Reload at the bottom of the sidebar.</div>` : '';
+    const liveNote = '';   // the save state shows at the foot of the sidebar instead
     main.innerHTML = tabStrip(name) + liveNote + view.render(params) + `<div class="foot"><span>${Store.live
       ? 'Live data read from Supabase at ' + esc(fmtDateTime(new Date(Repo.settings().loaded_at))) + '. No email connection yet.'
       : 'Fictional demonstration data from the database snapshot. No real client records, no email connection, no live database.'}</span><span>${esc(Repo.settings().firm_name)} CRM &middot; ${fmtInt(Repo.contacts.all().length)} contacts</span></div>`;
@@ -4766,7 +5077,47 @@ const loadScript = src => new Promise((resolve, reject) => {
 
 const Live = {
   client: null, member: null, email: '',
-  TABLES: ['organizations','contacts','touchpoints','opportunities','reminders','events','campaigns','rfps','team_members','email_messages','flag_rules'],
+  /* Parents before children, so a row is written after the rows it points at;
+     deletes go the other way round. */
+  TABLES: ['team_members','events','campaigns','organizations','contacts','rfps','touchpoints','opportunities','reminders','email_messages','flag_rules'],
+  shadow: null, queue: Promise.resolve(), saving: 0, lastSaved: null,
+  /** What each row looked like at the last save, as JSON. */
+  takeShadow(){ const s = {}; for (const t of this.TABLES) s[t] = new Map((Store.state[t] || []).map(r => [r.id, JSON.stringify(r)])); this.shadow = s; },
+  /** Rows added, the columns that changed, rows removed, since the last save. */
+  diff(){
+    const ups = [], dels = [], next = {};
+    for (const t of this.TABLES){
+      const before = this.shadow[t] || new Map(), now = new Map();
+      for (const row of Store.state[t] || []){
+        const json = JSON.stringify(row), was = before.get(row.id); now.set(row.id, json);
+        if (was === undefined){ ups.push({ table: t, op: 'insert', id: row.id, row }); continue; }
+        if (was === json) continue;
+        const old = JSON.parse(was), patch = {};
+        for (const k of Object.keys(row)) if (JSON.stringify(row[k]) !== JSON.stringify(old[k])) patch[k] = row[k];
+        for (const k of Object.keys(old)) if (!(k in row)) patch[k] = null;
+        if (Object.keys(patch).length) ups.push({ table: t, op: 'update', id: row.id, row: patch });
+      }
+      for (const id of before.keys()) if (!now.has(id)) dels.unshift({ table: t, op: 'delete', id });
+      next[t] = now;
+    }
+    return { changes: [...ups, ...dels], next };
+  },
+  /** select apply_changes($1): one transaction per change, in order. If the
+      database refuses, the screen is reloaded from it: the database is the truth. */
+  save(){
+    if (!Store.live || !this.shadow) return;
+    const { changes, next } = this.diff(); this.shadow = next;
+    if (!changes.length) return;
+    this.saving++; renderSideFoot();
+    this.queue = this.queue.then(async () => {
+      const { error } = await (await this.sb()).rpc('apply_changes', { p_changes: changes });
+      if (error) throw new Error(error.message);
+      this.lastSaved = new Date();
+    }).catch(err => {
+      Toast.show('Not saved: ' + err.message, { kind:'warn', ms: 10000 });
+      return this.reload();
+    }).finally(() => { this.saving--; renderSideFoot(); });
+  },
   async sb(){
     if (this.client) return this.client;
     if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js');
@@ -4787,6 +5138,7 @@ const Live = {
     return tables; },
   enter(tables){
     Store.useLive(tables, this.member);
+    this.takeShadow();
     demoTag = '<span class="demo-tag" title="Rows read from Supabase">Live database</span>';
     try { localStorage.setItem(MODE_KEY, 'live'); } catch (e) { /* private window */ }
     Gate.hide(); renderSideFoot(); },
@@ -4933,7 +5285,9 @@ function openDemo(){
 function renderSideFoot(){
   const el = document.getElementById('sidebar-foot'); if (!el) return;
   el.innerHTML = Store.live
-    ? `<strong>Live database.</strong>${esc(Live.member?.name || Live.email)}<br><button class="linkish" type="button" id="sf-reload">Reload</button> &middot; <button class="linkish" type="button" id="sf-out">Sign out</button>`
+    ? `<strong>Live database.</strong>${esc(Live.member?.name || Live.email)}<br>${Live.saving ? 'Saving&hellip;'
+        : Live.lastSaved ? 'All changes saved ' + esc(Live.lastSaved.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }))
+        : 'Changes save as you make them'}<br><button class="linkish" type="button" id="sf-reload">Reload</button> &middot; <button class="linkish" type="button" id="sf-out">Sign out</button>`
     : `<strong>Demo data.</strong>Fictional, kept in this browser.<br><button class="linkish" type="button" id="sf-in">Sign in to the live database</button>`;
   el.querySelector('#sf-reload')?.addEventListener('click', () => Live.reload());
   el.querySelector('#sf-out')?.addEventListener('click', () => Live.signOut());
