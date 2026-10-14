@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-14.7">
+<meta name="build-version" content="2026-10-14.8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5086,14 +5086,16 @@ const Live = {
   /** Rows added, the columns that changed, rows removed, since the last save. */
   diff(){
     const ups = [], dels = [], next = {};
+    // A box left empty is stored as null, never as an empty string
+    const clean = v => (typeof v === 'string' && v.trim() === '') ? null : v;
     for (const t of this.TABLES){
       const before = this.shadow[t] || new Map(), now = new Map();
       for (const row of Store.state[t] || []){
         const json = JSON.stringify(row), was = before.get(row.id); now.set(row.id, json);
-        if (was === undefined){ ups.push({ table: t, op: 'insert', id: row.id, row }); continue; }
+        if (was === undefined){ ups.push({ table: t, op: 'insert', id: row.id, row: Object.fromEntries(Object.entries(row).map(([k, v]) => [k, clean(v)])) }); continue; }
         if (was === json) continue;
         const old = JSON.parse(was), patch = {};
-        for (const k of Object.keys(row)) if (JSON.stringify(row[k]) !== JSON.stringify(old[k])) patch[k] = row[k];
+        for (const k of Object.keys(row)) if (JSON.stringify(row[k]) !== JSON.stringify(old[k])) patch[k] = clean(row[k]);
         for (const k of Object.keys(old)) if (!(k in row)) patch[k] = null;
         if (Object.keys(patch).length) ups.push({ table: t, op: 'update', id: row.id, row: patch });
       }
