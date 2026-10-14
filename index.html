@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-14.8">
+<meta name="build-version" content="2026-10-14.9">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -496,6 +496,34 @@ table.edit tr:last-child td{border-bottom:none}
 .multi-menu label b{margin-left:auto;color:var(--ink-3);font-weight:500;font-size:12px}
 .multi-foot{display:flex;align-items:center;gap:8px;padding:8px 4px 2px;border-top:1px solid var(--line);margin-top:5px}
 .multi-foot .spacer{flex:1}
+/* Single-choice filters drawn the same way as the state tick list, so every
+   control in the bar has the same rounded menu. */
+.multi-menu .pick-opt{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:9px;background:none;border:0;font:inherit;font-size:13px;color:var(--ink);cursor:pointer}
+.multi-menu .pick-opt:hover,.multi-menu .pick-opt:focus-visible{background:var(--surface-3)}
+.multi-menu .pick-opt[aria-checked="true"]{background:var(--accent-soft);color:var(--accent-strong);font-weight:600}
+.multi.pick>.btn{min-width:150px;justify-content:space-between}
+/* Thin scrollbars without the arrow buttons */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-button{display:none;width:0;height:0}
+::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:999px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-4);border:2px solid transparent;background-clip:content-box}
+@supports (-moz-appearance:none){ *{scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent} }
+/* Explanations under page titles are hidden; a heading keeps its line only
+   when it carries live facts (class keep). */
+.page-head p:not(.keep){display:none}
+/* The contacts sheet: columns can be hidden, and the in-cell organization
+   box shows no dropdown arrow. */
+table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !important}
+.cols-menu{min-width:240px;max-height:420px;left:auto;right:0}
+/* The contact record: details on the left, what to do next on the right,
+   the history underneath. */
+.rec-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(300px,4fr);gap:16px;align-items:start;margin-bottom:16px}
+.rec-side,.rec-main{display:flex;flex-direction:column;gap:14px;min-width:0}
+.kv.two{grid-template-columns:120px minmax(0,1fr) 120px minmax(0,1fr)}
+.stage-line{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--ink-3);margin-top:10px}
+.stage-line b{color:var(--ink);font-weight:600}
+@media (max-width:1100px){ .rec-grid{grid-template-columns:1fr} .kv.two{grid-template-columns:120px minmax(0,1fr)} }
 
 /* ---------- Big call to action and the email block ---------- */
 .cta{display:flex;align-items:center;gap:20px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--accent-line);border-left:5px solid var(--accent);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:20px 24px;margin-bottom:18px}
@@ -945,6 +973,8 @@ const dayOf = v => v ? String(v).slice(0,10) : null;
 const daysBetween = (a,b) => Math.round((Rules.startOfDay(b) - Rules.startOfDay(a)) / DAY);
 const relDays = v => { const n = daysBetween(v, NOW()); return n === 0 ? 'today' : n === 1 ? 'yesterday' : n === -1 ? 'tomorrow' : n > 0 ? n + ' days ago' : 'in ' + (-n) + ' days'; };
 const cls = s => String(s ?? '').replace(/[^A-Za-z0-9]/g,'');
+/* Sheet placeholders that mean nothing is there: 0, n/a, none, a dash. */
+const blankish = v => v == null || /^\s*(0|n\/?a|none|null|-|—)?\s*$/i.test(String(v));
 /* Quarter label, matching public.quarter_label(). */
 const quarterOf = v => { if (!v) return null; const d = new Date(String(v).slice(0,10) + 'T12:00:00'); return d.getFullYear() + '-Q' + (Math.floor(d.getMonth()/3) + 1); };
 
@@ -1335,13 +1365,12 @@ const Metrics = {
   /* One period control instead of two date boxes and a quarter list. Resolving it
      here also gives the previous window of the same length, which is what the
      comparison under each headline number is measured against. */
+  /* The choices offered. Last 90 days, last quarter and last year still work
+     (range() knows them) but are left off the menu: a custom range covers them. */
   PERIODS: [
     { key:'30d',    label:'Last 30 days' },
-    { key:'90d',    label:'Last 90 days' },
     { key:'qtd',    label:'This quarter' },
-    { key:'q_last', label:'Last quarter' },
     { key:'ytd',    label:'This year' },
-    { key:'y_last', label:'Last year' },
     { key:'all',    label:'All time' },
     { key:'custom', label:'Custom range' },
   ],
@@ -2478,11 +2507,18 @@ function stateFilter(){
 function filterBar({ compact=false } = {}){
   const f = UI.filters;
   const r = Metrics.range(f);
-  const sel = (key, label, options, extra='') => `<label class="sr-only" for="flt-${key}">${esc(label)}</label><select id="flt-${key}" data-filter="${key}" title="${esc(label)}" ${extra}>${options.map(o => { const v = typeof o === 'string' ? o : o.value, l = typeof o === 'string' ? o : o.label;
-    return `<option value="${esc(v)}" ${String(f[key]) === String(v) ? 'selected' : ''}>${esc(l)}</option>`; }).join('')}</select>`;
+  /* A single-choice filter: a pill button and a rounded menu, like the states. */
+  const sel = (key, label, options) => {
+    const opts = options.map(o => typeof o === 'string' ? { value:o, label:o } : o);
+    const cur = opts.find(o => String(o.value) === String(f[key])) || opts[0], open = UI.openPick === key;
+    return `<div class="multi pick">
+      <button class="btn" type="button" id="flt-${key}" data-pick-btn="${key}" aria-haspopup="true" aria-expanded="${open}" title="${esc(label)}">${esc(cur.label)}<span class="caret">${open ? '&#9652;' : '&#9662;'}</span></button>
+      ${open ? `<div class="multi-menu" role="menu" aria-label="${esc(label)}">${opts.map(o =>
+        `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${String(o.value) === String(cur.value)}" data-pick="${key}" data-value="${esc(o.value)}">${esc(o.label)}</button>`).join('')}</div>` : ''}
+    </div>`; };
   const segOptions = [{value:'All',label:'All segments'}, ...SEGMENTS.filter(x => f.group === 'All' || !f.group || x.group === f.group).map(x => ({ value:x.code, label:x.name }))];
   const moreOn = UI.moreFilters;
-  const moreCount = ['group','outcome','owner'].filter(k => f[k] && f[k] !== 'All').length;
+  const moreCount = ['group','outcome'].filter(k => f[k] && f[k] !== 'All').length;
   /* Four controls people reach for every day stay visible. The rest sit behind
      one button, so the page opens calm instead of showing ten dropdowns. */
   return `<div class="filters" role="group" aria-label="Filters">
@@ -2495,22 +2531,26 @@ function filterBar({ compact=false } = {}){
     ${sel('stage','Stage', [{value:'All',label:'All stages'}, ...STAGES.map(x => ({ value:x.code, label:x.label }))])}
     <button class="btn btn-sm" type="button" id="flt-more" aria-pressed="${moreOn}" aria-expanded="${moreOn}">More filters${moreCount ? ` (${moreCount})` : ''}</button>
     ${Metrics.isActive(f) ? `<button class="btn btn-sm" type="button" id="flt-clear">Clear all</button>` : ''}
-    <span class="spacer"></span><span class="count">${(() => { const rest = Metrics.describe(f).filter(x => x !== r.label); return rest.length ? esc(rest.join(' \u00b7 ')) : 'No extra filters'; })()}</span>
+    <span class="spacer"></span><span class="count">${(() => { const rest = Metrics.describe(f).filter(x => x !== r.label); return rest.length ? esc(rest.join(' \u00b7 ')) : ''; })()}</span>
   </div>
   ${moreOn ? `<div class="filters" style="margin-top:-8px">
     ${sel('group','Segment group', [{value:'All',label:'All segment groups'}, ...SEGMENT_GROUPS])}
     ${sel('outcome','Outcome', [{value:'All',label:'All outcomes'}, ...OUTCOMES.map(o => ({ value:o.code, label:o.label }))])}
-    ${sel('owner','Owner', [{value:'All',label:'All owners'}, ...Repo.team().map(t => ({ value:String(t.id), label:t.full_name }))])}
   </div>` : ''}`;
 }
 function bindFilters(root, rerender){
-  root.querySelectorAll('[data-filter]').forEach(el => el.addEventListener('change', () => {
-    UI.filters[el.dataset.filter] = el.value;
-    if (el.dataset.filter === 'group') UI.filters.segment = 'All';
-    if (el.dataset.filter === 'period' && el.value !== 'custom'){ UI.filters.from = ''; UI.filters.to = ''; }
-    if ((el.dataset.filter === 'from' || el.dataset.filter === 'to')) UI.filters.period = 'custom';
-    rerender(); }));
-  root.querySelector('#flt-state-btn')?.addEventListener('click', e => { e.stopPropagation(); UI.openState = !UI.openState; rerender(); });
+  const setFilter = (key, value) => {
+    UI.filters[key] = value;
+    if (key === 'group') UI.filters.segment = 'All';
+    if (key === 'period' && value !== 'custom'){ UI.filters.from = ''; UI.filters.to = ''; }
+    if (key === 'from' || key === 'to') UI.filters.period = 'custom';
+  };
+  root.querySelectorAll('[data-filter]').forEach(el => el.addEventListener('change', () => { setFilter(el.dataset.filter, el.value); rerender(); }));
+  root.querySelectorAll('[data-pick-btn]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
+    UI.openPick = UI.openPick === b.dataset.pickBtn ? null : b.dataset.pickBtn; UI.openState = false; rerender(); }));
+  root.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
+    setFilter(b.dataset.pick, b.dataset.value); UI.openPick = null; rerender(); }));
+  root.querySelector('#flt-state-btn')?.addEventListener('click', e => { e.stopPropagation(); UI.openState = !UI.openState; UI.openPick = null; rerender(); });
   root.querySelectorAll('[data-state]').forEach(cb => cb.addEventListener('change', () => {
     const cur = new Set(multi(UI.filters.state));
     if (cb.checked) cur.add(cb.dataset.state); else cur.delete(cb.dataset.state);
@@ -3403,6 +3443,22 @@ Views.touchpoints = { title:'Correspondence',
    columns, and the latest correspondence on the same line. Clicking that cell
    opens the thread underneath the row instead of leaving the page.
    ===================================================================== */
+/* The contacts sheet's columns, in order after the row number. All of them
+   show by default. Date and name are pinned and always shown; anyone can hide
+   the others under Columns, and the choice is remembered in their browser. */
+const SHEET_COLS = [
+  { label:'Date', w:78, fixed:true }, { label:'Contact Name', w:150, fixed:true }, { label:'First Name', w:84 },
+  { label:'Email', w:190 }, { label:'Organization', w:176 }, { label:'Website', w:150 }, { label:'LinkedIn', w:150 },
+  { label:'AUM', w:84 }, { label:'Notes', w:180 }, { label:'Initial Outcome', w:140 }, { label:'Recent correspondence', w:280 },
+  { label:'Status', w:96 }, { label:'Next Reach out Date', w:76 }, { label:'Newsletter', w:74 }, { label:'Active/Dorm', w:74 },
+  { label:'Title', w:140 }, { label:'Segment', w:120 }, { label:'State', w:44 }, { label:'First reached', w:82 },
+  { label:'Last touch', w:82 }, { label:'Touches', w:52 }, { label:'Channel', w:92 }, { label:'Flags', w:150 } ];
+const SHEET_COLS_KEY = 'gaard_sheet_cols';
+function sheetCols(news){
+  let saved = null; try { saved = JSON.parse(localStorage.getItem(SHEET_COLS_KEY) || 'null'); } catch (e) { /* private window */ }
+  return SHEET_COLS.map(c => ({ ...c, shown: !!(c.fixed || (news && c.label === 'Newsletter') || (Array.isArray(saved) ? saved.includes(c.label) : true)) }));
+}
+
 Views.contacts = { title:'Contacts',
   render(params){
     const st = UI.contacts, f = UI.filters;
@@ -3462,7 +3518,7 @@ Views.contacts = { title:'Contacts',
       const orgRec = c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null;
       const active = (l && l.stage && !STG.get(l.stage)?.closed) || n ? 'A' : 'D';
       const shortDate = v => v ? fmtDate(v, { month:'numeric', day:'numeric', year:'2-digit' }) : '<span class="muted">-</span>';
-      const link = u => u ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//,''))}</a>` : '<span class="muted">-</span>';
+      const link = u => !blankish(u) ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//,''))}</a>` : '';
       const cell = (v, field) => `<td class="${field ? 'ed' : ''}" ${field ? `data-edit="${field}" data-id="${c.id}"` : ''} title="${esc(String(v ?? '').replace(/<[^>]*>/g,''))}">${v || '<span class="muted">-</span>'}</td>`;
       return `<tr class="row-link ${open ? 'is-open' : ''}" data-href="${href('contacts/'+c.id)}">
         <td class="rn pin1">${nth}</td>
@@ -3494,7 +3550,7 @@ Views.contacts = { title:'Contacts',
       ${open ? `<tr class="threadrow"><td colspan="24">${threadPanel(c)}</td></tr>` : ''}`;
     };
 
-    const news = params.mode === 'newsletter';
+    const news = params.mode === 'newsletter', cols = sheetCols(news);
     return `<div class="page-head" style="align-items:center;margin-bottom:12px"><div><h1 style="font-size:22px">${news ? 'Newsletter' : 'Contacts'}</h1>
       <p style="margin-top:2px">${news
         ? `${fmtInt(total)} people are on the newsletter. The Newsletter column turns anybody on or off, and an outcome that counts as interest adds them on its own.`
@@ -3509,9 +3565,11 @@ Views.contacts = { title:'Contacts',
       <span class="zoomer"><button class="btn btn-sm" type="button" data-zoom="-1" aria-label="Zoom out" ${st.zoom<=60?'disabled':''}>&minus;</button>
         <b>${st.zoom}%</b>
         <button class="btn btn-sm" type="button" data-zoom="1" aria-label="Zoom in" ${st.zoom>=110?'disabled':''}>+</button></span>
+      <div class="multi"><button class="btn btn-sm" type="button" id="c-cols" aria-haspopup="true" aria-expanded="${!!UI.openCols}">Columns<span class="caret">${UI.openCols ? '&#9652;' : '&#9662;'}</span></button>${UI.openCols ? `<div class="multi-menu cols-menu" role="group" aria-label="Columns">${cols.filter(x => !x.fixed).map(x => `<label><input type="checkbox" data-col="${esc(x.label)}" ${x.shown ? 'checked' : ''} ${news && x.label === 'Newsletter' ? 'disabled' : ''}><span>${esc(x.label)}</span></label>`).join('')}<div class="multi-foot"><button class="btn btn-sm" type="button" id="c-cols-default">Default</button><span class="spacer"></span><button class="btn btn-sm" type="button" id="c-cols-done">Done</button></div></div>` : ''}</div>
       <span class="count">${fmtInt(total)} shown</span></div>
-    <div class="table-wrap sheet-wrap"><table class="grid sheet ss" style="zoom:${st.zoom/100}">
-      <colgroup><col style="width:42px"><col style="width:78px"><col style="width:150px"><col style="width:84px"><col style="width:190px"><col style="width:176px"><col style="width:150px"><col style="width:150px"><col style="width:84px"><col style="width:180px"><col style="width:140px"><col style="width:280px"><col style="width:96px"><col style="width:76px"><col style="width:74px"><col style="width:74px"><col style="width:140px"><col style="width:120px"><col style="width:44px"><col style="width:82px"><col style="width:82px"><col style="width:52px"><col style="width:92px"><col style="width:150px"></colgroup>
+    <style>${cols.map((x, i) => x.shown ? '' : `#contacts-sheet tr > :nth-child(${i + 2}){display:none}`).join('')}</style>
+    <div class="table-wrap sheet-wrap"><table class="grid sheet ss" id="contacts-sheet" style="zoom:${st.zoom/100};min-width:${42 + cols.reduce((s, x) => s + (x.shown ? x.w : 0), 0)}px">
+      <colgroup><col style="width:42px">${cols.map(x => x.shown ? `<col style="width:${x.w}px">` : '').join('')}</colgroup>
       <thead><tr>
       <th class="rn pin1" scope="col"><span class="sr-only">Row</span></th>
       ${thSort('Date','added',st,'pin2')}${thSort('Contact Name','full_name',st,'pin3')}<th>First Name</th><th>Email</th>${thSort('Organization','org',st)}<th>Website</th><th>LinkedIn</th>${thSort('AUM','aum',st,'num')}<th>Notes</th>
@@ -3525,6 +3583,12 @@ Views.contacts = { title:'Contacts',
     bindSort(root, st, render); bindPager(root, st, render); bindRowNav(root); bindFilters(root, render);
     root.querySelector('#c-q').addEventListener('input', debounce(e => { st.q = e.target.value; st.page = 0; render(); }, 220));
     root.querySelector('#new-contact').addEventListener('click', () => openAddContact(params.org ? Number(params.org) : null));
+    root.querySelector('#c-cols')?.addEventListener('click', e => { e.stopPropagation(); UI.openCols = !UI.openCols; UI.openPick = null; UI.openState = false; render(); });
+    const saveCols = labels => { try { localStorage.setItem(SHEET_COLS_KEY, JSON.stringify(labels)); } catch (e) { /* private window */ } render(); };
+    root.querySelectorAll('[data-col]').forEach(cb => cb.addEventListener('change', () =>
+      saveCols([...root.querySelectorAll('[data-col]')].filter(x => x.checked).map(x => x.dataset.col))));
+    root.querySelector('#c-cols-default')?.addEventListener('click', () => { try { localStorage.removeItem(SHEET_COLS_KEY); } catch (e) { /* private window */ } render(); });
+    root.querySelector('#c-cols-done')?.addEventListener('click', () => { UI.openCols = false; render(); });
     root.querySelector('#c-collapse')?.addEventListener('click', () => { st.expanded.clear(); render(); });
     /* Zoom scales the whole grid, columns included, so stepping out shows more
        rows and more columns at once. It is remembered for next time. */
@@ -3730,40 +3794,35 @@ Views.contact = { title:'Contact',
         ${t.outcome_status === 'needs_review' ? `<div class="chips" style="margin-top:6px"><div class="chip"><span class="k">Suggested:</span><b>${esc(outLabel(t.ai_suggested_outcome))}</b><span class="muted">${t.ai_confidence != null ? fmtPct(t.ai_confidence,0) : ''}</span><button class="btn btn-sm btn-accent" type="button" data-confirm="${t.id}">Confirm</button></div></div>` : ''}
         <div class="meta">${esc(Repo.teamName(t.owner_id))}${t.outcome_raw ? ' &middot; original wording: ' + esc(t.outcome_raw) : ''}${emails.length ? ' &middot; ' + emails.length + ' email' + (emails.length>1?'s':'') + ' on file' : ''}</div></div></div>`; };
     return `<div class="page-head"><div><a href="${href('contacts')}" class="small">All contacts</a><h1 style="margin-top:2px">${esc(c.full_name)}</h1>
-      <p>${esc(c.title||'')}${org ? ` at <a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : ' <span class="muted">Individual investor</span>'}${c.state ? ' &middot; ' + esc([c.city,c.state].filter(Boolean).join(', ')) : ''}</p></div>
+      <p class="keep">${esc(c.title||'')}${org ? ` at <a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : ' <span class="muted">Individual investor</span>'}${c.state ? ' &middot; ' + esc([c.city,c.state].filter(Boolean).join(', ')) : ''}</p></div>
       <div class="page-actions"><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}<button class="btn btn-primary" type="button" id="c-log">Log touchpoint</button></div></div>
     ${c.do_not_contact ? `<div class="banner danger"><b>Do not contact.</b> ${esc(c.dnc_reason || 'Asked not to be contacted')}${c.dnc_on ? ' (' + fmtDate(c.dnc_on) + ')' : ''}. The database refuses outreach to this contact.</div>` : ''}
     ${c.email_status === 'bounced' ? `<div class="banner warn"><b>Email bounced.</b> ${esc(c.email||'')} is on the wrong-email list. Fixing the address clears this and the reminder together.</div>` : ''}
     ${c.email_status === 'wrong_person' ? `<div class="banner warn"><b>Wrong person.</b> They are no longer at this organization. Find someone else with leadership authority.</div>` : ''}
     ${c.is_university_affiliated ? `<div class="banner demo"><b>No cold email (in person only).</b> This address is on the "Don't cold email" list in Settings (universities, and organizations Gaard reaches through people). The mail merge leaves them out; reach out personally.</div>` : ''}
-    <div class="split">
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <section class="card"><div class="card-head"><h2>Contact</h2><span class="sub">${esc(c.email_status || '')}</span></div><div class="card-body"><dl class="kv">
+    <div class="rec-grid">
+      <div class="rec-main">
+        <section class="card"><div class="card-head"><h2>Contact</h2><span class="sub">${esc(c.email_status || '')}</span></div><div class="card-body"><dl class="kv two">
           <dt>Email</dt><dd>${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '<span class="muted">None</span>'}</dd>
           <dt>Phone</dt><dd>${esc(c.phone||'') || '<span class="muted">None</span>'}</dd>
-          <dt>LinkedIn</dt><dd>${c.linkedin_url ? esc(c.linkedin_url) : '<span class="muted">None</span>'}${c.linkedin_connected_on ? `<span class="sub">Connected ${fmtDate(c.linkedin_connected_on)}</span>` : ''}</dd>
+          <dt>LinkedIn</dt><dd>${!blankish(c.linkedin_url) ? `<a href="${esc(/^https?:/i.test(c.linkedin_url) ? c.linkedin_url : 'https://' + c.linkedin_url)}" target="_blank" rel="noopener">${esc(c.linkedin_url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '<span class="muted">None</span>'}${c.linkedin_connected_on ? `<span class="sub">Connected ${fmtDate(c.linkedin_connected_on)}</span>` : ''}</dd>
           <dt>Segment</dt><dd>${segPill(c.segment_code)}${sameWord(segGroup(c.segment_code), segName(c.segment_code)) ? '' : ` <span class="muted">${esc(segGroup(c.segment_code))}</span>`}</dd>
           <dt>How we met</dt><dd>${esc(chName(c.source_channel_code))}${detail ? ` <span class="muted">${esc(detail)}</span>` : ''}${ev ? `<span class="sub">At <a href="${href('events')}">${esc(ev.name)}</a></span>` : ''}${referrer ? `<span class="sub">Referred by <a href="${href('contacts/'+referrer.id)}">${esc(referrer.full_name)}</a></span>` : ''}</dd>
           <dt>Sourced</dt><dd>${fmtDate(c.sourced_on)||'<span class="muted">Unknown</span>'}</dd>
           <dt>Prospect AUM</dt><dd>${fmtUSD(c.prospect_aum)||'<span class="muted">Not recorded</span>'}</dd>
           <dt>Newsletter</dt><dd>${esc(NEWSLETTER_LABEL[c.newsletter_status] || c.newsletter_status || 'Not recorded')}${via ? `<span class="sub">${esc(via)}</span>` : ''}</dd>
           <dt>Owner</dt><dd>${esc(Repo.teamName(c.owner_id))}</dd>
-          <dt>From the sheet</dt><dd>${esc(c.legacy_ref||'') || '<span class="muted">Not imported</span>'}</dd>
-          <dt>Notes</dt><dd>${esc(c.notes||'') || '<span class="muted">None</span>'}</dd></dl></div></section>
+          ${c.legacy_ref ? `<dt>From the sheet</dt><dd>${esc(c.legacy_ref)}</dd>` : ''}</dl>
+          <dl class="kv" style="grid-template-columns:120px minmax(0,1fr);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><dt>Notes</dt><dd style="white-space:pre-wrap">${esc(c.notes||'') || '<span class="muted">None</span>'}</dd></dl></div></section>
         ${opp ? `<section class="card"><div class="card-head"><h2>Opportunity</h2>${stagePill(opp.stage)}</div><div class="card-body">
           <div class="aum-cols" style="margin-bottom:10px">
             <div class="aum-cell"><div class="l">Expected AUM</div><div class="v">${fmtUSD(opp.expected_aum)||'-'}</div></div>
             <div class="aum-cell"><div class="l">Funded AUM</div><div class="v">${fmtUSD(opp.funded_aum)||'-'}</div></div>
             <div class="aum-cell"><div class="l">Est. annual revenue</div><div class="v">${fmtUSD((opp.funded_aum||opp.expected_aum||0)*Repo.settings().assumed_fee_rate)||'-'}</div></div></div>
-          <dl class="kv"><dt>Opened</dt><dd>${fmtDate(opp.opened_on)||'-'}</dd>
-            <dt>First call</dt><dd>${fmtDate(opp.first_call_on)||'<span class="muted">Not yet</span>'}</dd>
-            <dt>Next steps</dt><dd>${fmtDate(opp.hot_on)||'<span class="muted">Not yet</span>'}</dd>
-            <dt>Onboarding started</dt><dd>${fmtDate(opp.onboarding_started_on)||'<span class="muted">Not yet</span>'}</dd>
-            <dt>Funded</dt><dd>${fmtDate(opp.funded_on)||'<span class="muted">Not funded</span>'}</dd>
-            ${opp.lost_reason ? `<dt>Lost reason</dt><dd>${esc(opp.lost_reason)}</dd>` : ''}
-            <dt>How we met</dt><dd>${esc(chName(opp.source_channel_code))}</dd>
-            <dt>What booked the call</dt><dd>${esc(chName(opp.converting_channel_code)) || '<span class="muted">Not recorded</span>'}</dd>
-            <dt>Owner</dt><dd>${esc(Repo.teamName(opp.owner_id))}</dd></dl></div></section>` : ''}
+          <div class="stage-line">${[['Opened', opp.opened_on], ['First call', opp.first_call_on], ['Next steps', opp.hot_on], ['Onboarding', opp.onboarding_started_on], ['Funded', opp.funded_on]].filter(([, d]) => d).map(([l, d]) => `<span>${l} <b>${esc(fmtDate(d))}</b></span>`).join('')}</div>
+          <dl class="kv" style="margin-top:10px">${opp.lost_reason ? `<dt>Lost reason</dt><dd>${esc(opp.lost_reason)}</dd>` : ''}<dt>What booked the call</dt><dd>${esc(chName(opp.converting_channel_code)) || '<span class="muted">Not recorded</span>'}</dd>${opp.owner_id !== c.owner_id ? `<dt>Opportunity owner</dt><dd>${esc(Repo.teamName(opp.owner_id))}</dd>` : ''}</dl></div></section>` : ''}
+      </div>
+      <aside class="rec-side">
         <section class="card"><div class="card-head"><h2>Next reminder</h2>${next ? `<span class="pill st-${Repo.reminders.bucket(next)}">${Repo.reminders.bucket(next)==='overdue'?'Overdue':Repo.reminders.bucket(next)==='today'?'Due today':'Upcoming'}</span>` : '<span class="sub">None open</span>'}</div><div class="card-body">
           ${next ? `<p><b>${fmtDate(next.due_on,{weekday:'short',month:'short',day:'numeric'})}</b> <span class="muted">(${relDays(next.due_on)})</span> <span class="tag">${esc(RT.get(next.reminder_type)||next.reminder_type)}</span></p>
             <p class="muted small" style="white-space:pre-wrap;margin-top:6px">${esc(next.details||'')}</p>
@@ -3772,15 +3831,15 @@ Views.contact = { title:'Contact',
             ${rems.length > 1 ? `<p class="muted small" style="margin-top:8px">${rems.length-1} more open for this contact.</p>` : ''}`
             : `<p class="muted">${c.do_not_contact ? 'No reminders: this contact is on the do-not-contact list.' : 'Nothing open. Logging a touchpoint schedules the next one from the outcome rule.'}</p>`}</div></section>
         ${org ? `<section class="card"><div class="card-head"><h2>${esc(org.name)}</h2><span class="sub">${esc(org.org_type||'')}</span></div><div class="card-body"><dl class="kv">
-          <dt>Segment</dt><dd>${segPill(org.segment_code)}</dd>
+          ${org.segment_code !== c.segment_code ? `<dt>Segment</dt><dd>${segPill(org.segment_code)}</dd>` : ''}
           <dt>Website</dt><dd>${esc(org.website||'')||'<span class="muted">None</span>'}</dd>
           <dt>Reported AUM</dt><dd>${fmtUSD(org.reported_aum)||'<span class="muted">Not recorded</span>'}</dd>
           <dt>Other contacts</dt><dd>${colleagues.length ? colleagues.map(x => `<a href="${href('contacts/'+x.id)}">${esc(x.full_name)}</a> <span class="muted">${esc(x.title||'')}</span>`).join('<br>') : '<span class="muted">None</span>'}</dd></dl>
           <a class="btn btn-sm" style="margin-top:10px" href="${href('organizations/'+org.id)}">Open organization</a></div></section>` : ''}
-      </div>
-      <section class="card"><div class="card-head"><h2>Touchpoints</h2><span class="sub">${tps.length} on file, newest first</span></div>
-        <div class="thread">${tps.length ? tps.map(entry).join('') : emptyState('No outreach logged yet','Use Log touchpoint to record the first one.')}</div></section>
-    </div>`;
+      </aside>
+    </div>
+    <section class="card"><div class="card-head"><h2>Touchpoints</h2><span class="sub">${tps.length} on file, newest first</span></div>
+        <div class="thread">${tps.length ? tps.map(entry).join('') : emptyState('No outreach logged yet','Use Log touchpoint to record the first one.')}</div></section>`;
   },
   mount(root, params){
     const c = Repo.contacts.byId(Number(params.id)); if (!c) return;
@@ -3861,7 +3920,7 @@ Views.organizations = { title:'Organizations',
       const touches = (Repo._tpByOrg().get(o.id) || []).length;
       const aum = (opp && (opp.funded_aum ?? opp.expected_aum)) ?? o.reported_aum;
       const shortDate = v => v ? fmtDate(v, { month:'numeric', day:'numeric', year:'2-digit' }) : '<span class="muted">-</span>';
-      const link = u => u ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//,'').replace(/\/$/,''))}</a>` : '<span class="muted">-</span>';
+      const link = u => !blankish(u) ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//,'').replace(/\/$/,''))}</a>` : '';
       const cell = (v, field) => `<td class="${field ? 'ed' : ''}" ${field ? `data-oedit="${field}" data-id="${o.id}"` : ''} title="${esc(String(v ?? '').replace(/<[^>]*>/g,''))}">${v || '<span class="muted">-</span>'}</td>`;
       return `<tr class="row-link ${open ? 'is-open' : ''}" data-href="${href('organizations/'+o.id)}">
         <td class="rn pin1">${nth}</td>
@@ -4003,7 +4062,7 @@ Views.partners = { title:'Partners',
     rows = sortRows(rows, st.sort, st.dir, getters);
     const total = rows.length, page = rows.slice(st.page*st.pageSize, (st.page+1)*st.pageSize);
     const tab = k => `<a class="btn" href="${href('partners',{kind:k.key})}" aria-pressed="${k.key===kind.key}">${esc(k.label)} <span class="muted">${fmtInt(Repo.organizations.all().filter(o => o.segment_code === k.seg).length)}</span></a>`;
-    const link = u => u ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//,'').replace(/\/$/,''))}</a>` : '<span class="muted">-</span>';
+    const link = u => !blankish(u) ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//,'').replace(/\/$/,''))}</a>` : '';
 
     const row = (o, nth) => {
       const people = Repo.organizations.contacts(o.id);
@@ -4085,7 +4144,7 @@ Views.organization = { title:'Organization',
     const rems = Repo.organizations.openReminders(o.id), rfps = Repo.organizations.rfps(o.id);
     const latest = Repo.contacts.latestTouch();
     return `<div class="page-head"><div><a href="${href('organizations')}" class="small">All organizations</a><h1 style="margin-top:2px">${esc(o.name)}</h1>
-      <p>${segPill(o.segment_code)} ${esc(o.org_type||'')} &middot; ${esc([o.city,o.state].filter(Boolean).join(', '))}${o.is_university_affiliated ? ' &middot; No cold email (in person only)' : ''}</p></div>
+      <p class="keep">${segPill(o.segment_code)} ${esc(o.org_type||'')} &middot; ${esc([o.city,o.state].filter(Boolean).join(', '))}${o.is_university_affiliated ? ' &middot; No cold email (in person only)' : ''}</p></div>
       <div class="page-actions"><button class="btn" type="button" id="o-edit">Edit</button>${opp ? `<button class="btn" type="button" id="o-opp">Opportunity</button>` : ''}<button class="btn btn-primary" type="button" id="o-add">Add contact</button></div></div>
     ${o.do_not_contact ? `<div class="banner danger"><b>Do not contact.</b> ${esc(o.dnc_reason||'')}</div>` : ''}
     <div class="aum-cols" style="margin-bottom:14px">
@@ -5010,11 +5069,11 @@ function route(){
 }
 window.addEventListener('hashchange', route);
 Store.subscribe(() => render());
-/* A click anywhere else closes the state tick list, the way a menu should. */
+/* A click anywhere else closes an open filter menu, the way a menu should. */
 document.addEventListener('click', e => {
-  if (UI.openState && !e.target.closest('.multi')){ UI.openState = false; render(); }
+  if ((UI.openState || UI.openPick || UI.openCols) && !e.target.closest('.multi')){ UI.openState = false; UI.openPick = null; UI.openCols = false; render(); }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && UI.openState){ UI.openState = false; render(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && (UI.openState || UI.openPick || UI.openCols)){ UI.openState = false; UI.openPick = null; UI.openCols = false; render(); } });
 /* Today is read from the clock every time something is counted, but a window
    left open overnight would keep showing yesterday's answers until it was
    touched. This notices the date turning over and redraws. */
