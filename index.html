@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-15.3">
+<meta name="build-version" content="2026-10-15.4">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3242,11 +3242,15 @@ const OUTCOME_GROUPS = [
   ['After a call or meeting', ['CALL_HELD', 'HOT', 'READY_TO_ONBOARD', 'NOT_A_FIT', 'REVIEW_HELD', 'MET_AT_EVENT', 'MEETING_AT_EVENT', 'INTRO_MADE']],
   ['Other', ['WRONG_PERSON', 'REFERRED_INTERNALLY', 'HAS_ADVISOR', 'RFP_SUBMITTED', 'RFP_FINALIST', 'RFP_WON', 'RFP_LOST']],
 ];
+/* Every activity has an outcome, so the numbers count it. What each kind of
+   activity starts on before anyone chooses. */
+const DEFAULT_OUTCOME = { email:'NO_RESPONSE', check_in:'NO_RESPONSE', call:'NO_ANSWER', event:'MET_AT_EVENT', meeting:'CALL_HELD', intro:'INTRO_MADE', rfp:'RFP_SUBMITTED' };
+const outcomeFits = (code, type) => (OUT.get(code)?.applies || []).includes(type);
 function outcomeOptions(type, current){
   const fits = code => (OUT.get(code)?.applies || []).includes(type);
   const opt = code => `<option value="${code}" ${code === current ? 'selected' : ''}>${esc(outLabel(code))}</option>`;
   const seen = new Set();
-  let html = `<option value="" ${!current ? 'selected' : ''}>No outcome</option>`;
+  let html = '';
   for (const [label, codes] of OUTCOME_GROUPS){
     const list = codes.filter(fits); list.forEach(x => seen.add(x));
     if (list.length) html += `<optgroup label="${esc(label)}">${list.map(opt).join('')}</optgroup>`;
@@ -3272,7 +3276,7 @@ async function openActivity(contactId, tp = null, preset = {}){
   const tomorrow = Rules.addDays(Rules.startOfDay(new Date()), 1).toISOString().slice(0, 10);
   const type0 = tp ? tp.touch_type : (preset.touch_type || 'email');
   const dir0 = tp ? tp.direction : (preset.direction || 'outbound');
-  const out0 = tp ? (tp.outcome_code || '') : (preset.outcome ?? (type0 === 'email' && dir0 === 'outbound' ? 'NO_RESPONSE' : ''));
+  const out0 = (tp ? tp.outcome_code : preset.outcome) || DEFAULT_OUTCOME[type0] || '';
   const events = Repo.events.all(), ev0 = tp ? tp.event_id : preset.event_id;
   const body = `<div class="form-grid">
     <label class="f"><span>Type</span><select id="la-type">${TOUCH_TYPES.map(t => `<option value="${t.code}" ${t.code === type0 ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
@@ -3286,7 +3290,8 @@ async function openActivity(contactId, tp = null, preset = {}){
   const m = Modal.open({ title: (tp ? 'Edit activity for ' : 'Log activity for ') + c.full_name, body, foot, wide:true });
   const $ = id => m.querySelector('#' + id);
   let fuChosen = false;
-  const fill = keep => { $('la-out').innerHTML = outcomeOptions($('la-type').value, keep ?? $('la-out').value); };
+  const fill = keep => { const type = $('la-type').value, cur = keep ?? $('la-out').value;
+    $('la-out').innerHTML = outcomeOptions(type, cur && outcomeFits(cur, type) ? cur : (DEFAULT_OUTCOME[type] || cur)); };
   const syncFu = () => {
     const r = OUT.get($('la-out').value), show = isLatest && !!(r && r.reminder && r.next_days != null);
     $('la-fu-wrap').hidden = !show;
@@ -3656,7 +3661,7 @@ Views.contacts = { title:'Contacts',
       const cell = (v, field) => `<td class="${field ? 'ed' : ''}" ${field ? `data-edit="${field}" data-id="${c.id}"` : ''} title="${esc(String(v ?? '').replace(/<[^>]*>/g,''))}">${v || '<span class="muted">-</span>'}</td>`;
       return `<tr class="row-link ${open ? 'is-open' : ''}" data-href="${href('contacts/'+c.id)}">
         <td class="rn pin1">${nth}</td>
-        <td class="pin2 ed" data-edit="sourced" data-id="${c.id}">${shortDate(c.sourced_on || dayOf(c.created_at))}</td>
+        <td class="pin2" title="The day this person was added">${shortDate(c.sourced_on || dayOf(c.created_at))}</td>
         <td class="pin3" title="Open the full record for ${esc(c.full_name)}"><span class="name">${esc(c.full_name)}</span></td>
         ${cell(esc(c.first_name || ''), 'first_name')}
         ${cell(esc(c.email || ''), 'email')}
@@ -3956,10 +3961,8 @@ Views.contact = { title:'Contact',
       </div>
       <aside class="rec-side">
         <section class="card"><div class="card-head"><h2>Next follow-up</h2>${next ? `<span class="pill st-${Repo.reminders.bucket(next)}">${Repo.reminders.bucket(next)==='overdue'?'Overdue':Repo.reminders.bucket(next)==='today'?'Due today':'Upcoming'}</span>` : ''}</div><div class="card-body">
-          ${next ? (() => { const src = next.touchpoint_id != null ? Repo.touchpoints.byId(next.touchpoint_id) : null;
-            return `<p><b>${fmtDate(next.due_on,{weekday:'short',month:'short',day:'numeric'})}</b> <span class="muted">(${relDays(next.due_on)})</span> <span class="tag">${esc(RT.get(next.reminder_type)||next.reminder_type)}</span></p>
-            ${src ? `<p class="muted small" style="margin-top:6px">Set by the ${esc((TT.get(src.touch_type)?.name || src.touch_type).toLowerCase())} on ${whenLabel(src.touched_at)}${src.outcome_code ? ': ' + esc(outLabel(src.outcome_code)) : ''}</p>` : ''}
-            ${src && (src.notes || src.subject) ? `<p class="small" style="white-space:pre-wrap;margin-top:6px">${esc(src.notes || src.subject)}</p>` : next.details ? `<p class="muted small" style="white-space:pre-wrap;margin-top:6px">${esc(next.details)}</p>` : ''}`; })()
+          ${next ? `<p><b>${fmtDate(next.due_on,{weekday:'short',month:'short',day:'numeric'})}</b> <span class="muted">(${relDays(next.due_on)})</span> <span class="tag">${esc(RT.get(next.reminder_type)||next.reminder_type)}</span></p>
+            ${next.details ? `<p class="muted small" style="white-space:pre-wrap;margin-top:6px">${esc(next.details)}</p>` : ''}`
             : `<p class="muted">${c.do_not_contact ? 'None: this contact is on the do-not-contact list.' : 'Nothing scheduled. Choose a follow-up date when you log an activity.'}</p>`}</div></section>
         ${org ? `<section class="card"><div class="card-head"><h2>${esc(org.name)}</h2><span class="sub">${esc(org.org_type||'')}</span></div><div class="card-body"><dl class="kv">
           ${org.segment_code !== c.segment_code ? `<dt>Segment</dt><dd>${segPill(org.segment_code)}</dd>` : ''}
