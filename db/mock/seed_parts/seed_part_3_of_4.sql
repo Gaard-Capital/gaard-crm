@@ -1,0 +1,9672 @@
+-- GAARD CRM mock data, part 3 of 4. Run the parts in order after the migrations.
+select set_config('app.seeding', 'on', false);
+
+insert into public.email_messages (id, contact_id, touchpoint_id, mailbox, external_id, thread_id, direction, from_email, to_emails, cc_emails, subject, body_text, sent_at, is_auto_reply, created_at) values
+  (1, 29, 3, 'jon@gaard.example', '<mock-000001@gaard.example>', 'thread-000003', 'outbound', 'jon@gaard.example', '{"nsanchez@boxefbnetwork.example"}', '{}', 'Box Elder Food Bank Network''s reserves', 'Hi Natalie,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Box Elder Food Bank Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-01-28 11:03:23 America/Denver', false, '2025-01-28 11:03:23 America/Denver'),
+  (2, 81, 4, 'jon@gaard.example', '<mock-000002@gaard.example>', 'thread-000004', 'outbound', 'jon@gaard.example', '{"mark_murphy@weberrcaassociation.example"}', '{}', 'Weber River Clean Air Association''s reserves', 'Hi Mark,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Weber River Clean Air Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-01-30 09:29:25 America/Denver', false, '2025-01-30 09:29:25 America/Denver'),
+  (3, 77, 5, 'jon@gaard.example', '<mock-000003@gaard.example>', 'thread-000005', 'outbound', 'jon@gaard.example', '{"kristen@daviscsenetwork.example"}', '{}', 'Davis County Science Education Network''s reserves', 'Hi Kristen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Davis County Science Education Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-01-30 14:30:07 America/Denver', false, '2025-01-30 14:30:07 America/Denver'),
+  (4, 73, 6, 'jon@gaard.example', '<mock-000004@gaard.example>', 'thread-000006', 'outbound', 'jon@gaard.example', '{"ahart@beehiveaenetwork.example"}', '{}', 'Quick question about Beehive Arts Education Network''s endowment', 'Hi Ashley,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Arts Education Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-03 09:57:09 America/Denver', false, '2025-02-03 09:57:09 America/Denver'),
+  (5, 28, 7, 'jon@gaard.example', '<mock-000005@gaard.example>', 'thread-000007', 'outbound', 'jon@gaard.example', '{"nancy.hall@beehivecmservices.example"}', '{}', 'Beehive Chamber Music Services''s reserves', 'Hi Nancy,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Chamber Music Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-06 08:55:50 America/Denver', false, '2025-02-06 08:55:50 America/Denver'),
+  (6, 40, 8, 'jon@gaard.example', '<mock-000006@gaard.example>', 'thread-000008', 'outbound', 'jon@gaard.example', '{"arthur_nguyen@veteranssrrock.example"}', '{}', 'Veterans Services of Red Rock''s reserves', 'Hi Arthur,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Veterans Services of Red Rock keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-06 11:01:18 America/Denver', false, '2025-02-06 11:01:18 America/Denver'),
+  (7, 40, 8, 'jon@gaard.example', '<mock-000007@gaard.example>', 'thread-000008', 'inbound', 'arthur_nguyen@veteranssrrock.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Veterans Services of Red Rock''s reserves', 'I am out of the office until Monday, February 17 with limited access to email. For anything urgent please call our main office.', '2025-02-06 11:02:18 America/Denver', true, '2025-02-06 11:02:18 America/Denver'),
+  (8, 65, 9, 'jon@gaard.example', '<mock-000008@gaard.example>', 'thread-000009', 'outbound', 'jon@gaard.example', '{"wwillis@cachevyinitiative.example"}', '{}', 'Cache Valley Youth Initiative''s reserves', 'Hi Wei,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cache Valley Youth Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-11 13:53:44 America/Denver', false, '2025-02-11 13:53:44 America/Denver'),
+  (9, 12, 11, 'jon@gaard.example', '<mock-000009@gaard.example>', 'thread-000011', 'outbound', 'jon@gaard.example', '{"alexis@tooelevpservices.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Alexis,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-12 15:22:30 America/Denver', false, '2025-02-12 15:22:30 America/Denver'),
+  (10, 2, 12, 'jon@gaard.example', '<mock-000010@gaard.example>', 'thread-000012', 'outbound', 'jon@gaard.example', '{"jfisher@castlevpservices.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Joseph,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-13 13:46:01 America/Denver', false, '2025-02-13 13:46:01 America/Denver'),
+  (11, 2, 12, 'jon@gaard.example', '<mock-000011@gaard.example>', 'thread-000012', 'inbound', 'jfisher@castlevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Yes, I''d like to learn more. I''m free Monday afternoon.', '2025-02-14 03:46:01 America/Denver', false, '2025-02-14 03:46:01 America/Denver'),
+  (12, 60, 13, 'jon@gaard.example', '<mock-000012@gaard.example>', 'thread-000013', 'outbound', 'jon@gaard.example', '{"linh.wright@tooelevtalliance.example"}', '{}', 'Quick question about Tooele Valley Trails Alliance''s endowment', 'Hi Linh,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Tooele Valley Trails Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-13 14:52:41 America/Denver', false, '2025-02-13 14:52:41 America/Denver'),
+  (13, 11, 14, 'jon@gaard.example', '<mock-000013@gaard.example>', 'thread-000014', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Dennis,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-14 10:25:22 America/Denver', false, '2025-02-14 10:25:22 America/Denver'),
+  (14, 11, 14, 'jon@gaard.example', '<mock-000014@gaard.example>', 'thread-000014', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Thanks Jon, the timing is actually good. Could we set up a call Wednesday the 19?', '2025-02-15 01:25:22 America/Denver', false, '2025-02-15 01:25:22 America/Denver'),
+  (15, 47, 15, 'jon@gaard.example', '<mock-000015@gaard.example>', 'thread-000015', 'outbound', 'jon@gaard.example', '{"lisa.meyer@oquirrhcleanairnetwork.example"}', '{}', 'Investment support for Oquirrh Clean Air Network', 'Hi Lisa,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Oquirrh Clean Air Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-17 10:33:48 America/Denver', false, '2025-02-17 10:33:48 America/Denver'),
+  (16, 47, 15, 'jon@gaard.example', '<mock-000016@gaard.example>', 'thread-000015', 'inbound', 'lisa.meyer@oquirrhcleanairnetwork.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Investment support for Oquirrh Clean Air Network', 'I am out of the office until Thursday, February 27 with limited access to email. For anything urgent please call our main office.', '2025-02-17 10:36:48 America/Denver', true, '2025-02-17 10:36:48 America/Denver'),
+  (17, 44, 16, 'jon@gaard.example', '<mock-000017@gaard.example>', 'thread-000016', 'outbound', 'jon@gaard.example', '{"tevita.ellis@utahvscenter.example"}', '{}', 'Quick question about Utah Valley Scholarship Center''s endowment', 'Hi Tevita,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Utah Valley Scholarship Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-17 14:53:54 America/Denver', false, '2025-02-17 14:53:54 America/Denver'),
+  (18, 40, 17, 'jon@gaard.example', '<mock-000018@gaard.example>', 'thread-000017', 'outbound', 'jon@gaard.example', '{"arthur_nguyen@veteranssrrock.example"}', '{}', 'Re: Veterans Services of Red Rock''s reserves', 'Hi Arthur,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-02-18 13:11:38 America/Denver', false, '2025-02-18 13:11:38 America/Denver'),
+  (19, 25, 19, 'jon@gaard.example', '<mock-000019@gaard.example>', 'thread-000019', 'outbound', 'jon@gaard.example', '{"gabriel.wright@summitcmcoalition.example"}', '{}', 'Summit County Mentoring Coalition''s reserves', 'Hi Gabriel,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Summit County Mentoring Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-20 09:32:40 America/Denver', false, '2025-02-20 09:32:40 America/Denver'),
+  (20, 46, 20, 'jon@gaard.example', '<mock-000020@gaard.example>', 'thread-000020', 'outbound', 'jon@gaard.example', '{"alexis@refugeewckolob.example"}', '{}', 'Investment support for Refugee Welcome Council of Kolob', 'Hi Alexis,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Refugee Welcome Council of Kolob keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-21 13:55:33 America/Denver', false, '2025-02-21 13:55:33 America/Denver'),
+  (21, 53, 21, 'jon@gaard.example', '<mock-000021@gaard.example>', 'thread-000021', 'outbound', 'jon@gaard.example', '{"jkim@seviervmcollective.example"}', '{}', 'Sevier Valley Mentoring Collective''s reserves', 'Hi Jason,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sevier Valley Mentoring Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-24 10:05:43 America/Denver', false, '2025-02-24 10:05:43 America/Denver'),
+  (22, 91, 22, 'jon@gaard.example', '<mock-000022@gaard.example>', 'thread-000022', 'outbound', 'jon@gaard.example', '{"bwoods@uintawildlifecenter.example"}', '{}', 'Quick question about Uinta Wildlife Center''s endowment', 'Hi Beverly,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Uinta Wildlife Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-24 10:42:58 America/Denver', false, '2025-02-24 10:42:58 America/Denver'),
+  (23, 21, 24, 'jon@gaard.example', '<mock-000023@gaard.example>', 'thread-000024', 'outbound', 'jon@gaard.example', '{"dsilva@canyonlandsvcouncil.example"}', '{}', 'Quick question about Canyonlands Veterans Council''s endowment', 'Hi Douglas,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Canyonlands Veterans Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-02-25 11:43:47 America/Denver', false, '2025-02-25 11:43:47 America/Denver'),
+  (24, 47, 25, 'jon@gaard.example', '<mock-000024@gaard.example>', 'thread-000025', 'outbound', 'jon@gaard.example', '{"lisa.meyer@oquirrhcleanairnetwork.example"}', '{}', 'Re: Investment support for Oquirrh Clean Air Network', 'Hi Lisa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-02-28 14:08:57 America/Denver', false, '2025-02-28 14:08:57 America/Denver'),
+  (25, 5, 27, 'jon@gaard.example', '<mock-000025@gaard.example>', 'thread-000027', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-03-05 11:14:45 America/Denver', false, '2025-03-05 11:14:45 America/Denver'),
+  (26, 5, 27, 'jon@gaard.example', '<mock-000026@gaard.example>', 'thread-000027', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2025-03-07 09:14:45 America/Denver', false, '2025-03-07 09:14:45 America/Denver'),
+  (27, 50, 28, 'jon@gaard.example', '<mock-000027@gaard.example>', 'thread-000028', 'outbound', 'jon@gaard.example', '{"sioneb@housingpdcounty.example"}', '{}', 'Investment support for Housing Project of Davis County', 'Hi Sione,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Housing Project of Davis County keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-10 14:46:21 America/Denver', false, '2025-03-10 14:46:21 America/Denver'),
+  (28, 41, 30, 'jon@gaard.example', '<mock-000028@gaard.example>', 'thread-000030', 'outbound', 'jon@gaard.example', '{"peterr@castlevvcouncil.example"}', '{}', 'Castle Valley Veterans Council''s reserves', 'Hi Peter,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Castle Valley Veterans Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-13 09:21:00 America/Denver', false, '2025-03-13 09:21:00 America/Denver'),
+  (29, 208, 31, 'jon@gaard.example', '<mock-000029@gaard.example>', 'thread-000031', 'outbound', 'jon@gaard.example', '{"linda.brooks@webmail.example"}', '{}', 'Introduction via Alexis', 'Hi Linda,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-13 15:54:54 America/Denver', false, '2025-03-13 15:54:54 America/Denver'),
+  (30, 208, 31, 'jon@gaard.example', '<mock-000030@gaard.example>', 'thread-000031', 'inbound', 'linda.brooks@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Alexis', 'Not right now, work is busy right now. Please reach out again in April.', '2025-03-14 18:54:54 America/Denver', false, '2025-03-14 18:54:54 America/Denver'),
+  (31, 64, 32, 'jon@gaard.example', '<mock-000031@gaard.example>', 'thread-000032', 'outbound', 'jon@gaard.example', '{"kwameb@bonnevilleaepartners.example"}', '{}', 'Investment support for Bonneville Adult Education Partners', 'Hi Kwame,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Bonneville Adult Education Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-14 14:48:40 America/Denver', false, '2025-03-14 14:48:40 America/Denver'),
+  (32, 64, 32, 'jon@gaard.example', '<mock-000032@gaard.example>', 'thread-000032', 'inbound', 'mailer-daemon@mail.example', '{"jon@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to kwameb@bonnevilleaepartners.example because the address couldn''t be found or is unable to receive mail.', '2025-03-14 14:49:40 America/Denver', true, '2025-03-14 14:49:40 America/Denver'),
+  (33, 13, 33, 'jon@gaard.example', '<mock-000033@gaard.example>', 'thread-000033', 'outbound', 'jon@gaard.example', '{"carmstrong@davisceplaw.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Caleb,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-17 08:09:29 America/Denver', false, '2025-03-17 08:09:29 America/Denver'),
+  (34, 13, 33, 'jon@gaard.example', '<mock-000034@gaard.example>', 'thread-000033', 'inbound', 'carmstrong@davisceplaw.example', '{"jon@gaard.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Good timing question, but this quarter is busy for us. Circle back in June and we can talk.', '2025-03-19 11:09:29 America/Denver', false, '2025-03-19 11:09:29 America/Denver'),
+  (35, 101, 34, 'jon@gaard.example', '<mock-000035@gaard.example>', 'thread-000034', 'outbound', 'jon@gaard.example', '{"roger.simpson@escalantelfoundation.example"}', '{}', 'Investment management for Escalante Library Foundation', 'Hi Roger,
+
+We provide OCIO-style investment management for foundations and institutions like Escalante Library Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-18 14:44:00 America/Denver', false, '2025-03-18 14:44:00 America/Denver'),
+  (36, 23, 37, 'jon@gaard.example', '<mock-000036@gaard.example>', 'thread-000037', 'outbound', 'jon@gaard.example', '{"orogers@friendsoquirrhparks.example"}', '{}', 'Friends of Oquirrh Parks''s reserves', 'Hi Omar,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Oquirrh Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-20 10:52:11 America/Denver', false, '2025-03-20 10:52:11 America/Denver'),
+  (37, 216, 38, 'jon@gaard.example', '<mock-000037@gaard.example>', 'thread-000038', 'outbound', 'jon@gaard.example', '{"andrew.mendoza@mail.example"}', '{}', 'Introduction via Karen', 'Hi Andrew,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-21 10:07:37 America/Denver', false, '2025-03-21 10:07:37 America/Denver'),
+  (38, 216, 38, 'jon@gaard.example', '<mock-000038@gaard.example>', 'thread-000038', 'inbound', 'andrew.mendoza@mail.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Karen', 'Thanks for following up. Right now we are traveling. Could you check back in July?', '2025-03-23 00:07:37 America/Denver', false, '2025-03-23 00:07:37 America/Denver'),
+  (39, 36, 39, 'jon@gaard.example', '<mock-000039@gaard.example>', 'thread-000039', 'outbound', 'jon@gaard.example', '{"amanda@danceleaguegreatbasin.example"}', '{}', 'Investment support for Dance League of Great Basin', 'Hi Amanda,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Dance League of Great Basin keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-24 14:44:54 America/Denver', false, '2025-03-24 14:44:54 America/Denver'),
+  (40, 93, 40, 'jon@gaard.example', '<mock-000040@gaard.example>', 'thread-000040', 'outbound', 'jon@gaard.example', '{"tyler.nelson@sacramentovhfoundation.example"}', '{}', 'OCIO support for Sacramento Valley Health Foundation', 'Hi Tyler,
+
+We provide OCIO-style investment management for foundations and institutions like Sacramento Valley Health Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-03-24 16:39:27 America/Denver', false, '2025-03-24 16:39:27 America/Denver'),
+  (41, 75, 42, 'jon@gaard.example', '<mock-000041@gaard.example>', 'thread-000042', 'outbound', 'jon@gaard.example', '{"russellg@weberrasalliance.example"}', '{}', 'Investment support for Weber River After School Alliance', 'Hi Russell,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Weber River After School Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-01 09:11:56 America/Denver', false, '2025-04-01 09:11:56 America/Denver'),
+  (42, 208, 43, 'jon@gaard.example', '<mock-000042@gaard.example>', 'thread-000043', 'outbound', 'jon@gaard.example', '{"linda.brooks@webmail.example"}', '{}', 'Checking back in', 'Hi Linda,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-01 10:42:09 America/Denver', false, '2025-04-01 10:42:09 America/Denver'),
+  (43, 208, 43, 'jon@gaard.example', '<mock-000043@gaard.example>', 'thread-000043', 'inbound', 'linda.brooks@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Good timing question, but we are traveling. Circle back in June and we can talk.', '2025-04-03 10:42:09 America/Denver', false, '2025-04-03 10:42:09 America/Denver'),
+  (44, 58, 45, 'jon@gaard.example', '<mock-000044@gaard.example>', 'thread-000045', 'outbound', 'jon@gaard.example', '{"padams@adulteahvalley.example"}', '{}', 'Adult Education Association of Heber Valley''s reserves', 'Hi Priya,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Adult Education Association of Heber Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-02 10:47:30 America/Denver', false, '2025-04-02 10:47:30 America/Denver'),
+  (45, 1, 47, 'jon@gaard.example', '<mock-000045@gaard.example>', 'thread-000047', 'outbound', 'jon@gaard.example', '{"isabella.foster@fisherlawoffice.example"}', '{}', 'Introduction via the', 'Hi Isabella,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-03 10:02:35 America/Denver', false, '2025-04-03 10:02:35 America/Denver'),
+  (46, 1, 47, 'jon@gaard.example', '<mock-000046@gaard.example>', 'thread-000047', 'inbound', 'isabella.foster@fisherlawoffice.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via the', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 14?', '2025-04-03 20:02:35 America/Denver', false, '2025-04-03 20:02:35 America/Denver'),
+  (47, 64, 49, 'jon@gaard.example', '<mock-000047@gaard.example>', 'thread-000049', 'outbound', 'jon@gaard.example', '{"kbaker@bonnevilleaepartners.example"}', '{}', 'Investment support for Bonneville Adult Education Partners', 'Hi Kwame,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Bonneville Adult Education Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-07 09:44:14 America/Denver', false, '2025-04-07 09:44:14 America/Denver'),
+  (48, 105, 50, 'jon@gaard.example', '<mock-000048@gaard.example>', 'thread-000050', 'outbound', 'jon@gaard.example', '{"elizabeth.castro@escalantehfoundation.example"}', '{}', 'OCIO support for Escalante Health Foundation', 'Hi Elizabeth,
+
+We provide OCIO-style investment management for foundations and institutions like Escalante Health Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-07 11:04:00 America/Denver', false, '2025-04-07 11:04:00 America/Denver'),
+  (49, 2, 51, 'jon@gaard.example', '<mock-000049@gaard.example>', 'thread-000051', 'outbound', 'jon@gaard.example', '{"jfisher@castlevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Joseph,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-04-07 14:36:41 America/Denver', false, '2025-04-07 14:36:41 America/Denver'),
+  (50, 2, 51, 'jon@gaard.example', '<mock-000050@gaard.example>', 'thread-000051', 'inbound', 'jfisher@castlevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in May?', '2025-04-08 03:36:41 America/Denver', false, '2025-04-08 03:36:41 America/Denver'),
+  (51, 212, 53, 'jon@gaard.example', '<mock-000051@gaard.example>', 'thread-000053', 'outbound', 'jon@gaard.example', '{"arthur.dunn@inbox.example"}', '{}', 'Introduction via Karen', 'Hi Arthur,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-09 15:03:52 America/Denver', false, '2025-04-09 15:03:52 America/Denver'),
+  (52, 212, 53, 'jon@gaard.example', '<mock-000052@gaard.example>', 'thread-000053', 'inbound', 'arthur.dunn@inbox.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Karen', 'Good timing question, but I''m in the middle of a move. Circle back in May and we can talk.', '2025-04-11 18:03:52 America/Denver', false, '2025-04-11 18:03:52 America/Denver'),
+  (53, 5, 54, 'jon@gaard.example', '<mock-000053@gaard.example>', 'thread-000054', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-04-11 09:41:42 America/Denver', false, '2025-04-11 09:41:42 America/Denver'),
+  (54, 5, 54, 'jon@gaard.example', '<mock-000054@gaard.example>', 'thread-000054', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2025-04-13 06:41:42 America/Denver', false, '2025-04-13 06:41:42 America/Denver'),
+  (55, 11, 55, 'jon@gaard.example', '<mock-000055@gaard.example>', 'thread-000055', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-04-11 11:59:54 America/Denver', false, '2025-04-11 11:59:54 America/Denver'),
+  (56, 11, 55, 'jon@gaard.example', '<mock-000056@gaard.example>', 'thread-000055', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in May.', '2025-04-12 02:59:54 America/Denver', false, '2025-04-12 02:59:54 America/Denver'),
+  (57, 84, 56, 'jon@gaard.example', '<mock-000057@gaard.example>', 'thread-000056', 'outbound', 'jon@gaard.example', '{"gabriel.singh@dancepscounty.example"}', '{}', 'Dance Project of Summit County''s reserves', 'Hi Gabriel,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Dance Project of Summit County keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-11 15:05:03 America/Denver', false, '2025-04-11 15:05:03 America/Denver'),
+  (58, 83, 58, 'jon@gaard.example', '<mock-000058@gaard.example>', 'thread-000058', 'outbound', 'jon@gaard.example', '{"george@millcreektassociation.example"}', '{}', 'Millcreek Theater Association''s reserves', 'Hi George,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Millcreek Theater Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-15 15:14:51 America/Denver', false, '2025-04-15 15:14:51 America/Denver'),
+  (59, 83, 58, 'jon@gaard.example', '<mock-000059@gaard.example>', 'thread-000058', 'inbound', 'george@millcreektassociation.example', '{"jon@gaard.example"}', '{}', 'Re: Millcreek Theater Association''s reserves', 'We''re not interested, thanks.', '2025-04-17 12:14:51 America/Denver', false, '2025-04-17 12:14:51 America/Denver'),
+  (60, 22, 64, 'jon@gaard.example', '<mock-000060@gaard.example>', 'thread-000064', 'outbound', 'jon@gaard.example', '{"zachary@friendsutahvalleyparks.example"}', '{}', 'Quick question about Friends of Utah Valley Parks''s endowment', 'Hi Zachary,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Utah Valley Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-17 11:19:49 America/Denver', false, '2025-04-17 11:19:49 America/Denver'),
+  (61, 24, 84, 'jon@gaard.example', '<mock-000061@gaard.example>', 'thread-000084', 'outbound', 'jon@gaard.example', '{"jose@cottonwoodchsociety.example"}', '{}', 'Cottonwood Community Health Society''s reserves', 'Hi Jose,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cottonwood Community Health Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 09:08:37 America/Denver', false, '2025-04-21 09:08:37 America/Denver'),
+  (62, 127, 85, 'jon@gaard.example', '<mock-000062@gaard.example>', 'thread-000085', 'outbound', 'jon@gaard.example', '{"henry@ogdenvdssociety.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Henry,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Ogden Valley Disability Services Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 09:41:11 America/Denver', false, '2025-04-21 09:41:11 America/Denver'),
+  (63, 127, 85, 'jon@gaard.example', '<mock-000063@gaard.example>', 'thread-000085', 'inbound', 'henry@ogdenvdssociety.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2025-04-21 14:41:11 America/Denver', false, '2025-04-21 14:41:11 America/Denver'),
+  (64, 132, 86, 'jon@gaard.example', '<mock-000064@gaard.example>', 'thread-000086', 'outbound', 'jon@gaard.example', '{"zachary.harris@summitcfsassociation.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Zachary,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Summit County Family Services Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 09:46:58 America/Denver', false, '2025-04-21 09:46:58 America/Denver'),
+  (65, 132, 86, 'jon@gaard.example', '<mock-000065@gaard.example>', 'thread-000086', 'inbound', 'zachary.harris@summitcfsassociation.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'This has been on my list. Happy to talk, does Apr 30 work?', '2025-04-23 18:46:58 America/Denver', false, '2025-04-23 18:46:58 America/Denver'),
+  (66, 118, 87, 'jon@gaard.example', '<mock-000066@gaard.example>', 'thread-000087', 'outbound', 'jon@gaard.example', '{"gholmes@wasatchftnetwork.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Gloria,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Front Theater Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 10:11:53 America/Denver', false, '2025-04-21 10:11:53 America/Denver'),
+  (67, 118, 87, 'jon@gaard.example', '<mock-000067@gaard.example>', 'thread-000087', 'inbound', 'gholmes@wasatchftnetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 5?', '2025-04-24 08:11:53 America/Denver', false, '2025-04-24 08:11:53 America/Denver'),
+  (68, 15, 88, 'jon@gaard.example', '<mock-000068@gaard.example>', 'thread-000088', 'outbound', 'jon@gaard.example', '{"rachel@wasatchbusinessbrokers.example"}', '{}', 'Introduction via the', 'Hi Rachel,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 10:24:45 America/Denver', false, '2025-04-21 10:24:45 America/Denver'),
+  (69, 15, 88, 'jon@gaard.example', '<mock-000069@gaard.example>', 'thread-000088', 'inbound', 'rachel@wasatchbusinessbrokers.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via the', 'We''re not interested, thanks.', '2025-04-22 17:24:45 America/Denver', false, '2025-04-22 17:24:45 America/Denver'),
+  (70, 133, 89, 'jon@gaard.example', '<mock-000070@gaard.example>', 'thread-000089', 'outbound', 'jon@gaard.example', '{"dmurphy@cottonwoodvleague.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Daniel,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cottonwood Veterans League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 10:44:28 America/Denver', false, '2025-04-21 10:44:28 America/Denver'),
+  (71, 134, 90, 'jon@gaard.example', '<mock-000071@gaard.example>', 'thread-000090', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Kai,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Iron County Food Security Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 10:45:00 America/Denver', false, '2025-04-21 10:45:00 America/Denver'),
+  (72, 136, 91, 'jon@gaard.example', '<mock-000072@gaard.example>', 'thread-000091', 'outbound', 'jon@gaard.example', '{"javier.madsen@canyonlandsasinitiative.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Javier,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Canyonlands After School Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 11:06:06 America/Denver', false, '2025-04-21 11:06:06 America/Denver'),
+  (73, 14, 92, 'jon@gaard.example', '<mock-000073@gaard.example>', 'thread-000092', 'outbound', 'jon@gaard.example', '{"brittany@wasatchbusinessbrokers.example"}', '{}', 'Introduction via the', 'Hi Brittany,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 11:12:44 America/Denver', false, '2025-04-21 11:12:44 America/Denver'),
+  (74, 14, 92, 'jon@gaard.example', '<mock-000074@gaard.example>', 'thread-000092', 'inbound', 'brittany@wasatchbusinessbrokers.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via the', 'Yes, I''d like to learn more. I''m free Friday afternoon.', '2025-04-23 02:12:44 America/Denver', false, '2025-04-23 02:12:44 America/Denver'),
+  (75, 122, 93, 'jon@gaard.example', '<mock-000075@gaard.example>', 'thread-000093', 'outbound', 'jon@gaard.example', '{"mjimenez@friendsoquirrhparks.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Mark,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Oquirrh Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 11:15:07 America/Denver', false, '2025-04-21 11:15:07 America/Denver'),
+  (76, 122, 93, 'jon@gaard.example', '<mock-000076@gaard.example>', 'thread-000093', 'inbound', 'mjimenez@friendsoquirrhparks.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'No thanks, we are all set.', '2025-04-23 10:15:07 America/Denver', false, '2025-04-23 10:15:07 America/Denver'),
+  (77, 121, 94, 'jon@gaard.example', '<mock-000077@gaard.example>', 'thread-000094', 'outbound', 'jon@gaard.example', '{"nathan@refugeewckolob.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Nathan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Refugee Welcome Council of Kolob keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 11:21:59 America/Denver', false, '2025-04-21 11:21:59 America/Denver'),
+  (78, 121, 94, 'jon@gaard.example', '<mock-000078@gaard.example>', 'thread-000094', 'inbound', 'nathan@refugeewckolob.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in July and we can talk.', '2025-04-22 00:21:59 America/Denver', false, '2025-04-22 00:21:59 America/Denver'),
+  (79, 117, 95, 'jon@gaard.example', '<mock-000079@gaard.example>', 'thread-000095', 'outbound', 'jon@gaard.example', '{"christopher.choi@daviscsecenter.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Christopher,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Davis County Science Education Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 11:45:22 America/Denver', false, '2025-04-21 11:45:22 America/Denver'),
+  (80, 117, 95, 'jon@gaard.example', '<mock-000080@gaard.example>', 'thread-000095', 'inbound', 'christopher.choi@daviscsecenter.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Good timing question, but our board meets later in the year. Circle back in August and we can talk.', '2025-04-23 09:45:22 America/Denver', false, '2025-04-23 09:45:22 America/Denver'),
+  (81, 130, 96, 'jon@gaard.example', '<mock-000081@gaard.example>', 'thread-000096', 'outbound', 'jon@gaard.example', '{"skennedy@summitchservices.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Sharon,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Summit County Habitat Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 13:40:25 America/Denver', false, '2025-04-21 13:40:25 America/Denver'),
+  (82, 131, 97, 'jon@gaard.example', '<mock-000082@gaard.example>', 'thread-000097', 'outbound', 'jon@gaard.example', '{"amanda.morgan@cottonwoodmalliance.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Amanda,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cottonwood Music Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 14:03:16 America/Denver', false, '2025-04-21 14:03:16 America/Denver'),
+  (83, 123, 98, 'jon@gaard.example', '<mock-000083@gaard.example>', 'thread-000098', 'outbound', 'jon@gaard.example', '{"bryan.brooks@millcreekwassociation.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Bryan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Millcreek Wildlife Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-21 15:43:40 America/Denver', false, '2025-04-21 15:43:40 America/Denver'),
+  (84, 123, 98, 'jon@gaard.example', '<mock-000084@gaard.example>', 'thread-000098', 'inbound', 'bryan.brooks@millcreekwassociation.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Yes, I''d like to learn more. I''m free Thursday afternoon.', '2025-04-22 21:43:40 America/Denver', false, '2025-04-22 21:43:40 America/Denver'),
+  (85, 128, 99, 'jon@gaard.example', '<mock-000085@gaard.example>', 'thread-000099', 'outbound', 'jon@gaard.example', '{"dakota.allen@foodbccanyonlands.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Dakota,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Food Bank Collective of Canyonlands keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-22 09:23:36 America/Denver', false, '2025-04-22 09:23:36 America/Denver'),
+  (86, 128, 99, 'jon@gaard.example', '<mock-000086@gaard.example>', 'thread-000099', 'inbound', 'dakota.allen@foodbccanyonlands.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Thanks for following up. Right now our board meets later in the year. Could you check back in May?', '2025-04-22 20:23:36 America/Denver', false, '2025-04-22 20:23:36 America/Denver'),
+  (87, 129, 100, 'jon@gaard.example', '<mock-000087@gaard.example>', 'thread-000100', 'outbound', 'jon@gaard.example', '{"gregory.bell@summitcmcoalition.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Gregory,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Summit County Mentoring Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-22 10:26:39 America/Denver', false, '2025-04-22 10:26:39 America/Denver'),
+  (88, 116, 101, 'jon@gaard.example', '<mock-000088@gaard.example>', 'thread-000101', 'outbound', 'jon@gaard.example', '{"rsnyder@ironcaralliance.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Raymond,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Iron County Animal Rescue Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-22 10:29:52 America/Denver', false, '2025-04-22 10:29:52 America/Denver'),
+  (89, 72, 102, 'jon@gaard.example', '<mock-000089@gaard.example>', 'thread-000102', 'outbound', 'jon@gaard.example', '{"jesse.rivera@theatersocietybeehive.example"}', '{}', 'Quick question about Theater Society of Beehive''s endowment', 'Hi Jesse,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Theater Society of Beehive keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-22 11:06:02 America/Denver', false, '2025-04-22 11:06:02 America/Denver'),
+  (90, 72, 102, 'jon@gaard.example', '<mock-000090@gaard.example>', 'thread-000102', 'inbound', 'jesse.rivera@theatersocietybeehive.example', '{"jon@gaard.example"}', '{}', 'Re: Quick question about Theater Society of Beehive''s endowment', 'This has been on my list. Happy to talk, does May 5 work?', '2025-04-25 08:06:02 America/Denver', false, '2025-04-25 08:06:02 America/Denver'),
+  (91, 119, 103, 'jon@gaard.example', '<mock-000091@gaard.example>', 'thread-000103', 'outbound', 'jon@gaard.example', '{"mariaw@friendsbeehivesymphony.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Maria,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Beehive Symphony keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-22 13:16:21 America/Denver', false, '2025-04-22 13:16:21 America/Denver'),
+  (92, 119, 103, 'jon@gaard.example', '<mock-000092@gaard.example>', 'thread-000103', 'inbound', 'mariaw@friendsbeehivesymphony.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Not something we are looking at. Thank you.', '2025-04-24 00:16:21 America/Denver', false, '2025-04-24 00:16:21 America/Denver'),
+  (93, 137, 104, 'jon@gaard.example', '<mock-000093@gaard.example>', 'thread-000104', 'outbound', 'jon@gaard.example', '{"denise.hill@wasatchfwcoalition.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Denise,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Front Watershed Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-22 14:06:01 America/Denver', false, '2025-04-22 14:06:01 America/Denver'),
+  (94, 126, 105, 'jon@gaard.example', '<mock-000094@gaard.example>', 'thread-000105', 'outbound', 'jon@gaard.example', '{"ecarroll@adulteahvalley.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Elena,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Adult Education Association of Heber Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-22 14:20:54 America/Denver', false, '2025-04-22 14:20:54 America/Denver'),
+  (95, 125, 106, 'jon@gaard.example', '<mock-000095@gaard.example>', 'thread-000106', 'outbound', 'jon@gaard.example', '{"timothy@friendshvlibrary.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Timothy,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Heber Valley Library keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-22 14:40:46 America/Denver', false, '2025-04-22 14:40:46 America/Denver'),
+  (96, 124, 107, 'jon@gaard.example', '<mock-000096@gaard.example>', 'thread-000107', 'outbound', 'jon@gaard.example', '{"mmendez@hebervcpartners.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Mark,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Heber Valley Conservation Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-22 16:10:24 America/Denver', false, '2025-04-22 16:10:24 America/Denver'),
+  (97, 29, 108, 'jon@gaard.example', '<mock-000097@gaard.example>', 'thread-000108', 'outbound', 'jon@gaard.example', '{"nsanchez@boxefbnetwork.example"}', '{}', 'Re: Box Elder Food Bank Network''s reserves', 'Hi Natalie,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-04-24 08:41:14 America/Denver', false, '2025-04-24 08:41:14 America/Denver'),
+  (98, 52, 110, 'jon@gaard.example', '<mock-000098@gaard.example>', 'thread-000110', 'outbound', 'jon@gaard.example', '{"stephenc@hebervcaservices.example"}', '{}', 'Quick question about Heber Valley Clean Air Services''s endowment', 'Hi Stephen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Heber Valley Clean Air Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-25 14:52:37 America/Denver', false, '2025-04-25 14:52:37 America/Denver'),
+  (99, 109, 112, 'jon@gaard.example', '<mock-000099@gaard.example>', 'thread-000112', 'outbound', 'jon@gaard.example', '{"btran@montereybhfoundation.example"}', '{}', 'OCIO support for Monterey Bay Hospital Foundation', 'Hi Brian,
+
+We provide OCIO-style investment management for foundations and institutions like Monterey Bay Hospital Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-28 08:00:19 America/Denver', false, '2025-04-28 08:00:19 America/Denver'),
+  (100, 33, 114, 'jon@gaard.example', '<mock-000100@gaard.example>', 'thread-000114', 'outbound', 'jon@gaard.example', '{"doris.elliott@friendsuvtrails.example"}', '{}', 'Investment support for Friends of Utah Valley Trails', 'Hi Doris,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Utah Valley Trails keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-04-29 09:06:11 America/Denver', false, '2025-04-29 09:06:11 America/Denver'),
+  (101, 81, 116, 'jon@gaard.example', '<mock-000101@gaard.example>', 'thread-000116', 'outbound', 'jon@gaard.example', '{"mark_murphy@weberrcaassociation.example"}', '{}', 'Re: Weber River Clean Air Association''s reserves', 'Hi Mark,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-01 09:19:31 America/Denver', false, '2025-05-01 09:19:31 America/Denver'),
+  (102, 2, 117, 'jon@gaard.example', '<mock-000102@gaard.example>', 'thread-000117', 'outbound', 'jon@gaard.example', '{"jfisher@castlevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Joseph,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-05-01 13:01:22 America/Denver', false, '2025-05-01 13:01:22 America/Denver'),
+  (103, 128, 118, 'jon@gaard.example', '<mock-000103@gaard.example>', 'thread-000118', 'outbound', 'jon@gaard.example', '{"dakota.allen@foodbccanyonlands.example"}', '{}', 'Checking back in', 'Hi Dakota,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Food Bank Collective of Canyonlands keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-01 13:14:00 America/Denver', false, '2025-05-01 13:14:00 America/Denver'),
+  (104, 108, 119, 'jon@gaard.example', '<mock-000104@gaard.example>', 'thread-000119', 'outbound', 'jon@gaard.example', '{"fatima@hebervlfoundation.example"}', '{}', 'Investment management for Heber Valley Library Foundation', 'Hi Fatima,
+
+We provide OCIO-style investment management for foundations and institutions like Heber Valley Library Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-01 14:05:15 America/Denver', false, '2025-05-01 14:05:15 America/Denver'),
+  (105, 212, 120, 'jon@gaard.example', '<mock-000105@gaard.example>', 'thread-000120', 'outbound', 'jon@gaard.example', '{"arthur.dunn@inbox.example"}', '{}', 'Checking back in', 'Hi Arthur,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-01 14:47:50 America/Denver', false, '2025-05-01 14:47:50 America/Denver'),
+  (106, 212, 120, 'jon@gaard.example', '<mock-000106@gaard.example>', 'thread-000120', 'inbound', 'arthur.dunn@inbox.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'This has been on my list. Happy to talk, does May 6 work?', '2025-05-01 17:47:50 America/Denver', false, '2025-05-01 17:47:50 America/Denver'),
+  (107, 5, 130, 'jon@gaard.example', '<mock-000107@gaard.example>', 'thread-000130', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-05-06 15:47:54 America/Denver', false, '2025-05-06 15:47:54 America/Denver'),
+  (108, 5, 130, 'jon@gaard.example', '<mock-000108@gaard.example>', 'thread-000130', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in June.', '2025-05-07 18:47:54 America/Denver', false, '2025-05-07 18:47:54 America/Denver'),
+  (109, 16, 132, 'jon@gaard.example', '<mock-000109@gaard.example>', 'thread-000132', 'outbound', 'jon@gaard.example', '{"albert.nakamura@romerotaxadvisory.example"}', '{}', 'Introduction via the', 'Hi Albert,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-07 09:57:05 America/Denver', false, '2025-05-07 09:57:05 America/Denver'),
+  (110, 16, 132, 'jon@gaard.example', '<mock-000110@gaard.example>', 'thread-000132', 'inbound', 'albert.nakamura@romerotaxadvisory.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via the', 'Not right now, our board meets later in the year. Please reach out again in June.', '2025-05-10 04:57:05 America/Denver', false, '2025-05-10 04:57:05 America/Denver'),
+  (111, 99, 133, 'jon@gaard.example', '<mock-000111@gaard.example>', 'thread-000133', 'outbound', 'jon@gaard.example', '{"logan.tuilagi@sugarhhfoundation.example"}', '{}', 'Investment management for Sugar House Hospital Foundation', 'Hi Logan,
+
+We provide OCIO-style investment management for foundations and institutions like Sugar House Hospital Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-08 09:09:09 America/Denver', false, '2025-05-08 09:09:09 America/Denver'),
+  (112, 115, 134, 'ryan@gaard.example', '<mock-000112@gaard.example>', 'thread-000134', 'outbound', 'ryan@gaard.example', '{"grace.torres@whitecharitabletrust.example"}', '{}', 'Investment management for White Charitable Trust', 'Hi Grace,
+
+We provide OCIO-style investment management for foundations and institutions like White Charitable Trust.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-05-09 08:51:38 America/Denver', false, '2025-05-09 08:51:38 America/Denver'),
+  (113, 89, 135, 'jon@gaard.example', '<mock-000113@gaard.example>', 'thread-000135', 'outbound', 'jon@gaard.example', '{"rchoi@sugarhchservices.example"}', '{}', 'Investment support for Sugar House Community Health Services', 'Hi Roy,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Community Health Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-09 09:00:21 America/Denver', false, '2025-05-09 09:00:21 America/Denver'),
+  (114, 73, 136, 'jon@gaard.example', '<mock-000114@gaard.example>', 'thread-000136', 'outbound', 'jon@gaard.example', '{"ahart@beehiveaenetwork.example"}', '{}', 'Re: Quick question about Beehive Arts Education Network''s endowment', 'Hi Ashley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-09 09:04:44 America/Denver', false, '2025-05-09 09:04:44 America/Denver'),
+  (115, 73, 136, 'jon@gaard.example', '<mock-000115@gaard.example>', 'thread-000136', 'inbound', 'ahart@beehiveaenetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Quick question about Beehive Arts Education Network''s endowment', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in June?', '2025-05-11 08:04:44 America/Denver', false, '2025-05-11 08:04:44 America/Denver'),
+  (116, 42, 137, 'jon@gaard.example', '<mock-000116@gaard.example>', 'thread-000137', 'outbound', 'jon@gaard.example', '{"justin_baker@beehiveyouthpartners.example"}', '{}', 'Investment support for Beehive Youth Partners', 'Hi Justin,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Youth Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-09 11:14:24 America/Denver', false, '2025-05-09 11:14:24 America/Denver'),
+  (117, 18, 138, 'jon@gaard.example', '<mock-000117@gaard.example>', 'thread-000138', 'outbound', 'jon@gaard.example', '{"jean@redrbconsulting.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Jean,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-12 11:43:51 America/Denver', false, '2025-05-12 11:43:51 America/Denver'),
+  (118, 18, 138, 'jon@gaard.example', '<mock-000118@gaard.example>', 'thread-000138', 'inbound', 'jean@redrbconsulting.example', '{"jon@gaard.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Yes, I''d like to learn more. I''m free Thursday afternoon.', '2025-05-13 19:43:51 America/Denver', false, '2025-05-13 19:43:51 America/Denver'),
+  (119, 65, 139, 'jon@gaard.example', '<mock-000119@gaard.example>', 'thread-000139', 'outbound', 'jon@gaard.example', '{"wwillis@cachevyinitiative.example"}', '{}', 'Re: Cache Valley Youth Initiative''s reserves', 'Hi Wei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-12 13:02:16 America/Denver', false, '2025-05-12 13:02:16 America/Denver'),
+  (120, 28, 140, 'jon@gaard.example', '<mock-000120@gaard.example>', 'thread-000140', 'outbound', 'jon@gaard.example', '{"nancy.hall@beehivecmservices.example"}', '{}', 'Re: Beehive Chamber Music Services''s reserves', 'Hi Nancy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-12 13:43:14 America/Denver', false, '2025-05-12 13:43:14 America/Denver'),
+  (121, 77, 142, 'jon@gaard.example', '<mock-000121@gaard.example>', 'thread-000142', 'outbound', 'jon@gaard.example', '{"kristen@daviscsenetwork.example"}', '{}', 'Re: Davis County Science Education Network''s reserves', 'Hi Kristen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-12 14:19:11 America/Denver', false, '2025-05-12 14:19:11 America/Denver'),
+  (122, 30, 143, 'jon@gaard.example', '<mock-000122@gaard.example>', 'thread-000143', 'outbound', 'jon@gaard.example', '{"lawrence@utahvfsproject.example"}', '{}', 'Investment support for Utah Valley Food Security Project', 'Hi Lawrence,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Utah Valley Food Security Project keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-13 09:19:29 America/Denver', false, '2025-05-13 09:19:29 America/Denver'),
+  (123, 11, 144, 'jon@gaard.example', '<mock-000123@gaard.example>', 'thread-000144', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-05-13 15:37:47 America/Denver', false, '2025-05-13 15:37:47 America/Denver'),
+  (124, 12, 145, 'jon@gaard.example', '<mock-000124@gaard.example>', 'thread-000145', 'outbound', 'jon@gaard.example', '{"alexis@tooelevpservices.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Hi Alexis,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-13 16:25:29 America/Denver', false, '2025-05-13 16:25:29 America/Denver'),
+  (125, 8, 146, 'jon@gaard.example', '<mock-000125@gaard.example>', 'thread-000146', 'outbound', 'jon@gaard.example', '{"jrussell@ramosholmescpas.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Judith,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-15 11:09:06 America/Denver', false, '2025-05-15 11:09:06 America/Denver'),
+  (126, 102, 147, 'jon@gaard.example', '<mock-000126@gaard.example>', 'thread-000147', 'outbound', 'jon@gaard.example', '{"catherine.barnes@cunninghamffoundation.example"}', '{}', 'OCIO support for Cunningham Family Foundation', 'Hi Catherine,
+
+We provide OCIO-style investment management for foundations and institutions like Cunningham Family Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-16 08:01:56 America/Denver', false, '2025-05-16 08:01:56 America/Denver'),
+  (127, 9, 149, 'jon@gaard.example', '<mock-000127@gaard.example>', 'thread-000149', 'outbound', 'jon@gaard.example', '{"ekelly@ramosholmescpas.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Edward,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-16 11:17:56 America/Denver', false, '2025-05-16 11:17:56 America/Denver'),
+  (128, 9, 149, 'jon@gaard.example', '<mock-000128@gaard.example>', 'thread-000149', 'inbound', 'ekelly@ramosholmescpas.example', '{"jon@gaard.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2025-05-17 11:17:56 America/Denver', false, '2025-05-17 11:17:56 America/Denver'),
+  (129, 113, 150, 'jon@gaard.example', '<mock-000129@gaard.example>', 'thread-000150', 'outbound', 'jon@gaard.example', '{"gerald.cooper@boxelderartsendowment.example"}', '{}', 'OCIO support for Box Elder Arts Endowment', 'Hi Gerald,
+
+We provide OCIO-style investment management for foundations and institutions like Box Elder Arts Endowment.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-16 14:16:26 America/Denver', false, '2025-05-16 14:16:26 America/Denver'),
+  (130, 60, 151, 'jon@gaard.example', '<mock-000130@gaard.example>', 'thread-000151', 'outbound', 'jon@gaard.example', '{"linh.wright@tooelevtalliance.example"}', '{}', 'Re: Quick question about Tooele Valley Trails Alliance''s endowment', 'Hi Linh,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-19 09:50:43 America/Denver', false, '2025-05-19 09:50:43 America/Denver'),
+  (131, 44, 153, 'jon@gaard.example', '<mock-000131@gaard.example>', 'thread-000153', 'outbound', 'jon@gaard.example', '{"tevita.ellis@utahvscenter.example"}', '{}', 'Re: Quick question about Utah Valley Scholarship Center''s endowment', 'Hi Tevita,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-19 10:25:06 America/Denver', false, '2025-05-19 10:25:06 America/Denver'),
+  (132, 48, 154, 'jon@gaard.example', '<mock-000132@gaard.example>', 'thread-000154', 'outbound', 'jon@gaard.example', '{"tala.riley@disabilitysptvalley.example"}', '{}', 'Investment support for Disability Services Project of Tooele Valley', 'Hi Tala,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Disability Services Project of Tooele Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-19 11:37:18 America/Denver', false, '2025-05-19 11:37:18 America/Denver'),
+  (133, 4, 155, 'ryan@gaard.example', '<mock-000133@gaard.example>', 'thread-000155', 'outbound', 'ryan@gaard.example', '{"lgonzalez@gonzalezgibsoncpas.example"}', '{}', 'Introduction via the', 'Hi Laura,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-05-19 15:02:03 America/Denver', false, '2025-05-19 15:02:03 America/Denver'),
+  (134, 4, 155, 'ryan@gaard.example', '<mock-000134@gaard.example>', 'thread-000155', 'inbound', 'lgonzalez@gonzalezgibsoncpas.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via the', 'Good timing question, but this quarter is busy for us. Circle back in September and we can talk.', '2025-05-21 20:02:03 America/Denver', false, '2025-05-21 20:02:03 America/Denver'),
+  (135, 3, 158, 'ryan@gaard.example', '<mock-000135@gaard.example>', 'thread-000158', 'outbound', 'ryan@gaard.example', '{"wcrawford@gonzalezgibsoncpas.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi William,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-05-23 10:48:00 America/Denver', false, '2025-05-23 10:48:00 America/Denver'),
+  (136, 3, 158, 'ryan@gaard.example', '<mock-000136@gaard.example>', 'thread-000158', 'inbound', 'wcrawford@gonzalezgibsoncpas.example', '{"ryan@gaard.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in June?', '2025-05-24 05:48:00 America/Denver', false, '2025-05-24 05:48:00 America/Denver'),
+  (137, 135, 159, 'jon@gaard.example', '<mock-000137@gaard.example>', 'thread-000159', 'outbound', 'jon@gaard.example', '{"jacqueline.wilson@friendsoquirrhmuseum.example"}', '{}', 'Quarterly check-in', 'Hi Jacqueline,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-05-26 13:58:59 America/Denver', false, '2025-05-26 13:58:59 America/Denver'),
+  (138, 135, 159, 'jon@gaard.example', '<mock-000138@gaard.example>', 'thread-000159', 'inbound', 'jacqueline.wilson@friendsoquirrhmuseum.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2025-05-28 01:58:59 America/Denver', false, '2025-05-28 01:58:59 America/Denver'),
+  (139, 21, 160, 'jon@gaard.example', '<mock-000139@gaard.example>', 'thread-000160', 'outbound', 'jon@gaard.example', '{"dsilva@canyonlandsvcouncil.example"}', '{}', 'Re: Quick question about Canyonlands Veterans Council''s endowment', 'Hi Douglas,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-27 11:12:17 America/Denver', false, '2025-05-27 11:12:17 America/Denver'),
+  (140, 40, 161, 'jon@gaard.example', '<mock-000140@gaard.example>', 'thread-000161', 'outbound', 'jon@gaard.example', '{"arthur_nguyen@veteranssrrock.example"}', '{}', 'Re: Veterans Services of Red Rock''s reserves', 'Hi Arthur,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-27 14:07:29 America/Denver', false, '2025-05-27 14:07:29 America/Denver'),
+  (141, 91, 162, 'jon@gaard.example', '<mock-000141@gaard.example>', 'thread-000162', 'outbound', 'jon@gaard.example', '{"bwoods@uintawildlifecenter.example"}', '{}', 'Re: Quick question about Uinta Wildlife Center''s endowment', 'Hi Beverly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-28 15:12:02 America/Denver', false, '2025-05-28 15:12:02 America/Denver'),
+  (142, 43, 163, 'jon@gaard.example', '<mock-000142@gaard.example>', 'thread-000163', 'outbound', 'jon@gaard.example', '{"josephh@wasatchcmcenter.example"}', '{}', 'Investment support for Wasatch Chamber Music Center', 'Hi Joseph,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Chamber Music Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-28 15:35:50 America/Denver', false, '2025-05-28 15:35:50 America/Denver'),
+  (143, 47, 164, 'jon@gaard.example', '<mock-000143@gaard.example>', 'thread-000164', 'outbound', 'jon@gaard.example', '{"lisa.meyer@oquirrhcleanairnetwork.example"}', '{}', 'Re: Investment support for Oquirrh Clean Air Network', 'Hi Lisa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-29 09:43:57 America/Denver', false, '2025-05-29 09:43:57 America/Denver'),
+  (144, 90, 165, 'jon@gaard.example', '<mock-000144@gaard.example>', 'thread-000165', 'outbound', 'jon@gaard.example', '{"atsosie@cottonwoodmassociation.example"}', '{}', 'Investment support for Cottonwood Mentoring Association', 'Hi Alan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cottonwood Mentoring Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-05-30 09:28:56 America/Denver', false, '2025-05-30 09:28:56 America/Denver'),
+  (145, 25, 166, 'jon@gaard.example', '<mock-000145@gaard.example>', 'thread-000166', 'outbound', 'jon@gaard.example', '{"gabriel.wright@summitcmcoalition.example"}', '{}', 'Re: Summit County Mentoring Coalition''s reserves', 'Hi Gabriel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-30 09:31:02 America/Denver', false, '2025-05-30 09:31:02 America/Denver'),
+  (146, 46, 167, 'jon@gaard.example', '<mock-000146@gaard.example>', 'thread-000167', 'outbound', 'jon@gaard.example', '{"alexis@refugeewckolob.example"}', '{}', 'Re: Investment support for Refugee Welcome Council of Kolob', 'Hi Alexis,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-05-30 13:29:49 America/Denver', false, '2025-05-30 13:29:49 America/Denver'),
+  (147, 55, 168, 'jon@gaard.example', '<mock-000147@gaard.example>', 'thread-000168', 'outbound', 'jon@gaard.example', '{"paulo.mahe@wasatchfwcoalition.example"}', '{}', 'Wasatch Front Watershed Coalition''s reserves', 'Hi Paulo,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Front Watershed Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-02 08:07:12 America/Denver', false, '2025-06-02 08:07:12 America/Denver'),
+  (148, 55, 168, 'jon@gaard.example', '<mock-000148@gaard.example>', 'thread-000168', 'inbound', 'paulo.mahe@wasatchfwcoalition.example', '{"jon@gaard.example"}', '{}', 'Re: Wasatch Front Watershed Coalition''s reserves', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in September and we can talk.', '2025-06-05 02:07:12 America/Denver', false, '2025-06-05 02:07:12 America/Denver'),
+  (149, 53, 170, 'jon@gaard.example', '<mock-000149@gaard.example>', 'thread-000170', 'outbound', 'jon@gaard.example', '{"jkim@seviervmcollective.example"}', '{}', 'Re: Sevier Valley Mentoring Collective''s reserves', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-06-02 09:16:29 America/Denver', false, '2025-06-02 09:16:29 America/Denver'),
+  (150, 16, 171, 'jon@gaard.example', '<mock-000150@gaard.example>', 'thread-000171', 'outbound', 'jon@gaard.example', '{"albert.nakamura@romerotaxadvisory.example"}', '{}', 'Checking back in', 'Hi Albert,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-02 09:33:20 America/Denver', false, '2025-06-02 09:33:20 America/Denver'),
+  (151, 16, 171, 'jon@gaard.example', '<mock-000151@gaard.example>', 'thread-000171', 'inbound', 'albert.nakamura@romerotaxadvisory.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in October.', '2025-06-04 14:33:20 America/Denver', false, '2025-06-04 14:33:20 America/Denver'),
+  (152, 3, 172, 'ryan@gaard.example', '<mock-000152@gaard.example>', 'thread-000172', 'outbound', 'ryan@gaard.example', '{"wcrawford@gonzalezgibsoncpas.example"}', '{}', 'Checking back in', 'Hi William,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-06-02 10:18:21 America/Denver', false, '2025-06-02 10:18:21 America/Denver'),
+  (153, 13, 173, 'jon@gaard.example', '<mock-000153@gaard.example>', 'thread-000173', 'outbound', 'jon@gaard.example', '{"carmstrong@davisceplaw.example"}', '{}', 'Checking back in', 'Hi Caleb,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-02 10:30:27 America/Denver', false, '2025-06-02 10:30:27 America/Denver'),
+  (154, 13, 173, 'jon@gaard.example', '<mock-000154@gaard.example>', 'thread-000173', 'inbound', 'carmstrong@davisceplaw.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks Jon. We already work with a local firm and aren''t looking at alternatives right now.', '2025-06-03 04:30:27 America/Denver', false, '2025-06-03 04:30:27 America/Denver'),
+  (155, 189, 174, 'jon@gaard.example', '<mock-000155@gaard.example>', 'thread-000174', 'outbound', 'jon@gaard.example', '{"amy.tran30@webmail.example"}', '{}', 'Institutional-style investing for your family', 'Hi Amy,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-02 10:42:37 America/Denver', false, '2025-06-02 10:42:37 America/Denver'),
+  (156, 73, 175, 'jon@gaard.example', '<mock-000156@gaard.example>', 'thread-000175', 'outbound', 'jon@gaard.example', '{"ahart@beehiveaenetwork.example"}', '{}', 'Checking back in', 'Hi Ashley,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Arts Education Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-02 11:29:16 America/Denver', false, '2025-06-02 11:29:16 America/Denver'),
+  (157, 27, 176, 'jon@gaard.example', '<mock-000157@gaard.example>', 'thread-000176', 'outbound', 'jon@gaard.example', '{"judy.anderson@daviscsecenter.example"}', '{}', 'Quick question about Davis County Science Education Center''s endowment', 'Hi Judy,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Davis County Science Education Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-02 15:49:04 America/Denver', false, '2025-06-02 15:49:04 America/Denver'),
+  (158, 98, 177, 'jon@gaard.example', '<mock-000158@gaard.example>', 'thread-000177', 'outbound', 'jon@gaard.example', '{"kenneth.pena@davisccfoundation.example"}', '{}', 'Investment management for Davis County Community Foundation', 'Hi Kenneth,
+
+We provide OCIO-style investment management for foundations and institutions like Davis County Community Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-02 15:56:00 America/Denver', false, '2025-06-02 15:56:00 America/Denver'),
+  (159, 208, 178, 'jon@gaard.example', '<mock-000159@gaard.example>', 'thread-000178', 'outbound', 'jon@gaard.example', '{"linda.brooks@webmail.example"}', '{}', 'Checking back in', 'Hi Linda,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-02 15:57:25 America/Denver', false, '2025-06-02 15:57:25 America/Denver'),
+  (160, 103, 179, 'ryan@gaard.example', '<mock-000160@gaard.example>', 'thread-000179', 'outbound', 'ryan@gaard.example', '{"scott.wells@canyonlandsstate.edu.example"}', '{}', 'Investment management for Canyonlands State University Foundation', 'Hi Scott,
+
+We provide OCIO-style investment management for foundations and institutions like Canyonlands State University Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-06-03 09:41:50 America/Denver', false, '2025-06-03 09:41:50 America/Denver'),
+  (161, 185, 180, 'jon@gaard.example', '<mock-000161@gaard.example>', 'thread-000180', 'outbound', 'jon@gaard.example', '{"carmen.park@mail.example"}', '{}', 'Introduction, Carmen', 'Hi Carmen,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-04 10:57:30 America/Denver', false, '2025-06-04 10:57:30 America/Denver'),
+  (162, 118, 181, 'jon@gaard.example', '<mock-000162@gaard.example>', 'thread-000181', 'outbound', 'jon@gaard.example', '{"gholmes@wasatchftnetwork.example"}', '{}', 'Quarterly check-in', 'Hi Gloria,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-06-04 11:55:25 America/Denver', false, '2025-06-04 11:55:25 America/Denver'),
+  (163, 118, 181, 'jon@gaard.example', '<mock-000163@gaard.example>', 'thread-000181', 'inbound', 'gholmes@wasatchftnetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, our board meets later in the year. Please reach out again in September.', '2025-06-05 02:55:25 America/Denver', false, '2025-06-05 02:55:25 America/Denver'),
+  (164, 50, 183, 'jon@gaard.example', '<mock-000164@gaard.example>', 'thread-000183', 'outbound', 'jon@gaard.example', '{"sioneb@housingpdcounty.example"}', '{}', 'Re: Investment support for Housing Project of Davis County', 'Hi Sione,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-06-06 14:46:19 America/Denver', false, '2025-06-06 14:46:19 America/Denver'),
+  (165, 19, 184, 'jon@gaard.example', '<mock-000165@gaard.example>', 'thread-000184', 'outbound', 'jon@gaard.example', '{"scott@clarkkellycpas.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Scott,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-06 15:11:16 America/Denver', false, '2025-06-06 15:11:16 America/Denver'),
+  (166, 19, 184, 'jon@gaard.example', '<mock-000166@gaard.example>', 'thread-000184', 'inbound', 'scott@clarkkellycpas.example', '{"jon@gaard.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Not right now, this quarter is busy for us. Please reach out again in September.', '2025-06-07 11:11:16 America/Denver', false, '2025-06-07 11:11:16 America/Denver'),
+  (167, 20, 186, 'jon@gaard.example', '<mock-000167@gaard.example>', 'thread-000186', 'outbound', 'jon@gaard.example', '{"kimberly@clarkkellycpas.example"}', '{}', 'Introduction via the', 'Hi Kimberly,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-09 08:00:14 America/Denver', false, '2025-06-09 08:00:14 America/Denver'),
+  (168, 20, 186, 'jon@gaard.example', '<mock-000168@gaard.example>', 'thread-000186', 'inbound', 'kimberly@clarkkellycpas.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via the', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2025-06-11 23:00:14 America/Denver', false, '2025-06-11 23:00:14 America/Denver'),
+  (169, 76, 187, 'jon@gaard.example', '<mock-000169@gaard.example>', 'thread-000187', 'outbound', 'jon@gaard.example', '{"ngozi.cook@millcreekwassociation.example"}', '{}', 'Investment support for Millcreek Wildlife Association', 'Hi Ngozi,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Millcreek Wildlife Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-09 08:35:58 America/Denver', false, '2025-06-09 08:35:58 America/Denver'),
+  (170, 92, 188, 'ryan@gaard.example', '<mock-000170@gaard.example>', 'thread-000188', 'outbound', 'ryan@gaard.example', '{"bradleyo@petersonpfoundation.example"}', '{}', 'OCIO support for Peterson-Porter Foundation', 'Hi Bradley,
+
+We provide OCIO-style investment management for foundations and institutions like Peterson-Porter Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-06-09 09:20:34 America/Denver', false, '2025-06-09 09:20:34 America/Denver'),
+  (171, 17, 189, 'jon@gaard.example', '<mock-000171@gaard.example>', 'thread-000189', 'outbound', 'jon@gaard.example', '{"logan.knight@seviervpservices.example"}', '{}', 'Introduction via the', 'Hi Logan,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-09 14:45:08 America/Denver', false, '2025-06-09 14:45:08 America/Denver'),
+  (172, 17, 189, 'jon@gaard.example', '<mock-000172@gaard.example>', 'thread-000189', 'inbound', 'logan.knight@seviervpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via the', 'Hi Jon, thanks for reaching out. We already work with an advisor and are happy with the relationship, so we''ll pass for now.', '2025-06-12 07:45:08 America/Denver', false, '2025-06-12 07:45:08 America/Denver'),
+  (173, 11, 190, 'jon@gaard.example', '<mock-000173@gaard.example>', 'thread-000190', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-06-09 15:19:44 America/Denver', false, '2025-06-09 15:19:44 America/Denver'),
+  (174, 11, 190, 'jon@gaard.example', '<mock-000174@gaard.example>', 'thread-000190', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in July.', '2025-06-10 20:19:44 America/Denver', false, '2025-06-10 20:19:44 America/Denver'),
+  (175, 41, 191, 'jon@gaard.example', '<mock-000175@gaard.example>', 'thread-000191', 'outbound', 'jon@gaard.example', '{"peterr@castlevvcouncil.example"}', '{}', 'Re: Castle Valley Veterans Council''s reserves', 'Hi Peter,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-06-09 15:44:38 America/Denver', false, '2025-06-09 15:44:38 America/Denver'),
+  (176, 195, 192, 'jon@gaard.example', '<mock-000176@gaard.example>', 'thread-000192', 'outbound', 'jon@gaard.example', '{"rosa.martinez@inbox.example"}', '{}', 'Introduction, Rosa', 'Hi Rosa,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-10 15:16:31 America/Denver', false, '2025-06-10 15:16:31 America/Denver'),
+  (177, 195, 192, 'jon@gaard.example', '<mock-000177@gaard.example>', 'thread-000192', 'inbound', 'mailer-daemon@mail.example', '{"jon@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to rosa.martinez@inbox.example because the address couldn''t be found or is unable to receive mail.', '2025-06-10 15:17:31 America/Denver', true, '2025-06-10 15:17:31 America/Denver'),
+  (178, 217, 195, 'jon@gaard.example', '<mock-000178@gaard.example>', 'thread-000195', 'outbound', 'jon@gaard.example', '{"emma.pierce@summitridge.edu.example"}', '{}', 'Quarterly check-in', 'Hi Emma,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-06-11 10:34:45 America/Denver', false, '2025-06-11 10:34:45 America/Denver'),
+  (179, 217, 195, 'jon@gaard.example', '<mock-000179@gaard.example>', 'thread-000195', 'inbound', 'emma.pierce@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but work is busy right now. Circle back in July and we can talk.', '2025-06-12 00:34:45 America/Denver', false, '2025-06-12 00:34:45 America/Denver'),
+  (180, 72, 197, 'jon@gaard.example', '<mock-000180@gaard.example>', 'thread-000197', 'outbound', 'jon@gaard.example', '{"jesse.rivera@theatersocietybeehive.example"}', '{}', 'Quarterly check-in', 'Hi Jesse,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-06-11 11:47:33 America/Denver', false, '2025-06-11 11:47:33 America/Denver'),
+  (181, 72, 197, 'jon@gaard.example', '<mock-000181@gaard.example>', 'thread-000197', 'inbound', 'jesse.rivera@theatersocietybeehive.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but this quarter is busy for us. Circle back in July and we can talk.', '2025-06-12 02:47:33 America/Denver', false, '2025-06-12 02:47:33 America/Denver'),
+  (182, 141, 204, 'jon@gaard.example', '<mock-000182@gaard.example>', 'thread-000204', 'outbound', 'jon@gaard.example', '{"brian_patterson@weberrcaassociation.example"}', '{}', 'Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Brian,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Weber River Clean Air Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-13 08:43:14 America/Denver', false, '2025-06-13 08:43:14 America/Denver'),
+  (183, 145, 205, 'jon@gaard.example', '<mock-000183@gaard.example>', 'thread-000205', 'outbound', 'jon@gaard.example', '{"angela.gomez@bonnevillemcoalition.example"}', '{}', 'Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Angela,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Bonneville Mentoring Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-13 09:43:39 America/Denver', false, '2025-06-13 09:43:39 America/Denver'),
+  (184, 138, 206, 'jon@gaard.example', '<mock-000184@gaard.example>', 'thread-000206', 'outbound', 'jon@gaard.example', '{"luciap@weberrhrnetwork.example"}', '{}', 'Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Lucia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Weber River Hunger Relief Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-13 09:55:29 America/Denver', false, '2025-06-13 09:55:29 America/Denver'),
+  (185, 143, 207, 'jon@gaard.example', '<mock-000185@gaard.example>', 'thread-000207', 'outbound', 'jon@gaard.example', '{"scott.turner@ironcsspartners.example"}', '{}', 'Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Scott,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Iron County Senior Services Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-13 10:44:43 America/Denver', false, '2025-06-13 10:44:43 America/Denver'),
+  (186, 193, 209, 'jon@gaard.example', '<mock-000186@gaard.example>', 'thread-000209', 'outbound', 'jon@gaard.example', '{"jonathan.peters@webmail.example"}', '{}', 'Institutional-style investing for your family', 'Hi Jonathan,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-13 13:22:35 America/Denver', false, '2025-06-13 13:22:35 America/Denver'),
+  (187, 140, 210, 'jon@gaard.example', '<mock-000187@gaard.example>', 'thread-000210', 'outbound', 'jon@gaard.example', '{"pamelah@saltldassociation.example"}', '{}', 'Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Pamela,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Salt Lake Dance Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-13 13:52:13 America/Denver', false, '2025-06-13 13:52:13 America/Denver'),
+  (188, 140, 210, 'jon@gaard.example', '<mock-000188@gaard.example>', 'thread-000210', 'inbound', 'pamelah@saltldassociation.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'No thank you.', '2025-06-15 19:52:13 America/Denver', false, '2025-06-15 19:52:13 America/Denver'),
+  (189, 70, 211, 'jon@gaard.example', '<mock-000189@gaard.example>', 'thread-000211', 'outbound', 'jon@gaard.example', '{"kwame.russell@seviervoecenter.example"}', '{}', 'Investment support for Sevier Valley Outdoor Education Center', 'Hi Kwame,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sevier Valley Outdoor Education Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-16 09:05:12 America/Denver', false, '2025-06-16 09:05:12 America/Denver'),
+  (190, 528, 212, 'ryan@gaard.example', '<mock-000190@gaard.example>', 'thread-000212', 'outbound', 'ryan@gaard.example', '{"lauren.olsen@musiccpriver.example"}', '{}', 'Introduction via Isabella', 'Hi Lauren,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Music Council of Powder River keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-06-16 09:10:03 America/Denver', false, '2025-06-16 09:10:03 America/Denver'),
+  (191, 528, 212, 'ryan@gaard.example', '<mock-000191@gaard.example>', 'thread-000212', 'inbound', 'lauren.olsen@musiccpriver.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Isabella', 'Not right now, this quarter is busy for us. Please reach out again in September.', '2025-06-17 07:10:03 America/Denver', false, '2025-06-17 07:10:03 America/Denver'),
+  (192, 139, 213, 'jon@gaard.example', '<mock-000192@gaard.example>', 'thread-000213', 'outbound', 'jon@gaard.example', '{"maria_hayes@veteranssrrock.example"}', '{}', 'Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Maria,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Veterans Services of Red Rock keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-16 09:10:24 America/Denver', false, '2025-06-16 09:10:24 America/Denver'),
+  (193, 31, 214, 'jon@gaard.example', '<mock-000193@gaard.example>', 'thread-000214', 'outbound', 'jon@gaard.example', '{"mbailey@summitchservices.example"}', '{}', 'Quick question about Summit County Habitat Services''s endowment', 'Hi Michelle,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Summit County Habitat Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-16 09:18:31 America/Denver', false, '2025-06-16 09:18:31 America/Denver'),
+  (194, 5, 215, 'jon@gaard.example', '<mock-000194@gaard.example>', 'thread-000215', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-06-16 10:57:53 America/Denver', false, '2025-06-16 10:57:53 America/Denver'),
+  (195, 144, 216, 'jon@gaard.example', '<mock-000195@gaard.example>', 'thread-000216', 'outbound', 'jon@gaard.example', '{"mateo@sanpetessleague.example"}', '{}', 'Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Mateo,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sanpete Senior Services League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-16 13:52:41 America/Denver', false, '2025-06-16 13:52:41 America/Denver'),
+  (196, 142, 217, 'jon@gaard.example', '<mock-000196@gaard.example>', 'thread-000217', 'outbound', 'jon@gaard.example', '{"tsalazar@seviervynetwork.example"}', '{}', 'Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Tyler,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sevier Valley Youth Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-16 16:11:09 America/Denver', false, '2025-06-16 16:11:09 America/Denver'),
+  (197, 142, 217, 'jon@gaard.example', '<mock-000197@gaard.example>', 'thread-000217', 'inbound', 'tsalazar@seviervynetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in October?', '2025-06-19 07:11:09 America/Denver', false, '2025-06-19 07:11:09 America/Denver'),
+  (198, 62, 218, 'jon@gaard.example', '<mock-000198@gaard.example>', 'thread-000218', 'outbound', 'jon@gaard.example', '{"jack@moabdscoalition.example"}', '{}', 'Investment support for Moab Disability Services Coalition', 'Hi Jack,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Moab Disability Services Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-16 16:38:07 America/Denver', false, '2025-06-16 16:38:07 America/Denver'),
+  (199, 101, 220, 'jon@gaard.example', '<mock-000199@gaard.example>', 'thread-000220', 'outbound', 'jon@gaard.example', '{"roger.simpson@escalantelfoundation.example"}', '{}', 'Re: Investment management for Escalante Library Foundation', 'Hi Roger,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-06-17 10:31:01 America/Denver', false, '2025-06-17 10:31:01 America/Denver'),
+  (200, 195, 221, 'jon@gaard.example', '<mock-000200@gaard.example>', 'thread-000221', 'outbound', 'jon@gaard.example', '{"rmartinez@inbox.example"}', '{}', 'Introduction, Rosa', 'Hi Rosa,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-19 09:34:03 America/Denver', false, '2025-06-19 09:34:03 America/Denver');
+
+insert into public.email_messages (id, contact_id, touchpoint_id, mailbox, external_id, thread_id, direction, from_email, to_emails, cc_emails, subject, body_text, sent_at, is_auto_reply, created_at) values
+  (201, 192, 222, 'jon@gaard.example', '<mock-000201@gaard.example>', 'thread-000222', 'outbound', 'jon@gaard.example', '{"doris.parker@webmail.example"}', '{}', 'Introduction, Doris', 'Hi Doris,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-19 13:16:06 America/Denver', false, '2025-06-19 13:16:06 America/Denver'),
+  (202, 541, 223, 'jon@gaard.example', '<mock-000202@gaard.example>', 'thread-000223', 'outbound', 'jon@gaard.example', '{"rosa.nielsen@escalantegassociation.example"}', '{}', 'Introduction via Judith', 'Hi Rosa,
+
+We provide OCIO-style investment management for foundations and institutions like Escalante Growers Association.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-20 09:39:52 America/Denver', false, '2025-06-20 09:39:52 America/Denver'),
+  (203, 18, 224, 'jon@gaard.example', '<mock-000203@gaard.example>', 'thread-000224', 'outbound', 'jon@gaard.example', '{"jean@redrbconsulting.example"}', '{}', 'Quarterly check-in', 'Hi Jean,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-06-23 11:41:05 America/Denver', false, '2025-06-23 11:41:05 America/Denver'),
+  (204, 18, 224, 'jon@gaard.example', '<mock-000204@gaard.example>', 'thread-000224', 'inbound', 'jean@redrbconsulting.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in August?', '2025-06-23 17:41:05 America/Denver', false, '2025-06-23 17:41:05 America/Denver'),
+  (205, 36, 225, 'jon@gaard.example', '<mock-000205@gaard.example>', 'thread-000225', 'outbound', 'jon@gaard.example', '{"amanda@danceleaguegreatbasin.example"}', '{}', 'Re: Investment support for Dance League of Great Basin', 'Hi Amanda,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-06-23 11:53:44 America/Denver', false, '2025-06-23 11:53:44 America/Denver'),
+  (206, 110, 226, 'jon@gaard.example', '<mock-000206@gaard.example>', 'thread-000226', 'outbound', 'jon@gaard.example', '{"maria.schmidt@jacksonffoundation.example"}', '{}', 'Investment management for Jackson Family Foundation', 'Hi Maria,
+
+We provide OCIO-style investment management for foundations and institutions like Jackson Family Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-24 10:59:25 America/Denver', false, '2025-06-24 10:59:25 America/Denver'),
+  (207, 110, 226, 'jon@gaard.example', '<mock-000207@gaard.example>', 'thread-000226', 'inbound', 'maria.schmidt@jacksonffoundation.example', '{"jon@gaard.example"}', '{}', 'Re: Investment management for Jackson Family Foundation', 'Thanks Jon, the timing is actually good. Could we set up a call Tuesday the 1?', '2025-06-24 17:59:25 America/Denver', false, '2025-06-24 17:59:25 America/Denver'),
+  (208, 23, 227, 'jon@gaard.example', '<mock-000208@gaard.example>', 'thread-000227', 'outbound', 'jon@gaard.example', '{"orogers@friendsoquirrhparks.example"}', '{}', 'Re: Friends of Oquirrh Parks''s reserves', 'Hi Omar,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-06-26 08:47:38 America/Denver', false, '2025-06-26 08:47:38 America/Denver'),
+  (209, 58, 229, 'jon@gaard.example', '<mock-000209@gaard.example>', 'thread-000229', 'outbound', 'jon@gaard.example', '{"padams@adulteahvalley.example"}', '{}', 'Re: Adult Education Association of Heber Valley''s reserves', 'Hi Priya,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-06-26 13:02:41 America/Denver', false, '2025-06-26 13:02:41 America/Denver'),
+  (210, 58, 229, 'jon@gaard.example', '<mock-000210@gaard.example>', 'thread-000229', 'inbound', 'padams@adulteahvalley.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Adult Education Association of Heber Valley''s reserves', 'Not something we are looking at. Thank you.', '2025-06-29 08:02:41 America/Denver', false, '2025-06-29 08:02:41 America/Denver'),
+  (211, 56, 231, 'jon@gaard.example', '<mock-000211@gaard.example>', 'thread-000231', 'outbound', 'jon@gaard.example', '{"natalie.johnston@morganvoenetwork.example"}', '{}', 'Morgan Valley Outdoor Education Network''s reserves', 'Hi Natalie,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Morgan Valley Outdoor Education Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-27 08:19:26 America/Denver', false, '2025-06-27 08:19:26 America/Denver'),
+  (212, 56, 231, 'jon@gaard.example', '<mock-000212@gaard.example>', 'thread-000231', 'inbound', 'natalie.johnston@morganvoenetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Morgan Valley Outdoor Education Network''s reserves', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 7?', '2025-06-27 12:19:26 America/Denver', false, '2025-06-27 12:19:26 America/Denver'),
+  (213, 95, 232, 'jon@gaard.example', '<mock-000213@gaard.example>', 'thread-000232', 'outbound', 'jon@gaard.example', '{"melissa.hansen@summitridge.edu.example"}', '{}', 'OCIO support for Summit Ridge University Foundation', 'Hi Melissa,
+
+We provide OCIO-style investment management for foundations and institutions like Summit Ridge University Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-27 08:51:41 America/Denver', false, '2025-06-27 08:51:41 America/Denver'),
+  (214, 95, 232, 'jon@gaard.example', '<mock-000214@gaard.example>', 'thread-000232', 'inbound', 'melissa.hansen@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: OCIO support for Summit Ridge University Foundation', 'No thanks, we are all set.', '2025-06-30 06:51:41 America/Denver', false, '2025-06-30 06:51:41 America/Denver'),
+  (215, 188, 233, 'ryan@gaard.example', '<mock-000215@gaard.example>', 'thread-000233', 'outbound', 'ryan@gaard.example', '{"joshua.hughes89@inbox.example"}', '{}', 'Institutional-style investing for your family', 'Hi Joshua,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-06-30 11:17:04 America/Denver', false, '2025-06-30 11:17:04 America/Denver'),
+  (216, 7, 234, 'jon@gaard.example', '<mock-000216@gaard.example>', 'thread-000234', 'outbound', 'jon@gaard.example', '{"jesse.ellis@wasatchfpservices.example"}', '{}', 'Introduction via the', 'Hi Jesse,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-06-30 11:45:11 America/Denver', false, '2025-06-30 11:45:11 America/Denver'),
+  (217, 7, 234, 'jon@gaard.example', '<mock-000217@gaard.example>', 'thread-000234', 'inbound', 'jesse.ellis@wasatchfpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via the', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in October?', '2025-07-02 23:45:11 America/Denver', false, '2025-07-02 23:45:11 America/Denver'),
+  (218, 123, 235, 'jon@gaard.example', '<mock-000218@gaard.example>', 'thread-000235', 'outbound', 'jon@gaard.example', '{"bryan.brooks@millcreekwassociation.example"}', '{}', 'Quarterly check-in', 'Hi Bryan,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-06-30 16:35:33 America/Denver', false, '2025-06-30 16:35:33 America/Denver'),
+  (219, 123, 235, 'jon@gaard.example', '<mock-000219@gaard.example>', 'thread-000235', 'inbound', 'bryan.brooks@millcreekwassociation.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in July.', '2025-07-01 20:35:33 America/Denver', false, '2025-07-01 20:35:33 America/Denver'),
+  (220, 216, 236, 'jon@gaard.example', '<mock-000220@gaard.example>', 'thread-000236', 'outbound', 'jon@gaard.example', '{"andrew.mendoza@mail.example"}', '{}', 'Checking back in', 'Hi Andrew,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-01 08:17:09 America/Denver', false, '2025-07-01 08:17:09 America/Denver'),
+  (221, 217, 237, 'jon@gaard.example', '<mock-000221@gaard.example>', 'thread-000237', 'outbound', 'jon@gaard.example', '{"emma.pierce@summitridge.edu.example"}', '{}', 'Quarterly check-in', 'Hi Emma,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-07-01 09:29:41 America/Denver', false, '2025-07-01 09:29:41 America/Denver'),
+  (222, 123, 238, 'jon@gaard.example', '<mock-000222@gaard.example>', 'thread-000238', 'outbound', 'jon@gaard.example', '{"bryan.brooks@millcreekwassociation.example"}', '{}', 'Quarterly check-in', 'Hi Bryan,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-07-01 10:24:47 America/Denver', false, '2025-07-01 10:24:47 America/Denver'),
+  (223, 72, 239, 'jon@gaard.example', '<mock-000223@gaard.example>', 'thread-000239', 'outbound', 'jon@gaard.example', '{"jesse.rivera@theatersocietybeehive.example"}', '{}', 'Quarterly check-in', 'Hi Jesse,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-07-01 10:35:28 America/Denver', false, '2025-07-01 10:35:28 America/Denver'),
+  (224, 121, 240, 'jon@gaard.example', '<mock-000224@gaard.example>', 'thread-000240', 'outbound', 'jon@gaard.example', '{"nathan@refugeewckolob.example"}', '{}', 'Checking back in', 'Hi Nathan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Refugee Welcome Council of Kolob keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-01 11:45:12 America/Denver', false, '2025-07-01 11:45:12 America/Denver'),
+  (225, 194, 242, 'jon@gaard.example', '<mock-000225@gaard.example>', 'thread-000242', 'outbound', 'jon@gaard.example', '{"logan.fonua@summitridge.edu.example"}', '{}', 'Introduction, Logan', 'Hi Logan,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-01 14:22:56 America/Denver', false, '2025-07-01 14:22:56 America/Denver'),
+  (226, 93, 243, 'jon@gaard.example', '<mock-000226@gaard.example>', 'thread-000243', 'outbound', 'jon@gaard.example', '{"tyler.nelson@sacramentovhfoundation.example"}', '{}', 'Re: OCIO support for Sacramento Valley Health Foundation', 'Hi Tyler,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-02 08:24:21 America/Denver', false, '2025-07-02 08:24:21 America/Denver'),
+  (227, 32, 244, 'jon@gaard.example', '<mock-000227@gaard.example>', 'thread-000244', 'outbound', 'jon@gaard.example', '{"kathryn.tsosie@sugarhmcollective.example"}', '{}', 'Sugar House Mentoring Collective''s reserves', 'Hi Kathryn,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Mentoring Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-02 09:47:22 America/Denver', false, '2025-07-02 09:47:22 America/Denver'),
+  (228, 34, 245, 'jon@gaard.example', '<mock-000228@gaard.example>', 'thread-000245', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Quick question about Box Elder Clean Air Collective''s endowment', 'Hi Kimberly,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Box Elder Clean Air Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-02 10:32:57 America/Denver', false, '2025-07-02 10:32:57 America/Denver'),
+  (229, 183, 246, 'jon@gaard.example', '<mock-000229@gaard.example>', 'thread-000246', 'outbound', 'jon@gaard.example', '{"keith.tran87@webmail.example"}', '{}', 'Institutional-style investing for your family', 'Hi Keith,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-04 10:53:30 America/Denver', false, '2025-07-04 10:53:30 America/Denver'),
+  (230, 10, 247, 'ryan@gaard.example', '<mock-000230@gaard.example>', 'thread-000247', 'outbound', 'ryan@gaard.example', '{"jsnyder@tetonbconsulting.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Judith,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-07-07 08:19:16 America/Denver', false, '2025-07-07 08:19:16 America/Denver'),
+  (231, 45, 248, 'jon@gaard.example', '<mock-000231@gaard.example>', 'thread-000248', 'outbound', 'jon@gaard.example', '{"leilani.lewis@friendstimpanogosparks.example"}', '{}', 'Investment support for Friends of Timpanogos Parks', 'Hi Leilani,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Timpanogos Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-07 09:45:58 America/Denver', false, '2025-07-07 09:45:58 America/Denver'),
+  (232, 105, 250, 'jon@gaard.example', '<mock-000232@gaard.example>', 'thread-000250', 'outbound', 'jon@gaard.example', '{"elizabeth.castro@escalantehfoundation.example"}', '{}', 'Re: OCIO support for Escalante Health Foundation', 'Hi Elizabeth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-07 15:50:20 America/Denver', false, '2025-07-07 15:50:20 America/Denver'),
+  (233, 75, 251, 'jon@gaard.example', '<mock-000233@gaard.example>', 'thread-000251', 'outbound', 'jon@gaard.example', '{"russellg@weberrasalliance.example"}', '{}', 'Re: Investment support for Weber River After School Alliance', 'Hi Russell,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-10 09:27:39 America/Denver', false, '2025-07-10 09:27:39 America/Denver'),
+  (234, 186, 252, 'jon@gaard.example', '<mock-000234@gaard.example>', 'thread-000252', 'outbound', 'jon@gaard.example', '{"helen.medina@summitridge.edu.example"}', '{}', 'Introduction, Helen', 'Hi Helen,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-11 14:26:22 America/Denver', false, '2025-07-11 14:26:22 America/Denver'),
+  (235, 64, 253, 'jon@gaard.example', '<mock-000235@gaard.example>', 'thread-000253', 'outbound', 'jon@gaard.example', '{"kbaker@bonnevilleaepartners.example"}', '{}', 'Re: Investment support for Bonneville Adult Education Partners', 'Hi Kwame,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-14 09:54:51 America/Denver', false, '2025-07-14 09:54:51 America/Denver'),
+  (236, 84, 254, 'jon@gaard.example', '<mock-000236@gaard.example>', 'thread-000254', 'outbound', 'jon@gaard.example', '{"gabriel.singh@dancepscounty.example"}', '{}', 'Re: Dance Project of Summit County''s reserves', 'Hi Gabriel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-14 11:35:57 America/Denver', false, '2025-07-14 11:35:57 America/Denver'),
+  (237, 11, 255, 'jon@gaard.example', '<mock-000237@gaard.example>', 'thread-000255', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-07-14 15:24:51 America/Denver', false, '2025-07-14 15:24:51 America/Denver'),
+  (238, 11, 255, 'jon@gaard.example', '<mock-000238@gaard.example>', 'thread-000255', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2025-07-14 22:24:51 America/Denver', false, '2025-07-14 22:24:51 America/Denver'),
+  (239, 24, 256, 'jon@gaard.example', '<mock-000239@gaard.example>', 'thread-000256', 'outbound', 'jon@gaard.example', '{"jose@cottonwoodchsociety.example"}', '{}', 'Re: Cottonwood Community Health Society''s reserves', 'Hi Jose,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-15 14:30:20 America/Denver', false, '2025-07-15 14:30:20 America/Denver'),
+  (240, 67, 258, 'jon@gaard.example', '<mock-000240@gaard.example>', 'thread-000258', 'outbound', 'jon@gaard.example', '{"yusuf@tooelevaassociation.example"}', '{}', 'Tooele Valley Arts Association''s reserves', 'Hi Yusuf,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Tooele Valley Arts Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-16 15:14:21 America/Denver', false, '2025-07-16 15:14:21 America/Denver'),
+  (241, 126, 259, 'jon@gaard.example', '<mock-000241@gaard.example>', 'thread-000259', 'outbound', 'jon@gaard.example', '{"ecarroll@adulteahvalley.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Elena,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-17 08:43:35 America/Denver', false, '2025-07-17 08:43:35 America/Denver'),
+  (242, 133, 260, 'jon@gaard.example', '<mock-000242@gaard.example>', 'thread-000260', 'outbound', 'jon@gaard.example', '{"dmurphy@cottonwoodvleague.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Daniel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-17 09:27:20 America/Denver', false, '2025-07-17 09:27:20 America/Denver'),
+  (243, 37, 261, 'jon@gaard.example', '<mock-000243@gaard.example>', 'thread-000261', 'outbound', 'jon@gaard.example', '{"mmartin@jordanrdproject.example"}', '{}', 'Investment support for Jordan River Dance Project', 'Hi Maria,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Jordan River Dance Project keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-17 10:43:30 America/Denver', false, '2025-07-17 10:43:30 America/Denver'),
+  (244, 88, 262, 'jon@gaard.example', '<mock-000244@gaard.example>', 'thread-000262', 'outbound', 'jon@gaard.example', '{"fatima.morales@sugarhfbleague.example"}', '{}', 'Sugar House Food Bank League''s reserves', 'Hi Fatima,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Food Bank League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-17 14:39:08 America/Denver', false, '2025-07-17 14:39:08 America/Denver'),
+  (245, 125, 263, 'jon@gaard.example', '<mock-000245@gaard.example>', 'thread-000263', 'outbound', 'jon@gaard.example', '{"timothy@friendshvlibrary.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Timothy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-18 13:51:05 America/Denver', false, '2025-07-18 13:51:05 America/Denver'),
+  (246, 137, 264, 'jon@gaard.example', '<mock-000246@gaard.example>', 'thread-000264', 'outbound', 'jon@gaard.example', '{"denise.hill@wasatchfwcoalition.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Denise,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-21 11:03:36 America/Denver', false, '2025-07-21 11:03:36 America/Denver'),
+  (247, 137, 264, 'jon@gaard.example', '<mock-000247@gaard.example>', 'thread-000264', 'inbound', 'denise.hill@wasatchfwcoalition.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'I am out of the office until Monday, July 28 with limited access to email. For anything urgent please call our main office.', '2025-07-21 11:04:36 America/Denver', true, '2025-07-21 11:04:36 America/Denver'),
+  (248, 5, 265, 'jon@gaard.example', '<mock-000248@gaard.example>', 'thread-000265', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-07-21 11:13:54 America/Denver', false, '2025-07-21 11:13:54 America/Denver'),
+  (249, 86, 266, 'jon@gaard.example', '<mock-000249@gaard.example>', 'thread-000266', 'outbound', 'jon@gaard.example', '{"jacqueline@friendsblibrary.example"}', '{}', 'Friends of Bonneville Library''s reserves', 'Hi Jacqueline,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Bonneville Library keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-21 14:09:02 America/Denver', false, '2025-07-21 14:09:02 America/Denver'),
+  (250, 86, 266, 'jon@gaard.example', '<mock-000250@gaard.example>', 'thread-000266', 'inbound', 'mailer-daemon@mail.example', '{"jon@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to jacqueline@friendsblibrary.example because the address couldn''t be found or is unable to receive mail.', '2025-07-21 14:10:02 America/Denver', true, '2025-07-21 14:10:02 America/Denver'),
+  (251, 71, 267, 'jon@gaard.example', '<mock-000251@gaard.example>', 'thread-000267', 'outbound', 'jon@gaard.example', '{"nrogers@friendsmvparks.example"}', '{}', 'Friends of Morgan Valley Parks''s reserves', 'Hi Noah,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Morgan Valley Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-21 15:31:21 America/Denver', false, '2025-07-21 15:31:21 America/Denver'),
+  (252, 136, 268, 'jon@gaard.example', '<mock-000252@gaard.example>', 'thread-000268', 'outbound', 'jon@gaard.example', '{"javier.madsen@canyonlandsasinitiative.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Javier,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-21 16:46:52 America/Denver', false, '2025-07-21 16:46:52 America/Denver'),
+  (253, 124, 269, 'jon@gaard.example', '<mock-000253@gaard.example>', 'thread-000269', 'outbound', 'jon@gaard.example', '{"mmendez@hebervcpartners.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Mark,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-22 11:36:31 America/Denver', false, '2025-07-22 11:36:31 America/Denver'),
+  (254, 131, 270, 'jon@gaard.example', '<mock-000254@gaard.example>', 'thread-000270', 'outbound', 'jon@gaard.example', '{"amanda.morgan@cottonwoodmalliance.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Amanda,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-22 15:36:40 America/Denver', false, '2025-07-22 15:36:40 America/Denver'),
+  (255, 33, 272, 'jon@gaard.example', '<mock-000255@gaard.example>', 'thread-000272', 'outbound', 'jon@gaard.example', '{"doris.elliott@friendsuvtrails.example"}', '{}', 'Re: Investment support for Friends of Utah Valley Trails', 'Hi Doris,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-28 08:58:10 America/Denver', false, '2025-07-28 08:58:10 America/Denver'),
+  (256, 129, 273, 'jon@gaard.example', '<mock-000256@gaard.example>', 'thread-000273', 'outbound', 'jon@gaard.example', '{"gregory.bell@summitcmcoalition.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Gregory,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-28 13:05:26 America/Denver', false, '2025-07-28 13:05:26 America/Denver'),
+  (257, 22, 274, 'jon@gaard.example', '<mock-000257@gaard.example>', 'thread-000274', 'outbound', 'jon@gaard.example', '{"zachary@friendsutahvalleyparks.example"}', '{}', 'Re: Quick question about Friends of Utah Valley Parks''s endowment', 'Hi Zachary,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-28 13:36:42 America/Denver', false, '2025-07-28 13:36:42 America/Denver'),
+  (258, 190, 275, 'jon@gaard.example', '<mock-000258@gaard.example>', 'thread-000275', 'outbound', 'jon@gaard.example', '{"peter.wells@summitridge.edu.example"}', '{}', 'Institutional-style investing for your family', 'Hi Peter,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-28 13:41:28 America/Denver', false, '2025-07-28 13:41:28 America/Denver'),
+  (259, 29, 276, 'jon@gaard.example', '<mock-000259@gaard.example>', 'thread-000276', 'outbound', 'jon@gaard.example', '{"nsanchez@boxefbnetwork.example"}', '{}', 'Re: Box Elder Food Bank Network''s reserves', 'Hi Natalie,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-28 14:31:59 America/Denver', false, '2025-07-28 14:31:59 America/Denver'),
+  (260, 109, 277, 'jon@gaard.example', '<mock-000260@gaard.example>', 'thread-000277', 'outbound', 'jon@gaard.example', '{"btran@montereybhfoundation.example"}', '{}', 'Re: OCIO support for Monterey Bay Hospital Foundation', 'Hi Brian,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-28 16:15:12 America/Denver', false, '2025-07-28 16:15:12 America/Denver'),
+  (261, 134, 278, 'jon@gaard.example', '<mock-000261@gaard.example>', 'thread-000278', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Kai,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-29 08:37:36 America/Denver', false, '2025-07-29 08:37:36 America/Denver'),
+  (262, 134, 278, 'jon@gaard.example', '<mock-000262@gaard.example>', 'thread-000278', 'inbound', 'kai_ruiz@ironcfscenter.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'This has been on my list. Happy to talk, does Aug 4 work?', '2025-07-31 20:37:36 America/Denver', false, '2025-07-31 20:37:36 America/Denver'),
+  (263, 79, 279, 'jon@gaard.example', '<mock-000263@gaard.example>', 'thread-000279', 'outbound', 'jon@gaard.example', '{"jwhite@beehivercoalition.example"}', '{}', 'Investment support for Beehive Recovery Coalition', 'Hi Jordan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Recovery Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-29 10:28:25 America/Denver', false, '2025-07-29 10:28:25 America/Denver'),
+  (264, 137, 280, 'jon@gaard.example', '<mock-000264@gaard.example>', 'thread-000280', 'outbound', 'jon@gaard.example', '{"denise.hill@wasatchfwcoalition.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Denise,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-29 10:56:14 America/Denver', false, '2025-07-29 10:56:14 America/Denver'),
+  (265, 107, 281, 'jon@gaard.example', '<mock-000265@gaard.example>', 'thread-000281', 'outbound', 'jon@gaard.example', '{"lowens@seviervgassociation.example"}', '{}', 'OCIO support for Sevier Valley Growers Association', 'Hi Leilani,
+
+We provide OCIO-style investment management for foundations and institutions like Sevier Valley Growers Association.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-29 11:18:59 America/Denver', false, '2025-07-29 11:18:59 America/Denver'),
+  (266, 130, 282, 'jon@gaard.example', '<mock-000266@gaard.example>', 'thread-000282', 'outbound', 'jon@gaard.example', '{"skennedy@summitchservices.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Sharon,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-29 14:02:38 America/Denver', false, '2025-07-29 14:02:38 America/Denver'),
+  (267, 94, 283, 'jon@gaard.example', '<mock-000267@gaard.example>', 'thread-000283', 'outbound', 'jon@gaard.example', '{"matthew.tran@utahvalleycivictrust.example"}', '{}', 'OCIO support for Utah Valley Civic Trust', 'Hi Matthew,
+
+We provide OCIO-style investment management for foundations and institutions like Utah Valley Civic Trust.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-07-30 10:59:26 America/Denver', false, '2025-07-30 10:59:26 America/Denver'),
+  (268, 116, 284, 'jon@gaard.example', '<mock-000268@gaard.example>', 'thread-000284', 'outbound', 'jon@gaard.example', '{"rsnyder@ironcaralliance.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Raymond,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-07-31 10:59:23 America/Denver', false, '2025-07-31 10:59:23 America/Denver'),
+  (269, 117, 285, 'jon@gaard.example', '<mock-000269@gaard.example>', 'thread-000285', 'outbound', 'jon@gaard.example', '{"christopher.choi@daviscsecenter.example"}', '{}', 'Checking back in', 'Hi Christopher,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Davis County Science Education Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-01 08:19:16 America/Denver', false, '2025-08-01 08:19:16 America/Denver'),
+  (270, 117, 285, 'jon@gaard.example', '<mock-000270@gaard.example>', 'thread-000285', 'inbound', 'christopher.choi@daviscsecenter.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks Jon. We already work with a local firm and aren''t looking at alternatives right now.', '2025-08-03 17:19:16 America/Denver', false, '2025-08-03 17:19:16 America/Denver'),
+  (271, 81, 286, 'jon@gaard.example', '<mock-000271@gaard.example>', 'thread-000286', 'outbound', 'jon@gaard.example', '{"mark_murphy@weberrcaassociation.example"}', '{}', 'Re: Weber River Clean Air Association''s reserves', 'Hi Mark,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-01 10:45:56 America/Denver', false, '2025-08-01 10:45:56 America/Denver'),
+  (272, 18, 287, 'jon@gaard.example', '<mock-000272@gaard.example>', 'thread-000287', 'outbound', 'jon@gaard.example', '{"jean@redrbconsulting.example"}', '{}', 'Quarterly check-in', 'Hi Jean,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-08-01 15:31:48 America/Denver', false, '2025-08-01 15:31:48 America/Denver'),
+  (273, 18, 287, 'jon@gaard.example', '<mock-000273@gaard.example>', 'thread-000287', 'inbound', 'jean@redrbconsulting.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2025-08-03 12:31:48 America/Denver', false, '2025-08-03 12:31:48 America/Denver'),
+  (274, 82, 288, 'jon@gaard.example', '<mock-000274@gaard.example>', 'thread-000288', 'outbound', 'jon@gaard.example', '{"alice@ogdenvdssociety.example"}', '{}', 'Quick question about Ogden Valley Disability Services Society''s endowment', 'Hi Alice,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Ogden Valley Disability Services Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-04 08:25:50 America/Denver', false, '2025-08-04 08:25:50 America/Denver'),
+  (275, 200, 289, 'jon@gaard.example', '<mock-000275@gaard.example>', 'thread-000289', 'outbound', 'jon@gaard.example', '{"shirley.phillips9@inbox.example"}', '{}', 'Institutional-style investing for your family', 'Hi Shirley,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-04 10:33:23 America/Denver', false, '2025-08-04 10:33:23 America/Denver'),
+  (276, 6, 290, 'jon@gaard.example', '<mock-000276@gaard.example>', 'thread-000290', 'outbound', 'jon@gaard.example', '{"fatima.baker@oquirrhipartners.example"}', '{}', 'Referral partnership with GAARD Capital', 'Hi Fatima,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-04 10:40:10 America/Denver', false, '2025-08-04 10:40:10 America/Denver'),
+  (277, 6, 290, 'jon@gaard.example', '<mock-000277@gaard.example>', 'thread-000290', 'inbound', 'fatima.baker@oquirrhipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 11?', '2025-08-06 15:40:10 America/Denver', false, '2025-08-06 15:40:10 America/Denver'),
+  (278, 52, 292, 'jon@gaard.example', '<mock-000278@gaard.example>', 'thread-000292', 'outbound', 'jon@gaard.example', '{"stephenc@hebervcaservices.example"}', '{}', 'Re: Quick question about Heber Valley Clean Air Services''s endowment', 'Hi Stephen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-04 14:23:20 America/Denver', false, '2025-08-04 14:23:20 America/Denver'),
+  (279, 65, 293, 'jon@gaard.example', '<mock-000279@gaard.example>', 'thread-000293', 'outbound', 'jon@gaard.example', '{"wwillis@cachevyinitiative.example"}', '{}', 'Re: Cache Valley Youth Initiative''s reserves', 'Hi Wei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-05 09:12:29 America/Denver', false, '2025-08-05 09:12:29 America/Denver'),
+  (280, 108, 294, 'jon@gaard.example', '<mock-000280@gaard.example>', 'thread-000294', 'outbound', 'jon@gaard.example', '{"fatima@hebervlfoundation.example"}', '{}', 'Re: Investment management for Heber Valley Library Foundation', 'Hi Fatima,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-05 10:22:24 America/Denver', false, '2025-08-05 10:22:24 America/Denver'),
+  (281, 89, 295, 'jon@gaard.example', '<mock-000281@gaard.example>', 'thread-000295', 'outbound', 'jon@gaard.example', '{"rchoi@sugarhchservices.example"}', '{}', 'Re: Investment support for Sugar House Community Health Services', 'Hi Roy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-05 10:59:24 America/Denver', false, '2025-08-05 10:59:24 America/Denver'),
+  (282, 197, 296, 'jon@gaard.example', '<mock-000282@gaard.example>', 'thread-000296', 'outbound', 'jon@gaard.example', '{"amber.anderson@mail.example"}', '{}', 'Introduction, Amber', 'Hi Amber,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-05 15:55:05 America/Denver', false, '2025-08-05 15:55:05 America/Denver'),
+  (283, 54, 297, 'jon@gaard.example', '<mock-000283@gaard.example>', 'thread-000297', 'outbound', 'jon@gaard.example', '{"minh.brown@veteransascounty.example"}', '{}', 'Veterans Alliance of Summit County''s reserves', 'Hi Minh,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Veterans Alliance of Summit County keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-06 10:25:37 America/Denver', false, '2025-08-06 10:25:37 America/Denver'),
+  (284, 86, 298, 'jon@gaard.example', '<mock-000284@gaard.example>', 'thread-000298', 'outbound', 'jon@gaard.example', '{"jgordon@friendsblibrary.example"}', '{}', 'Friends of Bonneville Library''s reserves', 'Hi Jacqueline,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Bonneville Library keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-06 13:50:44 America/Denver', false, '2025-08-06 13:50:44 America/Denver'),
+  (285, 35, 299, 'jon@gaard.example', '<mock-000285@gaard.example>', 'thread-000299', 'outbound', 'jon@gaard.example', '{"andrew.adams@moabtrailscollective.example"}', '{}', 'Quick question about Moab Trails Collective''s endowment', 'Hi Andrew,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Moab Trails Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-07 11:15:04 America/Denver', false, '2025-08-07 11:15:04 America/Denver'),
+  (286, 42, 300, 'jon@gaard.example', '<mock-000286@gaard.example>', 'thread-000300', 'outbound', 'jon@gaard.example', '{"justin_baker@beehiveyouthpartners.example"}', '{}', 'Re: Investment support for Beehive Youth Partners', 'Hi Justin,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-07 11:39:41 America/Denver', false, '2025-08-07 11:39:41 America/Denver'),
+  (287, 115, 301, 'ryan@gaard.example', '<mock-000287@gaard.example>', 'thread-000301', 'outbound', 'ryan@gaard.example', '{"grace.torres@whitecharitabletrust.example"}', '{}', 'Re: Investment management for White Charitable Trust', 'Hi Grace,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-08-07 14:26:10 America/Denver', false, '2025-08-07 14:26:10 America/Denver'),
+  (288, 57, 302, 'jon@gaard.example', '<mock-000288@gaard.example>', 'thread-000302', 'outbound', 'jon@gaard.example', '{"ashley.butler@friendsredrocksymphony.example"}', '{}', 'Investment support for Friends of Red Rock Symphony', 'Hi Ashley,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Red Rock Symphony keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-11 08:16:09 America/Denver', false, '2025-08-11 08:16:09 America/Denver'),
+  (289, 11, 303, 'jon@gaard.example', '<mock-000289@gaard.example>', 'thread-000303', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-08-11 08:52:04 America/Denver', false, '2025-08-11 08:52:04 America/Denver'),
+  (290, 11, 303, 'jon@gaard.example', '<mock-000290@gaard.example>', 'thread-000303', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2025-08-11 11:52:04 America/Denver', false, '2025-08-11 11:52:04 America/Denver'),
+  (291, 12, 305, 'jon@gaard.example', '<mock-000291@gaard.example>', 'thread-000305', 'outbound', 'jon@gaard.example', '{"alexis@tooelevpservices.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Hi Alexis,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-11 14:31:24 America/Denver', false, '2025-08-11 14:31:24 America/Denver'),
+  (292, 113, 306, 'jon@gaard.example', '<mock-000292@gaard.example>', 'thread-000306', 'outbound', 'jon@gaard.example', '{"gerald.cooper@boxelderartsendowment.example"}', '{}', 'Re: OCIO support for Box Elder Arts Endowment', 'Hi Gerald,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-11 15:32:38 America/Denver', false, '2025-08-11 15:32:38 America/Denver'),
+  (293, 77, 307, 'jon@gaard.example', '<mock-000293@gaard.example>', 'thread-000307', 'outbound', 'jon@gaard.example', '{"kristen@daviscsenetwork.example"}', '{}', 'Re: Davis County Science Education Network''s reserves', 'Hi Kristen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-13 10:00:31 America/Denver', false, '2025-08-13 10:00:31 America/Denver'),
+  (294, 99, 308, 'jon@gaard.example', '<mock-000294@gaard.example>', 'thread-000308', 'outbound', 'jon@gaard.example', '{"logan.tuilagi@sugarhhfoundation.example"}', '{}', 'Re: Investment management for Sugar House Hospital Foundation', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-13 10:31:35 America/Denver', false, '2025-08-13 10:31:35 America/Denver'),
+  (295, 8, 309, 'jon@gaard.example', '<mock-000295@gaard.example>', 'thread-000309', 'outbound', 'jon@gaard.example', '{"jrussell@ramosholmescpas.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Hi Judith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-13 11:13:42 America/Denver', false, '2025-08-13 11:13:42 America/Denver'),
+  (296, 85, 312, 'jon@gaard.example', '<mock-000296@gaard.example>', 'thread-000312', 'outbound', 'jon@gaard.example', '{"brandon.hunter@canyonlandsasinitiative.example"}', '{}', 'Investment support for Canyonlands After School Initiative', 'Hi Brandon,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Canyonlands After School Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-18 10:27:08 America/Denver', false, '2025-08-18 10:27:08 America/Denver'),
+  (297, 30, 313, 'jon@gaard.example', '<mock-000297@gaard.example>', 'thread-000313', 'outbound', 'jon@gaard.example', '{"lawrence@utahvfsproject.example"}', '{}', 'Re: Investment support for Utah Valley Food Security Project', 'Hi Lawrence,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-18 14:57:57 America/Denver', false, '2025-08-18 14:57:57 America/Denver'),
+  (298, 26, 314, 'jon@gaard.example', '<mock-000298@gaard.example>', 'thread-000314', 'outbound', 'jon@gaard.example', '{"lisa@redrockveteranscouncil.example"}', '{}', 'Quick question about Red Rock Veterans Council''s endowment', 'Hi Lisa,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Red Rock Veterans Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-19 10:34:03 America/Denver', false, '2025-08-19 10:34:03 America/Denver'),
+  (299, 26, 314, 'jon@gaard.example', '<mock-000299@gaard.example>', 'thread-000314', 'inbound', 'lisa@redrockveteranscouncil.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Quick question about Red Rock Veterans Council''s endowment', 'I am out of the office until Thursday, August 28 with limited access to email. For anything urgent please call our main office.', '2025-08-19 10:37:03 America/Denver', true, '2025-08-19 10:37:03 America/Denver'),
+  (300, 28, 315, 'jon@gaard.example', '<mock-000300@gaard.example>', 'thread-000315', 'outbound', 'jon@gaard.example', '{"nancy.hall@beehivecmservices.example"}', '{}', 'Re: Beehive Chamber Music Services''s reserves', 'Hi Nancy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-20 10:20:34 America/Denver', false, '2025-08-20 10:20:34 America/Denver'),
+  (301, 60, 316, 'jon@gaard.example', '<mock-000301@gaard.example>', 'thread-000316', 'outbound', 'jon@gaard.example', '{"linh.wright@tooelevtalliance.example"}', '{}', 'Re: Quick question about Tooele Valley Trails Alliance''s endowment', 'Hi Linh,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-20 11:16:17 America/Denver', false, '2025-08-20 11:16:17 America/Denver'),
+  (302, 38, 317, 'jon@gaard.example', '<mock-000302@gaard.example>', 'thread-000317', 'outbound', 'jon@gaard.example', '{"jonathan.martin@cottonwoodmalliance.example"}', '{}', 'Cottonwood Music Alliance''s reserves', 'Hi Jonathan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cottonwood Music Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-21 11:48:41 America/Denver', false, '2025-08-21 11:48:41 America/Denver'),
+  (303, 91, 318, 'jon@gaard.example', '<mock-000303@gaard.example>', 'thread-000318', 'outbound', 'jon@gaard.example', '{"bwoods@uintawildlifecenter.example"}', '{}', 'Re: Quick question about Uinta Wildlife Center''s endowment', 'Hi Beverly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-22 10:41:29 America/Denver', false, '2025-08-22 10:41:29 America/Denver'),
+  (304, 87, 321, 'jon@gaard.example', '<mock-000304@gaard.example>', 'thread-000321', 'outbound', 'jon@gaard.example', '{"jason.adams@saltltassociation.example"}', '{}', 'Salt Lake Trails Association''s reserves', 'Hi Jason,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Salt Lake Trails Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-25 09:13:12 America/Denver', false, '2025-08-25 09:13:12 America/Denver'),
+  (305, 102, 322, 'jon@gaard.example', '<mock-000305@gaard.example>', 'thread-000322', 'outbound', 'jon@gaard.example', '{"catherine.barnes@cunninghamffoundation.example"}', '{}', 'Re: OCIO support for Cunningham Family Foundation', 'Hi Catherine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-25 09:51:39 America/Denver', false, '2025-08-25 09:51:39 America/Denver'),
+  (306, 112, 323, 'ryan@gaard.example', '<mock-000306@gaard.example>', 'thread-000323', 'outbound', 'ryan@gaard.example', '{"jae.stone@camaspgassociation.example"}', '{}', 'OCIO support for Camas Prairie Growers Association', 'Hi Jae,
+
+We provide OCIO-style investment management for foundations and institutions like Camas Prairie Growers Association.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-08-25 11:29:22 America/Denver', false, '2025-08-25 11:29:22 America/Denver'),
+  (307, 97, 324, 'ryan@gaard.example', '<mock-000307@gaard.example>', 'thread-000324', 'outbound', 'ryan@gaard.example', '{"gpetersen@absarokalfoundation.example"}', '{}', 'Investment management for Absaroka Library Foundation', 'Hi Gloria,
+
+We provide OCIO-style investment management for foundations and institutions like Absaroka Library Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-08-25 14:59:01 America/Denver', false, '2025-08-25 14:59:01 America/Denver'),
+  (308, 48, 325, 'jon@gaard.example', '<mock-000308@gaard.example>', 'thread-000325', 'outbound', 'jon@gaard.example', '{"tala.riley@disabilitysptvalley.example"}', '{}', 'Re: Investment support for Disability Services Project of Tooele Valley', 'Hi Tala,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-25 15:14:37 America/Denver', false, '2025-08-25 15:14:37 America/Denver'),
+  (309, 48, 325, 'jon@gaard.example', '<mock-000309@gaard.example>', 'thread-000325', 'inbound', 'tala.riley@disabilitysptvalley.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment support for Disability Services Project of Tooele Valley', 'Thanks. I''m copying our finance director, who handles our investment accounts.', '2025-08-26 18:14:37 America/Denver', false, '2025-08-26 18:14:37 America/Denver'),
+  (310, 209, 327, 'jon@gaard.example', '<mock-000310@gaard.example>', 'thread-000327', 'outbound', 'jon@gaard.example', '{"christina.delgado@webmail.example"}', '{}', 'Introduction via Judith', 'Hi Christina,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-26 10:37:29 America/Denver', false, '2025-08-26 10:37:29 America/Denver'),
+  (311, 209, 327, 'jon@gaard.example', '<mock-000311@gaard.example>', 'thread-000327', 'inbound', 'christina.delgado@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Judith', 'Yes, I''d like to learn more. I''m free Monday afternoon.', '2025-08-29 03:37:29 America/Denver', false, '2025-08-29 03:37:29 America/Denver'),
+  (312, 90, 328, 'jon@gaard.example', '<mock-000312@gaard.example>', 'thread-000328', 'outbound', 'jon@gaard.example', '{"atsosie@cottonwoodmassociation.example"}', '{}', 'Re: Investment support for Cottonwood Mentoring Association', 'Hi Alan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-26 16:59:49 America/Denver', false, '2025-08-26 16:59:49 America/Denver'),
+  (313, 49, 329, 'jon@gaard.example', '<mock-000313@gaard.example>', 'thread-000329', 'outbound', 'jon@gaard.example', '{"cheryl.reynolds@disabilitysptvalley.example"}', '{}', 'Introduction via Tala', 'Hi Cheryl,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Disability Services Project of Tooele Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-27 09:50:21 America/Denver', false, '2025-08-27 09:50:21 America/Denver'),
+  (314, 49, 329, 'jon@gaard.example', '<mock-000314@gaard.example>', 'thread-000329', 'inbound', 'cheryl.reynolds@disabilitysptvalley.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Introduction via Tala', 'I am out of the office until Thursday, September 4 with limited access to email. For anything urgent please call our main office.', '2025-08-27 09:51:21 America/Denver', true, '2025-08-27 09:51:21 America/Denver'),
+  (315, 39, 330, 'jon@gaard.example', '<mock-000315@gaard.example>', 'thread-000330', 'outbound', 'jon@gaard.example', '{"walter.porter@greatbelleague.example"}', '{}', 'Great Basin Early Learning League''s reserves', 'Hi Walter,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Great Basin Early Learning League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-08-27 10:20:38 America/Denver', false, '2025-08-27 10:20:38 America/Denver'),
+  (316, 44, 331, 'jon@gaard.example', '<mock-000316@gaard.example>', 'thread-000331', 'outbound', 'jon@gaard.example', '{"tevita.ellis@utahvscenter.example"}', '{}', 'Re: Quick question about Utah Valley Scholarship Center''s endowment', 'Hi Tevita,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-27 15:32:24 America/Denver', false, '2025-08-27 15:32:24 America/Denver'),
+  (317, 40, 332, 'jon@gaard.example', '<mock-000317@gaard.example>', 'thread-000332', 'outbound', 'jon@gaard.example', '{"arthur_nguyen@veteranssrrock.example"}', '{}', 'Re: Veterans Services of Red Rock''s reserves', 'Hi Arthur,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-28 10:39:27 America/Denver', false, '2025-08-28 10:39:27 America/Denver'),
+  (318, 26, 333, 'jon@gaard.example', '<mock-000318@gaard.example>', 'thread-000333', 'outbound', 'jon@gaard.example', '{"lisa@redrockveteranscouncil.example"}', '{}', 'Re: Quick question about Red Rock Veterans Council''s endowment', 'Hi Lisa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-08-29 08:43:34 America/Denver', false, '2025-08-29 08:43:34 America/Denver'),
+  (319, 103, 334, 'ryan@gaard.example', '<mock-000319@gaard.example>', 'thread-000334', 'outbound', 'ryan@gaard.example', '{"scott.wells@canyonlandsstate.edu.example"}', '{}', 'Re: Investment management for Canyonlands State University Foundation', 'Hi Scott,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-08-29 13:08:20 America/Denver', false, '2025-08-29 13:08:20 America/Denver'),
+  (320, 103, 334, 'ryan@gaard.example', '<mock-000320@gaard.example>', 'thread-000334', 'inbound', 'scott.wells@canyonlandsstate.edu.example', '{"ryan@gaard.example"}', '{}', 'Re: Re: Investment management for Canyonlands State University Foundation', 'No thanks, we are all set.', '2025-08-29 22:08:20 America/Denver', false, '2025-08-29 22:08:20 America/Denver'),
+  (321, 19, 335, 'jon@gaard.example', '<mock-000321@gaard.example>', 'thread-000335', 'outbound', 'jon@gaard.example', '{"scott@clarkkellycpas.example"}', '{}', 'Checking back in', 'Hi Scott,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-01 09:25:32 America/Denver', false, '2025-09-01 09:25:32 America/Denver'),
+  (322, 118, 336, 'jon@gaard.example', '<mock-000322@gaard.example>', 'thread-000336', 'outbound', 'jon@gaard.example', '{"gholmes@wasatchftnetwork.example"}', '{}', 'Quarterly check-in', 'Hi Gloria,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-09-01 10:01:14 America/Denver', false, '2025-09-01 10:01:14 America/Denver'),
+  (323, 46, 337, 'jon@gaard.example', '<mock-000323@gaard.example>', 'thread-000337', 'outbound', 'jon@gaard.example', '{"alexis@refugeewckolob.example"}', '{}', 'Re: Investment support for Refugee Welcome Council of Kolob', 'Hi Alexis,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-01 10:19:45 America/Denver', false, '2025-09-01 10:19:45 America/Denver'),
+  (324, 46, 337, 'jon@gaard.example', '<mock-000324@gaard.example>', 'thread-000337', 'inbound', 'alexis@refugeewckolob.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment support for Refugee Welcome Council of Kolob', 'Not right now, our board meets later in the year. Please reach out again in October.', '2025-09-04 02:19:45 America/Denver', false, '2025-09-04 02:19:45 America/Denver'),
+  (325, 43, 338, 'jon@gaard.example', '<mock-000325@gaard.example>', 'thread-000338', 'outbound', 'jon@gaard.example', '{"josephh@wasatchcmcenter.example"}', '{}', 'Re: Investment support for Wasatch Chamber Music Center', 'Hi Joseph,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-01 10:21:01 America/Denver', false, '2025-09-01 10:21:01 America/Denver'),
+  (326, 5, 339, 'jon@gaard.example', '<mock-000326@gaard.example>', 'thread-000339', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-09-01 10:28:39 America/Denver', false, '2025-09-01 10:28:39 America/Denver'),
+  (327, 5, 339, 'jon@gaard.example', '<mock-000327@gaard.example>', 'thread-000339', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2025-09-01 18:28:39 America/Denver', false, '2025-09-01 18:28:39 America/Denver'),
+  (328, 47, 340, 'jon@gaard.example', '<mock-000328@gaard.example>', 'thread-000340', 'outbound', 'jon@gaard.example', '{"lisa.meyer@oquirrhcleanairnetwork.example"}', '{}', 'Re: Investment support for Oquirrh Clean Air Network', 'Hi Lisa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-01 11:33:57 America/Denver', false, '2025-09-01 11:33:57 America/Denver'),
+  (329, 27, 341, 'jon@gaard.example', '<mock-000329@gaard.example>', 'thread-000341', 'outbound', 'jon@gaard.example', '{"judy.anderson@daviscsecenter.example"}', '{}', 'Re: Quick question about Davis County Science Education Center''s endowment', 'Hi Judy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-01 11:37:36 America/Denver', false, '2025-09-01 11:37:36 America/Denver'),
+  (330, 55, 342, 'jon@gaard.example', '<mock-000330@gaard.example>', 'thread-000342', 'outbound', 'jon@gaard.example', '{"paulo.mahe@wasatchfwcoalition.example"}', '{}', 'Checking back in', 'Hi Paulo,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Front Watershed Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-01 11:46:06 America/Denver', false, '2025-09-01 11:46:06 America/Denver'),
+  (331, 55, 342, 'jon@gaard.example', '<mock-000331@gaard.example>', 'thread-000342', 'inbound', 'paulo.mahe@wasatchfwcoalition.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2025-09-03 11:46:06 America/Denver', false, '2025-09-03 11:46:06 America/Denver'),
+  (332, 528, 343, 'ryan@gaard.example', '<mock-000332@gaard.example>', 'thread-000343', 'outbound', 'ryan@gaard.example', '{"lauren.olsen@musiccpriver.example"}', '{}', 'Checking back in', 'Hi Lauren,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Music Council of Powder River keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-09-01 13:34:41 America/Denver', false, '2025-09-01 13:34:41 America/Denver'),
+  (333, 4, 344, 'ryan@gaard.example', '<mock-000333@gaard.example>', 'thread-000344', 'outbound', 'ryan@gaard.example', '{"lgonzalez@gonzalezgibsoncpas.example"}', '{}', 'Checking back in', 'Hi Laura,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-09-01 16:06:38 America/Denver', false, '2025-09-01 16:06:38 America/Denver'),
+  (334, 4, 344, 'ryan@gaard.example', '<mock-000334@gaard.example>', 'thread-000344', 'inbound', 'lgonzalez@gonzalezgibsoncpas.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in January?', '2025-09-01 21:06:38 America/Denver', false, '2025-09-01 21:06:38 America/Denver'),
+  (335, 21, 345, 'jon@gaard.example', '<mock-000335@gaard.example>', 'thread-000345', 'outbound', 'jon@gaard.example', '{"dsilva@canyonlandsvcouncil.example"}', '{}', 'Re: Quick question about Canyonlands Veterans Council''s endowment', 'Hi Douglas,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-02 08:49:01 America/Denver', false, '2025-09-02 08:49:01 America/Denver'),
+  (336, 53, 346, 'jon@gaard.example', '<mock-000336@gaard.example>', 'thread-000346', 'outbound', 'jon@gaard.example', '{"jkim@seviervmcollective.example"}', '{}', 'Re: Sevier Valley Mentoring Collective''s reserves', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-02 10:39:24 America/Denver', false, '2025-09-02 10:39:24 America/Denver'),
+  (337, 134, 347, 'jon@gaard.example', '<mock-000337@gaard.example>', 'thread-000347', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-09-03 11:22:16 America/Denver', false, '2025-09-03 11:22:16 America/Denver'),
+  (338, 134, 347, 'jon@gaard.example', '<mock-000338@gaard.example>', 'thread-000347', 'inbound', 'kai_ruiz@ironcfscenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in October?', '2025-09-05 10:22:16 America/Denver', false, '2025-09-05 10:22:16 America/Denver'),
+  (339, 92, 348, 'ryan@gaard.example', '<mock-000339@gaard.example>', 'thread-000348', 'outbound', 'ryan@gaard.example', '{"bradleyo@petersonpfoundation.example"}', '{}', 'Re: OCIO support for Peterson-Porter Foundation', 'Hi Bradley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-09-03 16:17:19 America/Denver', false, '2025-09-03 16:17:19 America/Denver'),
+  (340, 185, 349, 'jon@gaard.example', '<mock-000340@gaard.example>', 'thread-000349', 'outbound', 'jon@gaard.example', '{"carmen.park@mail.example"}', '{}', 'Re: Introduction, Carmen', 'Hi Carmen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-04 09:48:49 America/Denver', false, '2025-09-04 09:48:49 America/Denver'),
+  (341, 25, 350, 'jon@gaard.example', '<mock-000341@gaard.example>', 'thread-000350', 'outbound', 'jon@gaard.example', '{"gabriel.wright@summitcmcoalition.example"}', '{}', 'Re: Summit County Mentoring Coalition''s reserves', 'Hi Gabriel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-04 14:08:39 America/Denver', false, '2025-09-04 14:08:39 America/Denver'),
+  (342, 49, 351, 'jon@gaard.example', '<mock-000342@gaard.example>', 'thread-000351', 'outbound', 'jon@gaard.example', '{"cheryl.reynolds@disabilitysptvalley.example"}', '{}', 'Re: Introduction via Tala', 'Hi Cheryl,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-05 09:19:05 America/Denver', false, '2025-09-05 09:19:05 America/Denver'),
+  (343, 69, 352, 'jon@gaard.example', '<mock-000343@gaard.example>', 'thread-000352', 'outbound', 'jon@gaard.example', '{"jeremy.butler@greatbaspartners.example"}', '{}', 'Quick question about Great Basin After School Partners''s endowment', 'Hi Jeremy,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Great Basin After School Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-05 10:52:37 America/Denver', false, '2025-09-05 10:52:37 America/Denver'),
+  (344, 59, 353, 'jon@gaard.example', '<mock-000344@gaard.example>', 'thread-000353', 'outbound', 'jon@gaard.example', '{"alexander.black@timpanogoshrcoalition.example"}', '{}', 'Quick question about Timpanogos Hunger Relief Coalition''s endowment', 'Hi Alexander,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Timpanogos Hunger Relief Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-05 11:33:27 America/Denver', false, '2025-09-05 11:33:27 America/Denver'),
+  (345, 56, 354, 'jon@gaard.example', '<mock-000345@gaard.example>', 'thread-000354', 'outbound', 'jon@gaard.example', '{"natalie.johnston@morganvoenetwork.example"}', '{}', 'Quarterly check-in', 'Hi Natalie,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-09-05 11:50:43 America/Denver', false, '2025-09-05 11:50:43 America/Denver'),
+  (346, 56, 354, 'jon@gaard.example', '<mock-000346@gaard.example>', 'thread-000354', 'inbound', 'natalie.johnston@morganvoenetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2025-09-05 20:50:43 America/Denver', false, '2025-09-05 20:50:43 America/Denver'),
+  (347, 50, 355, 'jon@gaard.example', '<mock-000347@gaard.example>', 'thread-000355', 'outbound', 'jon@gaard.example', '{"sioneb@housingpdcounty.example"}', '{}', 'Re: Investment support for Housing Project of Davis County', 'Hi Sione,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-08 08:59:33 America/Denver', false, '2025-09-08 08:59:33 America/Denver'),
+  (348, 106, 356, 'jon@gaard.example', '<mock-000348@gaard.example>', 'thread-000356', 'outbound', 'jon@gaard.example', '{"michael.carter@greatbhsociety.example"}', '{}', 'Investment management for Great Basin Heritage Society', 'Hi Michael,
+
+We provide OCIO-style investment management for foundations and institutions like Great Basin Heritage Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-08 09:13:08 America/Denver', false, '2025-09-08 09:13:08 America/Denver'),
+  (349, 189, 359, 'jon@gaard.example', '<mock-000349@gaard.example>', 'thread-000359', 'outbound', 'jon@gaard.example', '{"amy.tran30@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Amy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-08 14:58:07 America/Denver', false, '2025-09-08 14:58:07 America/Denver'),
+  (350, 189, 359, 'jon@gaard.example', '<mock-000350@gaard.example>', 'thread-000359', 'inbound', 'amy.tran30@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Institutional-style investing for your family', 'This has been on my list. Happy to talk, does Sep 15 work?', '2025-09-09 00:58:07 America/Denver', false, '2025-09-09 00:58:07 America/Denver'),
+  (351, 98, 360, 'jon@gaard.example', '<mock-000351@gaard.example>', 'thread-000360', 'outbound', 'jon@gaard.example', '{"kenneth.pena@davisccfoundation.example"}', '{}', 'Re: Investment management for Davis County Community Foundation', 'Hi Kenneth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-08 15:26:23 America/Denver', false, '2025-09-08 15:26:23 America/Denver'),
+  (352, 104, 361, 'jon@gaard.example', '<mock-000352@gaard.example>', 'thread-000361', 'outbound', 'jon@gaard.example', '{"mward@deltaefoundation.example"}', '{}', 'Investment management for Delta Education Foundation', 'Hi Mei,
+
+We provide OCIO-style investment management for foundations and institutions like Delta Education Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-09 15:24:59 America/Denver', false, '2025-09-09 15:24:59 America/Denver'),
+  (353, 111, 362, 'jon@gaard.example', '<mock-000353@gaard.example>', 'thread-000362', 'outbound', 'jon@gaard.example', '{"betty@wasatchheritagesociety.example"}', '{}', 'OCIO support for Wasatch Heritage Society', 'Hi Betty,
+
+We provide OCIO-style investment management for foundations and institutions like Wasatch Heritage Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-11 08:06:57 America/Denver', false, '2025-09-11 08:06:57 America/Denver'),
+  (354, 199, 363, 'jon@gaard.example', '<mock-000354@gaard.example>', 'thread-000363', 'outbound', 'jon@gaard.example', '{"carmen.patterson@mail.example"}', '{}', 'Introduction, Carmen', 'Hi Carmen,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-11 10:27:59 America/Denver', false, '2025-09-11 10:27:59 America/Denver'),
+  (355, 201, 364, 'jon@gaard.example', '<mock-000355@gaard.example>', 'thread-000364', 'outbound', 'jon@gaard.example', '{"harold.sorensen@inbox.example"}', '{}', 'Institutional-style investing for your family', 'Hi Harold,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-11 15:16:23 America/Denver', false, '2025-09-11 15:16:23 America/Denver'),
+  (356, 193, 365, 'jon@gaard.example', '<mock-000356@gaard.example>', 'thread-000365', 'outbound', 'jon@gaard.example', '{"jonathan.peters@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Jonathan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-11 15:43:28 America/Denver', false, '2025-09-11 15:43:28 America/Denver'),
+  (357, 76, 366, 'jon@gaard.example', '<mock-000357@gaard.example>', 'thread-000366', 'outbound', 'jon@gaard.example', '{"ngozi.cook@millcreekwassociation.example"}', '{}', 'Re: Investment support for Millcreek Wildlife Association', 'Hi Ngozi,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-12 10:18:04 America/Denver', false, '2025-09-12 10:18:04 America/Denver'),
+  (358, 76, 366, 'jon@gaard.example', '<mock-000358@gaard.example>', 'thread-000366', 'inbound', 'ngozi.cook@millcreekwassociation.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment support for Millcreek Wildlife Association', 'Hi Jon, thanks for reaching out. We already work with an advisor and are happy with the relationship, so we''ll pass for now.', '2025-09-12 14:18:04 America/Denver', false, '2025-09-12 14:18:04 America/Denver'),
+  (359, 41, 367, 'jon@gaard.example', '<mock-000359@gaard.example>', 'thread-000367', 'outbound', 'jon@gaard.example', '{"peterr@castlevvcouncil.example"}', '{}', 'Re: Castle Valley Veterans Council''s reserves', 'Hi Peter,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-12 13:14:05 America/Denver', false, '2025-09-12 13:14:05 America/Denver'),
+  (360, 138, 368, 'jon@gaard.example', '<mock-000360@gaard.example>', 'thread-000368', 'outbound', 'jon@gaard.example', '{"luciap@weberrhrnetwork.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Lucia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-12 14:16:06 America/Denver', false, '2025-09-12 14:16:06 America/Denver'),
+  (361, 182, 369, 'jon@gaard.example', '<mock-000361@gaard.example>', 'thread-000369', 'outbound', 'jon@gaard.example', '{"albert.ruiz@summitridge.edu.example"}', '{}', 'Introduction, Albert', 'Hi Albert,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-12 15:13:37 America/Denver', false, '2025-09-12 15:13:37 America/Denver'),
+  (362, 182, 369, 'jon@gaard.example', '<mock-000362@gaard.example>', 'thread-000369', 'inbound', 'mailer-daemon@mail.example', '{"jon@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to albert.ruiz@summitridge.edu.example because the address couldn''t be found or is unable to receive mail.', '2025-09-12 15:14:37 America/Denver', true, '2025-09-12 15:14:37 America/Denver'),
+  (363, 61, 371, 'jon@gaard.example', '<mock-000363@gaard.example>', 'thread-000371', 'outbound', 'jon@gaard.example', '{"melissa.edwards@tooelevwcouncil.example"}', '{}', 'Tooele Valley Watershed Council''s reserves', 'Hi Melissa,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Tooele Valley Watershed Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-15 08:52:22 America/Denver', false, '2025-09-15 08:52:22 America/Denver'),
+  (364, 61, 371, 'jon@gaard.example', '<mock-000364@gaard.example>', 'thread-000371', 'inbound', 'melissa.edwards@tooelevwcouncil.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Tooele Valley Watershed Council''s reserves', 'I am out of the office until Tuesday, September 23 with limited access to email. For anything urgent please call our main office.', '2025-09-15 08:54:22 America/Denver', true, '2025-09-15 08:54:22 America/Denver'),
+  (365, 11, 372, 'jon@gaard.example', '<mock-000365@gaard.example>', 'thread-000372', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-09-15 10:47:30 America/Denver', false, '2025-09-15 10:47:30 America/Denver'),
+  (366, 11, 372, 'jon@gaard.example', '<mock-000366@gaard.example>', 'thread-000372', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2025-09-15 18:47:30 America/Denver', false, '2025-09-15 18:47:30 America/Denver'),
+  (367, 144, 373, 'jon@gaard.example', '<mock-000367@gaard.example>', 'thread-000373', 'outbound', 'jon@gaard.example', '{"mateo@sanpetessleague.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Mateo,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-15 11:40:36 America/Denver', false, '2025-09-15 11:40:36 America/Denver'),
+  (368, 96, 374, 'ryan@gaard.example', '<mock-000368@gaard.example>', 'thread-000374', 'outbound', 'ryan@gaard.example', '{"ethan.scott@shoshonelfoundation.example"}', '{}', 'Investment management for Shoshone Library Foundation', 'Hi Ethan,
+
+We provide OCIO-style investment management for foundations and institutions like Shoshone Library Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-09-15 13:05:16 America/Denver', false, '2025-09-15 13:05:16 America/Denver'),
+  (369, 192, 375, 'jon@gaard.example', '<mock-000369@gaard.example>', 'thread-000375', 'outbound', 'jon@gaard.example', '{"doris.parker@webmail.example"}', '{}', 'Re: Introduction, Doris', 'Hi Doris,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-15 13:15:34 America/Denver', false, '2025-09-15 13:15:34 America/Denver'),
+  (370, 198, 376, 'jon@gaard.example', '<mock-000370@gaard.example>', 'thread-000376', 'outbound', 'jon@gaard.example', '{"carol.hoffman@summitridge.edu.example"}', '{}', 'Institutional-style investing for your family', 'Hi Carol,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-16 11:35:21 America/Denver', false, '2025-09-16 11:35:21 America/Denver'),
+  (371, 62, 377, 'jon@gaard.example', '<mock-000371@gaard.example>', 'thread-000377', 'outbound', 'jon@gaard.example', '{"jack@moabdscoalition.example"}', '{}', 'Re: Investment support for Moab Disability Services Coalition', 'Hi Jack,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-16 14:47:09 America/Denver', false, '2025-09-16 14:47:09 America/Denver'),
+  (372, 68, 378, 'jon@gaard.example', '<mock-000372@gaard.example>', 'thread-000378', 'outbound', 'jon@gaard.example', '{"ksanchez@earlylcshouse.example"}', '{}', 'Investment support for Early Learning Center of Sugar House', 'Hi Keith,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Early Learning Center of Sugar House keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-16 15:32:13 America/Denver', false, '2025-09-16 15:32:13 America/Denver'),
+  (373, 101, 379, 'jon@gaard.example', '<mock-000373@gaard.example>', 'thread-000379', 'outbound', 'jon@gaard.example', '{"roger.simpson@escalantelfoundation.example"}', '{}', 'Re: Investment management for Escalante Library Foundation', 'Hi Roger,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-17 11:43:41 America/Denver', false, '2025-09-17 11:43:41 America/Denver'),
+  (374, 78, 394, 'jon@gaard.example', '<mock-000374@gaard.example>', 'thread-000394', 'outbound', 'jon@gaard.example', '{"enguyen@provoraealliance.example"}', '{}', 'Investment support for Provo River Arts Education Alliance', 'Hi Evelyn,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Provo River Arts Education Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-19 09:04:10 America/Denver', false, '2025-09-19 09:04:10 America/Denver'),
+  (375, 31, 395, 'jon@gaard.example', '<mock-000375@gaard.example>', 'thread-000395', 'outbound', 'jon@gaard.example', '{"mbailey@summitchservices.example"}', '{}', 'Re: Quick question about Summit County Habitat Services''s endowment', 'Hi Michelle,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-19 09:41:02 America/Denver', false, '2025-09-19 09:41:02 America/Denver'),
+  (376, 143, 396, 'jon@gaard.example', '<mock-000376@gaard.example>', 'thread-000396', 'outbound', 'jon@gaard.example', '{"scott.turner@ironcsspartners.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Scott,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-19 13:10:27 America/Denver', false, '2025-09-19 13:10:27 America/Denver'),
+  (377, 147, 398, 'jon@gaard.example', '<mock-000377@gaard.example>', 'thread-000398', 'outbound', 'jon@gaard.example', '{"malia.morgan@friendswrmuseum.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Malia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Weber River Museum keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-22 08:43:55 America/Denver', false, '2025-09-22 08:43:55 America/Denver'),
+  (378, 139, 399, 'jon@gaard.example', '<mock-000378@gaard.example>', 'thread-000399', 'outbound', 'jon@gaard.example', '{"maria_hayes@veteranssrrock.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Maria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-22 09:22:50 America/Denver', false, '2025-09-22 09:22:50 America/Denver'),
+  (379, 145, 400, 'jon@gaard.example', '<mock-000379@gaard.example>', 'thread-000400', 'outbound', 'jon@gaard.example', '{"angela.gomez@bonnevillemcoalition.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Angela,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-22 09:30:25 America/Denver', false, '2025-09-22 09:30:25 America/Denver'),
+  (380, 70, 402, 'jon@gaard.example', '<mock-000380@gaard.example>', 'thread-000402', 'outbound', 'jon@gaard.example', '{"kwame.russell@seviervoecenter.example"}', '{}', 'Re: Investment support for Sevier Valley Outdoor Education Center', 'Hi Kwame,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-22 09:48:12 America/Denver', false, '2025-09-22 09:48:12 America/Denver'),
+  (381, 148, 403, 'ryan@gaard.example', '<mock-000381@gaard.example>', 'thread-000403', 'outbound', 'ryan@gaard.example', '{"joseph_patterson@greenriverartssociety.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Joseph,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Green River Arts Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-09-22 10:05:54 America/Denver', false, '2025-09-22 10:05:54 America/Denver'),
+  (382, 153, 404, 'jon@gaard.example', '<mock-000382@gaard.example>', 'thread-000404', 'outbound', 'jon@gaard.example', '{"stephen@moabdscoalition.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Stephen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Moab Disability Services Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-22 10:17:50 America/Denver', false, '2025-09-22 10:17:50 America/Denver'),
+  (383, 156, 405, 'jon@gaard.example', '<mock-000383@gaard.example>', 'thread-000405', 'outbound', 'jon@gaard.example', '{"shirley.duncan@theatersocietybeehive.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Shirley,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Theater Society of Beehive keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-22 10:45:23 America/Denver', false, '2025-09-22 10:45:23 America/Denver'),
+  (384, 159, 406, 'ryan@gaard.example', '<mock-000384@gaard.example>', 'thread-000406', 'outbound', 'ryan@gaard.example', '{"jsingh@camaspelalliance.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Jesse,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Camas Prairie Early Learning Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-09-22 11:38:27 America/Denver', false, '2025-09-22 11:38:27 America/Denver'),
+  (385, 159, 406, 'ryan@gaard.example', '<mock-000385@gaard.example>', 'thread-000406', 'inbound', 'jsingh@camaspelalliance.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'This has been on my list. Happy to talk, does Oct 1 work?', '2025-09-24 18:38:27 America/Denver', false, '2025-09-24 18:38:27 America/Denver'),
+  (386, 158, 407, 'jon@gaard.example', '<mock-000386@gaard.example>', 'thread-000407', 'outbound', 'jon@gaard.example', '{"jason.gomez@friendssanpetelibrary.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Jason,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Sanpete Library keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-22 13:28:14 America/Denver', false, '2025-09-22 13:28:14 America/Denver'),
+  (387, 141, 408, 'jon@gaard.example', '<mock-000387@gaard.example>', 'thread-000408', 'outbound', 'jon@gaard.example', '{"brian_patterson@weberrcaassociation.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Brian,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-22 14:10:59 America/Denver', false, '2025-09-22 14:10:59 America/Denver'),
+  (388, 150, 409, 'ryan@gaard.example', '<mock-000388@gaard.example>', 'thread-000409', 'outbound', 'ryan@gaard.example', '{"lsanders@laramiehrservices.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Lauren,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Laramie Hunger Relief Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-09-22 14:13:29 America/Denver', false, '2025-09-22 14:13:29 America/Denver'),
+  (389, 150, 409, 'ryan@gaard.example', '<mock-000389@gaard.example>', 'thread-000409', 'inbound', 'lsanders@laramiehrservices.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2025-09-23 04:13:29 America/Denver', false, '2025-09-23 04:13:29 America/Denver'),
+  (390, 146, 410, 'jon@gaard.example', '<mock-000390@gaard.example>', 'thread-000410', 'outbound', 'jon@gaard.example', '{"kyle.bryant@wasatchffscoalition.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Kyle,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Front Family Services Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-22 14:26:43 America/Denver', false, '2025-09-22 14:26:43 America/Denver'),
+  (391, 146, 410, 'jon@gaard.example', '<mock-000391@gaard.example>', 'thread-000410', 'inbound', 'kyle.bryant@wasatchffscoalition.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'I am out of the office until Thursday, October 2 with limited access to email. For anything urgent please call our main office.', '2025-09-22 14:28:43 America/Denver', true, '2025-09-22 14:28:43 America/Denver'),
+  (392, 157, 411, 'jon@gaard.example', '<mock-000392@gaard.example>', 'thread-000411', 'outbound', 'jon@gaard.example', '{"andrew.elliott@sugarhtcoalition.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Andrew,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Theater Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-22 15:22:14 America/Denver', false, '2025-09-22 15:22:14 America/Denver'),
+  (393, 151, 412, 'jon@gaard.example', '<mock-000393@gaard.example>', 'thread-000412', 'outbound', 'jon@gaard.example', '{"raymond.west@canyonlandselsociety.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Raymond,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Canyonlands Early Learning Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-22 16:02:02 America/Denver', false, '2025-09-22 16:02:02 America/Denver'),
+  (394, 151, 412, 'jon@gaard.example', '<mock-000394@gaard.example>', 'thread-000412', 'inbound', 'raymond.west@canyonlandselsociety.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2025-09-24 10:02:02 America/Denver', false, '2025-09-24 10:02:02 America/Denver'),
+  (395, 155, 413, 'jon@gaard.example', '<mock-000395@gaard.example>', 'thread-000413', 'outbound', 'jon@gaard.example', '{"camila@provormpartners.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Camila,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Provo River Mentoring Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-23 08:34:19 America/Denver', false, '2025-09-23 08:34:19 America/Denver'),
+  (396, 155, 413, 'jon@gaard.example', '<mock-000396@gaard.example>', 'thread-000413', 'inbound', 'camila@provormpartners.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in November?', '2025-09-25 17:34:19 America/Denver', false, '2025-09-25 17:34:19 America/Denver'),
+  (397, 154, 414, 'jon@gaard.example', '<mock-000397@gaard.example>', 'thread-000414', 'outbound', 'jon@gaard.example', '{"kelly.kim@sanjfsservices.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Kelly,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like San Joaquin Food Security Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-23 09:44:32 America/Denver', false, '2025-09-23 09:44:32 America/Denver'),
+  (398, 152, 415, 'jon@gaard.example', '<mock-000398@gaard.example>', 'thread-000415', 'outbound', 'jon@gaard.example', '{"jdixon@seviervmcollective.example"}', '{}', 'Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Jean,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sevier Valley Mentoring Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-09-23 10:14:16 America/Denver', false, '2025-09-23 10:14:16 America/Denver'),
+  (399, 23, 416, 'jon@gaard.example', '<mock-000399@gaard.example>', 'thread-000416', 'outbound', 'jon@gaard.example', '{"orogers@friendsoquirrhparks.example"}', '{}', 'Re: Friends of Oquirrh Parks''s reserves', 'Hi Omar,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-24 10:30:37 America/Denver', false, '2025-09-24 10:30:37 America/Denver'),
+  (400, 61, 417, 'jon@gaard.example', '<mock-000400@gaard.example>', 'thread-000417', 'outbound', 'jon@gaard.example', '{"melissa.edwards@tooelevwcouncil.example"}', '{}', 'Re: Tooele Valley Watershed Council''s reserves', 'Hi Melissa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-24 11:08:32 America/Denver', false, '2025-09-24 11:08:32 America/Denver');
+
+insert into public.email_messages (id, contact_id, touchpoint_id, mailbox, external_id, thread_id, direction, from_email, to_emails, cc_emails, subject, body_text, sent_at, is_auto_reply, created_at) values
+  (401, 195, 418, 'jon@gaard.example', '<mock-000401@gaard.example>', 'thread-000418', 'outbound', 'jon@gaard.example', '{"rmartinez@inbox.example"}', '{}', 'Re: Introduction, Rosa', 'Hi Rosa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-25 09:12:14 America/Denver', false, '2025-09-25 09:12:14 America/Denver'),
+  (402, 533, 420, 'ryan@gaard.example', '<mock-000402@gaard.example>', 'thread-000420', 'outbound', 'ryan@gaard.example', '{"dylan.robinson@friendsbighornlibrary.example"}', '{}', 'Introduction via Jesse', 'Hi Dylan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Big Horn Library keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-09-25 15:12:06 America/Denver', false, '2025-09-25 15:12:06 America/Denver'),
+  (403, 36, 421, 'jon@gaard.example', '<mock-000403@gaard.example>', 'thread-000421', 'outbound', 'jon@gaard.example', '{"amanda@danceleaguegreatbasin.example"}', '{}', 'Re: Investment support for Dance League of Great Basin', 'Hi Amanda,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-26 10:03:22 America/Denver', false, '2025-09-26 10:03:22 America/Denver'),
+  (404, 541, 422, 'jon@gaard.example', '<mock-000404@gaard.example>', 'thread-000422', 'outbound', 'jon@gaard.example', '{"rosa.nielsen@escalantegassociation.example"}', '{}', 'Re: Introduction via Judith', 'Hi Rosa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-26 10:15:41 America/Denver', false, '2025-09-26 10:15:41 America/Denver'),
+  (405, 32, 423, 'jon@gaard.example', '<mock-000405@gaard.example>', 'thread-000423', 'outbound', 'jon@gaard.example', '{"kathryn.tsosie@sugarhmcollective.example"}', '{}', 'Re: Sugar House Mentoring Collective''s reserves', 'Hi Kathryn,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-09-29 08:36:02 America/Denver', false, '2025-09-29 08:36:02 America/Denver'),
+  (406, 196, 425, 'ryan@gaard.example', '<mock-000406@gaard.example>', 'thread-000425', 'outbound', 'ryan@gaard.example', '{"christina.begay@webmail.example"}', '{}', 'Institutional-style investing for your family', 'Hi Christina,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-01 09:57:12 America/Denver', false, '2025-10-01 09:57:12 America/Denver'),
+  (407, 142, 426, 'jon@gaard.example', '<mock-000407@gaard.example>', 'thread-000426', 'outbound', 'jon@gaard.example', '{"tsalazar@seviervynetwork.example"}', '{}', 'Checking back in', 'Hi Tyler,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sevier Valley Youth Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-01 10:01:11 America/Denver', false, '2025-10-01 10:01:11 America/Denver'),
+  (408, 142, 426, 'jon@gaard.example', '<mock-000408@gaard.example>', 'thread-000426', 'inbound', 'tsalazar@seviervynetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Good timing question, but this quarter is busy for us. Circle back in November and we can talk.', '2025-10-04 05:01:11 America/Denver', false, '2025-10-04 05:01:11 America/Denver'),
+  (409, 16, 427, 'jon@gaard.example', '<mock-000409@gaard.example>', 'thread-000427', 'outbound', 'jon@gaard.example', '{"albert.nakamura@romerotaxadvisory.example"}', '{}', 'Checking back in', 'Hi Albert,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-01 10:15:30 America/Denver', false, '2025-10-01 10:15:30 America/Denver'),
+  (410, 16, 427, 'jon@gaard.example', '<mock-000410@gaard.example>', 'thread-000427', 'inbound', 'albert.nakamura@romerotaxadvisory.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Good timing question, but our board meets later in the year. Circle back in February and we can talk.', '2025-10-01 20:15:30 America/Denver', false, '2025-10-01 20:15:30 America/Denver'),
+  (411, 46, 428, 'jon@gaard.example', '<mock-000411@gaard.example>', 'thread-000428', 'outbound', 'jon@gaard.example', '{"alexis@refugeewckolob.example"}', '{}', 'Checking back in', 'Hi Alexis,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Refugee Welcome Council of Kolob keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-01 13:15:57 America/Denver', false, '2025-10-01 13:15:57 America/Denver'),
+  (412, 46, 428, 'jon@gaard.example', '<mock-000412@gaard.example>', 'thread-000428', 'inbound', 'alexis@refugeewckolob.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 13?', '2025-10-04 06:15:57 America/Denver', false, '2025-10-04 06:15:57 America/Denver'),
+  (413, 7, 429, 'jon@gaard.example', '<mock-000413@gaard.example>', 'thread-000429', 'outbound', 'jon@gaard.example', '{"jesse.ellis@wasatchfpservices.example"}', '{}', 'Checking back in', 'Hi Jesse,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-01 13:52:17 America/Denver', false, '2025-10-01 13:52:17 America/Denver'),
+  (414, 7, 429, 'jon@gaard.example', '<mock-000414@gaard.example>', 'thread-000429', 'inbound', 'jesse.ellis@wasatchfpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'No thank you.', '2025-10-04 00:52:17 America/Denver', false, '2025-10-04 00:52:17 America/Denver'),
+  (415, 34, 430, 'jon@gaard.example', '<mock-000415@gaard.example>', 'thread-000430', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Re: Quick question about Box Elder Clean Air Collective''s endowment', 'Hi Kimberly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-01 14:37:58 America/Denver', false, '2025-10-01 14:37:58 America/Denver'),
+  (416, 34, 430, 'jon@gaard.example', '<mock-000416@gaard.example>', 'thread-000430', 'inbound', 'kimberly.zhang@boxecacollective.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Quick question about Box Elder Clean Air Collective''s endowment', 'Yes, I''d like to learn more. I''m free Tuesday afternoon.', '2025-10-04 10:37:58 America/Denver', false, '2025-10-04 10:37:58 America/Denver'),
+  (417, 146, 433, 'jon@gaard.example', '<mock-000417@gaard.example>', 'thread-000433', 'outbound', 'jon@gaard.example', '{"kyle.bryant@wasatchffscoalition.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Kyle,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-03 09:47:16 America/Denver', false, '2025-10-03 09:47:16 America/Denver'),
+  (418, 146, 433, 'jon@gaard.example', '<mock-000418@gaard.example>', 'thread-000433', 'inbound', 'kyle.bryant@wasatchffscoalition.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'I am out of the office until Friday, October 10 with limited access to email. For anything urgent please call our main office.', '2025-10-03 09:49:16 America/Denver', true, '2025-10-03 09:49:16 America/Denver'),
+  (419, 105, 434, 'jon@gaard.example', '<mock-000419@gaard.example>', 'thread-000434', 'outbound', 'jon@gaard.example', '{"elizabeth.castro@escalantehfoundation.example"}', '{}', 'Re: OCIO support for Escalante Health Foundation', 'Hi Elizabeth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-06 08:16:37 America/Denver', false, '2025-10-06 08:16:37 America/Denver'),
+  (420, 114, 435, 'jon@gaard.example', '<mock-000420@gaard.example>', 'thread-000435', 'outbound', 'jon@gaard.example', '{"brittany@wasatchmedicalsociety.example"}', '{}', 'OCIO support for Wasatch Medical Society', 'Hi Brittany,
+
+We provide OCIO-style investment management for foundations and institutions like Wasatch Medical Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-06 08:24:05 America/Denver', false, '2025-10-06 08:24:05 America/Denver'),
+  (421, 188, 436, 'ryan@gaard.example', '<mock-000421@gaard.example>', 'thread-000436', 'outbound', 'ryan@gaard.example', '{"joshua.hughes89@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Joshua,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-10-06 10:12:29 America/Denver', false, '2025-10-06 10:12:29 America/Denver'),
+  (422, 5, 437, 'jon@gaard.example', '<mock-000422@gaard.example>', 'thread-000437', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-10-06 11:17:36 America/Denver', false, '2025-10-06 11:17:36 America/Denver'),
+  (423, 5, 437, 'jon@gaard.example', '<mock-000423@gaard.example>', 'thread-000437', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, this quarter is busy for us. Please reach out again in November.', '2025-10-07 17:17:36 America/Denver', false, '2025-10-07 17:17:36 America/Denver'),
+  (424, 183, 439, 'jon@gaard.example', '<mock-000424@gaard.example>', 'thread-000439', 'outbound', 'jon@gaard.example', '{"keith.tran87@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Keith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-06 15:22:05 America/Denver', false, '2025-10-06 15:22:05 America/Denver'),
+  (425, 10, 441, 'ryan@gaard.example', '<mock-000425@gaard.example>', 'thread-000441', 'outbound', 'ryan@gaard.example', '{"jsnyder@tetonbconsulting.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Hi Judith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-10-07 09:43:31 America/Denver', false, '2025-10-07 09:43:31 America/Denver'),
+  (426, 66, 442, 'jon@gaard.example', '<mock-000426@gaard.example>', 'thread-000442', 'outbound', 'jon@gaard.example', '{"lawrence_bell@castlevfsalliance.example"}', '{}', 'Quick question about Castle Valley Family Services Alliance''s endowment', 'Hi Lawrence,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Castle Valley Family Services Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-07 09:46:20 America/Denver', false, '2025-10-07 09:46:20 America/Denver'),
+  (427, 93, 443, 'jon@gaard.example', '<mock-000427@gaard.example>', 'thread-000443', 'outbound', 'jon@gaard.example', '{"tyler.nelson@sacramentovhfoundation.example"}', '{}', 'Re: OCIO support for Sacramento Valley Health Foundation', 'Hi Tyler,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-07 11:07:12 America/Denver', false, '2025-10-07 11:07:12 America/Denver'),
+  (428, 93, 443, 'jon@gaard.example', '<mock-000428@gaard.example>', 'thread-000443', 'inbound', 'tyler.nelson@sacramentovhfoundation.example', '{"jon@gaard.example"}', '{}', 'Re: Re: OCIO support for Sacramento Valley Health Foundation', 'No thanks, we are all set.', '2025-10-10 04:07:12 America/Denver', false, '2025-10-10 04:07:12 America/Denver'),
+  (429, 75, 444, 'jon@gaard.example', '<mock-000429@gaard.example>', 'thread-000444', 'outbound', 'jon@gaard.example', '{"russellg@weberrasalliance.example"}', '{}', 'Re: Investment support for Weber River After School Alliance', 'Hi Russell,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-07 13:14:28 America/Denver', false, '2025-10-07 13:14:28 America/Denver'),
+  (430, 45, 445, 'jon@gaard.example', '<mock-000430@gaard.example>', 'thread-000445', 'outbound', 'jon@gaard.example', '{"leilani.lewis@friendstimpanogosparks.example"}', '{}', 'Re: Investment support for Friends of Timpanogos Parks', 'Hi Leilani,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-08 14:10:40 America/Denver', false, '2025-10-08 14:10:40 America/Denver'),
+  (431, 194, 446, 'jon@gaard.example', '<mock-000431@gaard.example>', 'thread-000446', 'outbound', 'jon@gaard.example', '{"logan.fonua@summitridge.edu.example"}', '{}', 'Re: Introduction, Logan', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-09 08:49:06 America/Denver', false, '2025-10-09 08:49:06 America/Denver'),
+  (432, 6, 456, 'jon@gaard.example', '<mock-000432@gaard.example>', 'thread-000456', 'outbound', 'jon@gaard.example', '{"fatima.baker@oquirrhipartners.example"}', '{}', 'Quarterly check-in', 'Hi Fatima,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-10-09 15:06:31 America/Denver', false, '2025-10-09 15:06:31 America/Denver'),
+  (433, 6, 456, 'jon@gaard.example', '<mock-000433@gaard.example>', 'thread-000456', 'inbound', 'fatima.baker@oquirrhipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but our board meets later in the year. Circle back in December and we can talk.', '2025-10-11 11:06:31 America/Denver', false, '2025-10-11 11:06:31 America/Denver'),
+  (434, 11, 461, 'jon@gaard.example', '<mock-000434@gaard.example>', 'thread-000461', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-10-10 08:40:27 America/Denver', false, '2025-10-10 08:40:27 America/Denver'),
+  (435, 11, 461, 'jon@gaard.example', '<mock-000435@gaard.example>', 'thread-000461', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in December?', '2025-10-11 20:40:27 America/Denver', false, '2025-10-11 20:40:27 America/Denver'),
+  (436, 184, 462, 'jon@gaard.example', '<mock-000436@gaard.example>', 'thread-000462', 'outbound', 'jon@gaard.example', '{"mei.mahe95@inbox.example"}', '{}', 'Institutional-style investing for your family', 'Hi Mei,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-10 14:07:04 America/Denver', false, '2025-10-10 14:07:04 America/Denver'),
+  (437, 67, 464, 'jon@gaard.example', '<mock-000437@gaard.example>', 'thread-000464', 'outbound', 'jon@gaard.example', '{"yusuf@tooelevaassociation.example"}', '{}', 'Re: Tooele Valley Arts Association''s reserves', 'Hi Yusuf,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-10 15:53:00 America/Denver', false, '2025-10-10 15:53:00 America/Denver'),
+  (438, 166, 465, 'ryan@gaard.example', '<mock-000438@gaard.example>', 'thread-000465', 'outbound', 'ryan@gaard.example', '{"benjamin.lawrence@palmervfoundation.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Benjamin,
+
+We provide OCIO-style investment management for foundations and institutions like Palmer-Vasquez Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-13 08:03:40 America/Denver', false, '2025-10-13 08:03:40 America/Denver'),
+  (439, 160, 466, 'ryan@gaard.example', '<mock-000439@gaard.example>', 'thread-000466', 'outbound', 'ryan@gaard.example', '{"beverly@camasphfoundation.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Beverly,
+
+We provide OCIO-style investment management for foundations and institutions like Camas Prairie Hospital Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-13 08:36:30 America/Denver', false, '2025-10-13 08:36:30 America/Denver'),
+  (440, 186, 467, 'jon@gaard.example', '<mock-000440@gaard.example>', 'thread-000467', 'outbound', 'jon@gaard.example', '{"helen.medina@summitridge.edu.example"}', '{}', 'Re: Introduction, Helen', 'Hi Helen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-13 09:19:40 America/Denver', false, '2025-10-13 09:19:40 America/Denver'),
+  (441, 161, 469, 'ryan@gaard.example', '<mock-000441@gaard.example>', 'thread-000469', 'outbound', 'ryan@gaard.example', '{"pamelah@camasptassociation.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Pamela,
+
+We provide OCIO-style investment management for foundations and institutions like Camas Prairie Teachers Association.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-13 10:41:58 America/Denver', false, '2025-10-13 10:41:58 America/Denver'),
+  (442, 161, 469, 'ryan@gaard.example', '<mock-000442@gaard.example>', 'thread-000469', 'inbound', 'pamelah@camasptassociation.example', '{"ryan@gaard.example"}', '{}', 'Automatic reply: Great meeting you at Boise Philanthropy Forum 2025', 'I am out of the office until Monday, October 20 with limited access to email. For anything urgent please call our main office.', '2025-10-13 10:45:58 America/Denver', true, '2025-10-13 10:45:58 America/Denver'),
+  (443, 170, 470, 'ryan@gaard.example', '<mock-000443@gaard.example>', 'thread-000470', 'outbound', 'ryan@gaard.example', '{"gabriel.nelson93@mail.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Gabriel,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-13 10:54:56 America/Denver', false, '2025-10-13 10:54:56 America/Denver'),
+  (444, 171, 471, 'ryan@gaard.example', '<mock-000444@gaard.example>', 'thread-000471', 'outbound', 'ryan@gaard.example', '{"frances.pierce@mail.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Frances,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-13 10:57:18 America/Denver', false, '2025-10-13 10:57:18 America/Denver'),
+  (445, 162, 472, 'ryan@gaard.example', '<mock-000445@gaard.example>', 'thread-000472', 'outbound', 'ryan@gaard.example', '{"cbrown@tetonbtassociation.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Christine,
+
+We provide OCIO-style investment management for foundations and institutions like Teton Basin Teachers Association.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-13 10:57:28 America/Denver', false, '2025-10-13 10:57:28 America/Denver'),
+  (446, 169, 473, 'ryan@gaard.example', '<mock-000446@gaard.example>', 'thread-000473', 'outbound', 'ryan@gaard.example', '{"jack.vargas@summitridge.edu.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Jack,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-13 11:13:40 America/Denver', false, '2025-10-13 11:13:40 America/Denver'),
+  (447, 125, 474, 'jon@gaard.example', '<mock-000447@gaard.example>', 'thread-000474', 'outbound', 'jon@gaard.example', '{"timothy@friendshvlibrary.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Timothy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-13 11:34:30 America/Denver', false, '2025-10-13 11:34:30 America/Denver'),
+  (448, 146, 475, 'jon@gaard.example', '<mock-000448@gaard.example>', 'thread-000475', 'outbound', 'jon@gaard.example', '{"kyle.bryant@wasatchffscoalition.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Kyle,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-13 13:36:06 America/Denver', false, '2025-10-13 13:36:06 America/Denver'),
+  (449, 163, 476, 'ryan@gaard.example', '<mock-000449@gaard.example>', 'thread-000476', 'outbound', 'ryan@gaard.example', '{"smarshall@selkirkcfoundation.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Sandra,
+
+We provide OCIO-style investment management for foundations and institutions like Selkirk Community Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-13 14:07:15 America/Denver', false, '2025-10-13 14:07:15 America/Denver'),
+  (450, 165, 477, 'jon@gaard.example', '<mock-000450@gaard.example>', 'thread-000477', 'outbound', 'jon@gaard.example', '{"jperry@myerskimfoundation.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Jason,
+
+We provide OCIO-style investment management for foundations and institutions like Myers-Kim Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-13 15:21:54 America/Denver', false, '2025-10-13 15:21:54 America/Denver'),
+  (451, 167, 478, 'ryan@gaard.example', '<mock-000451@gaard.example>', 'thread-000478', 'outbound', 'ryan@gaard.example', '{"adam.riley@boiserhfoundation.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Adam,
+
+We provide OCIO-style investment management for foundations and institutions like Boise River Hospital Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-14 08:13:30 America/Denver', false, '2025-10-14 08:13:30 America/Denver'),
+  (452, 167, 478, 'ryan@gaard.example', '<mock-000452@gaard.example>', 'thread-000478', 'inbound', 'adam.riley@boiserhfoundation.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'This has been on my list. Happy to talk, does Oct 22 work?', '2025-10-16 21:13:30 America/Denver', false, '2025-10-16 21:13:30 America/Denver'),
+  (453, 164, 479, 'ryan@gaard.example', '<mock-000453@gaard.example>', 'thread-000479', 'outbound', 'ryan@gaard.example', '{"anna_hicks@portneufcfoundation.example"}', '{}', 'Great meeting you at Boise Philanthropy Forum 2025', 'Hi Anna,
+
+We provide OCIO-style investment management for foundations and institutions like Portneuf Community Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-10-14 10:11:09 America/Denver', false, '2025-10-14 10:11:09 America/Denver'),
+  (454, 191, 481, 'jon@gaard.example', '<mock-000454@gaard.example>', 'thread-000481', 'outbound', 'jon@gaard.example', '{"carmen.olson57@mail.example"}', '{}', 'Institutional-style investing for your family', 'Hi Carmen,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-14 15:12:58 America/Denver', false, '2025-10-14 15:12:58 America/Denver'),
+  (455, 134, 484, 'jon@gaard.example', '<mock-000455@gaard.example>', 'thread-000484', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-10-17 09:29:43 America/Denver', false, '2025-10-17 09:29:43 America/Denver'),
+  (456, 134, 484, 'jon@gaard.example', '<mock-000456@gaard.example>', 'thread-000484', 'inbound', 'kai_ruiz@ironcfscenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2025-10-17 17:29:43 America/Denver', false, '2025-10-17 17:29:43 America/Denver'),
+  (457, 133, 485, 'jon@gaard.example', '<mock-000457@gaard.example>', 'thread-000485', 'outbound', 'jon@gaard.example', '{"dmurphy@cottonwoodvleague.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Daniel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-17 13:30:34 America/Denver', false, '2025-10-17 13:30:34 America/Denver'),
+  (458, 124, 486, 'jon@gaard.example', '<mock-000458@gaard.example>', 'thread-000486', 'outbound', 'jon@gaard.example', '{"mmendez@hebervcpartners.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Mark,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-17 14:25:10 America/Denver', false, '2025-10-17 14:25:10 America/Denver'),
+  (459, 37, 487, 'jon@gaard.example', '<mock-000459@gaard.example>', 'thread-000487', 'outbound', 'jon@gaard.example', '{"mmartin@jordanrdproject.example"}', '{}', 'Re: Investment support for Jordan River Dance Project', 'Hi Maria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-20 08:21:44 America/Denver', false, '2025-10-20 08:21:44 America/Denver'),
+  (460, 37, 487, 'jon@gaard.example', '<mock-000460@gaard.example>', 'thread-000487', 'inbound', 'mmartin@jordanrdproject.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Re: Investment support for Jordan River Dance Project', 'I am out of the office until Monday, October 27 with limited access to email. For anything urgent please call our main office.', '2025-10-20 08:25:44 America/Denver', true, '2025-10-20 08:25:44 America/Denver'),
+  (461, 64, 489, 'jon@gaard.example', '<mock-000461@gaard.example>', 'thread-000489', 'outbound', 'jon@gaard.example', '{"kbaker@bonnevilleaepartners.example"}', '{}', 'Re: Investment support for Bonneville Adult Education Partners', 'Hi Kwame,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-20 11:58:31 America/Denver', false, '2025-10-20 11:58:31 America/Denver'),
+  (462, 63, 490, 'jon@gaard.example', '<mock-000462@gaard.example>', 'thread-000490', 'outbound', 'jon@gaard.example', '{"camila_flores@ogdenvoeleague.example"}', '{}', 'Quick question about Ogden Valley Outdoor Education League''s endowment', 'Hi Camila,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Ogden Valley Outdoor Education League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-20 14:11:41 America/Denver', false, '2025-10-20 14:11:41 America/Denver'),
+  (463, 63, 490, 'jon@gaard.example', '<mock-000463@gaard.example>', 'thread-000490', 'inbound', 'camila_flores@ogdenvoeleague.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Quick question about Ogden Valley Outdoor Education League''s endowment', 'I am out of the office until Tuesday, October 28 with limited access to email. For anything urgent please call our main office.', '2025-10-20 14:14:41 America/Denver', true, '2025-10-20 14:14:41 America/Denver'),
+  (464, 71, 491, 'jon@gaard.example', '<mock-000464@gaard.example>', 'thread-000491', 'outbound', 'jon@gaard.example', '{"nrogers@friendsmvparks.example"}', '{}', 'Re: Friends of Morgan Valley Parks''s reserves', 'Hi Noah,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-20 15:04:22 America/Denver', false, '2025-10-20 15:04:22 America/Denver'),
+  (465, 127, 492, 'jon@gaard.example', '<mock-000465@gaard.example>', 'thread-000492', 'outbound', 'jon@gaard.example', '{"henry@ogdenvdssociety.example"}', '{}', 'Checking back in', 'Hi Henry,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Ogden Valley Disability Services Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-20 16:40:48 America/Denver', false, '2025-10-20 16:40:48 America/Denver'),
+  (466, 127, 492, 'jon@gaard.example', '<mock-000466@gaard.example>', 'thread-000492', 'inbound', 'henry@ogdenvdssociety.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'No thank you.', '2025-10-22 04:40:48 America/Denver', false, '2025-10-22 04:40:48 America/Denver'),
+  (467, 24, 493, 'jon@gaard.example', '<mock-000467@gaard.example>', 'thread-000493', 'outbound', 'jon@gaard.example', '{"jose@cottonwoodchsociety.example"}', '{}', 'Re: Cottonwood Community Health Society''s reserves', 'Hi Jose,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-21 09:57:12 America/Denver', false, '2025-10-21 09:57:12 America/Denver'),
+  (468, 136, 494, 'jon@gaard.example', '<mock-000468@gaard.example>', 'thread-000494', 'outbound', 'jon@gaard.example', '{"javier.madsen@canyonlandsasinitiative.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Javier,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-21 09:59:17 America/Denver', false, '2025-10-21 09:59:17 America/Denver'),
+  (469, 161, 495, 'ryan@gaard.example', '<mock-000469@gaard.example>', 'thread-000495', 'outbound', 'ryan@gaard.example', '{"pamelah@camasptassociation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Pamela,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-10-21 10:49:38 America/Denver', false, '2025-10-21 10:49:38 America/Denver'),
+  (470, 88, 496, 'jon@gaard.example', '<mock-000470@gaard.example>', 'thread-000496', 'outbound', 'jon@gaard.example', '{"fatima.morales@sugarhfbleague.example"}', '{}', 'Re: Sugar House Food Bank League''s reserves', 'Hi Fatima,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-21 10:59:14 America/Denver', false, '2025-10-21 10:59:14 America/Denver'),
+  (471, 126, 498, 'jon@gaard.example', '<mock-000471@gaard.example>', 'thread-000498', 'outbound', 'jon@gaard.example', '{"ecarroll@adulteahvalley.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Elena,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-22 08:23:44 America/Denver', false, '2025-10-22 08:23:44 America/Denver'),
+  (472, 84, 499, 'jon@gaard.example', '<mock-000472@gaard.example>', 'thread-000499', 'outbound', 'jon@gaard.example', '{"gabriel.singh@dancepscounty.example"}', '{}', 'Re: Dance Project of Summit County''s reserves', 'Hi Gabriel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-22 11:24:19 America/Denver', false, '2025-10-22 11:24:19 America/Denver'),
+  (473, 29, 500, 'jon@gaard.example', '<mock-000473@gaard.example>', 'thread-000500', 'outbound', 'jon@gaard.example', '{"nsanchez@boxefbnetwork.example"}', '{}', 'Re: Box Elder Food Bank Network''s reserves', 'Hi Natalie,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-22 14:02:39 America/Denver', false, '2025-10-22 14:02:39 America/Denver'),
+  (474, 130, 501, 'jon@gaard.example', '<mock-000474@gaard.example>', 'thread-000501', 'outbound', 'jon@gaard.example', '{"skennedy@summitchservices.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Sharon,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-23 09:15:55 America/Denver', false, '2025-10-23 09:15:55 America/Denver'),
+  (475, 51, 502, 'jon@gaard.example', '<mock-000475@gaard.example>', 'thread-000502', 'outbound', 'jon@gaard.example', '{"elijah@sugarhseleague.example"}', '{}', 'Investment support for Sugar House Science Education League', 'Hi Elijah,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Science Education League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-24 08:24:55 America/Denver', false, '2025-10-24 08:24:55 America/Denver'),
+  (476, 80, 503, 'jon@gaard.example', '<mock-000476@gaard.example>', 'thread-000503', 'outbound', 'jon@gaard.example', '{"diana@bearrsealliance.example"}', '{}', 'Quick question about Bear River Science Education Alliance''s endowment', 'Hi Diana,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Bear River Science Education Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-24 09:35:55 America/Denver', false, '2025-10-24 09:35:55 America/Denver'),
+  (477, 211, 505, 'jon@gaard.example', '<mock-000477@gaard.example>', 'thread-000505', 'outbound', 'jon@gaard.example', '{"javier.richards@summitridge.edu.example"}', '{}', 'Introduction via Jesse', 'Hi Javier,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-27 08:11:28 America/Denver', false, '2025-10-27 08:11:28 America/Denver'),
+  (478, 211, 505, 'jon@gaard.example', '<mock-000478@gaard.example>', 'thread-000505', 'inbound', 'javier.richards@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Jesse', 'This has been on my list. Happy to talk, does Nov 6 work?', '2025-10-28 18:11:28 America/Denver', false, '2025-10-28 18:11:28 America/Denver'),
+  (479, 190, 506, 'jon@gaard.example', '<mock-000479@gaard.example>', 'thread-000506', 'outbound', 'jon@gaard.example', '{"peter.wells@summitridge.edu.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Peter,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-27 11:33:03 America/Denver', false, '2025-10-27 11:33:03 America/Denver'),
+  (480, 131, 507, 'jon@gaard.example', '<mock-000480@gaard.example>', 'thread-000507', 'outbound', 'jon@gaard.example', '{"amanda.morgan@cottonwoodmalliance.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Amanda,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-27 13:07:26 America/Denver', false, '2025-10-27 13:07:26 America/Denver'),
+  (481, 74, 508, 'jon@gaard.example', '<mock-000481@gaard.example>', 'thread-000508', 'outbound', 'jon@gaard.example', '{"rtucker@daviscseinitiative.example"}', '{}', 'Investment support for Davis County Science Education Initiative', 'Hi Raymond,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Davis County Science Education Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-10-27 15:53:24 America/Denver', false, '2025-10-27 15:53:24 America/Denver'),
+  (482, 107, 509, 'jon@gaard.example', '<mock-000482@gaard.example>', 'thread-000509', 'outbound', 'jon@gaard.example', '{"lowens@seviervgassociation.example"}', '{}', 'Re: OCIO support for Sevier Valley Growers Association', 'Hi Leilani,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-28 09:15:28 America/Denver', false, '2025-10-28 09:15:28 America/Denver'),
+  (483, 200, 510, 'jon@gaard.example', '<mock-000483@gaard.example>', 'thread-000510', 'outbound', 'jon@gaard.example', '{"shirley.phillips9@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Shirley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-28 11:57:54 America/Denver', false, '2025-10-28 11:57:54 America/Denver'),
+  (484, 37, 511, 'jon@gaard.example', '<mock-000484@gaard.example>', 'thread-000511', 'outbound', 'jon@gaard.example', '{"mmartin@jordanrdproject.example"}', '{}', 'Re: Investment support for Jordan River Dance Project', 'Hi Maria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-28 13:48:16 America/Denver', false, '2025-10-28 13:48:16 America/Denver'),
+  (485, 137, 512, 'jon@gaard.example', '<mock-000485@gaard.example>', 'thread-000512', 'outbound', 'jon@gaard.example', '{"denise.hill@wasatchfwcoalition.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Denise,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-29 13:22:27 America/Denver', false, '2025-10-29 13:22:27 America/Denver'),
+  (486, 63, 513, 'jon@gaard.example', '<mock-000486@gaard.example>', 'thread-000513', 'outbound', 'jon@gaard.example', '{"camila_flores@ogdenvoeleague.example"}', '{}', 'Re: Quick question about Ogden Valley Outdoor Education League''s endowment', 'Hi Camila,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-29 14:48:24 America/Denver', false, '2025-10-29 14:48:24 America/Denver'),
+  (487, 108, 514, 'jon@gaard.example', '<mock-000487@gaard.example>', 'thread-000514', 'outbound', 'jon@gaard.example', '{"fatima@hebervlfoundation.example"}', '{}', 'Re: Investment management for Heber Valley Library Foundation', 'Hi Fatima,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-30 09:25:20 America/Denver', false, '2025-10-30 09:25:20 America/Denver'),
+  (488, 52, 515, 'jon@gaard.example', '<mock-000488@gaard.example>', 'thread-000515', 'outbound', 'jon@gaard.example', '{"stephenc@hebervcaservices.example"}', '{}', 'Re: Quick question about Heber Valley Clean Air Services''s endowment', 'Hi Stephen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-30 13:14:31 America/Denver', false, '2025-10-30 13:14:31 America/Denver'),
+  (489, 79, 516, 'jon@gaard.example', '<mock-000489@gaard.example>', 'thread-000516', 'outbound', 'jon@gaard.example', '{"jwhite@beehivercoalition.example"}', '{}', 'Re: Investment support for Beehive Recovery Coalition', 'Hi Jordan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-31 09:37:27 America/Denver', false, '2025-10-31 09:37:27 America/Denver'),
+  (490, 42, 517, 'jon@gaard.example', '<mock-000490@gaard.example>', 'thread-000517', 'outbound', 'jon@gaard.example', '{"justin_baker@beehiveyouthpartners.example"}', '{}', 'Re: Investment support for Beehive Youth Partners', 'Hi Justin,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-10-31 16:25:42 America/Denver', false, '2025-10-31 16:25:42 America/Denver'),
+  (491, 155, 518, 'jon@gaard.example', '<mock-000491@gaard.example>', 'thread-000518', 'outbound', 'jon@gaard.example', '{"camila@provormpartners.example"}', '{}', 'Checking back in', 'Hi Camila,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Provo River Mentoring Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-11-03 09:05:02 America/Denver', false, '2025-11-03 09:05:02 America/Denver'),
+  (492, 155, 518, 'jon@gaard.example', '<mock-000492@gaard.example>', 'thread-000518', 'inbound', 'camila@provormpartners.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Not right now, our board meets later in the year. Please reach out again in December.', '2025-11-06 05:05:02 America/Denver', false, '2025-11-06 05:05:02 America/Denver'),
+  (493, 22, 519, 'jon@gaard.example', '<mock-000493@gaard.example>', 'thread-000519', 'outbound', 'jon@gaard.example', '{"zachary@friendsutahvalleyparks.example"}', '{}', 'Re: Quick question about Friends of Utah Valley Parks''s endowment', 'Hi Zachary,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-03 09:14:39 America/Denver', false, '2025-11-03 09:14:39 America/Denver'),
+  (494, 82, 522, 'jon@gaard.example', '<mock-000494@gaard.example>', 'thread-000522', 'outbound', 'jon@gaard.example', '{"alice@ogdenvdssociety.example"}', '{}', 'Re: Quick question about Ogden Valley Disability Services Society''s endowment', 'Hi Alice,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-03 11:09:24 America/Denver', false, '2025-11-03 11:09:24 America/Denver'),
+  (495, 142, 523, 'jon@gaard.example', '<mock-000495@gaard.example>', 'thread-000523', 'outbound', 'jon@gaard.example', '{"tsalazar@seviervynetwork.example"}', '{}', 'Checking back in', 'Hi Tyler,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sevier Valley Youth Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-11-03 13:16:51 America/Denver', false, '2025-11-03 13:16:51 America/Denver'),
+  (496, 116, 524, 'jon@gaard.example', '<mock-000496@gaard.example>', 'thread-000524', 'outbound', 'jon@gaard.example', '{"rsnyder@ironcaralliance.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Raymond,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-03 13:21:37 America/Denver', false, '2025-11-03 13:21:37 America/Denver'),
+  (497, 81, 525, 'jon@gaard.example', '<mock-000497@gaard.example>', 'thread-000525', 'outbound', 'jon@gaard.example', '{"mark_murphy@weberrcaassociation.example"}', '{}', 'Re: Weber River Clean Air Association''s reserves', 'Hi Mark,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-03 14:38:28 America/Denver', false, '2025-11-03 14:38:28 America/Denver'),
+  (498, 109, 526, 'jon@gaard.example', '<mock-000498@gaard.example>', 'thread-000526', 'outbound', 'jon@gaard.example', '{"btran@montereybhfoundation.example"}', '{}', 'Re: OCIO support for Monterey Bay Hospital Foundation', 'Hi Brian,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-03 16:10:43 America/Denver', false, '2025-11-03 16:10:43 America/Denver'),
+  (499, 33, 527, 'jon@gaard.example', '<mock-000499@gaard.example>', 'thread-000527', 'outbound', 'jon@gaard.example', '{"doris.elliott@friendsuvtrails.example"}', '{}', 'Re: Investment support for Friends of Utah Valley Trails', 'Hi Doris,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-04 09:40:26 America/Denver', false, '2025-11-04 09:40:26 America/Denver'),
+  (500, 12, 528, 'jon@gaard.example', '<mock-000500@gaard.example>', 'thread-000528', 'outbound', 'jon@gaard.example', '{"alexis@tooelevpservices.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Hi Alexis,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-04 10:12:20 America/Denver', false, '2025-11-04 10:12:20 America/Denver'),
+  (501, 89, 529, 'jon@gaard.example', '<mock-000501@gaard.example>', 'thread-000529', 'outbound', 'jon@gaard.example', '{"rchoi@sugarhchservices.example"}', '{}', 'Re: Investment support for Sugar House Community Health Services', 'Hi Roy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-04 10:45:15 America/Denver', false, '2025-11-04 10:45:15 America/Denver'),
+  (502, 197, 530, 'jon@gaard.example', '<mock-000502@gaard.example>', 'thread-000530', 'outbound', 'jon@gaard.example', '{"amber.anderson@mail.example"}', '{}', 'Re: Introduction, Amber', 'Hi Amber,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-04 14:41:08 America/Denver', false, '2025-11-04 14:41:08 America/Denver'),
+  (503, 100, 531, 'ryan@gaard.example', '<mock-000503@gaard.example>', 'thread-000531', 'outbound', 'ryan@gaard.example', '{"amara.webb@shoshoneefoundation.example"}', '{}', 'Investment management for Shoshone Education Foundation', 'Hi Amara,
+
+We provide OCIO-style investment management for foundations and institutions like Shoshone Education Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-11-04 15:07:16 America/Denver', false, '2025-11-04 15:07:16 America/Denver'),
+  (504, 129, 532, 'jon@gaard.example', '<mock-000504@gaard.example>', 'thread-000532', 'outbound', 'jon@gaard.example', '{"gregory.bell@summitcmcoalition.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Gregory,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-05 10:53:19 America/Denver', false, '2025-11-05 10:53:19 America/Denver'),
+  (505, 94, 534, 'jon@gaard.example', '<mock-000505@gaard.example>', 'thread-000534', 'outbound', 'jon@gaard.example', '{"matthew.tran@utahvalleycivictrust.example"}', '{}', 'Re: OCIO support for Utah Valley Civic Trust', 'Hi Matthew,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-06 09:30:58 America/Denver', false, '2025-11-06 09:30:58 America/Denver'),
+  (506, 57, 535, 'jon@gaard.example', '<mock-000506@gaard.example>', 'thread-000535', 'outbound', 'jon@gaard.example', '{"ashley.butler@friendsredrocksymphony.example"}', '{}', 'Re: Investment support for Friends of Red Rock Symphony', 'Hi Ashley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-06 10:24:46 America/Denver', false, '2025-11-06 10:24:46 America/Denver'),
+  (507, 8, 536, 'jon@gaard.example', '<mock-000507@gaard.example>', 'thread-000536', 'outbound', 'jon@gaard.example', '{"jrussell@ramosholmescpas.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Hi Judith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-10 09:02:39 America/Denver', false, '2025-11-10 09:02:39 America/Denver'),
+  (508, 5, 537, 'jon@gaard.example', '<mock-000508@gaard.example>', 'thread-000537', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-11-10 09:07:57 America/Denver', false, '2025-11-10 09:07:57 America/Denver'),
+  (509, 77, 538, 'jon@gaard.example', '<mock-000509@gaard.example>', 'thread-000538', 'outbound', 'jon@gaard.example', '{"kristen@daviscsenetwork.example"}', '{}', 'Re: Davis County Science Education Network''s reserves', 'Hi Kristen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-10 10:02:28 America/Denver', false, '2025-11-10 10:02:28 America/Denver'),
+  (510, 54, 539, 'jon@gaard.example', '<mock-000510@gaard.example>', 'thread-000539', 'outbound', 'jon@gaard.example', '{"minh.brown@veteransascounty.example"}', '{}', 'Re: Veterans Alliance of Summit County''s reserves', 'Hi Minh,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-10 10:17:27 America/Denver', false, '2025-11-10 10:17:27 America/Denver'),
+  (511, 35, 540, 'jon@gaard.example', '<mock-000511@gaard.example>', 'thread-000540', 'outbound', 'jon@gaard.example', '{"andrew.adams@moabtrailscollective.example"}', '{}', 'Re: Quick question about Moab Trails Collective''s endowment', 'Hi Andrew,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-10 10:58:10 America/Denver', false, '2025-11-10 10:58:10 America/Denver'),
+  (512, 86, 541, 'jon@gaard.example', '<mock-000512@gaard.example>', 'thread-000541', 'outbound', 'jon@gaard.example', '{"jgordon@friendsblibrary.example"}', '{}', 'Re: Friends of Bonneville Library''s reserves', 'Hi Jacqueline,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-10 11:18:05 America/Denver', false, '2025-11-10 11:18:05 America/Denver'),
+  (513, 65, 542, 'jon@gaard.example', '<mock-000513@gaard.example>', 'thread-000542', 'outbound', 'jon@gaard.example', '{"wwillis@cachevyinitiative.example"}', '{}', 'Re: Cache Valley Youth Initiative''s reserves', 'Hi Wei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-10 13:56:56 America/Denver', false, '2025-11-10 13:56:56 America/Denver'),
+  (514, 113, 543, 'jon@gaard.example', '<mock-000514@gaard.example>', 'thread-000543', 'outbound', 'jon@gaard.example', '{"gerald.cooper@boxelderartsendowment.example"}', '{}', 'Re: OCIO support for Box Elder Arts Endowment', 'Hi Gerald,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-10 15:50:01 America/Denver', false, '2025-11-10 15:50:01 America/Denver'),
+  (515, 159, 544, 'ryan@gaard.example', '<mock-000515@gaard.example>', 'thread-000544', 'outbound', 'ryan@gaard.example', '{"jsingh@camaspelalliance.example"}', '{}', 'Quarterly check-in', 'Hi Jesse,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2025-11-11 09:32:45 America/Denver', false, '2025-11-11 09:32:45 America/Denver'),
+  (516, 159, 544, 'ryan@gaard.example', '<mock-000516@gaard.example>', 'thread-000544', 'inbound', 'jsingh@camaspelalliance.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2025-11-12 09:32:45 America/Denver', false, '2025-11-12 09:32:45 America/Denver'),
+  (517, 9, 545, 'jon@gaard.example', '<mock-000517@gaard.example>', 'thread-000545', 'outbound', 'jon@gaard.example', '{"ekelly@ramosholmescpas.example"}', '{}', 'Checking back in', 'Hi Edward,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-11-12 13:46:04 America/Denver', false, '2025-11-12 13:46:04 America/Denver'),
+  (518, 115, 551, 'ryan@gaard.example', '<mock-000518@gaard.example>', 'thread-000551', 'outbound', 'ryan@gaard.example', '{"grace.torres@whitecharitabletrust.example"}', '{}', 'Re: Investment management for White Charitable Trust', 'Hi Grace,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-11-13 13:27:16 America/Denver', false, '2025-11-13 13:27:16 America/Denver'),
+  (519, 187, 557, 'ryan@gaard.example', '<mock-000519@gaard.example>', 'thread-000557', 'outbound', 'ryan@gaard.example', '{"larry.spencer14@mail.example"}', '{}', 'Institutional-style investing for your family', 'Hi Larry,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-11-17 08:22:35 America/Denver', false, '2025-11-17 08:22:35 America/Denver'),
+  (520, 179, 558, 'ryan@gaard.example', '<mock-000520@gaard.example>', 'thread-000558', 'outbound', 'ryan@gaard.example', '{"nsantos@cachevalleyprintsign.example"}', '{}', 'Great meeting you at Salt Lake Small Business Mixer', 'Hi Nicholas,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-11-17 08:39:06 America/Denver', false, '2025-11-17 08:39:06 America/Denver'),
+  (521, 177, 559, 'ryan@gaard.example', '<mock-000521@gaard.example>', 'thread-000559', 'outbound', 'ryan@gaard.example', '{"roy.schmidt@oquirrhvclinic.example"}', '{}', 'Great meeting you at Salt Lake Small Business Mixer', 'Hi Roy,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-11-17 09:49:21 America/Denver', false, '2025-11-17 09:49:21 America/Denver'),
+  (522, 177, 559, 'ryan@gaard.example', '<mock-000522@gaard.example>', 'thread-000559', 'inbound', 'roy.schmidt@oquirrhvclinic.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Thanks for following up. Right now our board meets later in the year. Could you check back in March?', '2025-11-18 09:49:21 America/Denver', false, '2025-11-18 09:49:21 America/Denver'),
+  (523, 175, 560, 'ryan@gaard.example', '<mock-000523@gaard.example>', 'thread-000560', 'outbound', 'ryan@gaard.example', '{"christopher.owens@bearriverprintsign.example"}', '{}', 'Great meeting you at Salt Lake Small Business Mixer', 'Hi Christopher,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-11-17 10:08:38 America/Denver', false, '2025-11-17 10:08:38 America/Denver'),
+  (524, 175, 560, 'ryan@gaard.example', '<mock-000524@gaard.example>', 'thread-000560', 'inbound', 'christopher.owens@bearriverprintsign.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Good timing question, but this quarter is busy for us. Circle back in February and we can talk.', '2025-11-18 14:08:38 America/Denver', false, '2025-11-18 14:08:38 America/Denver'),
+  (525, 174, 561, 'ryan@gaard.example', '<mock-000525@gaard.example>', 'thread-000561', 'outbound', 'ryan@gaard.example', '{"daniel@hollowayarchitecture.example"}', '{}', 'Great meeting you at Salt Lake Small Business Mixer', 'Hi Daniel,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-11-17 10:48:54 America/Denver', false, '2025-11-17 10:48:54 America/Denver'),
+  (526, 178, 562, 'ryan@gaard.example', '<mock-000526@gaard.example>', 'thread-000562', 'outbound', 'ryan@gaard.example', '{"paul.myers@ironcountyheatingair.example"}', '{}', 'Great meeting you at Salt Lake Small Business Mixer', 'Hi Paul,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-11-17 10:51:10 America/Denver', false, '2025-11-17 10:51:10 America/Denver'),
+  (527, 172, 563, 'ryan@gaard.example', '<mock-000527@gaard.example>', 'thread-000563', 'outbound', 'ryan@gaard.example', '{"larry.wright@seviervalleyroofing.example"}', '{}', 'Great meeting you at Salt Lake Small Business Mixer', 'Hi Larry,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-11-17 14:29:02 America/Denver', false, '2025-11-17 14:29:02 America/Denver'),
+  (528, 172, 563, 'ryan@gaard.example', '<mock-000528@gaard.example>', 'thread-000563', 'inbound', 'larry.wright@seviervalleyroofing.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2025-11-17 21:29:02 America/Denver', false, '2025-11-17 21:29:02 America/Denver'),
+  (529, 99, 564, 'jon@gaard.example', '<mock-000529@gaard.example>', 'thread-000564', 'outbound', 'jon@gaard.example', '{"logan.tuilagi@sugarhhfoundation.example"}', '{}', 'Re: Investment management for Sugar House Hospital Foundation', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-17 16:52:42 America/Denver', false, '2025-11-17 16:52:42 America/Denver'),
+  (530, 176, 565, 'ryan@gaard.example', '<mock-000530@gaard.example>', 'thread-000565', 'outbound', 'ryan@gaard.example', '{"bryan.castillo@sanpeteoptometry.example"}', '{}', 'Great meeting you at Salt Lake Small Business Mixer', 'Hi Bryan,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2025-11-18 09:30:55 America/Denver', false, '2025-11-18 09:30:55 America/Denver'),
+  (531, 176, 565, 'ryan@gaard.example', '<mock-000531@gaard.example>', 'thread-000565', 'inbound', 'bryan.castillo@sanpeteoptometry.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in January?', '2025-11-20 08:30:55 America/Denver', false, '2025-11-20 08:30:55 America/Denver'),
+  (532, 85, 567, 'jon@gaard.example', '<mock-000532@gaard.example>', 'thread-000567', 'outbound', 'jon@gaard.example', '{"brandon.hunter@canyonlandsasinitiative.example"}', '{}', 'Re: Investment support for Canyonlands After School Initiative', 'Hi Brandon,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-18 15:34:14 America/Denver', false, '2025-11-18 15:34:14 America/Denver'),
+  (533, 85, 567, 'jon@gaard.example', '<mock-000533@gaard.example>', 'thread-000567', 'inbound', 'brandon.hunter@canyonlandsasinitiative.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Re: Investment support for Canyonlands After School Initiative', 'I am out of the office until Thursday, November 27 with limited access to email. For anything urgent please call our main office.', '2025-11-18 15:37:14 America/Denver', true, '2025-11-18 15:37:14 America/Denver'),
+  (534, 168, 568, 'ryan@gaard.example', '<mock-000534@gaard.example>', 'thread-000568', 'outbound', 'ryan@gaard.example', '{"daniel.patterson@selkirkctrust.example"}', '{}', 'Quarterly check-in', 'Hi Daniel,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2025-11-19 08:12:15 America/Denver', false, '2025-11-19 08:12:15 America/Denver'),
+  (535, 168, 568, 'ryan@gaard.example', '<mock-000535@gaard.example>', 'thread-000568', 'inbound', 'daniel.patterson@selkirkctrust.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in January and we can talk.', '2025-11-20 20:12:15 America/Denver', false, '2025-11-20 20:12:15 America/Denver'),
+  (536, 91, 569, 'jon@gaard.example', '<mock-000536@gaard.example>', 'thread-000569', 'outbound', 'jon@gaard.example', '{"bwoods@uintawildlifecenter.example"}', '{}', 'Re: Quick question about Uinta Wildlife Center''s endowment', 'Hi Beverly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-19 08:31:12 America/Denver', false, '2025-11-19 08:31:12 America/Denver'),
+  (537, 60, 571, 'jon@gaard.example', '<mock-000537@gaard.example>', 'thread-000571', 'outbound', 'jon@gaard.example', '{"linh.wright@tooelevtalliance.example"}', '{}', 'Re: Quick question about Tooele Valley Trails Alliance''s endowment', 'Hi Linh,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-21 13:42:33 America/Denver', false, '2025-11-21 13:42:33 America/Denver'),
+  (538, 11, 572, 'jon@gaard.example', '<mock-000538@gaard.example>', 'thread-000572', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-11-21 14:48:05 America/Denver', false, '2025-11-21 14:48:05 America/Denver'),
+  (539, 39, 573, 'jon@gaard.example', '<mock-000539@gaard.example>', 'thread-000573', 'outbound', 'jon@gaard.example', '{"walter.porter@greatbelleague.example"}', '{}', 'Re: Great Basin Early Learning League''s reserves', 'Hi Walter,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-21 16:40:54 America/Denver', false, '2025-11-21 16:40:54 America/Denver'),
+  (540, 102, 574, 'jon@gaard.example', '<mock-000540@gaard.example>', 'thread-000574', 'outbound', 'jon@gaard.example', '{"catherine.barnes@cunninghamffoundation.example"}', '{}', 'Re: OCIO support for Cunningham Family Foundation', 'Hi Catherine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-24 09:43:57 America/Denver', false, '2025-11-24 09:43:57 America/Denver'),
+  (541, 97, 576, 'ryan@gaard.example', '<mock-000541@gaard.example>', 'thread-000576', 'outbound', 'ryan@gaard.example', '{"gpetersen@absarokalfoundation.example"}', '{}', 'Re: Investment management for Absaroka Library Foundation', 'Hi Gloria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-11-24 11:36:20 America/Denver', false, '2025-11-24 11:36:20 America/Denver'),
+  (542, 38, 577, 'jon@gaard.example', '<mock-000542@gaard.example>', 'thread-000577', 'outbound', 'jon@gaard.example', '{"jonathan.martin@cottonwoodmalliance.example"}', '{}', 'Re: Cottonwood Music Alliance''s reserves', 'Hi Jonathan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-24 13:08:41 America/Denver', false, '2025-11-24 13:08:41 America/Denver'),
+  (543, 204, 578, 'jon@gaard.example', '<mock-000543@gaard.example>', 'thread-000578', 'outbound', 'jon@gaard.example', '{"sara.hernandez@summitridge.edu.example"}', '{}', 'Introduction via Logan', 'Hi Sara,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-11-24 13:57:28 America/Denver', false, '2025-11-24 13:57:28 America/Denver'),
+  (544, 204, 578, 'jon@gaard.example', '<mock-000544@gaard.example>', 'thread-000578', 'inbound', 'sara.hernandez@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Logan', 'This has been on my list. Happy to talk, does Dec 1 work?', '2025-11-26 00:57:28 America/Denver', false, '2025-11-26 00:57:28 America/Denver'),
+  (545, 30, 579, 'jon@gaard.example', '<mock-000545@gaard.example>', 'thread-000579', 'outbound', 'jon@gaard.example', '{"lawrence@utahvfsproject.example"}', '{}', 'Re: Investment support for Utah Valley Food Security Project', 'Hi Lawrence,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-24 14:14:52 America/Denver', false, '2025-11-24 14:14:52 America/Denver'),
+  (546, 112, 580, 'ryan@gaard.example', '<mock-000546@gaard.example>', 'thread-000580', 'outbound', 'ryan@gaard.example', '{"jae.stone@camaspgassociation.example"}', '{}', 'Re: OCIO support for Camas Prairie Growers Association', 'Hi Jae,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-11-25 13:49:26 America/Denver', false, '2025-11-25 13:49:26 America/Denver'),
+  (547, 44, 581, 'jon@gaard.example', '<mock-000547@gaard.example>', 'thread-000581', 'outbound', 'jon@gaard.example', '{"tevita.ellis@utahvscenter.example"}', '{}', 'Re: Quick question about Utah Valley Scholarship Center''s endowment', 'Hi Tevita,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-26 08:53:02 America/Denver', false, '2025-11-26 08:53:02 America/Denver'),
+  (548, 28, 582, 'jon@gaard.example', '<mock-000548@gaard.example>', 'thread-000582', 'outbound', 'jon@gaard.example', '{"nancy.hall@beehivecmservices.example"}', '{}', 'Re: Beehive Chamber Music Services''s reserves', 'Hi Nancy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-26 10:37:56 America/Denver', false, '2025-11-26 10:37:56 America/Denver'),
+  (549, 134, 583, 'jon@gaard.example', '<mock-000549@gaard.example>', 'thread-000583', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-11-26 11:45:02 America/Denver', false, '2025-11-26 11:45:02 America/Denver'),
+  (550, 90, 584, 'jon@gaard.example', '<mock-000550@gaard.example>', 'thread-000584', 'outbound', 'jon@gaard.example', '{"atsosie@cottonwoodmassociation.example"}', '{}', 'Re: Investment support for Cottonwood Mentoring Association', 'Hi Alan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-26 13:32:04 America/Denver', false, '2025-11-26 13:32:04 America/Denver'),
+  (551, 43, 585, 'jon@gaard.example', '<mock-000551@gaard.example>', 'thread-000585', 'outbound', 'jon@gaard.example', '{"josephh@wasatchcmcenter.example"}', '{}', 'Re: Investment support for Wasatch Chamber Music Center', 'Hi Joseph,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-27 13:11:43 America/Denver', false, '2025-11-27 13:11:43 America/Denver'),
+  (552, 85, 586, 'jon@gaard.example', '<mock-000552@gaard.example>', 'thread-000586', 'outbound', 'jon@gaard.example', '{"brandon.hunter@canyonlandsasinitiative.example"}', '{}', 'Re: Investment support for Canyonlands After School Initiative', 'Hi Brandon,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-11-28 14:21:02 America/Denver', false, '2025-11-28 14:21:02 America/Denver'),
+  (553, 6, 587, 'jon@gaard.example', '<mock-000553@gaard.example>', 'thread-000587', 'outbound', 'jon@gaard.example', '{"fatima.baker@oquirrhipartners.example"}', '{}', 'Quarterly check-in', 'Hi Fatima,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-12-01 08:33:44 America/Denver', false, '2025-12-01 08:33:44 America/Denver'),
+  (554, 6, 587, 'jon@gaard.example', '<mock-000554@gaard.example>', 'thread-000587', 'inbound', 'fatima.baker@oquirrhipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2025-12-03 00:33:44 America/Denver', false, '2025-12-03 00:33:44 America/Denver'),
+  (555, 87, 588, 'jon@gaard.example', '<mock-000555@gaard.example>', 'thread-000588', 'outbound', 'jon@gaard.example', '{"jason.adams@saltltassociation.example"}', '{}', 'Re: Salt Lake Trails Association''s reserves', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-01 08:58:50 America/Denver', false, '2025-12-01 08:58:50 America/Denver'),
+  (556, 69, 590, 'jon@gaard.example', '<mock-000556@gaard.example>', 'thread-000590', 'outbound', 'jon@gaard.example', '{"jeremy.butler@greatbaspartners.example"}', '{}', 'Re: Quick question about Great Basin After School Partners''s endowment', 'Hi Jeremy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-01 10:38:16 America/Denver', false, '2025-12-01 10:38:16 America/Denver'),
+  (557, 155, 591, 'jon@gaard.example', '<mock-000557@gaard.example>', 'thread-000591', 'outbound', 'jon@gaard.example', '{"camila@provormpartners.example"}', '{}', 'Checking back in', 'Hi Camila,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Provo River Mentoring Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-12-01 11:30:09 America/Denver', false, '2025-12-01 11:30:09 America/Denver'),
+  (558, 155, 591, 'jon@gaard.example', '<mock-000558@gaard.example>', 'thread-000591', 'inbound', 'camila@provormpartners.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in February?', '2025-12-01 21:30:09 America/Denver', false, '2025-12-01 21:30:09 America/Denver'),
+  (559, 27, 592, 'jon@gaard.example', '<mock-000559@gaard.example>', 'thread-000592', 'outbound', 'jon@gaard.example', '{"judy.anderson@daviscsecenter.example"}', '{}', 'Re: Quick question about Davis County Science Education Center''s endowment', 'Hi Judy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-01 13:31:44 America/Denver', false, '2025-12-01 13:31:44 America/Denver'),
+  (560, 13, 593, 'jon@gaard.example', '<mock-000560@gaard.example>', 'thread-000593', 'outbound', 'jon@gaard.example', '{"carmstrong@davisceplaw.example"}', '{}', 'Checking back in', 'Hi Caleb,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-12-01 15:16:45 America/Denver', false, '2025-12-01 15:16:45 America/Denver'),
+  (561, 53, 594, 'jon@gaard.example', '<mock-000561@gaard.example>', 'thread-000594', 'outbound', 'jon@gaard.example', '{"jkim@seviervmcollective.example"}', '{}', 'Re: Sevier Valley Mentoring Collective''s reserves', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-01 16:21:11 America/Denver', false, '2025-12-01 16:21:11 America/Denver'),
+  (562, 92, 596, 'ryan@gaard.example', '<mock-000562@gaard.example>', 'thread-000596', 'outbound', 'ryan@gaard.example', '{"bradleyo@petersonpfoundation.example"}', '{}', 'Re: OCIO support for Peterson-Porter Foundation', 'Hi Bradley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-12-02 15:17:45 America/Denver', false, '2025-12-02 15:17:45 America/Denver'),
+  (563, 50, 597, 'jon@gaard.example', '<mock-000563@gaard.example>', 'thread-000597', 'outbound', 'jon@gaard.example', '{"sioneb@housingpdcounty.example"}', '{}', 'Re: Investment support for Housing Project of Davis County', 'Hi Sione,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-04 09:47:29 America/Denver', false, '2025-12-04 09:47:29 America/Denver'),
+  (564, 34, 598, 'jon@gaard.example', '<mock-000564@gaard.example>', 'thread-000598', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Quarterly check-in', 'Hi Kimberly,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-12-05 10:50:54 America/Denver', false, '2025-12-05 10:50:54 America/Denver'),
+  (565, 34, 598, 'jon@gaard.example', '<mock-000565@gaard.example>', 'thread-000598', 'inbound', 'kimberly.zhang@boxecacollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2025-12-07 02:50:54 America/Denver', false, '2025-12-07 02:50:54 America/Denver'),
+  (566, 25, 599, 'jon@gaard.example', '<mock-000566@gaard.example>', 'thread-000599', 'outbound', 'jon@gaard.example', '{"gabriel.wright@summitcmcoalition.example"}', '{}', 'Re: Summit County Mentoring Coalition''s reserves', 'Hi Gabriel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-05 11:21:59 America/Denver', false, '2025-12-05 11:21:59 America/Denver'),
+  (567, 17, 600, 'jon@gaard.example', '<mock-000567@gaard.example>', 'thread-000600', 'outbound', 'jon@gaard.example', '{"logan.knight@seviervpservices.example"}', '{}', 'Checking back in', 'Hi Logan,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-12-08 08:49:09 America/Denver', false, '2025-12-08 08:49:09 America/Denver'),
+  (568, 17, 600, 'jon@gaard.example', '<mock-000568@gaard.example>', 'thread-000600', 'inbound', 'logan.knight@seviervpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in April?', '2025-12-10 10:49:09 America/Denver', false, '2025-12-10 10:49:09 America/Denver'),
+  (569, 26, 601, 'jon@gaard.example', '<mock-000569@gaard.example>', 'thread-000601', 'outbound', 'jon@gaard.example', '{"lisa@redrockveteranscouncil.example"}', '{}', 'Re: Quick question about Red Rock Veterans Council''s endowment', 'Hi Lisa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-08 09:03:55 America/Denver', false, '2025-12-08 09:03:55 America/Denver'),
+  (570, 26, 601, 'jon@gaard.example', '<mock-000570@gaard.example>', 'thread-000601', 'inbound', 'lisa@redrockveteranscouncil.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Quick question about Red Rock Veterans Council''s endowment', 'This has been on my list. Happy to talk, does Dec 15 work?', '2025-12-09 20:03:55 America/Denver', false, '2025-12-09 20:03:55 America/Denver'),
+  (571, 104, 602, 'jon@gaard.example', '<mock-000571@gaard.example>', 'thread-000602', 'outbound', 'jon@gaard.example', '{"mward@deltaefoundation.example"}', '{}', 'Re: Investment management for Delta Education Foundation', 'Hi Mei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-08 10:36:37 America/Denver', false, '2025-12-08 10:36:37 America/Denver'),
+  (572, 193, 603, 'jon@gaard.example', '<mock-000572@gaard.example>', 'thread-000603', 'outbound', 'jon@gaard.example', '{"jonathan.peters@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Jonathan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-08 14:06:09 America/Denver', false, '2025-12-08 14:06:09 America/Denver'),
+  (573, 98, 604, 'jon@gaard.example', '<mock-000573@gaard.example>', 'thread-000604', 'outbound', 'jon@gaard.example', '{"kenneth.pena@davisccfoundation.example"}', '{}', 'Re: Investment management for Davis County Community Foundation', 'Hi Kenneth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-08 14:15:03 America/Denver', false, '2025-12-08 14:15:03 America/Denver'),
+  (574, 20, 605, 'jon@gaard.example', '<mock-000574@gaard.example>', 'thread-000605', 'outbound', 'jon@gaard.example', '{"kimberly@clarkkellycpas.example"}', '{}', 'Checking back in', 'Hi Kimberly,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-12-08 14:43:42 America/Denver', false, '2025-12-08 14:43:42 America/Denver'),
+  (575, 20, 605, 'jon@gaard.example', '<mock-000575@gaard.example>', 'thread-000605', 'inbound', 'kimberly@clarkkellycpas.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks Jon. We already work with a local firm and aren''t looking at alternatives right now.', '2025-12-09 08:43:42 America/Denver', false, '2025-12-09 08:43:42 America/Denver'),
+  (576, 41, 606, 'jon@gaard.example', '<mock-000576@gaard.example>', 'thread-000606', 'outbound', 'jon@gaard.example', '{"peterr@castlevvcouncil.example"}', '{}', 'Re: Castle Valley Veterans Council''s reserves', 'Hi Peter,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-09 08:35:17 America/Denver', false, '2025-12-09 08:35:17 America/Denver'),
+  (577, 96, 607, 'ryan@gaard.example', '<mock-000577@gaard.example>', 'thread-000607', 'outbound', 'ryan@gaard.example', '{"ethan.scott@shoshonelfoundation.example"}', '{}', 'Re: Investment management for Shoshone Library Foundation', 'Hi Ethan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-12-09 15:56:13 America/Denver', false, '2025-12-09 15:56:13 America/Denver'),
+  (578, 49, 609, 'jon@gaard.example', '<mock-000578@gaard.example>', 'thread-000609', 'outbound', 'jon@gaard.example', '{"cheryl.reynolds@disabilitysptvalley.example"}', '{}', 'Re: Introduction via Tala', 'Hi Cheryl,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-11 09:27:28 America/Denver', false, '2025-12-11 09:27:28 America/Denver'),
+  (579, 21, 610, 'jon@gaard.example', '<mock-000579@gaard.example>', 'thread-000610', 'outbound', 'jon@gaard.example', '{"dsilva@canyonlandsvcouncil.example"}', '{}', 'Re: Quick question about Canyonlands Veterans Council''s endowment', 'Hi Douglas,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-11 10:21:34 America/Denver', false, '2025-12-11 10:21:34 America/Denver'),
+  (580, 138, 611, 'jon@gaard.example', '<mock-000580@gaard.example>', 'thread-000611', 'outbound', 'jon@gaard.example', '{"luciap@weberrhrnetwork.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Lucia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-11 10:21:59 America/Denver', false, '2025-12-11 10:21:59 America/Denver'),
+  (581, 5, 612, 'jon@gaard.example', '<mock-000581@gaard.example>', 'thread-000612', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-12-11 15:33:38 America/Denver', false, '2025-12-11 15:33:38 America/Denver'),
+  (582, 5, 612, 'jon@gaard.example', '<mock-000582@gaard.example>', 'thread-000612', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2025-12-13 15:33:38 America/Denver', false, '2025-12-13 15:33:38 America/Denver'),
+  (583, 185, 613, 'jon@gaard.example', '<mock-000583@gaard.example>', 'thread-000613', 'outbound', 'jon@gaard.example', '{"carmen.park@mail.example"}', '{}', 'Re: Introduction, Carmen', 'Hi Carmen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-12 10:55:39 America/Denver', false, '2025-12-12 10:55:39 America/Denver'),
+  (584, 59, 614, 'jon@gaard.example', '<mock-000584@gaard.example>', 'thread-000614', 'outbound', 'jon@gaard.example', '{"alexander.black@timpanogoshrcoalition.example"}', '{}', 'Re: Quick question about Timpanogos Hunger Relief Coalition''s endowment', 'Hi Alexander,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-15 09:26:57 America/Denver', false, '2025-12-15 09:26:57 America/Denver'),
+  (585, 199, 615, 'jon@gaard.example', '<mock-000585@gaard.example>', 'thread-000615', 'outbound', 'jon@gaard.example', '{"carmen.patterson@mail.example"}', '{}', 'Re: Introduction, Carmen', 'Hi Carmen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-15 10:31:02 America/Denver', false, '2025-12-15 10:31:02 America/Denver'),
+  (586, 199, 615, 'jon@gaard.example', '<mock-000586@gaard.example>', 'thread-000615', 'inbound', 'carmen.patterson@mail.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Introduction, Carmen', 'Good timing question, but work is busy right now. Circle back in March and we can talk.', '2025-12-15 23:31:02 America/Denver', false, '2025-12-15 23:31:02 America/Denver'),
+  (587, 106, 617, 'jon@gaard.example', '<mock-000587@gaard.example>', 'thread-000617', 'outbound', 'jon@gaard.example', '{"michael.carter@greatbhsociety.example"}', '{}', 'Re: Investment management for Great Basin Heritage Society', 'Hi Michael,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-15 11:54:13 America/Denver', false, '2025-12-15 11:54:13 America/Denver'),
+  (588, 144, 618, 'jon@gaard.example', '<mock-000588@gaard.example>', 'thread-000618', 'outbound', 'jon@gaard.example', '{"mateo@sanpetessleague.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Mateo,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-15 13:37:49 America/Denver', false, '2025-12-15 13:37:49 America/Denver'),
+  (589, 201, 619, 'jon@gaard.example', '<mock-000589@gaard.example>', 'thread-000619', 'outbound', 'jon@gaard.example', '{"harold.sorensen@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Harold,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-15 14:03:09 America/Denver', false, '2025-12-15 14:03:09 America/Denver'),
+  (590, 148, 620, 'ryan@gaard.example', '<mock-000590@gaard.example>', 'thread-000620', 'outbound', 'ryan@gaard.example', '{"joseph_patterson@greenriverartssociety.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Joseph,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2025-12-16 15:10:13 America/Denver', false, '2025-12-16 15:10:13 America/Denver'),
+  (591, 111, 621, 'jon@gaard.example', '<mock-000591@gaard.example>', 'thread-000621', 'outbound', 'jon@gaard.example', '{"betty@wasatchheritagesociety.example"}', '{}', 'Re: OCIO support for Wasatch Heritage Society', 'Hi Betty,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-16 15:14:12 America/Denver', false, '2025-12-16 15:14:12 America/Denver'),
+  (592, 157, 622, 'jon@gaard.example', '<mock-000592@gaard.example>', 'thread-000622', 'outbound', 'jon@gaard.example', '{"andrew.elliott@sugarhtcoalition.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Andrew,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-18 11:45:24 America/Denver', false, '2025-12-18 11:45:24 America/Denver'),
+  (593, 198, 623, 'jon@gaard.example', '<mock-000593@gaard.example>', 'thread-000623', 'outbound', 'jon@gaard.example', '{"carol.hoffman@summitridge.edu.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Carol,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-19 09:27:24 America/Denver', false, '2025-12-19 09:27:24 America/Denver'),
+  (594, 31, 624, 'jon@gaard.example', '<mock-000594@gaard.example>', 'thread-000624', 'outbound', 'jon@gaard.example', '{"mbailey@summitchservices.example"}', '{}', 'Re: Quick question about Summit County Habitat Services''s endowment', 'Hi Michelle,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-19 09:53:22 America/Denver', false, '2025-12-19 09:53:22 America/Denver'),
+  (595, 192, 625, 'jon@gaard.example', '<mock-000595@gaard.example>', 'thread-000625', 'outbound', 'jon@gaard.example', '{"doris.parker@webmail.example"}', '{}', 'Re: Introduction, Doris', 'Hi Doris,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-19 11:13:27 America/Denver', false, '2025-12-19 11:13:27 America/Denver'),
+  (596, 11, 627, 'jon@gaard.example', '<mock-000596@gaard.example>', 'thread-000627', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-12-19 14:33:40 America/Denver', false, '2025-12-19 14:33:40 America/Denver'),
+  (597, 11, 627, 'jon@gaard.example', '<mock-000597@gaard.example>', 'thread-000627', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, this quarter is busy for us. Please reach out again in February.', '2025-12-20 08:33:40 America/Denver', false, '2025-12-20 08:33:40 America/Denver'),
+  (598, 141, 628, 'jon@gaard.example', '<mock-000598@gaard.example>', 'thread-000628', 'outbound', 'jon@gaard.example', '{"brian_patterson@weberrcaassociation.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Brian,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-19 14:35:33 America/Denver', false, '2025-12-19 14:35:33 America/Denver'),
+  (599, 134, 629, 'jon@gaard.example', '<mock-000599@gaard.example>', 'thread-000629', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-12-22 09:09:45 America/Denver', false, '2025-12-22 09:09:45 America/Denver'),
+  (600, 134, 629, 'jon@gaard.example', '<mock-000600@gaard.example>', 'thread-000629', 'inbound', 'kai_ruiz@ironcfscenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in February?', '2025-12-22 23:09:45 America/Denver', false, '2025-12-22 23:09:45 America/Denver');
+
+insert into public.email_messages (id, contact_id, touchpoint_id, mailbox, external_id, thread_id, direction, from_email, to_emails, cc_emails, subject, body_text, sent_at, is_auto_reply, created_at) values
+  (601, 156, 630, 'jon@gaard.example', '<mock-000601@gaard.example>', 'thread-000630', 'outbound', 'jon@gaard.example', '{"shirley.duncan@theatersocietybeehive.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Shirley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-22 09:44:33 America/Denver', false, '2025-12-22 09:44:33 America/Denver'),
+  (602, 156, 630, 'jon@gaard.example', '<mock-000602@gaard.example>', 'thread-000630', 'inbound', 'shirley.duncan@theatersocietybeehive.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'We''re not interested, thanks.', '2025-12-23 13:44:33 America/Denver', false, '2025-12-23 13:44:33 America/Denver'),
+  (603, 158, 631, 'jon@gaard.example', '<mock-000603@gaard.example>', 'thread-000631', 'outbound', 'jon@gaard.example', '{"jason.gomez@friendssanpetelibrary.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-22 10:20:42 America/Denver', false, '2025-12-22 10:20:42 America/Denver'),
+  (604, 173, 633, 'ryan@gaard.example', '<mock-000604@gaard.example>', 'thread-000633', 'outbound', 'ryan@gaard.example', '{"bradleyc@bearriveroutfitters.example"}', '{}', 'Quarterly check-in', 'Hi Bradley,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2025-12-23 09:31:27 America/Denver', false, '2025-12-23 09:31:27 America/Denver'),
+  (605, 173, 633, 'ryan@gaard.example', '<mock-000605@gaard.example>', 'thread-000633', 'inbound', 'bradleyc@bearriveroutfitters.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in March?', '2025-12-23 18:31:27 America/Denver', false, '2025-12-23 18:31:27 America/Denver'),
+  (606, 195, 634, 'jon@gaard.example', '<mock-000606@gaard.example>', 'thread-000634', 'outbound', 'jon@gaard.example', '{"rmartinez@inbox.example"}', '{}', 'Re: Introduction, Rosa', 'Hi Rosa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-24 10:27:33 America/Denver', false, '2025-12-24 10:27:33 America/Denver'),
+  (607, 531, 635, 'jon@gaard.example', '<mock-000607@gaard.example>', 'thread-000635', 'outbound', 'jon@gaard.example', '{"emma.hudson@foodbipriver.example"}', '{}', 'Introduction via Edward', 'Hi Emma,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Food Bank Initiative of Provo River keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2025-12-24 10:32:40 America/Denver', false, '2025-12-24 10:32:40 America/Denver'),
+  (608, 531, 635, 'jon@gaard.example', '<mock-000608@gaard.example>', 'thread-000635', 'inbound', 'emma.hudson@foodbipriver.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Edward', 'This has been on my list. Happy to talk, does Dec 29 work?', '2025-12-24 22:32:40 America/Denver', false, '2025-12-24 22:32:40 America/Denver'),
+  (609, 153, 636, 'jon@gaard.example', '<mock-000609@gaard.example>', 'thread-000636', 'outbound', 'jon@gaard.example', '{"stephen@moabdscoalition.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Stephen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-24 13:09:01 America/Denver', false, '2025-12-24 13:09:01 America/Denver'),
+  (610, 153, 636, 'jon@gaard.example', '<mock-000610@gaard.example>', 'thread-000636', 'inbound', 'stephen@moabdscoalition.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in April and we can talk.', '2025-12-26 11:09:01 America/Denver', false, '2025-12-26 11:09:01 America/Denver'),
+  (611, 145, 637, 'jon@gaard.example', '<mock-000611@gaard.example>', 'thread-000637', 'outbound', 'jon@gaard.example', '{"angela.gomez@bonnevillemcoalition.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Angela,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-25 11:21:59 America/Denver', false, '2025-12-25 11:21:59 America/Denver'),
+  (612, 147, 638, 'jon@gaard.example', '<mock-000612@gaard.example>', 'thread-000638', 'outbound', 'jon@gaard.example', '{"malia.morgan@friendswrmuseum.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Malia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-25 11:53:10 America/Denver', false, '2025-12-25 11:53:10 America/Denver'),
+  (613, 101, 639, 'jon@gaard.example', '<mock-000613@gaard.example>', 'thread-000639', 'outbound', 'jon@gaard.example', '{"roger.simpson@escalantelfoundation.example"}', '{}', 'Re: Investment management for Escalante Library Foundation', 'Hi Roger,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-25 11:58:55 America/Denver', false, '2025-12-25 11:58:55 America/Denver'),
+  (614, 101, 639, 'jon@gaard.example', '<mock-000614@gaard.example>', 'thread-000639', 'inbound', 'roger.simpson@escalantelfoundation.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment management for Escalante Library Foundation', 'No thanks, we are all set.', '2025-12-27 01:58:55 America/Denver', false, '2025-12-27 01:58:55 America/Denver'),
+  (615, 139, 640, 'jon@gaard.example', '<mock-000615@gaard.example>', 'thread-000640', 'outbound', 'jon@gaard.example', '{"maria_hayes@veteranssrrock.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Maria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-29 09:23:48 America/Denver', false, '2025-12-29 09:23:48 America/Denver'),
+  (616, 154, 643, 'jon@gaard.example', '<mock-000616@gaard.example>', 'thread-000643', 'outbound', 'jon@gaard.example', '{"kelly.kim@sanjfsservices.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Kelly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-29 13:36:59 America/Denver', false, '2025-12-29 13:36:59 America/Denver'),
+  (617, 143, 644, 'jon@gaard.example', '<mock-000617@gaard.example>', 'thread-000644', 'outbound', 'jon@gaard.example', '{"scott.turner@ironcsspartners.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Scott,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-29 14:49:46 America/Denver', false, '2025-12-29 14:49:46 America/Denver'),
+  (618, 105, 646, 'jon@gaard.example', '<mock-000618@gaard.example>', 'thread-000646', 'outbound', 'jon@gaard.example', '{"elizabeth.castro@escalantehfoundation.example"}', '{}', 'Re: OCIO support for Escalante Health Foundation', 'Hi Elizabeth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-30 11:09:16 America/Denver', false, '2025-12-30 11:09:16 America/Denver'),
+  (619, 211, 647, 'jon@gaard.example', '<mock-000619@gaard.example>', 'thread-000647', 'outbound', 'jon@gaard.example', '{"javier.richards@summitridge.edu.example"}', '{}', 'Quarterly check-in', 'Hi Javier,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2025-12-31 14:27:42 America/Denver', false, '2025-12-31 14:27:42 America/Denver'),
+  (620, 211, 647, 'jon@gaard.example', '<mock-000620@gaard.example>', 'thread-000647', 'inbound', 'javier.richards@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now we are traveling. Could you check back in January?', '2026-01-02 03:27:42 America/Denver', false, '2026-01-02 03:27:42 America/Denver'),
+  (621, 152, 648, 'jon@gaard.example', '<mock-000621@gaard.example>', 'thread-000648', 'outbound', 'jon@gaard.example', '{"jdixon@seviervmcollective.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Jean,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2025-12-31 14:36:02 America/Denver', false, '2025-12-31 14:36:02 America/Denver'),
+  (622, 176, 650, 'ryan@gaard.example', '<mock-000622@gaard.example>', 'thread-000650', 'outbound', 'ryan@gaard.example', '{"bryan.castillo@sanpeteoptometry.example"}', '{}', 'Checking back in', 'Hi Bryan,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-01-01 11:09:33 America/Denver', false, '2026-01-01 11:09:33 America/Denver'),
+  (623, 211, 651, 'jon@gaard.example', '<mock-000623@gaard.example>', 'thread-000651', 'outbound', 'jon@gaard.example', '{"javier.richards@summitridge.edu.example"}', '{}', 'Quarterly check-in', 'Hi Javier,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-01-01 11:31:34 America/Denver', false, '2026-01-01 11:31:34 America/Denver'),
+  (624, 211, 651, 'jon@gaard.example', '<mock-000624@gaard.example>', 'thread-000651', 'inbound', 'javier.richards@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-01-01 23:31:34 America/Denver', false, '2026-01-01 23:31:34 America/Denver'),
+  (625, 4, 652, 'ryan@gaard.example', '<mock-000625@gaard.example>', 'thread-000652', 'outbound', 'ryan@gaard.example', '{"lgonzalez@gonzalezgibsoncpas.example"}', '{}', 'Checking back in', 'Hi Laura,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-01-01 11:50:54 America/Denver', false, '2026-01-01 11:50:54 America/Denver'),
+  (626, 4, 652, 'ryan@gaard.example', '<mock-000626@gaard.example>', 'thread-000652', 'inbound', 'lgonzalez@gonzalezgibsoncpas.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in February?', '2026-01-02 01:50:54 America/Denver', false, '2026-01-02 01:50:54 America/Denver'),
+  (627, 168, 653, 'ryan@gaard.example', '<mock-000627@gaard.example>', 'thread-000653', 'outbound', 'ryan@gaard.example', '{"daniel.patterson@selkirkctrust.example"}', '{}', 'Quarterly check-in', 'Hi Daniel,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-01-01 15:08:21 America/Denver', false, '2026-01-01 15:08:21 America/Denver'),
+  (628, 533, 654, 'ryan@gaard.example', '<mock-000628@gaard.example>', 'thread-000654', 'outbound', 'ryan@gaard.example', '{"dylan.robinson@friendsbighornlibrary.example"}', '{}', 'Re: Introduction via Jesse', 'Hi Dylan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-02 14:36:14 America/Denver', false, '2026-01-02 14:36:14 America/Denver'),
+  (629, 206, 655, 'jon@gaard.example', '<mock-000629@gaard.example>', 'thread-000655', 'outbound', 'jon@gaard.example', '{"malia.hart@webmail.example"}', '{}', 'Introduction via Sara', 'Hi Malia,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-05 08:18:17 America/Denver', false, '2026-01-05 08:18:17 America/Denver'),
+  (630, 206, 655, 'jon@gaard.example', '<mock-000630@gaard.example>', 'thread-000655', 'inbound', 'malia.hart@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Sara', 'Yes, I''d like to learn more. I''m free Wednesday afternoon.', '2026-01-07 23:18:17 America/Denver', false, '2026-01-07 23:18:17 America/Denver'),
+  (631, 10, 656, 'ryan@gaard.example', '<mock-000631@gaard.example>', 'thread-000656', 'outbound', 'ryan@gaard.example', '{"jsnyder@tetonbconsulting.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Hi Judith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-05 09:06:58 America/Denver', false, '2026-01-05 09:06:58 America/Denver'),
+  (632, 183, 657, 'jon@gaard.example', '<mock-000632@gaard.example>', 'thread-000657', 'outbound', 'jon@gaard.example', '{"keith.tran87@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Keith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-05 10:07:14 America/Denver', false, '2026-01-05 10:07:14 America/Denver'),
+  (633, 541, 658, 'jon@gaard.example', '<mock-000633@gaard.example>', 'thread-000658', 'outbound', 'jon@gaard.example', '{"rosa.nielsen@escalantegassociation.example"}', '{}', 'Re: Introduction via Judith', 'Hi Rosa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-05 11:29:11 America/Denver', false, '2026-01-05 11:29:11 America/Denver'),
+  (634, 188, 659, 'ryan@gaard.example', '<mock-000634@gaard.example>', 'thread-000659', 'outbound', 'ryan@gaard.example', '{"joshua.hughes89@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Joshua,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-05 16:29:16 America/Denver', false, '2026-01-05 16:29:16 America/Denver'),
+  (635, 207, 662, 'ryan@gaard.example', '<mock-000635@gaard.example>', 'thread-000662', 'outbound', 'ryan@gaard.example', '{"ronald.sorensen46@inbox.example"}', '{}', 'Introduction via Keith', 'Hi Ronald,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-01-07 10:16:26 America/Denver', false, '2026-01-07 10:16:26 America/Denver'),
+  (636, 207, 662, 'ryan@gaard.example', '<mock-000636@gaard.example>', 'thread-000662', 'inbound', 'ronald.sorensen46@inbox.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Keith', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2026-01-08 13:16:26 America/Denver', false, '2026-01-08 13:16:26 America/Denver'),
+  (637, 191, 663, 'jon@gaard.example', '<mock-000637@gaard.example>', 'thread-000663', 'outbound', 'jon@gaard.example', '{"carmen.olson57@mail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Carmen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-07 11:36:51 America/Denver', false, '2026-01-07 11:36:51 America/Denver'),
+  (638, 196, 664, 'ryan@gaard.example', '<mock-000638@gaard.example>', 'thread-000664', 'outbound', 'ryan@gaard.example', '{"christina.begay@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Christina,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-08 09:06:14 America/Denver', false, '2026-01-08 09:06:14 America/Denver'),
+  (639, 164, 665, 'ryan@gaard.example', '<mock-000639@gaard.example>', 'thread-000665', 'outbound', 'ryan@gaard.example', '{"anna_hicks@portneufcfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Anna,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-08 10:05:37 America/Denver', false, '2026-01-08 10:05:37 America/Denver'),
+  (640, 166, 666, 'ryan@gaard.example', '<mock-000640@gaard.example>', 'thread-000666', 'outbound', 'ryan@gaard.example', '{"benjamin.lawrence@palmervfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Benjamin,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-08 11:58:33 America/Denver', false, '2026-01-08 11:58:33 America/Denver'),
+  (641, 171, 667, 'ryan@gaard.example', '<mock-000641@gaard.example>', 'thread-000667', 'outbound', 'ryan@gaard.example', '{"frances.pierce@mail.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Frances,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-09 08:32:48 America/Denver', false, '2026-01-09 08:32:48 America/Denver'),
+  (642, 171, 667, 'ryan@gaard.example', '<mock-000642@gaard.example>', 'thread-000667', 'inbound', 'frances.pierce@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Re: Great meeting you at Boise Philanthropy Forum 2025', 'Thanks Ryan. We already work with a local firm and aren''t looking at alternatives right now.', '2026-01-10 01:32:48 America/Denver', false, '2026-01-10 01:32:48 America/Denver'),
+  (643, 34, 668, 'jon@gaard.example', '<mock-000643@gaard.example>', 'thread-000668', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Quarterly check-in', 'Hi Kimberly,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-01-09 10:12:27 America/Denver', false, '2026-01-09 10:12:27 America/Denver'),
+  (644, 34, 668, 'jon@gaard.example', '<mock-000644@gaard.example>', 'thread-000668', 'inbound', 'kimberly.zhang@boxecacollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in February and we can talk.', '2026-01-10 20:12:27 America/Denver', false, '2026-01-10 20:12:27 America/Denver'),
+  (645, 258, 669, 'jon@gaard.example', '<mock-000645@gaard.example>', 'thread-000669', 'outbound', 'jon@gaard.example', '{"hjenkins@cachevyinitiative.example"}', '{}', 'Investment support for Cache Valley Youth Initiative', 'Hi Hailey,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cache Valley Youth Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-12 08:47:07 America/Denver', false, '2026-01-12 08:47:07 America/Denver'),
+  (646, 186, 670, 'jon@gaard.example', '<mock-000646@gaard.example>', 'thread-000670', 'outbound', 'jon@gaard.example', '{"helen.medina@summitridge.edu.example"}', '{}', 'Re: Introduction, Helen', 'Hi Helen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-12 09:33:34 America/Denver', false, '2026-01-12 09:33:34 America/Denver'),
+  (647, 114, 672, 'jon@gaard.example', '<mock-000647@gaard.example>', 'thread-000672', 'outbound', 'jon@gaard.example', '{"brittany@wasatchmedicalsociety.example"}', '{}', 'Re: OCIO support for Wasatch Medical Society', 'Hi Brittany,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-13 08:14:28 America/Denver', false, '2026-01-13 08:14:28 America/Denver'),
+  (648, 194, 673, 'jon@gaard.example', '<mock-000648@gaard.example>', 'thread-000673', 'outbound', 'jon@gaard.example', '{"logan.fonua@summitridge.edu.example"}', '{}', 'Re: Introduction, Logan', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-13 10:58:50 America/Denver', false, '2026-01-13 10:58:50 America/Denver'),
+  (649, 254, 675, 'jon@gaard.example', '<mock-000649@gaard.example>', 'thread-000675', 'outbound', 'jon@gaard.example', '{"steven.hernandez@tooelevwcouncil.example"}', '{}', 'Quick question about Tooele Valley Watershed Council''s endowment', 'Hi Steven,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Tooele Valley Watershed Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-14 11:44:21 America/Denver', false, '2026-01-14 11:44:21 America/Denver'),
+  (650, 254, 675, 'jon@gaard.example', '<mock-000650@gaard.example>', 'thread-000675', 'inbound', 'steven.hernandez@tooelevwcouncil.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Quick question about Tooele Valley Watershed Council''s endowment', 'I am out of the office until Tuesday, January 20 with limited access to email. For anything urgent please call our main office.', '2026-01-14 11:47:21 America/Denver', true, '2026-01-14 11:47:21 America/Denver'),
+  (651, 146, 676, 'jon@gaard.example', '<mock-000651@gaard.example>', 'thread-000676', 'outbound', 'jon@gaard.example', '{"kyle.bryant@wasatchffscoalition.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Kyle,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-15 08:01:45 America/Denver', false, '2026-01-15 08:01:45 America/Denver'),
+  (652, 530, 677, 'jon@gaard.example', '<mock-000652@gaard.example>', 'thread-000677', 'outbound', 'jon@gaard.example', '{"nicholas@wasatchyouthservices.example"}', '{}', 'Introduction via Albert', 'Hi Nicholas,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Youth Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-15 08:44:13 America/Denver', false, '2026-01-15 08:44:13 America/Denver'),
+  (653, 530, 677, 'jon@gaard.example', '<mock-000653@gaard.example>', 'thread-000677', 'inbound', 'nicholas@wasatchyouthservices.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Albert', 'Not right now, our board meets later in the year. Please reach out again in March.', '2026-01-16 20:44:13 America/Denver', false, '2026-01-16 20:44:13 America/Denver'),
+  (654, 165, 678, 'jon@gaard.example', '<mock-000654@gaard.example>', 'thread-000678', 'outbound', 'jon@gaard.example', '{"jperry@myerskimfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-15 11:56:39 America/Denver', false, '2026-01-15 11:56:39 America/Denver'),
+  (655, 169, 679, 'ryan@gaard.example', '<mock-000655@gaard.example>', 'thread-000679', 'outbound', 'ryan@gaard.example', '{"jack.vargas@summitridge.edu.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Jack,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-15 16:22:33 America/Denver', false, '2026-01-15 16:22:33 America/Denver'),
+  (656, 126, 680, 'jon@gaard.example', '<mock-000656@gaard.example>', 'thread-000680', 'outbound', 'jon@gaard.example', '{"ecarroll@adulteahvalley.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Elena,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-16 09:07:07 America/Denver', false, '2026-01-16 09:07:07 America/Denver'),
+  (657, 184, 681, 'jon@gaard.example', '<mock-000657@gaard.example>', 'thread-000681', 'outbound', 'jon@gaard.example', '{"mei.mahe95@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Mei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-16 09:59:25 America/Denver', false, '2026-01-16 09:59:25 America/Denver'),
+  (658, 162, 682, 'ryan@gaard.example', '<mock-000658@gaard.example>', 'thread-000682', 'outbound', 'ryan@gaard.example', '{"cbrown@tetonbtassociation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Christine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-19 09:15:48 America/Denver', false, '2026-01-19 09:15:48 America/Denver'),
+  (659, 136, 683, 'jon@gaard.example', '<mock-000659@gaard.example>', 'thread-000683', 'outbound', 'jon@gaard.example', '{"javier.madsen@canyonlandsasinitiative.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Javier,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-19 09:24:11 America/Denver', false, '2026-01-19 09:24:11 America/Denver'),
+  (660, 136, 683, 'jon@gaard.example', '<mock-000660@gaard.example>', 'thread-000683', 'inbound', 'javier.madsen@canyonlandsasinitiative.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'This has been on my list. Happy to talk, does Jan 27 work?', '2026-01-20 11:24:11 America/Denver', false, '2026-01-20 11:24:11 America/Denver'),
+  (661, 130, 684, 'jon@gaard.example', '<mock-000661@gaard.example>', 'thread-000684', 'outbound', 'jon@gaard.example', '{"skennedy@summitchservices.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Sharon,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-19 10:02:55 America/Denver', false, '2026-01-19 10:02:55 America/Denver'),
+  (662, 133, 685, 'jon@gaard.example', '<mock-000662@gaard.example>', 'thread-000685', 'outbound', 'jon@gaard.example', '{"dmurphy@cottonwoodvleague.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Daniel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-19 14:13:01 America/Denver', false, '2026-01-19 14:13:01 America/Denver'),
+  (663, 204, 686, 'jon@gaard.example', '<mock-000663@gaard.example>', 'thread-000686', 'outbound', 'jon@gaard.example', '{"sara.hernandez@summitridge.edu.example"}', '{}', 'Quarterly check-in', 'Hi Sara,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-01-19 16:15:25 America/Denver', false, '2026-01-19 16:15:25 America/Denver'),
+  (664, 204, 686, 'jon@gaard.example', '<mock-000664@gaard.example>', 'thread-000686', 'inbound', 'sara.hernandez@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, I''m in the middle of a move. Please reach out again in March.', '2026-01-21 06:15:25 America/Denver', false, '2026-01-21 06:15:25 America/Denver'),
+  (665, 163, 687, 'ryan@gaard.example', '<mock-000665@gaard.example>', 'thread-000687', 'outbound', 'ryan@gaard.example', '{"smarshall@selkirkcfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Sandra,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-20 09:53:20 America/Denver', false, '2026-01-20 09:53:20 America/Denver'),
+  (666, 170, 688, 'ryan@gaard.example', '<mock-000666@gaard.example>', 'thread-000688', 'outbound', 'ryan@gaard.example', '{"gabriel.nelson93@mail.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Gabriel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-20 13:12:42 America/Denver', false, '2026-01-20 13:12:42 America/Denver'),
+  (667, 235, 689, 'jon@gaard.example', '<mock-000667@gaard.example>', 'thread-000689', 'outbound', 'jon@gaard.example', '{"bradley@danceleaguegreatbasin.example"}', '{}', 'Investment support for Dance League of Great Basin', 'Hi Bradley,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Dance League of Great Basin keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-20 13:24:49 America/Denver', false, '2026-01-20 13:24:49 America/Denver'),
+  (668, 125, 690, 'jon@gaard.example', '<mock-000668@gaard.example>', 'thread-000690', 'outbound', 'jon@gaard.example', '{"timothy@friendshvlibrary.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Timothy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-20 15:58:18 America/Denver', false, '2026-01-20 15:58:18 America/Denver'),
+  (669, 5, 691, 'jon@gaard.example', '<mock-000669@gaard.example>', 'thread-000691', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-01-21 11:37:39 America/Denver', false, '2026-01-21 11:37:39 America/Denver'),
+  (670, 5, 691, 'jon@gaard.example', '<mock-000670@gaard.example>', 'thread-000691', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-01-21 22:37:39 America/Denver', false, '2026-01-21 22:37:39 America/Denver'),
+  (671, 254, 692, 'jon@gaard.example', '<mock-000671@gaard.example>', 'thread-000692', 'outbound', 'jon@gaard.example', '{"steven.hernandez@tooelevwcouncil.example"}', '{}', 'Re: Quick question about Tooele Valley Watershed Council''s endowment', 'Hi Steven,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-21 13:45:08 America/Denver', false, '2026-01-21 13:45:08 America/Denver'),
+  (672, 256, 693, 'jon@gaard.example', '<mock-000672@gaard.example>', 'thread-000693', 'outbound', 'jon@gaard.example', '{"sharon_hughes@ogdenvoeleague.example"}', '{}', 'Ogden Valley Outdoor Education League''s reserves', 'Hi Sharon,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Ogden Valley Outdoor Education League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-21 13:46:26 America/Denver', false, '2026-01-21 13:46:26 America/Denver'),
+  (673, 160, 694, 'ryan@gaard.example', '<mock-000673@gaard.example>', 'thread-000694', 'outbound', 'ryan@gaard.example', '{"beverly@camasphfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Beverly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-21 15:07:01 America/Denver', false, '2026-01-21 15:07:01 America/Denver'),
+  (674, 107, 695, 'jon@gaard.example', '<mock-000674@gaard.example>', 'thread-000695', 'outbound', 'jon@gaard.example', '{"lowens@seviervgassociation.example"}', '{}', 'Re: OCIO support for Sevier Valley Growers Association', 'Hi Leilani,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-22 10:21:15 America/Denver', false, '2026-01-22 10:21:15 America/Denver'),
+  (675, 228, 696, 'jon@gaard.example', '<mock-000675@gaard.example>', 'thread-000696', 'outbound', 'jon@gaard.example', '{"christina.allen@daviscsecenter.example"}', '{}', 'Investment support for Davis County Science Education Center', 'Hi Christina,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Davis County Science Education Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-22 10:53:00 America/Denver', false, '2026-01-22 10:53:00 America/Denver'),
+  (676, 228, 696, 'jon@gaard.example', '<mock-000676@gaard.example>', 'thread-000696', 'inbound', 'christina.allen@daviscsecenter.example', '{"jon@gaard.example"}', '{}', 'Re: Investment support for Davis County Science Education Center', 'Please stop emailing me. Thanks.', '2026-01-24 04:53:00 America/Denver', false, '2026-01-24 04:53:00 America/Denver'),
+  (677, 263, 697, 'jon@gaard.example', '<mock-000677@gaard.example>', 'thread-000697', 'outbound', 'jon@gaard.example', '{"kenneth.ford@beehivecmservices.example"}', '{}', 'Investment support for Beehive Chamber Music Services', 'Hi Kenneth,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Chamber Music Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-23 10:13:02 America/Denver', false, '2026-01-23 10:13:02 America/Denver'),
+  (678, 200, 698, 'jon@gaard.example', '<mock-000678@gaard.example>', 'thread-000698', 'outbound', 'jon@gaard.example', '{"shirley.phillips9@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Shirley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-23 10:44:21 America/Denver', false, '2026-01-23 10:44:21 America/Denver'),
+  (679, 261, 699, 'jon@gaard.example', '<mock-000679@gaard.example>', 'thread-000699', 'outbound', 'jon@gaard.example', '{"kimberly.begay@summitcmcoalition.example"}', '{}', 'Quick question about Summit County Mentoring Coalition''s endowment', 'Hi Kimberly,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Summit County Mentoring Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-23 11:13:50 America/Denver', false, '2026-01-23 11:13:50 America/Denver'),
+  (680, 190, 700, 'jon@gaard.example', '<mock-000680@gaard.example>', 'thread-000700', 'outbound', 'jon@gaard.example', '{"peter.wells@summitridge.edu.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Peter,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-23 13:41:50 America/Denver', false, '2026-01-23 13:41:50 America/Denver'),
+  (681, 134, 701, 'jon@gaard.example', '<mock-000681@gaard.example>', 'thread-000701', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-01-23 13:45:36 America/Denver', false, '2026-01-23 13:45:36 America/Denver'),
+  (682, 134, 701, 'jon@gaard.example', '<mock-000682@gaard.example>', 'thread-000701', 'inbound', 'kai_ruiz@ironcfscenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-01-24 15:45:36 America/Denver', false, '2026-01-24 15:45:36 America/Denver'),
+  (683, 246, 702, 'jon@gaard.example', '<mock-000683@gaard.example>', 'thread-000702', 'outbound', 'jon@gaard.example', '{"logan.tuilagi@greatbaspartners.example"}', '{}', 'Quick question about Great Basin After School Partners''s endowment', 'Hi Logan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Great Basin After School Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-26 09:09:25 America/Denver', false, '2026-01-26 09:09:25 America/Denver'),
+  (684, 264, 703, 'jon@gaard.example', '<mock-000684@gaard.example>', 'thread-000703', 'outbound', 'jon@gaard.example', '{"jacke@wasatchcmcenter.example"}', '{}', 'Investment support for Wasatch Chamber Music Center', 'Hi Jack,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Chamber Music Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-26 10:35:20 America/Denver', false, '2026-01-26 10:35:20 America/Denver'),
+  (685, 264, 703, 'jon@gaard.example', '<mock-000685@gaard.example>', 'thread-000703', 'inbound', 'jacke@wasatchcmcenter.example', '{"jon@gaard.example"}', '{}', 'Re: Investment support for Wasatch Chamber Music Center', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in March.', '2026-01-26 15:35:20 America/Denver', false, '2026-01-26 15:35:20 America/Denver'),
+  (686, 161, 704, 'ryan@gaard.example', '<mock-000686@gaard.example>', 'thread-000704', 'outbound', 'ryan@gaard.example', '{"pamelah@camasptassociation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Pamela,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-01-26 13:16:48 America/Denver', false, '2026-01-26 13:16:48 America/Denver'),
+  (687, 124, 705, 'jon@gaard.example', '<mock-000687@gaard.example>', 'thread-000705', 'outbound', 'jon@gaard.example', '{"mmendez@hebervcpartners.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Mark,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-26 13:18:16 America/Denver', false, '2026-01-26 13:18:16 America/Denver'),
+  (688, 131, 706, 'jon@gaard.example', '<mock-000688@gaard.example>', 'thread-000706', 'outbound', 'jon@gaard.example', '{"amanda.morgan@cottonwoodmalliance.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Amanda,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-01-26 13:54:16 America/Denver', false, '2026-01-26 13:54:16 America/Denver'),
+  (689, 117, 708, 'jon@gaard.example', '<mock-000689@gaard.example>', 'thread-000708', 'outbound', 'jon@gaard.example', '{"christopher.choi@daviscsecenter.example"}', '{}', 'Checking back in', 'Hi Christopher,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Davis County Science Education Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-28 08:39:16 America/Denver', false, '2026-01-28 08:39:16 America/Denver'),
+  (690, 117, 708, 'jon@gaard.example', '<mock-000690@gaard.example>', 'thread-000708', 'inbound', 'christopher.choi@daviscsecenter.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Not something we are looking at. Thank you.', '2026-01-28 17:39:16 America/Denver', false, '2026-01-28 17:39:16 America/Denver'),
+  (691, 250, 709, 'jon@gaard.example', '<mock-000691@gaard.example>', 'thread-000709', 'outbound', 'jon@gaard.example', '{"kayla.turner@utahvscenter.example"}', '{}', 'Investment support for Utah Valley Scholarship Center', 'Hi Kayla,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Utah Valley Scholarship Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-29 10:07:13 America/Denver', false, '2026-01-29 10:07:13 America/Denver'),
+  (692, 265, 710, 'jon@gaard.example', '<mock-000692@gaard.example>', 'thread-000710', 'outbound', 'jon@gaard.example', '{"jae.sato@seviervoecenter.example"}', '{}', 'Quick question about Sevier Valley Outdoor Education Center''s endowment', 'Hi Jae,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sevier Valley Outdoor Education Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-01-30 08:24:01 America/Denver', false, '2026-01-30 08:24:01 America/Denver'),
+  (693, 116, 711, 'jon@gaard.example', '<mock-000693@gaard.example>', 'thread-000711', 'outbound', 'jon@gaard.example', '{"rsnyder@ironcaralliance.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Raymond,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-02 08:01:22 America/Denver', false, '2026-02-02 08:01:22 America/Denver'),
+  (694, 11, 712, 'jon@gaard.example', '<mock-000694@gaard.example>', 'thread-000712', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-02-02 08:21:29 America/Denver', false, '2026-02-02 08:21:29 America/Denver'),
+  (695, 11, 712, 'jon@gaard.example', '<mock-000695@gaard.example>', 'thread-000712', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in March?', '2026-02-03 04:21:29 America/Denver', false, '2026-02-03 04:21:29 America/Denver'),
+  (696, 240, 714, 'jon@gaard.example', '<mock-000696@gaard.example>', 'thread-000714', 'outbound', 'jon@gaard.example', '{"hiroshi.allen@friendsredrocksymphony.example"}', '{}', 'Quick question about Friends of Red Rock Symphony''s endowment', 'Hi Hiroshi,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Red Rock Symphony keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-02 10:22:08 America/Denver', false, '2026-02-02 10:22:08 America/Denver'),
+  (697, 175, 715, 'ryan@gaard.example', '<mock-000697@gaard.example>', 'thread-000715', 'outbound', 'ryan@gaard.example', '{"christopher.owens@bearriverprintsign.example"}', '{}', 'Checking back in', 'Hi Christopher,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-02-02 11:13:03 America/Denver', false, '2026-02-02 11:13:03 America/Denver'),
+  (698, 260, 716, 'jon@gaard.example', '<mock-000698@gaard.example>', 'thread-000716', 'outbound', 'jon@gaard.example', '{"brenda.dixon@tooelevtalliance.example"}', '{}', 'Investment support for Tooele Valley Trails Alliance', 'Hi Brenda,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Tooele Valley Trails Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-02 15:10:17 America/Denver', false, '2026-02-02 15:10:17 America/Denver'),
+  (699, 224, 717, 'jon@gaard.example', '<mock-000699@gaard.example>', 'thread-000717', 'outbound', 'jon@gaard.example', '{"andrew.nelson@sugarhmcollective.example"}', '{}', 'Quick question about Sugar House Mentoring Collective''s endowment', 'Hi Andrew,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Mentoring Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-02 16:51:20 America/Denver', false, '2026-02-02 16:51:20 America/Denver'),
+  (700, 108, 718, 'jon@gaard.example', '<mock-000700@gaard.example>', 'thread-000718', 'outbound', 'jon@gaard.example', '{"fatima@hebervlfoundation.example"}', '{}', 'Re: Investment management for Heber Valley Library Foundation', 'Hi Fatima,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-03 08:03:45 America/Denver', false, '2026-02-03 08:03:45 America/Denver'),
+  (701, 222, 719, 'jon@gaard.example', '<mock-000701@gaard.example>', 'thread-000719', 'outbound', 'jon@gaard.example', '{"aisha@bearrsealliance.example"}', '{}', 'Quick question about Bear River Science Education Alliance''s endowment', 'Hi Aisha,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Bear River Science Education Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-03 11:59:59 America/Denver', false, '2026-02-03 11:59:59 America/Denver'),
+  (702, 241, 720, 'jon@gaard.example', '<mock-000702@gaard.example>', 'thread-000720', 'outbound', 'jon@gaard.example', '{"sthomas@boxefbnetwork.example"}', '{}', 'Quick question about Box Elder Food Bank Network''s endowment', 'Hi Shirley,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Box Elder Food Bank Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-04 08:12:50 America/Denver', false, '2026-02-04 08:12:50 America/Denver'),
+  (703, 8, 721, 'jon@gaard.example', '<mock-000703@gaard.example>', 'thread-000721', 'outbound', 'jon@gaard.example', '{"jrussell@ramosholmescpas.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Hi Judith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-04 13:17:49 America/Denver', false, '2026-02-04 13:17:49 America/Denver'),
+  (704, 229, 722, 'jon@gaard.example', '<mock-000704@gaard.example>', 'thread-000722', 'outbound', 'jon@gaard.example', '{"natalie@utahvfsproject.example"}', '{}', 'Utah Valley Food Security Project''s reserves', 'Hi Natalie,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Utah Valley Food Security Project keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-05 13:46:30 America/Denver', false, '2026-02-05 13:46:30 America/Denver'),
+  (705, 242, 724, 'jon@gaard.example', '<mock-000705@gaard.example>', 'thread-000724', 'outbound', 'jon@gaard.example', '{"imani@moabdscoalition.example"}', '{}', 'Investment support for Moab Disability Services Coalition', 'Hi Imani,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Moab Disability Services Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-06 15:39:24 America/Denver', false, '2026-02-06 15:39:24 America/Denver'),
+  (706, 100, 725, 'ryan@gaard.example', '<mock-000706@gaard.example>', 'thread-000725', 'outbound', 'ryan@gaard.example', '{"amara.webb@shoshoneefoundation.example"}', '{}', 'Re: Investment management for Shoshone Education Foundation', 'Hi Amara,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-02-09 09:33:51 America/Denver', false, '2026-02-09 09:33:51 America/Denver'),
+  (707, 226, 726, 'jon@gaard.example', '<mock-000707@gaard.example>', 'thread-000726', 'outbound', 'jon@gaard.example', '{"vrogers@friendsmvparks.example"}', '{}', 'Friends of Morgan Valley Parks''s reserves', 'Hi Victoria,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Morgan Valley Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-09 10:45:49 America/Denver', false, '2026-02-09 10:45:49 America/Denver'),
+  (708, 197, 728, 'jon@gaard.example', '<mock-000708@gaard.example>', 'thread-000728', 'outbound', 'jon@gaard.example', '{"amber.anderson@mail.example"}', '{}', 'Re: Introduction, Amber', 'Hi Amber,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-09 11:24:51 America/Denver', false, '2026-02-09 11:24:51 America/Denver'),
+  (709, 197, 728, 'jon@gaard.example', '<mock-000709@gaard.example>', 'thread-000728', 'inbound', 'amber.anderson@mail.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Introduction, Amber', 'Thanks Jon, the timing is actually good. Could we set up a call Friday the 20?', '2026-02-11 17:24:51 America/Denver', false, '2026-02-11 17:24:51 America/Denver'),
+  (710, 94, 729, 'jon@gaard.example', '<mock-000710@gaard.example>', 'thread-000729', 'outbound', 'jon@gaard.example', '{"matthew.tran@utahvalleycivictrust.example"}', '{}', 'Re: OCIO support for Utah Valley Civic Trust', 'Hi Matthew,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-09 13:16:38 America/Denver', false, '2026-02-09 13:16:38 America/Denver'),
+  (711, 94, 729, 'jon@gaard.example', '<mock-000711@gaard.example>', 'thread-000729', 'inbound', 'matthew.tran@utahvalleycivictrust.example', '{"jon@gaard.example"}', '{}', 'Re: Re: OCIO support for Utah Valley Civic Trust', 'No thanks, we are all set.', '2026-02-12 09:16:38 America/Denver', false, '2026-02-12 09:16:38 America/Denver'),
+  (712, 109, 730, 'jon@gaard.example', '<mock-000712@gaard.example>', 'thread-000730', 'outbound', 'jon@gaard.example', '{"btran@montereybhfoundation.example"}', '{}', 'Re: OCIO support for Monterey Bay Hospital Foundation', 'Hi Brian,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-09 15:38:46 America/Denver', false, '2026-02-09 15:38:46 America/Denver'),
+  (713, 244, 731, 'jon@gaard.example', '<mock-000713@gaard.example>', 'thread-000731', 'outbound', 'jon@gaard.example', '{"gregory.rivera@moabtrailscollective.example"}', '{}', 'Moab Trails Collective''s reserves', 'Hi Gregory,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Moab Trails Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-10 08:11:35 America/Denver', false, '2026-02-10 08:11:35 America/Denver'),
+  (714, 115, 732, 'ryan@gaard.example', '<mock-000714@gaard.example>', 'thread-000732', 'outbound', 'ryan@gaard.example', '{"grace.torres@whitecharitabletrust.example"}', '{}', 'Re: Investment management for White Charitable Trust', 'Hi Grace,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-02-10 11:14:55 America/Denver', false, '2026-02-10 11:14:55 America/Denver'),
+  (715, 26, 734, 'jon@gaard.example', '<mock-000715@gaard.example>', 'thread-000734', 'outbound', 'jon@gaard.example', '{"lisa@redrockveteranscouncil.example"}', '{}', 'Quarterly check-in', 'Hi Lisa,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-02-11 09:40:43 America/Denver', false, '2026-02-11 09:40:43 America/Denver'),
+  (716, 26, 734, 'jon@gaard.example', '<mock-000716@gaard.example>', 'thread-000734', 'inbound', 'lisa@redrockveteranscouncil.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-02-13 04:40:43 America/Denver', false, '2026-02-13 04:40:43 America/Denver'),
+  (717, 202, 735, 'jon@gaard.example', '<mock-000717@gaard.example>', 'thread-000735', 'outbound', 'jon@gaard.example', '{"wei.hart91@webmail.example"}', '{}', 'Introduction via Mei', 'Hi Wei,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-11 10:34:12 America/Denver', false, '2026-02-11 10:34:12 America/Denver'),
+  (718, 202, 735, 'jon@gaard.example', '<mock-000718@gaard.example>', 'thread-000735', 'inbound', 'wei.hart91@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Mei', 'Thanks for following up. Right now we are traveling. Could you check back in June?', '2026-02-13 04:34:12 America/Denver', false, '2026-02-13 04:34:12 America/Denver'),
+  (719, 34, 736, 'jon@gaard.example', '<mock-000719@gaard.example>', 'thread-000736', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Quarterly check-in', 'Hi Kimberly,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-02-11 13:01:29 America/Denver', false, '2026-02-11 13:01:29 America/Denver'),
+  (720, 245, 739, 'jon@gaard.example', '<mock-000720@gaard.example>', 'thread-000739', 'outbound', 'jon@gaard.example', '{"nmarshall@seviervmcollective.example"}', '{}', 'Quick question about Sevier Valley Mentoring Collective''s endowment', 'Hi Natalie,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sevier Valley Mentoring Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-12 09:27:47 America/Denver', false, '2026-02-12 09:27:47 America/Denver'),
+  (721, 245, 739, 'jon@gaard.example', '<mock-000721@gaard.example>', 'thread-000739', 'inbound', 'nmarshall@seviervmcollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quick question about Sevier Valley Mentoring Collective''s endowment', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 23?', '2026-02-13 00:27:47 America/Denver', false, '2026-02-13 00:27:47 America/Denver'),
+  (722, 174, 740, 'ryan@gaard.example', '<mock-000722@gaard.example>', 'thread-000740', 'outbound', 'ryan@gaard.example', '{"daniel@hollowayarchitecture.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Hi Daniel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-02-12 10:37:31 America/Denver', false, '2026-02-12 10:37:31 America/Denver'),
+  (723, 129, 743, 'jon@gaard.example', '<mock-000723@gaard.example>', 'thread-000743', 'outbound', 'jon@gaard.example', '{"gregory.bell@summitcmcoalition.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2025', 'Hi Gregory,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-12 13:01:37 America/Denver', false, '2026-02-12 13:01:37 America/Denver'),
+  (724, 230, 753, 'jon@gaard.example', '<mock-000724@gaard.example>', 'thread-000753', 'outbound', 'jon@gaard.example', '{"alan_stevens@veteranssrrock.example"}', '{}', 'Quick question about Veterans Services of Red Rock''s endowment', 'Hi Alan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Veterans Services of Red Rock keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-13 16:29:49 America/Denver', false, '2026-02-13 16:29:49 America/Denver'),
+  (725, 230, 753, 'jon@gaard.example', '<mock-000725@gaard.example>', 'thread-000753', 'inbound', 'alan_stevens@veteranssrrock.example', '{"jon@gaard.example"}', '{}', 'Re: Quick question about Veterans Services of Red Rock''s endowment', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2026-02-14 09:29:49 America/Denver', false, '2026-02-14 09:29:49 America/Denver'),
+  (726, 318, 754, 'jon@gaard.example', '<mock-000726@gaard.example>', 'thread-000754', 'outbound', 'jon@gaard.example', '{"martha@utahvfsproject.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Martha,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Utah Valley Food Security Project keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-16 08:08:26 America/Denver', false, '2026-02-16 08:08:26 America/Denver'),
+  (727, 318, 754, 'jon@gaard.example', '<mock-000727@gaard.example>', 'thread-000754', 'inbound', 'martha@utahvfsproject.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'This has been on my list. Happy to talk, does Mar 2 work?', '2026-02-18 22:08:26 America/Denver', false, '2026-02-18 22:08:26 America/Denver'),
+  (728, 290, 755, 'ryan@gaard.example', '<mock-000728@gaard.example>', 'thread-000755', 'outbound', 'ryan@gaard.example', '{"aisha.watson@friendsssymphony.example"}', '{}', 'Friends of Sawtooth Symphony''s reserves', 'Hi Aisha,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Sawtooth Symphony keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-02-16 08:17:35 America/Denver', false, '2026-02-16 08:17:35 America/Denver'),
+  (729, 327, 756, 'jon@gaard.example', '<mock-000729@gaard.example>', 'thread-000756', 'outbound', 'jon@gaard.example', '{"tmarshall@adulteahvalley.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Tariq,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Adult Education Association of Heber Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-16 08:33:31 America/Denver', false, '2026-02-16 08:33:31 America/Denver'),
+  (730, 327, 756, 'jon@gaard.example', '<mock-000730@gaard.example>', 'thread-000756', 'inbound', 'tmarshall@adulteahvalley.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in April and we can talk.', '2026-02-18 10:33:31 America/Denver', false, '2026-02-18 10:33:31 America/Denver'),
+  (731, 317, 757, 'jon@gaard.example', '<mock-000731@gaard.example>', 'thread-000757', 'outbound', 'jon@gaard.example', '{"dennis.freeman@beehivecmservices.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Dennis,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Chamber Music Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-16 09:20:44 America/Denver', false, '2026-02-16 09:20:44 America/Denver'),
+  (732, 321, 758, 'jon@gaard.example', '<mock-000732@gaard.example>', 'thread-000758', 'outbound', 'jon@gaard.example', '{"chawkins@uintawildlifecenter.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Cheryl,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Uinta Wildlife Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-16 10:12:41 America/Denver', false, '2026-02-16 10:12:41 America/Denver'),
+  (733, 321, 758, 'jon@gaard.example', '<mock-000733@gaard.example>', 'thread-000758', 'inbound', 'chawkins@uintawildlifecenter.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'This has been on my list. Happy to talk, does Feb 25 work?', '2026-02-18 13:12:41 America/Denver', false, '2026-02-18 13:12:41 America/Denver'),
+  (734, 325, 759, 'jon@gaard.example', '<mock-000734@gaard.example>', 'thread-000759', 'outbound', 'jon@gaard.example', '{"olivia@bearrsepartners.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Olivia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Bear River Science Education Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-16 10:21:18 America/Denver', false, '2026-02-16 10:21:18 America/Denver'),
+  (735, 325, 759, 'jon@gaard.example', '<mock-000735@gaard.example>', 'thread-000759', 'inbound', 'olivia@bearrsepartners.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'This has been on my list. Happy to talk, does Feb 23 work?', '2026-02-18 02:21:18 America/Denver', false, '2026-02-18 02:21:18 America/Denver'),
+  (736, 288, 760, 'ryan@gaard.example', '<mock-000736@gaard.example>', 'thread-000760', 'outbound', 'ryan@gaard.example', '{"raymondd@starvssnetwork.example"}', '{}', 'Quick question about Star Valley Senior Services Network''s endowment', 'Hi Raymond,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Star Valley Senior Services Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-02-16 10:26:03 America/Denver', false, '2026-02-16 10:26:03 America/Denver'),
+  (737, 323, 761, 'jon@gaard.example', '<mock-000737@gaard.example>', 'thread-000761', 'outbound', 'jon@gaard.example', '{"sofia.ford@theaterpcanyonlands.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Sofia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Theater Partners of Canyonlands keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-16 10:37:36 America/Denver', false, '2026-02-16 10:37:36 America/Denver'),
+  (738, 218, 762, 'jon@gaard.example', '<mock-000738@gaard.example>', 'thread-000762', 'outbound', 'jon@gaard.example', '{"alexis.elliott@webmail.example"}', '{}', 'Introduction via Mei', 'Hi Alexis,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-16 11:51:53 America/Denver', false, '2026-02-16 11:51:53 America/Denver'),
+  (739, 218, 762, 'jon@gaard.example', '<mock-000739@gaard.example>', 'thread-000762', 'inbound', 'alexis.elliott@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Mei', 'Not right now, we are traveling. Please reach out again in May.', '2026-02-17 11:51:53 America/Denver', false, '2026-02-17 11:51:53 America/Denver'),
+  (740, 328, 763, 'jon@gaard.example', '<mock-000740@gaard.example>', 'thread-000763', 'outbound', 'jon@gaard.example', '{"christineo@boxercollective.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Christine,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Box Elder Recovery Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-16 14:24:15 America/Denver', false, '2026-02-16 14:24:15 America/Denver'),
+  (741, 320, 764, 'jon@gaard.example', '<mock-000741@gaard.example>', 'thread-000764', 'outbound', 'jon@gaard.example', '{"kristen_soto@oquirrhyouthsociety.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Kristen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Oquirrh Youth Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-16 14:26:10 America/Denver', false, '2026-02-16 14:26:10 America/Denver'),
+  (742, 320, 764, 'jon@gaard.example', '<mock-000742@gaard.example>', 'thread-000764', 'inbound', 'kristen_soto@oquirrhyouthsociety.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-02-18 12:26:10 America/Denver', false, '2026-02-18 12:26:10 America/Denver'),
+  (743, 319, 765, 'jon@gaard.example', '<mock-000743@gaard.example>', 'thread-000765', 'outbound', 'jon@gaard.example', '{"karen.turner@tooelevtalliance.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Karen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Tooele Valley Trails Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-17 11:18:43 America/Denver', false, '2026-02-17 11:18:43 America/Denver'),
+  (744, 326, 766, 'jon@gaard.example', '<mock-000744@gaard.example>', 'thread-000766', 'outbound', 'jon@gaard.example', '{"carl.hoffman@millcreekhscoalition.example"}', '{}', 'Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Carl,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Millcreek Homeless Services Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-17 13:54:30 America/Denver', false, '2026-02-17 13:54:30 America/Denver'),
+  (745, 531, 767, 'jon@gaard.example', '<mock-000745@gaard.example>', 'thread-000767', 'outbound', 'jon@gaard.example', '{"emma.hudson@foodbipriver.example"}', '{}', 'Quarterly check-in', 'Hi Emma,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-02-17 15:59:14 America/Denver', false, '2026-02-17 15:59:14 America/Denver'),
+  (746, 531, 767, 'jon@gaard.example', '<mock-000746@gaard.example>', 'thread-000767', 'inbound', 'emma.hudson@foodbipriver.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in May.', '2026-02-18 08:59:14 America/Denver', false, '2026-02-18 08:59:14 America/Denver'),
+  (747, 113, 768, 'jon@gaard.example', '<mock-000747@gaard.example>', 'thread-000768', 'outbound', 'jon@gaard.example', '{"gerald.cooper@boxelderartsendowment.example"}', '{}', 'Re: OCIO support for Box Elder Arts Endowment', 'Hi Gerald,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-18 11:14:07 America/Denver', false, '2026-02-18 11:14:07 America/Denver'),
+  (748, 299, 769, 'ryan@gaard.example', '<mock-000748@gaard.example>', 'thread-000769', 'outbound', 'ryan@gaard.example', '{"narnold@friendswrsymphony.example"}', '{}', 'Investment support for Friends of Wood River Symphony', 'Hi Nathan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Wood River Symphony keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-02-19 08:57:26 America/Denver', false, '2026-02-19 08:57:26 America/Denver'),
+  (749, 266, 770, 'jon@gaard.example', '<mock-000749@gaard.example>', 'thread-000770', 'outbound', 'jon@gaard.example', '{"tsmith@sugarhchservices.example"}', '{}', 'Investment support for Sugar House Community Health Services', 'Hi Tala,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Community Health Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-19 11:18:35 America/Denver', false, '2026-02-19 11:18:35 America/Denver'),
+  (750, 262, 771, 'jon@gaard.example', '<mock-000750@gaard.example>', 'thread-000771', 'outbound', 'jon@gaard.example', '{"abigail_gardner@beehiveyouthpartners.example"}', '{}', 'Investment support for Beehive Youth Partners', 'Hi Abigail,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Youth Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-19 14:31:57 America/Denver', false, '2026-02-19 14:31:57 America/Denver'),
+  (751, 179, 772, 'ryan@gaard.example', '<mock-000751@gaard.example>', 'thread-000772', 'outbound', 'ryan@gaard.example', '{"nsantos@cachevalleyprintsign.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Hi Nicholas,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-02-20 10:26:13 America/Denver', false, '2026-02-20 10:26:13 America/Denver'),
+  (752, 134, 776, 'jon@gaard.example', '<mock-000752@gaard.example>', 'thread-000776', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-02-23 09:26:04 America/Denver', false, '2026-02-23 09:26:04 America/Denver'),
+  (753, 134, 776, 'jon@gaard.example', '<mock-000753@gaard.example>', 'thread-000776', 'inbound', 'kai_ruiz@ironcfscenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-02-24 11:26:04 America/Denver', false, '2026-02-24 11:26:04 America/Denver'),
+  (754, 99, 777, 'jon@gaard.example', '<mock-000754@gaard.example>', 'thread-000777', 'outbound', 'jon@gaard.example', '{"logan.tuilagi@sugarhhfoundation.example"}', '{}', 'Re: Investment management for Sugar House Hospital Foundation', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-23 09:44:40 America/Denver', false, '2026-02-23 09:44:40 America/Denver'),
+  (755, 249, 778, 'jon@gaard.example', '<mock-000755@gaard.example>', 'thread-000778', 'outbound', 'jon@gaard.example', '{"calebr@bonnevilleaepartners.example"}', '{}', 'Bonneville Adult Education Partners''s reserves', 'Hi Caleb,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Bonneville Adult Education Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-23 09:46:44 America/Denver', false, '2026-02-23 09:46:44 America/Denver'),
+  (756, 187, 782, 'ryan@gaard.example', '<mock-000756@gaard.example>', 'thread-000782', 'outbound', 'ryan@gaard.example', '{"larry.spencer14@mail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Larry,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-02-23 13:34:23 America/Denver', false, '2026-02-23 13:34:23 America/Denver'),
+  (757, 255, 783, 'jon@gaard.example', '<mock-000757@gaard.example>', 'thread-000783', 'outbound', 'jon@gaard.example', '{"jordanr@weberrasalliance.example"}', '{}', 'Investment support for Weber River After School Alliance', 'Hi Jordan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Weber River After School Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-23 14:05:05 America/Denver', false, '2026-02-23 14:05:05 America/Denver'),
+  (758, 275, 784, 'ryan@gaard.example', '<mock-000758@gaard.example>', 'thread-000784', 'outbound', 'ryan@gaard.example', '{"sofia.havili@plattevdcoalition.example"}', '{}', 'Quick question about Platte Valley Dance Coalition''s endowment', 'Hi Sofia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Platte Valley Dance Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-02-23 14:30:00 America/Denver', false, '2026-02-23 14:30:00 America/Denver'),
+  (759, 267, 785, 'jon@gaard.example', '<mock-000759@gaard.example>', 'thread-000785', 'outbound', 'jon@gaard.example', '{"elizabeth@sugarhseleague.example"}', '{}', 'Quick question about Sugar House Science Education League''s endowment', 'Hi Elizabeth,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Science Education League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-24 08:48:54 America/Denver', false, '2026-02-24 08:48:54 America/Denver'),
+  (760, 267, 785, 'jon@gaard.example', '<mock-000760@gaard.example>', 'thread-000785', 'inbound', 'mailer-daemon@mail.example', '{"jon@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to elizabeth@sugarhseleague.example because the address couldn''t be found or is unable to receive mail.', '2026-02-24 08:49:54 America/Denver', true, '2026-02-24 08:49:54 America/Denver'),
+  (761, 268, 786, 'jon@gaard.example', '<mock-000761@gaard.example>', 'thread-000786', 'outbound', 'jon@gaard.example', '{"lucia.moore@greatbelleague.example"}', '{}', 'Quick question about Great Basin Early Learning League''s endowment', 'Hi Lucia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Great Basin Early Learning League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-24 11:50:32 America/Denver', false, '2026-02-24 11:50:32 America/Denver'),
+  (762, 178, 787, 'ryan@gaard.example', '<mock-000762@gaard.example>', 'thread-000787', 'outbound', 'ryan@gaard.example', '{"paul.myers@ironcountyheatingair.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Hi Paul,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-02-24 13:17:16 America/Denver', false, '2026-02-24 13:17:16 America/Denver'),
+  (763, 5, 788, 'jon@gaard.example', '<mock-000763@gaard.example>', 'thread-000788', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-02-24 14:39:09 America/Denver', false, '2026-02-24 14:39:09 America/Denver'),
+  (764, 5, 788, 'jon@gaard.example', '<mock-000764@gaard.example>', 'thread-000788', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-02-26 00:39:09 America/Denver', false, '2026-02-26 00:39:09 America/Denver'),
+  (765, 539, 789, 'ryan@gaard.example', '<mock-000765@gaard.example>', 'thread-000789', 'outbound', 'ryan@gaard.example', '{"sofia@morganvmanufacturing.example"}', '{}', 'Introduction via Isabella', 'Hi Sofia,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-02-25 10:27:08 America/Denver', false, '2026-02-25 10:27:08 America/Denver'),
+  (766, 539, 789, 'ryan@gaard.example', '<mock-000766@gaard.example>', 'thread-000789', 'inbound', 'sofia@morganvmanufacturing.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Isabella', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-02-27 07:27:08 America/Denver', false, '2026-02-27 07:27:08 America/Denver'),
+  (767, 97, 790, 'ryan@gaard.example', '<mock-000767@gaard.example>', 'thread-000790', 'outbound', 'ryan@gaard.example', '{"gpetersen@absarokalfoundation.example"}', '{}', 'Re: Investment management for Absaroka Library Foundation', 'Hi Gloria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-02-25 13:23:29 America/Denver', false, '2026-02-25 13:23:29 America/Denver'),
+  (768, 252, 792, 'jon@gaard.example', '<mock-000768@gaard.example>', 'thread-000792', 'outbound', 'jon@gaard.example', '{"steven_graham@weberrcaassociation.example"}', '{}', 'Quick question about Weber River Clean Air Association''s endowment', 'Hi Steven,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Weber River Clean Air Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-02-26 08:27:56 America/Denver', false, '2026-02-26 08:27:56 America/Denver'),
+  (769, 102, 793, 'jon@gaard.example', '<mock-000769@gaard.example>', 'thread-000793', 'outbound', 'jon@gaard.example', '{"catherine.barnes@cunninghamffoundation.example"}', '{}', 'Re: OCIO support for Cunningham Family Foundation', 'Hi Catherine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-02-26 09:54:18 America/Denver', false, '2026-02-26 09:54:18 America/Denver'),
+  (770, 112, 795, 'ryan@gaard.example', '<mock-000770@gaard.example>', 'thread-000795', 'outbound', 'ryan@gaard.example', '{"jae.stone@camaspgassociation.example"}', '{}', 'Re: OCIO support for Camas Prairie Growers Association', 'Hi Jae,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-02-27 09:10:36 America/Denver', false, '2026-02-27 09:10:36 America/Denver'),
+  (771, 264, 798, 'jon@gaard.example', '<mock-000771@gaard.example>', 'thread-000798', 'outbound', 'jon@gaard.example', '{"jacke@wasatchcmcenter.example"}', '{}', 'Checking back in', 'Hi Jack,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Chamber Music Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-02 11:17:11 America/Denver', false, '2026-03-02 11:17:11 America/Denver'),
+  (772, 264, 798, 'jon@gaard.example', '<mock-000772@gaard.example>', 'thread-000798', 'inbound', 'jacke@wasatchcmcenter.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Not right now, this quarter is busy for us. Please reach out again in May.', '2026-03-02 19:17:11 America/Denver', false, '2026-03-02 19:17:11 America/Denver'),
+  (773, 204, 799, 'jon@gaard.example', '<mock-000773@gaard.example>', 'thread-000799', 'outbound', 'jon@gaard.example', '{"sara.hernandez@summitridge.edu.example"}', '{}', 'Quarterly check-in', 'Hi Sara,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-03-02 11:17:29 America/Denver', false, '2026-03-02 11:17:29 America/Denver'),
+  (774, 204, 799, 'jon@gaard.example', '<mock-000774@gaard.example>', 'thread-000799', 'inbound', 'sara.hernandez@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-03-03 09:17:29 America/Denver', false, '2026-03-03 09:17:29 America/Denver'),
+  (775, 177, 800, 'ryan@gaard.example', '<mock-000775@gaard.example>', 'thread-000800', 'outbound', 'ryan@gaard.example', '{"roy.schmidt@oquirrhvclinic.example"}', '{}', 'Checking back in', 'Hi Roy,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-03-02 11:48:24 America/Denver', false, '2026-03-02 11:48:24 America/Denver'),
+  (776, 177, 800, 'ryan@gaard.example', '<mock-000776@gaard.example>', 'thread-000800', 'inbound', 'roy.schmidt@oquirrhvclinic.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks Ryan, the timing is actually good. Could we set up a call Monday the 16?', '2026-03-05 09:48:24 America/Denver', false, '2026-03-05 09:48:24 America/Denver'),
+  (777, 173, 801, 'ryan@gaard.example', '<mock-000777@gaard.example>', 'thread-000801', 'outbound', 'ryan@gaard.example', '{"bradleyc@bearriveroutfitters.example"}', '{}', 'Quarterly check-in', 'Hi Bradley,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-03-02 13:16:35 America/Denver', false, '2026-03-02 13:16:35 America/Denver'),
+  (778, 199, 802, 'jon@gaard.example', '<mock-000778@gaard.example>', 'thread-000802', 'outbound', 'jon@gaard.example', '{"carmen.patterson@mail.example"}', '{}', 'Checking back in', 'Hi Carmen,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-02 13:20:29 America/Denver', false, '2026-03-02 13:20:29 America/Denver'),
+  (779, 199, 802, 'jon@gaard.example', '<mock-000779@gaard.example>', 'thread-000802', 'inbound', 'carmen.patterson@mail.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-03-05 07:20:29 America/Denver', false, '2026-03-05 07:20:29 America/Denver'),
+  (780, 227, 803, 'jon@gaard.example', '<mock-000780@gaard.example>', 'thread-000803', 'outbound', 'jon@gaard.example', '{"jgonzalez@cottonwoodmassociation.example"}', '{}', 'Cottonwood Mentoring Association''s reserves', 'Hi Jessica,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cottonwood Mentoring Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-02 13:23:21 America/Denver', false, '2026-03-02 13:23:21 America/Denver'),
+  (781, 530, 804, 'jon@gaard.example', '<mock-000781@gaard.example>', 'thread-000804', 'outbound', 'jon@gaard.example', '{"nicholas@wasatchyouthservices.example"}', '{}', 'Checking back in', 'Hi Nicholas,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Youth Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-02 13:26:30 America/Denver', false, '2026-03-02 13:26:30 America/Denver'),
+  (782, 11, 806, 'jon@gaard.example', '<mock-000782@gaard.example>', 'thread-000806', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-03-02 15:23:59 America/Denver', false, '2026-03-02 15:23:59 America/Denver'),
+  (783, 536, 807, 'ryan@gaard.example', '<mock-000783@gaard.example>', 'thread-000807', 'outbound', 'ryan@gaard.example', '{"ecarroll@silvasonsconstruction.example"}', '{}', 'Introduction via Albert', 'Hi Eric,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-03-03 09:23:07 America/Denver', false, '2026-03-03 09:23:07 America/Denver'),
+  (784, 239, 808, 'jon@gaard.example', '<mock-000784@gaard.example>', 'thread-000808', 'outbound', 'jon@gaard.example', '{"jkim@beehivercoalition.example"}', '{}', 'Beehive Recovery Coalition''s reserves', 'Hi Jeremy,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Recovery Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-03 11:16:27 America/Denver', false, '2026-03-03 11:16:27 America/Denver'),
+  (785, 136, 810, 'jon@gaard.example', '<mock-000785@gaard.example>', 'thread-000810', 'outbound', 'jon@gaard.example', '{"javier.madsen@canyonlandsasinitiative.example"}', '{}', 'Quarterly check-in', 'Hi Javier,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-03-04 11:55:40 America/Denver', false, '2026-03-04 11:55:40 America/Denver'),
+  (786, 136, 810, 'jon@gaard.example', '<mock-000786@gaard.example>', 'thread-000810', 'inbound', 'javier.madsen@canyonlandsasinitiative.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in May and we can talk.', '2026-03-05 03:55:40 America/Denver', false, '2026-03-05 03:55:40 America/Denver'),
+  (787, 279, 811, 'ryan@gaard.example', '<mock-000787@gaard.example>', 'thread-000811', 'outbound', 'ryan@gaard.example', '{"kathleen.elliott@magicvarcoalition.example"}', '{}', 'Quick question about Magic Valley Animal Rescue Coalition''s endowment', 'Hi Kathleen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Magic Valley Animal Rescue Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-03-04 13:28:12 America/Denver', false, '2026-03-04 13:28:12 America/Denver'),
+  (788, 96, 812, 'ryan@gaard.example', '<mock-000788@gaard.example>', 'thread-000812', 'outbound', 'ryan@gaard.example', '{"ethan.scott@shoshonelfoundation.example"}', '{}', 'Re: Investment management for Shoshone Library Foundation', 'Hi Ethan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-03-04 16:16:34 America/Denver', false, '2026-03-04 16:16:34 America/Denver'),
+  (789, 285, 813, 'ryan@gaard.example', '<mock-000789@gaard.example>', 'thread-000813', 'outbound', 'ryan@gaard.example', '{"ewright@sweetwatertpartners.example"}', '{}', 'Quick question about Sweetwater Trails Partners''s endowment', 'Hi Ethan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sweetwater Trails Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-03-05 14:02:19 America/Denver', false, '2026-03-05 14:02:19 America/Denver'),
+  (790, 238, 814, 'jon@gaard.example', '<mock-000790@gaard.example>', 'thread-000814', 'outbound', 'jon@gaard.example', '{"matthew@cottonwoodchsociety.example"}', '{}', 'Investment support for Cottonwood Community Health Society', 'Hi Matthew,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cottonwood Community Health Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-06 08:49:33 America/Denver', false, '2026-03-06 08:49:33 America/Denver'),
+  (791, 223, 815, 'jon@gaard.example', '<mock-000791@gaard.example>', 'thread-000815', 'outbound', 'jon@gaard.example', '{"tgray@canyonlandsvcouncil.example"}', '{}', 'Quick question about Canyonlands Veterans Council''s endowment', 'Hi Thomas,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Canyonlands Veterans Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-06 16:32:28 America/Denver', false, '2026-03-06 16:32:28 America/Denver'),
+  (792, 223, 815, 'jon@gaard.example', '<mock-000792@gaard.example>', 'thread-000815', 'inbound', 'tgray@canyonlandsvcouncil.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Quick question about Canyonlands Veterans Council''s endowment', 'I am out of the office until Monday, March 23 with limited access to email. For anything urgent please call our main office.', '2026-03-06 16:33:28 America/Denver', true, '2026-03-06 16:33:28 America/Denver'),
+  (793, 253, 816, 'jon@gaard.example', '<mock-000793@gaard.example>', 'thread-000816', 'outbound', 'jon@gaard.example', '{"dylan.fernandez@saltltassociation.example"}', '{}', 'Investment support for Salt Lake Trails Association', 'Hi Dylan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Salt Lake Trails Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-09 08:10:11 America/Denver', false, '2026-03-09 08:10:11 America/Denver'),
+  (794, 193, 817, 'jon@gaard.example', '<mock-000794@gaard.example>', 'thread-000817', 'outbound', 'jon@gaard.example', '{"jonathan.peters@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Jonathan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-09 08:23:09 America/Denver', false, '2026-03-09 08:23:09 America/Denver'),
+  (795, 269, 818, 'ryan@gaard.example', '<mock-000795@gaard.example>', 'thread-000818', 'outbound', 'ryan@gaard.example', '{"kwame.bennett@medicinebseassociation.example"}', '{}', 'Medicine Bow Science Education Association''s reserves', 'Hi Kwame,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Medicine Bow Science Education Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-03-09 09:28:41 America/Denver', false, '2026-03-09 09:28:41 America/Denver'),
+  (796, 104, 819, 'jon@gaard.example', '<mock-000796@gaard.example>', 'thread-000819', 'outbound', 'jon@gaard.example', '{"mward@deltaefoundation.example"}', '{}', 'Re: Investment management for Delta Education Foundation', 'Hi Mei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-09 09:48:44 America/Denver', false, '2026-03-09 09:48:44 America/Denver'),
+  (797, 92, 823, 'ryan@gaard.example', '<mock-000797@gaard.example>', 'thread-000823', 'outbound', 'ryan@gaard.example', '{"bradleyo@petersonpfoundation.example"}', '{}', 'Re: OCIO support for Peterson-Porter Foundation', 'Hi Bradley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-03-10 10:32:08 America/Denver', false, '2026-03-10 10:32:08 America/Denver'),
+  (798, 106, 824, 'jon@gaard.example', '<mock-000798@gaard.example>', 'thread-000824', 'outbound', 'jon@gaard.example', '{"michael.carter@greatbhsociety.example"}', '{}', 'Re: Investment management for Great Basin Heritage Society', 'Hi Michael,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-10 11:53:53 America/Denver', false, '2026-03-10 11:53:53 America/Denver'),
+  (799, 34, 825, 'jon@gaard.example', '<mock-000799@gaard.example>', 'thread-000825', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Quarterly check-in', 'Hi Kimberly,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-03-10 16:57:44 America/Denver', false, '2026-03-10 16:57:44 America/Denver'),
+  (800, 34, 825, 'jon@gaard.example', '<mock-000800@gaard.example>', 'thread-000825', 'inbound', 'kimberly.zhang@boxecacollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-03-11 05:57:44 America/Denver', false, '2026-03-11 05:57:44 America/Denver');
+
+insert into public.email_messages (id, contact_id, touchpoint_id, mailbox, external_id, thread_id, direction, from_email, to_emails, cc_emails, subject, body_text, sent_at, is_auto_reply, created_at) values
+  (801, 201, 826, 'jon@gaard.example', '<mock-000801@gaard.example>', 'thread-000826', 'outbound', 'jon@gaard.example', '{"harold.sorensen@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Harold,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-11 08:52:53 America/Denver', false, '2026-03-11 08:52:53 America/Denver'),
+  (802, 284, 827, 'ryan@gaard.example', '<mock-000802@gaard.example>', 'thread-000827', 'outbound', 'ryan@gaard.example', '{"douglas.romero@portneufveteransleague.example"}', '{}', 'Investment support for Portneuf Veterans League', 'Hi Douglas,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Portneuf Veterans League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-03-11 10:05:08 America/Denver', false, '2026-03-11 10:05:08 America/Denver'),
+  (803, 540, 828, 'jon@gaard.example', '<mock-000803@gaard.example>', 'thread-000828', 'outbound', 'jon@gaard.example', '{"timothyt@summitcgassociation.example"}', '{}', 'Introduction via Isabella', 'Hi Timothy,
+
+We provide OCIO-style investment management for foundations and institutions like Summit County Growers Association.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-11 14:27:37 America/Denver', false, '2026-03-11 14:27:37 America/Denver'),
+  (804, 243, 829, 'jon@gaard.example', '<mock-000804@gaard.example>', 'thread-000829', 'outbound', 'jon@gaard.example', '{"julia_dunn@castlevfsalliance.example"}', '{}', 'Investment support for Castle Valley Family Services Alliance', 'Hi Julia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Castle Valley Family Services Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-12 09:22:44 America/Denver', false, '2026-03-12 09:22:44 America/Denver'),
+  (805, 243, 829, 'jon@gaard.example', '<mock-000805@gaard.example>', 'thread-000829', 'inbound', 'julia_dunn@castlevfsalliance.example', '{"jon@gaard.example"}', '{}', 'Re: Investment support for Castle Valley Family Services Alliance', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 23?', '2026-03-13 11:22:44 America/Denver', false, '2026-03-13 11:22:44 America/Denver'),
+  (806, 98, 831, 'jon@gaard.example', '<mock-000806@gaard.example>', 'thread-000831', 'outbound', 'jon@gaard.example', '{"kenneth.pena@davisccfoundation.example"}', '{}', 'Re: Investment management for Davis County Community Foundation', 'Hi Kenneth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-16 10:03:02 America/Denver', false, '2026-03-16 10:03:02 America/Denver'),
+  (807, 185, 833, 'jon@gaard.example', '<mock-000807@gaard.example>', 'thread-000833', 'outbound', 'jon@gaard.example', '{"carmen.park@mail.example"}', '{}', 'Re: Introduction, Carmen', 'Hi Carmen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-16 10:35:34 America/Denver', false, '2026-03-16 10:35:34 America/Denver'),
+  (808, 234, 834, 'jon@gaard.example', '<mock-000808@gaard.example>', 'thread-000834', 'outbound', 'jon@gaard.example', '{"julie@friendsblibrary.example"}', '{}', 'Investment support for Friends of Bonneville Library', 'Hi Julie,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Bonneville Library keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-16 10:56:56 America/Denver', false, '2026-03-16 10:56:56 America/Denver'),
+  (809, 231, 836, 'jon@gaard.example', '<mock-000809@gaard.example>', 'thread-000836', 'outbound', 'jon@gaard.example', '{"hreed@daviscseinitiative.example"}', '{}', 'Quick question about Davis County Science Education Initiative''s endowment', 'Hi Harold,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Davis County Science Education Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-16 11:29:19 America/Denver', false, '2026-03-16 11:29:19 America/Denver'),
+  (810, 148, 837, 'ryan@gaard.example', '<mock-000810@gaard.example>', 'thread-000837', 'outbound', 'ryan@gaard.example', '{"joseph_patterson@greenriverartssociety.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Joseph,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-03-16 14:27:42 America/Denver', false, '2026-03-16 14:27:42 America/Denver'),
+  (811, 296, 839, 'ryan@gaard.example', '<mock-000811@gaard.example>', 'thread-000839', 'outbound', 'ryan@gaard.example', '{"jae.armstrong@friendsbrmuseum.example"}', '{}', 'Quick question about Friends of Boise River Museum''s endowment', 'Hi Jae,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Boise River Museum keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-03-16 15:44:48 America/Denver', false, '2026-03-16 15:44:48 America/Denver'),
+  (812, 259, 840, 'jon@gaard.example', '<mock-000812@gaard.example>', 'thread-000840', 'outbound', 'jon@gaard.example', '{"brenda@ogdenvdssociety.example"}', '{}', 'Ogden Valley Disability Services Society''s reserves', 'Hi Brenda,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Ogden Valley Disability Services Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-16 16:34:19 America/Denver', false, '2026-03-16 16:34:19 America/Denver'),
+  (813, 248, 841, 'jon@gaard.example', '<mock-000813@gaard.example>', 'thread-000841', 'outbound', 'jon@gaard.example', '{"jtran@summitchservices.example"}', '{}', 'Summit County Habitat Services''s reserves', 'Hi Judy,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Summit County Habitat Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-17 13:35:38 America/Denver', false, '2026-03-17 13:35:38 America/Denver'),
+  (814, 225, 842, 'jon@gaard.example', '<mock-000814@gaard.example>', 'thread-000842', 'outbound', 'jon@gaard.example', '{"javier.alvarez@cottonwoodmalliance.example"}', '{}', 'Cottonwood Music Alliance''s reserves', 'Hi Javier,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cottonwood Music Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-18 08:32:07 America/Denver', false, '2026-03-18 08:32:07 America/Denver'),
+  (815, 247, 843, 'jon@gaard.example', '<mock-000815@gaard.example>', 'thread-000843', 'outbound', 'jon@gaard.example', '{"kristen@tooelevaassociation.example"}', '{}', 'Quick question about Tooele Valley Arts Association''s endowment', 'Hi Kristen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Tooele Valley Arts Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-18 08:43:58 America/Denver', false, '2026-03-18 08:43:58 America/Denver'),
+  (816, 49, 844, 'jon@gaard.example', '<mock-000816@gaard.example>', 'thread-000844', 'outbound', 'jon@gaard.example', '{"cheryl.reynolds@disabilitysptvalley.example"}', '{}', 'Re: Introduction via Tala', 'Hi Cheryl,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-18 10:00:24 America/Denver', false, '2026-03-18 10:00:24 America/Denver'),
+  (817, 251, 845, 'jon@gaard.example', '<mock-000817@gaard.example>', 'thread-000845', 'outbound', 'jon@gaard.example', '{"gerald.carroll@sugarhfbleague.example"}', '{}', 'Investment support for Sugar House Food Bank League', 'Hi Gerald,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Food Bank League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-18 11:11:30 America/Denver', false, '2026-03-18 11:11:30 America/Denver'),
+  (818, 257, 847, 'jon@gaard.example', '<mock-000818@gaard.example>', 'thread-000847', 'outbound', 'jon@gaard.example', '{"ngozi.burns@oquirrhcleanairnetwork.example"}', '{}', 'Quick question about Oquirrh Clean Air Network''s endowment', 'Hi Ngozi,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Oquirrh Clean Air Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-19 08:11:36 America/Denver', false, '2026-03-19 08:11:36 America/Denver'),
+  (819, 257, 847, 'jon@gaard.example', '<mock-000819@gaard.example>', 'thread-000847', 'inbound', 'ngozi.burns@oquirrhcleanairnetwork.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Quick question about Oquirrh Clean Air Network''s endowment', 'I am out of the office until Friday, April 3 with limited access to email. For anything urgent please call our main office.', '2026-03-19 08:12:36 America/Denver', true, '2026-03-19 08:12:36 America/Denver'),
+  (820, 232, 850, 'jon@gaard.example', '<mock-000820@gaard.example>', 'thread-000850', 'outbound', 'jon@gaard.example', '{"gary@friendsutahvalleyparks.example"}', '{}', 'Investment support for Friends of Utah Valley Parks', 'Hi Gary,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Utah Valley Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-19 11:59:47 America/Denver', false, '2026-03-19 11:59:47 America/Denver'),
+  (821, 145, 856, 'jon@gaard.example', '<mock-000821@gaard.example>', 'thread-000856', 'outbound', 'jon@gaard.example', '{"angela.gomez@bonnevillemcoalition.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Angela,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-20 09:46:54 America/Denver', false, '2026-03-20 09:46:54 America/Denver'),
+  (822, 192, 857, 'jon@gaard.example', '<mock-000822@gaard.example>', 'thread-000857', 'outbound', 'jon@gaard.example', '{"doris.parker@webmail.example"}', '{}', 'Re: Introduction, Doris', 'Hi Doris,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-20 10:18:47 America/Denver', false, '2026-03-20 10:18:47 America/Denver'),
+  (823, 236, 859, 'jon@gaard.example', '<mock-000823@gaard.example>', 'thread-000859', 'outbound', 'jon@gaard.example', '{"sberry@friendsoquirrhparks.example"}', '{}', 'Friends of Oquirrh Parks''s reserves', 'Hi Sharon,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Oquirrh Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-20 14:14:46 America/Denver', false, '2026-03-20 14:14:46 America/Denver'),
+  (824, 236, 859, 'jon@gaard.example', '<mock-000824@gaard.example>', 'thread-000859', 'inbound', 'sberry@friendsoquirrhparks.example', '{"jon@gaard.example"}', '{}', 'Re: Friends of Oquirrh Parks''s reserves', 'Thanks. I''m copying our finance director, who handles our investment accounts.', '2026-03-21 06:14:46 America/Denver', false, '2026-03-21 06:14:46 America/Denver'),
+  (825, 138, 860, 'jon@gaard.example', '<mock-000825@gaard.example>', 'thread-000860', 'outbound', 'jon@gaard.example', '{"luciap@weberrhrnetwork.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Lucia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-20 15:01:07 America/Denver', false, '2026-03-20 15:01:07 America/Denver'),
+  (826, 144, 861, 'jon@gaard.example', '<mock-000826@gaard.example>', 'thread-000861', 'outbound', 'jon@gaard.example', '{"mateo@sanpetessleague.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Mateo,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-23 08:08:21 America/Denver', false, '2026-03-23 08:08:21 America/Denver'),
+  (827, 151, 862, 'jon@gaard.example', '<mock-000827@gaard.example>', 'thread-000862', 'outbound', 'jon@gaard.example', '{"raymond.west@canyonlandselsociety.example"}', '{}', 'Checking back in', 'Hi Raymond,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Canyonlands Early Learning Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-23 08:55:22 America/Denver', false, '2026-03-23 08:55:22 America/Denver'),
+  (828, 331, 863, 'jon@gaard.example', '<mock-000828@gaard.example>', 'thread-000863', 'outbound', 'jon@gaard.example', '{"jeffrey.west@sacramentovmsociety.example"}', '{}', 'Great meeting you at Bay Area Foundation Investment Forum', 'Hi Jeffrey,
+
+We provide OCIO-style investment management for foundations and institutions like Sacramento Valley Medical Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-23 09:00:38 America/Denver', false, '2026-03-23 09:00:38 America/Denver'),
+  (829, 330, 864, 'jon@gaard.example', '<mock-000829@gaard.example>', 'thread-000864', 'outbound', 'jon@gaard.example', '{"keith@murrayfamilyfoundation.example"}', '{}', 'Great meeting you at Bay Area Foundation Investment Forum', 'Hi Keith,
+
+We provide OCIO-style investment management for foundations and institutions like Murray Family Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-23 09:06:53 America/Denver', false, '2026-03-23 09:06:53 America/Denver'),
+  (830, 237, 865, 'jon@gaard.example', '<mock-000830@gaard.example>', 'thread-000865', 'outbound', 'jon@gaard.example', '{"jford@friendsoquirrhparks.example"}', '{}', 'Introduction via Sharon', 'Hi Javier,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Oquirrh Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-23 09:25:09 America/Denver', false, '2026-03-23 09:25:09 America/Denver'),
+  (831, 237, 865, 'jon@gaard.example', '<mock-000831@gaard.example>', 'thread-000865', 'inbound', 'jford@friendsoquirrhparks.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Sharon', 'Yes, I''d like to learn more. I''m free Wednesday afternoon.', '2026-03-23 18:25:09 America/Denver', false, '2026-03-23 18:25:09 America/Denver'),
+  (832, 333, 866, 'jon@gaard.example', '<mock-000832@gaard.example>', 'thread-000866', 'outbound', 'jon@gaard.example', '{"nicholasa@santacmctrust.example"}', '{}', 'Great meeting you at Bay Area Foundation Investment Forum', 'Hi Nicholas,
+
+We provide OCIO-style investment management for foundations and institutions like Santa Cruz Mountains Civic Trust.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-23 09:37:09 America/Denver', false, '2026-03-23 09:37:09 America/Denver'),
+  (833, 333, 866, 'jon@gaard.example', '<mock-000833@gaard.example>', 'thread-000866', 'inbound', 'nicholasa@santacmctrust.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Bay Area Foundation Investment Forum', 'Yes, I''d like to learn more. I''m free Wednesday afternoon.', '2026-03-23 20:37:09 America/Denver', false, '2026-03-23 20:37:09 America/Denver'),
+  (834, 198, 867, 'jon@gaard.example', '<mock-000834@gaard.example>', 'thread-000867', 'outbound', 'jon@gaard.example', '{"carol.hoffman@summitridge.edu.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Carol,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-23 09:55:56 America/Denver', false, '2026-03-23 09:55:56 America/Denver'),
+  (835, 111, 868, 'jon@gaard.example', '<mock-000835@gaard.example>', 'thread-000868', 'outbound', 'jon@gaard.example', '{"betty@wasatchheritagesociety.example"}', '{}', 'Re: OCIO support for Wasatch Heritage Society', 'Hi Betty,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-23 10:03:22 America/Denver', false, '2026-03-23 10:03:22 America/Denver'),
+  (836, 111, 868, 'jon@gaard.example', '<mock-000836@gaard.example>', 'thread-000868', 'inbound', 'betty@wasatchheritagesociety.example', '{"jon@gaard.example"}', '{}', 'Re: Re: OCIO support for Wasatch Heritage Society', 'Good timing question, but our board meets later in the year. Circle back in July and we can talk.', '2026-03-24 19:03:22 America/Denver', false, '2026-03-24 19:03:22 America/Denver'),
+  (837, 334, 870, 'jon@gaard.example', '<mock-000837@gaard.example>', 'thread-000870', 'outbound', 'jon@gaard.example', '{"anya.yazzie@sierractrust.example"}', '{}', 'Great meeting you at Bay Area Foundation Investment Forum', 'Hi Anya,
+
+We provide OCIO-style investment management for foundations and institutions like Sierra Conservation Trust.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-23 10:12:52 America/Denver', false, '2026-03-23 10:12:52 America/Denver'),
+  (838, 5, 871, 'jon@gaard.example', '<mock-000838@gaard.example>', 'thread-000871', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-03-23 10:39:50 America/Denver', false, '2026-03-23 10:39:50 America/Denver'),
+  (839, 5, 871, 'jon@gaard.example', '<mock-000839@gaard.example>', 'thread-000871', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-03-24 12:39:50 America/Denver', false, '2026-03-24 12:39:50 America/Denver'),
+  (840, 332, 872, 'jon@gaard.example', '<mock-000840@gaard.example>', 'thread-000872', 'outbound', 'jon@gaard.example', '{"gadams@redwoodchsociety.example"}', '{}', 'Great meeting you at Bay Area Foundation Investment Forum', 'Hi Grace,
+
+We provide OCIO-style investment management for foundations and institutions like Redwood Coast Heritage Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-23 11:17:11 America/Denver', false, '2026-03-23 11:17:11 America/Denver'),
+  (841, 150, 874, 'ryan@gaard.example', '<mock-000841@gaard.example>', 'thread-000874', 'outbound', 'ryan@gaard.example', '{"lsanders@laramiehrservices.example"}', '{}', 'Checking back in', 'Hi Lauren,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Laramie Hunger Relief Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-03-23 13:03:11 America/Denver', false, '2026-03-23 13:03:11 America/Denver'),
+  (842, 150, 874, 'ryan@gaard.example', '<mock-000842@gaard.example>', 'thread-000874', 'inbound', 'lsanders@laramiehrservices.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2026-03-24 06:03:11 America/Denver', false, '2026-03-24 06:03:11 America/Denver'),
+  (843, 147, 875, 'jon@gaard.example', '<mock-000843@gaard.example>', 'thread-000875', 'outbound', 'jon@gaard.example', '{"malia.morgan@friendswrmuseum.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Malia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-23 13:12:43 America/Denver', false, '2026-03-23 13:12:43 America/Denver'),
+  (844, 195, 876, 'jon@gaard.example', '<mock-000844@gaard.example>', 'thread-000876', 'outbound', 'jon@gaard.example', '{"rmartinez@inbox.example"}', '{}', 'Re: Introduction, Rosa', 'Hi Rosa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-24 09:42:41 America/Denver', false, '2026-03-24 09:42:41 America/Denver'),
+  (845, 157, 877, 'jon@gaard.example', '<mock-000845@gaard.example>', 'thread-000877', 'outbound', 'jon@gaard.example', '{"andrew.elliott@sugarhtcoalition.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Andrew,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-24 11:16:02 America/Denver', false, '2026-03-24 11:16:02 America/Denver'),
+  (846, 223, 878, 'jon@gaard.example', '<mock-000846@gaard.example>', 'thread-000878', 'outbound', 'jon@gaard.example', '{"tgray@canyonlandsvcouncil.example"}', '{}', 'Re: Quick question about Canyonlands Veterans Council''s endowment', 'Hi Thomas,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-24 13:33:00 America/Denver', false, '2026-03-24 13:33:00 America/Denver'),
+  (847, 213, 879, 'jon@gaard.example', '<mock-000847@gaard.example>', 'thread-000879', 'outbound', 'jon@gaard.example', '{"juan.wright@webmail.example"}', '{}', 'Introduction via Albert', 'Hi Juan,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-24 15:27:45 America/Denver', false, '2026-03-24 15:27:45 America/Denver'),
+  (848, 305, 880, 'jon@gaard.example', '<mock-000848@gaard.example>', 'thread-000880', 'outbound', 'jon@gaard.example', '{"anthonyo@jensencharitabletrust.example"}', '{}', 'Investment management for Jensen Charitable Trust', 'Hi Anthony,
+
+We provide OCIO-style investment management for foundations and institutions like Jensen Charitable Trust.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-03-25 11:15:28 America/Denver', false, '2026-03-25 11:15:28 America/Denver'),
+  (849, 26, 881, 'jon@gaard.example', '<mock-000849@gaard.example>', 'thread-000881', 'outbound', 'jon@gaard.example', '{"lisa@redrockveteranscouncil.example"}', '{}', 'Quarterly check-in', 'Hi Lisa,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-03-26 09:24:48 America/Denver', false, '2026-03-26 09:24:48 America/Denver'),
+  (850, 141, 883, 'jon@gaard.example', '<mock-000850@gaard.example>', 'thread-000883', 'outbound', 'jon@gaard.example', '{"brian_patterson@weberrcaassociation.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Brian,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-27 09:57:36 America/Denver', false, '2026-03-27 09:57:36 America/Denver'),
+  (851, 134, 884, 'jon@gaard.example', '<mock-000851@gaard.example>', 'thread-000884', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-03-27 13:08:50 America/Denver', false, '2026-03-27 13:08:50 America/Denver'),
+  (852, 134, 884, 'jon@gaard.example', '<mock-000852@gaard.example>', 'thread-000884', 'inbound', 'kai_ruiz@ironcfscenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in May?', '2026-03-28 04:08:50 America/Denver', false, '2026-03-28 04:08:50 America/Denver'),
+  (853, 154, 886, 'jon@gaard.example', '<mock-000853@gaard.example>', 'thread-000886', 'outbound', 'jon@gaard.example', '{"kelly.kim@sanjfsservices.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Kelly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-27 16:07:05 America/Denver', false, '2026-03-27 16:07:05 America/Denver'),
+  (854, 273, 887, 'ryan@gaard.example', '<mock-000854@gaard.example>', 'thread-000887', 'outbound', 'ryan@gaard.example', '{"pmorales@caspermmcenter.example"}', '{}', 'Casper Mountain Mentoring Center''s reserves', 'Hi Paulo,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Casper Mountain Mentoring Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-03-30 10:04:02 America/Denver', false, '2026-03-30 10:04:02 America/Denver'),
+  (855, 139, 888, 'jon@gaard.example', '<mock-000855@gaard.example>', 'thread-000888', 'outbound', 'jon@gaard.example', '{"maria_hayes@veteranssrrock.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Maria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-30 16:24:35 America/Denver', false, '2026-03-30 16:24:35 America/Denver'),
+  (856, 10, 889, 'ryan@gaard.example', '<mock-000856@gaard.example>', 'thread-000889', 'outbound', 'ryan@gaard.example', '{"jsnyder@tetonbconsulting.example"}', '{}', 'Re: Referral partnership with GAARD Capital', 'Hi Judith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-03-31 13:32:17 America/Denver', false, '2026-03-31 13:32:17 America/Denver'),
+  (857, 158, 890, 'jon@gaard.example', '<mock-000857@gaard.example>', 'thread-000890', 'outbound', 'jon@gaard.example', '{"jason.gomez@friendssanpetelibrary.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-03-31 15:01:56 America/Denver', false, '2026-03-31 15:01:56 America/Denver'),
+  (858, 327, 892, 'jon@gaard.example', '<mock-000858@gaard.example>', 'thread-000892', 'outbound', 'jon@gaard.example', '{"tmarshall@adulteahvalley.example"}', '{}', 'Checking back in', 'Hi Tariq,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Adult Education Association of Heber Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-01 10:01:43 America/Denver', false, '2026-04-01 10:01:43 America/Denver'),
+  (859, 327, 892, 'jon@gaard.example', '<mock-000859@gaard.example>', 'thread-000892', 'inbound', 'tmarshall@adulteahvalley.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Not right now, our board meets later in the year. Please reach out again in May.', '2026-04-02 14:01:43 America/Denver', false, '2026-04-02 14:01:43 America/Denver'),
+  (860, 17, 893, 'jon@gaard.example', '<mock-000860@gaard.example>', 'thread-000893', 'outbound', 'jon@gaard.example', '{"logan.knight@seviervpservices.example"}', '{}', 'Checking back in', 'Hi Logan,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-01 11:47:12 America/Denver', false, '2026-04-01 11:47:12 America/Denver'),
+  (861, 17, 893, 'jon@gaard.example', '<mock-000861@gaard.example>', 'thread-000893', 'inbound', 'logan.knight@seviervpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in August?', '2026-04-02 05:47:12 America/Denver', false, '2026-04-02 05:47:12 America/Denver'),
+  (862, 153, 895, 'jon@gaard.example', '<mock-000862@gaard.example>', 'thread-000895', 'outbound', 'jon@gaard.example', '{"stephen@moabdscoalition.example"}', '{}', 'Checking back in', 'Hi Stephen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Moab Disability Services Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-01 14:01:59 America/Denver', false, '2026-04-01 14:01:59 America/Denver'),
+  (863, 292, 896, 'ryan@gaard.example', '<mock-000863@gaard.example>', 'thread-000896', 'outbound', 'ryan@gaard.example', '{"mmadsen@scienceespalouse.example"}', '{}', 'Quick question about Science Education Services of Palouse''s endowment', 'Hi Madison,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Science Education Services of Palouse keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-03 09:32:09 America/Denver', false, '2026-04-03 09:32:09 America/Denver'),
+  (864, 183, 897, 'jon@gaard.example', '<mock-000864@gaard.example>', 'thread-000897', 'outbound', 'jon@gaard.example', '{"keith.tran87@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Keith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-03 13:58:34 America/Denver', false, '2026-04-03 13:58:34 America/Denver'),
+  (865, 143, 898, 'jon@gaard.example', '<mock-000865@gaard.example>', 'thread-000898', 'outbound', 'jon@gaard.example', '{"scott.turner@ironcsspartners.example"}', '{}', 'Re: Great meeting you at Nonprofit Finance Roundtable: Ogden', 'Hi Scott,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-03 14:45:52 America/Denver', false, '2026-04-03 14:45:52 America/Denver'),
+  (866, 315, 899, 'jon@gaard.example', '<mock-000866@gaard.example>', 'thread-000899', 'outbound', 'jon@gaard.example', '{"charlottep@deltaartsendowment.example"}', '{}', 'Investment management for Delta Arts Endowment', 'Hi Charlotte,
+
+We provide OCIO-style investment management for foundations and institutions like Delta Arts Endowment.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-06 09:40:06 America/Denver', false, '2026-04-06 09:40:06 America/Denver'),
+  (867, 166, 900, 'ryan@gaard.example', '<mock-000867@gaard.example>', 'thread-000900', 'outbound', 'ryan@gaard.example', '{"benjamin.lawrence@palmervfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Benjamin,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-06 10:38:09 America/Denver', false, '2026-04-06 10:38:09 America/Denver'),
+  (868, 321, 902, 'jon@gaard.example', '<mock-000868@gaard.example>', 'thread-000902', 'outbound', 'jon@gaard.example', '{"chawkins@uintawildlifecenter.example"}', '{}', 'Quarterly check-in', 'Hi Cheryl,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-04-06 11:34:58 America/Denver', false, '2026-04-06 11:34:58 America/Denver'),
+  (869, 321, 902, 'jon@gaard.example', '<mock-000869@gaard.example>', 'thread-000902', 'inbound', 'chawkins@uintawildlifecenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-04-07 10:34:58 America/Denver', false, '2026-04-07 10:34:58 America/Denver'),
+  (870, 257, 903, 'jon@gaard.example', '<mock-000870@gaard.example>', 'thread-000903', 'outbound', 'jon@gaard.example', '{"ngozi.burns@oquirrhcleanairnetwork.example"}', '{}', 'Re: Quick question about Oquirrh Clean Air Network''s endowment', 'Hi Ngozi,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-06 11:50:21 America/Denver', false, '2026-04-06 11:50:21 America/Denver'),
+  (871, 461, 904, 'ryan@gaard.example', '<mock-000871@gaard.example>', 'thread-000904', 'outbound', 'ryan@gaard.example', '{"anya.romero@portneufheatingair.example"}', '{}', 'Portneuf Heating & Air 401(k) question', 'Hi Anya,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-06 13:29:40 America/Denver', false, '2026-04-06 13:29:40 America/Denver'),
+  (872, 205, 907, 'jon@gaard.example', '<mock-000872@gaard.example>', 'thread-000907', 'outbound', 'jon@gaard.example', '{"shirley.sharma85@inbox.example"}', '{}', 'Introduction via Keith', 'Hi Shirley,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-07 08:35:35 America/Denver', false, '2026-04-07 08:35:35 America/Denver'),
+  (873, 205, 907, 'jon@gaard.example', '<mock-000873@gaard.example>', 'thread-000907', 'inbound', 'shirley.sharma85@inbox.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Keith', 'Good timing question, but we are traveling. Circle back in August and we can talk.', '2026-04-07 16:35:35 America/Denver', false, '2026-04-07 16:35:35 America/Denver'),
+  (874, 308, 908, 'jon@gaard.example', '<mock-000874@gaard.example>', 'thread-000908', 'outbound', 'jon@gaard.example', '{"sean.russell@easternshsociety.example"}', '{}', 'Investment management for Eastern Sierra Heritage Society', 'Hi Sean,
+
+We provide OCIO-style investment management for foundations and institutions like Eastern Sierra Heritage Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-07 11:13:59 America/Denver', false, '2026-04-07 11:13:59 America/Denver'),
+  (875, 308, 908, 'jon@gaard.example', '<mock-000875@gaard.example>', 'thread-000908', 'inbound', 'mailer-daemon@mail.example', '{"jon@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to sean.russell@easternshsociety.example because the address couldn''t be found or is unable to receive mail.', '2026-04-07 11:14:59 America/Denver', true, '2026-04-07 11:14:59 America/Denver'),
+  (876, 533, 909, 'ryan@gaard.example', '<mock-000876@gaard.example>', 'thread-000909', 'outbound', 'ryan@gaard.example', '{"dylan.robinson@friendsbighornlibrary.example"}', '{}', 'Re: Introduction via Jesse', 'Hi Dylan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-07 13:21:57 America/Denver', false, '2026-04-07 13:21:57 America/Denver'),
+  (877, 152, 910, 'jon@gaard.example', '<mock-000877@gaard.example>', 'thread-000910', 'outbound', 'jon@gaard.example', '{"jdixon@seviervmcollective.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Jean,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-08 09:59:54 America/Denver', false, '2026-04-08 09:59:54 America/Denver'),
+  (878, 532, 911, 'jon@gaard.example', '<mock-000878@gaard.example>', 'thread-000911', 'outbound', 'jon@gaard.example', '{"jacqueline.yazzie@bonnevilleypartners.example"}', '{}', 'Introduction via Rachel', 'Hi Jacqueline,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Bonneville Youth Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-08 11:48:48 America/Denver', false, '2026-04-08 11:48:48 America/Denver'),
+  (879, 532, 911, 'jon@gaard.example', '<mock-000879@gaard.example>', 'thread-000911', 'inbound', 'jacqueline.yazzie@bonnevilleypartners.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Rachel', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 20?', '2026-04-10 01:48:48 America/Denver', false, '2026-04-10 01:48:48 America/Denver'),
+  (880, 186, 912, 'jon@gaard.example', '<mock-000880@gaard.example>', 'thread-000912', 'outbound', 'jon@gaard.example', '{"helen.medina@summitridge.edu.example"}', '{}', 'Re: Introduction, Helen', 'Hi Helen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-08 11:55:16 America/Denver', false, '2026-04-08 11:55:16 America/Denver'),
+  (881, 186, 912, 'jon@gaard.example', '<mock-000881@gaard.example>', 'thread-000912', 'inbound', 'helen.medina@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Introduction, Helen', 'Not right now, we are traveling. Please reach out again in July.', '2026-04-09 00:55:16 America/Denver', false, '2026-04-09 00:55:16 America/Denver'),
+  (882, 258, 913, 'jon@gaard.example', '<mock-000882@gaard.example>', 'thread-000913', 'outbound', 'jon@gaard.example', '{"hjenkins@cachevyinitiative.example"}', '{}', 'Re: Investment support for Cache Valley Youth Initiative', 'Hi Hailey,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-08 15:04:50 America/Denver', false, '2026-04-08 15:04:50 America/Denver'),
+  (883, 105, 914, 'jon@gaard.example', '<mock-000883@gaard.example>', 'thread-000914', 'outbound', 'jon@gaard.example', '{"elizabeth.castro@escalantehfoundation.example"}', '{}', 'Re: OCIO support for Escalante Health Foundation', 'Hi Elizabeth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-09 15:48:57 America/Denver', false, '2026-04-09 15:48:57 America/Denver'),
+  (884, 114, 915, 'jon@gaard.example', '<mock-000884@gaard.example>', 'thread-000915', 'outbound', 'jon@gaard.example', '{"brittany@wasatchmedicalsociety.example"}', '{}', 'Re: OCIO support for Wasatch Medical Society', 'Hi Brittany,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-10 09:11:54 America/Denver', false, '2026-04-10 09:11:54 America/Denver'),
+  (885, 191, 918, 'jon@gaard.example', '<mock-000885@gaard.example>', 'thread-000918', 'outbound', 'jon@gaard.example', '{"carmen.olson57@mail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Carmen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-10 11:12:06 America/Denver', false, '2026-04-10 11:12:06 America/Denver'),
+  (886, 196, 921, 'ryan@gaard.example', '<mock-000886@gaard.example>', 'thread-000921', 'outbound', 'ryan@gaard.example', '{"christina.begay@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Christina,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-13 09:42:36 America/Denver', false, '2026-04-13 09:42:36 America/Denver'),
+  (887, 443, 922, 'ryan@gaard.example', '<mock-000887@gaard.example>', 'thread-000922', 'outbound', 'ryan@gaard.example', '{"donald.jensen@ricemarketing.example"}', '{}', 'Rice Marketing LLC 401(k) question', 'Hi Donald,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-13 09:49:51 America/Denver', false, '2026-04-13 09:49:51 America/Denver'),
+  (888, 541, 923, 'jon@gaard.example', '<mock-000888@gaard.example>', 'thread-000923', 'outbound', 'jon@gaard.example', '{"rosa.nielsen@escalantegassociation.example"}', '{}', 'Re: Introduction via Judith', 'Hi Rosa,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-13 10:52:30 America/Denver', false, '2026-04-13 10:52:30 America/Denver'),
+  (889, 169, 924, 'ryan@gaard.example', '<mock-000889@gaard.example>', 'thread-000924', 'outbound', 'ryan@gaard.example', '{"jack.vargas@summitridge.edu.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Jack,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-13 10:54:20 America/Denver', false, '2026-04-13 10:54:20 America/Denver'),
+  (890, 165, 926, 'jon@gaard.example', '<mock-000890@gaard.example>', 'thread-000926', 'outbound', 'jon@gaard.example', '{"jperry@myerskimfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-13 11:16:27 America/Denver', false, '2026-04-13 11:16:27 America/Denver'),
+  (891, 300, 927, 'ryan@gaard.example', '<mock-000891@gaard.example>', 'thread-000927', 'outbound', 'ryan@gaard.example', '{"khoward@sawtoothseleague.example"}', '{}', 'Sawtooth Science Education League''s reserves', 'Hi Kwame,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sawtooth Science Education League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-13 13:13:14 America/Denver', false, '2026-04-13 13:13:14 America/Denver'),
+  (892, 300, 927, 'ryan@gaard.example', '<mock-000892@gaard.example>', 'thread-000927', 'inbound', 'mailer-daemon@mail.example', '{"ryan@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to khoward@sawtoothseleague.example because the address couldn''t be found or is unable to receive mail.', '2026-04-13 13:14:14 America/Denver', true, '2026-04-13 13:14:14 America/Denver'),
+  (893, 303, 928, 'ryan@gaard.example', '<mock-000893@gaard.example>', 'thread-000928', 'outbound', 'ryan@gaard.example', '{"mjenkins@friendspayettemuseum.example"}', '{}', 'Friends of Payette Museum''s reserves', 'Hi Marie,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Payette Museum keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-13 13:31:40 America/Denver', false, '2026-04-13 13:31:40 America/Denver'),
+  (894, 303, 928, 'ryan@gaard.example', '<mock-000894@gaard.example>', 'thread-000928', 'inbound', 'mjenkins@friendspayettemuseum.example', '{"ryan@gaard.example"}', '{}', 'Automatic reply: Friends of Payette Museum''s reserves', 'I am out of the office until Monday, April 27 with limited access to email. For anything urgent please call our main office.', '2026-04-13 13:33:40 America/Denver', true, '2026-04-13 13:33:40 America/Denver'),
+  (895, 526, 929, 'ryan@gaard.example', '<mock-000895@gaard.example>', 'thread-000929', 'outbound', 'ryan@gaard.example', '{"hannah.green@palousewservices.example"}', '{}', 'Introduction via Judith', 'Hi Hannah,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Palouse Watershed Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-13 14:23:45 America/Denver', false, '2026-04-13 14:23:45 America/Denver'),
+  (896, 526, 929, 'ryan@gaard.example', '<mock-000896@gaard.example>', 'thread-000929', 'inbound', 'hannah.green@palousewservices.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Judith', 'Good timing question, but our board meets later in the year. Circle back in June and we can talk.', '2026-04-14 16:23:45 America/Denver', false, '2026-04-14 16:23:45 America/Denver'),
+  (897, 11, 930, 'jon@gaard.example', '<mock-000897@gaard.example>', 'thread-000930', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-04-13 16:40:38 America/Denver', false, '2026-04-13 16:40:38 America/Denver'),
+  (898, 164, 931, 'ryan@gaard.example', '<mock-000898@gaard.example>', 'thread-000931', 'outbound', 'ryan@gaard.example', '{"anna_hicks@portneufcfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Anna,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-14 09:44:49 America/Denver', false, '2026-04-14 09:44:49 America/Denver'),
+  (899, 164, 931, 'ryan@gaard.example', '<mock-000899@gaard.example>', 'thread-000931', 'inbound', 'anna_hicks@portneufcfoundation.example', '{"ryan@gaard.example"}', '{}', 'Re: Re: Great meeting you at Boise Philanthropy Forum 2025', 'Yes, I''d like to learn more. I''m free Thursday afternoon.', '2026-04-17 03:44:49 America/Denver', false, '2026-04-17 03:44:49 America/Denver'),
+  (900, 470, 932, 'ryan@gaard.example', '<mock-000900@gaard.example>', 'thread-000932', 'outbound', 'ryan@gaard.example', '{"luis.sandoval@moabchiropractic.example"}', '{}', '401(k) options for Moab Chiropractic', 'Hi Luis,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-14 11:01:53 America/Denver', false, '2026-04-14 11:01:53 America/Denver'),
+  (901, 470, 932, 'ryan@gaard.example', '<mock-000901@gaard.example>', 'thread-000932', 'inbound', 'luis.sandoval@moabchiropractic.example', '{"ryan@gaard.example"}', '{}', 'Re: 401(k) options for Moab Chiropractic', 'Not something we are looking at. Thank you.', '2026-04-16 20:01:53 America/Denver', false, '2026-04-16 20:01:53 America/Denver'),
+  (902, 188, 933, 'ryan@gaard.example', '<mock-000902@gaard.example>', 'thread-000933', 'outbound', 'ryan@gaard.example', '{"joshua.hughes89@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Joshua,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-14 15:16:43 America/Denver', false, '2026-04-14 15:16:43 America/Denver'),
+  (903, 308, 934, 'jon@gaard.example', '<mock-000903@gaard.example>', 'thread-000934', 'outbound', 'jon@gaard.example', '{"srussell@easternshsociety.example"}', '{}', 'Investment management for Eastern Sierra Heritage Society', 'Hi Sean,
+
+We provide OCIO-style investment management for foundations and institutions like Eastern Sierra Heritage Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-15 10:21:53 America/Denver', false, '2026-04-15 10:21:53 America/Denver'),
+  (904, 308, 934, 'jon@gaard.example', '<mock-000904@gaard.example>', 'thread-000934', 'inbound', 'srussell@easternshsociety.example', '{"jon@gaard.example"}', '{}', 'Re: Investment management for Eastern Sierra Heritage Society', 'Thanks Jon. We already work with a local firm and aren''t looking at alternatives right now.', '2026-04-17 02:21:53 America/Denver', false, '2026-04-17 02:21:53 America/Denver'),
+  (905, 440, 935, 'ryan@gaard.example', '<mock-000905@gaard.example>', 'thread-000935', 'outbound', 'ryan@gaard.example', '{"amoreno@canyonlandsbakery.example"}', '{}', 'A retirement plan for your team', 'Hi Aaron,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-15 13:34:21 America/Denver', false, '2026-04-15 13:34:21 America/Denver'),
+  (906, 162, 961, 'ryan@gaard.example', '<mock-000906@gaard.example>', 'thread-000961', 'outbound', 'ryan@gaard.example', '{"cbrown@tetonbtassociation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Christine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-17 08:05:35 America/Denver', false, '2026-04-17 08:05:35 America/Denver'),
+  (907, 302, 962, 'ryan@gaard.example', '<mock-000907@gaard.example>', 'thread-000962', 'outbound', 'ryan@gaard.example', '{"rebecca.patel@caspermmpartners.example"}', '{}', 'Quick question about Casper Mountain Mentoring Partners''s endowment', 'Hi Rebecca,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Casper Mountain Mentoring Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-17 10:42:28 America/Denver', false, '2026-04-17 10:42:28 America/Denver'),
+  (908, 318, 963, 'jon@gaard.example', '<mock-000908@gaard.example>', 'thread-000963', 'outbound', 'jon@gaard.example', '{"martha@utahvfsproject.example"}', '{}', 'Quarterly check-in', 'Hi Martha,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 08:12:39 America/Denver', false, '2026-04-20 08:12:39 America/Denver'),
+  (909, 318, 963, 'jon@gaard.example', '<mock-000909@gaard.example>', 'thread-000963', 'inbound', 'martha@utahvfsproject.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-04-20 16:12:39 America/Denver', false, '2026-04-20 16:12:39 America/Denver'),
+  (910, 336, 964, 'jon@gaard.example', '<mock-000910@gaard.example>', 'thread-000964', 'outbound', 'jon@gaard.example', '{"bolsen@jordanrdproject.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Barbara,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Jordan River Dance Project keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 08:24:59 America/Denver', false, '2026-04-20 08:24:59 America/Denver'),
+  (911, 336, 964, 'jon@gaard.example', '<mock-000911@gaard.example>', 'thread-000964', 'inbound', 'bolsen@jordanrdproject.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 27?', '2026-04-20 19:24:59 America/Denver', false, '2026-04-20 19:24:59 America/Denver'),
+  (912, 163, 965, 'ryan@gaard.example', '<mock-000912@gaard.example>', 'thread-000965', 'outbound', 'ryan@gaard.example', '{"smarshall@selkirkcfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Sandra,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-20 08:49:59 America/Denver', false, '2026-04-20 08:49:59 America/Denver'),
+  (913, 345, 966, 'jon@gaard.example', '<mock-000913@gaard.example>', 'thread-000966', 'outbound', 'jon@gaard.example', '{"fcoleman@trailsservicesuinta.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Frank,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Trails Services of Uinta keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 09:02:38 America/Denver', false, '2026-04-20 09:02:38 America/Denver'),
+  (914, 346, 967, 'jon@gaard.example', '<mock-000914@gaard.example>', 'thread-000967', 'outbound', 'jon@gaard.example', '{"sean.hunt@disabilitysptvalley.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Sean,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Disability Services Project of Tooele Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 09:06:16 America/Denver', false, '2026-04-20 09:06:16 America/Denver'),
+  (915, 342, 968, 'jon@gaard.example', '<mock-000915@gaard.example>', 'thread-000968', 'outbound', 'jon@gaard.example', '{"diana.edwards@wasatchrpartners.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Diana,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Recovery Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 09:10:11 America/Denver', false, '2026-04-20 09:10:11 America/Denver'),
+  (916, 263, 969, 'jon@gaard.example', '<mock-000916@gaard.example>', 'thread-000969', 'outbound', 'jon@gaard.example', '{"kenneth.ford@beehivecmservices.example"}', '{}', 'Re: Investment support for Beehive Chamber Music Services', 'Hi Kenneth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-20 09:20:28 America/Denver', false, '2026-04-20 09:20:28 America/Denver'),
+  (917, 270, 970, 'ryan@gaard.example', '<mock-000917@gaard.example>', 'thread-000970', 'outbound', 'ryan@gaard.example', '{"ethanb@owyheefssociety.example"}', '{}', 'Investment support for Owyhee Food Security Society', 'Hi Ethan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Owyhee Food Security Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-20 09:21:45 America/Denver', false, '2026-04-20 09:21:45 America/Denver'),
+  (918, 350, 971, 'jon@gaard.example', '<mock-000918@gaard.example>', 'thread-000971', 'outbound', 'jon@gaard.example', '{"sporter@watershediwasatch.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Scott,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Watershed Initiative of Wasatch keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 09:54:04 America/Denver', false, '2026-04-20 09:54:04 America/Denver'),
+  (919, 347, 972, 'jon@gaard.example', '<mock-000919@gaard.example>', 'thread-000972', 'outbound', 'jon@gaard.example', '{"blarsen@sugarhrnetwork.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Bruce,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Recovery Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 09:59:42 America/Denver', false, '2026-04-20 09:59:42 America/Denver'),
+  (920, 184, 973, 'jon@gaard.example', '<mock-000920@gaard.example>', 'thread-000973', 'outbound', 'jon@gaard.example', '{"mei.mahe95@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Mei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-20 10:10:44 America/Denver', false, '2026-04-20 10:10:44 America/Denver'),
+  (921, 340, 974, 'jon@gaard.example', '<mock-000921@gaard.example>', 'thread-000974', 'outbound', 'jon@gaard.example', '{"wayne.gomez@sugarhmcollective.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Wayne,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Mentoring Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 10:12:12 America/Denver', false, '2026-04-20 10:12:12 America/Denver'),
+  (922, 340, 974, 'jon@gaard.example', '<mock-000922@gaard.example>', 'thread-000974', 'inbound', 'wayne.gomez@sugarhmcollective.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in July?', '2026-04-23 08:12:12 America/Denver', false, '2026-04-23 08:12:12 America/Denver'),
+  (923, 469, 975, 'ryan@gaard.example', '<mock-000923@gaard.example>', 'thread-000975', 'outbound', 'ryan@gaard.example', '{"carolyn.richardson@sawtoothoptometry.example"}', '{}', '401(k) options for Sawtooth Optometry', 'Hi Carolyn,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-20 10:18:53 America/Denver', false, '2026-04-20 10:18:53 America/Denver'),
+  (924, 357, 976, 'jon@gaard.example', '<mock-000924@gaard.example>', 'thread-000976', 'outbound', 'jon@gaard.example', '{"jlarsen@beehiveaenetwork.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Janet,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Beehive Arts Education Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 10:28:05 America/Denver', false, '2026-04-20 10:28:05 America/Denver'),
+  (925, 357, 976, 'jon@gaard.example', '<mock-000925@gaard.example>', 'thread-000976', 'inbound', 'jlarsen@beehiveaenetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Thanks Jon, the timing is actually good. Could we set up a call Thursday the 23?', '2026-04-20 20:28:05 America/Denver', false, '2026-04-20 20:28:05 America/Denver'),
+  (926, 5, 977, 'jon@gaard.example', '<mock-000926@gaard.example>', 'thread-000977', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 10:40:26 America/Denver', false, '2026-04-20 10:40:26 America/Denver'),
+  (927, 5, 977, 'jon@gaard.example', '<mock-000927@gaard.example>', 'thread-000977', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, this quarter is busy for us. Please reach out again in June.', '2026-04-21 12:40:26 America/Denver', false, '2026-04-21 12:40:26 America/Denver'),
+  (928, 324, 978, 'jon@gaard.example', '<mock-000928@gaard.example>', 'thread-000978', 'outbound', 'jon@gaard.example', '{"timothy.sanders@ironcountydanceproject.example"}', '{}', 'Quarterly check-in', 'Hi Timothy,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 11:18:04 America/Denver', false, '2026-04-20 11:18:04 America/Denver'),
+  (929, 324, 978, 'jon@gaard.example', '<mock-000929@gaard.example>', 'thread-000978', 'inbound', 'timothy.sanders@ironcountydanceproject.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in June?', '2026-04-21 15:18:04 America/Denver', false, '2026-04-21 15:18:04 America/Denver'),
+  (930, 294, 980, 'ryan@gaard.example', '<mock-000930@gaard.example>', 'thread-000980', 'outbound', 'ryan@gaard.example', '{"susan.fonua@plattevarproject.example"}', '{}', 'Investment support for Platte Valley Animal Rescue Project', 'Hi Susan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Platte Valley Animal Rescue Project keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-20 11:34:59 America/Denver', false, '2026-04-20 11:34:59 America/Denver'),
+  (931, 294, 980, 'ryan@gaard.example', '<mock-000931@gaard.example>', 'thread-000980', 'inbound', 'susan.fonua@plattevarproject.example', '{"ryan@gaard.example"}', '{}', 'Re: Investment support for Platte Valley Animal Rescue Project', 'I retired from Platte Valley Animal Rescue Project this spring. Our finance director would be the right person now.', '2026-04-21 10:34:59 America/Denver', false, '2026-04-21 10:34:59 America/Denver'),
+  (932, 245, 981, 'jon@gaard.example', '<mock-000932@gaard.example>', 'thread-000981', 'outbound', 'jon@gaard.example', '{"nmarshall@seviervmcollective.example"}', '{}', 'Quarterly check-in', 'Hi Natalie,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 11:37:40 America/Denver', false, '2026-04-20 11:37:40 America/Denver'),
+  (933, 245, 981, 'jon@gaard.example', '<mock-000933@gaard.example>', 'thread-000981', 'inbound', 'nmarshall@seviervmcollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in July?', '2026-04-22 06:37:40 America/Denver', false, '2026-04-22 06:37:40 America/Denver'),
+  (934, 349, 982, 'jon@gaard.example', '<mock-000934@gaard.example>', 'thread-000982', 'outbound', 'jon@gaard.example', '{"alice.garza@escalantetinitiative.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Alice,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Escalante Trails Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 13:30:29 America/Denver', false, '2026-04-20 13:30:29 America/Denver'),
+  (935, 349, 982, 'jon@gaard.example', '<mock-000935@gaard.example>', 'thread-000982', 'inbound', 'alice.garza@escalantetinitiative.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Thanks Jon, the timing is actually good. Could we set up a call Monday the 27?', '2026-04-21 00:30:29 America/Denver', false, '2026-04-21 00:30:29 America/Denver'),
+  (936, 343, 983, 'jon@gaard.example', '<mock-000936@gaard.example>', 'thread-000983', 'outbound', 'jon@gaard.example', '{"lperkins@summitcrcoalition.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Luis,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Summit County Recovery Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 14:05:16 America/Denver', false, '2026-04-20 14:05:16 America/Denver'),
+  (937, 351, 984, 'jon@gaard.example', '<mock-000937@gaard.example>', 'thread-000984', 'outbound', 'jon@gaard.example', '{"timothy.wallace@moabtrailscollective.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Timothy,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Moab Trails Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 14:10:07 America/Denver', false, '2026-04-20 14:10:07 America/Denver'),
+  (938, 351, 984, 'jon@gaard.example', '<mock-000938@gaard.example>', 'thread-000984', 'inbound', 'timothy.wallace@moabtrailscollective.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'This has been on my list. Happy to talk, does Apr 27 work?', '2026-04-23 05:10:07 America/Denver', false, '2026-04-23 05:10:07 America/Denver'),
+  (939, 256, 985, 'jon@gaard.example', '<mock-000939@gaard.example>', 'thread-000985', 'outbound', 'jon@gaard.example', '{"sharon_hughes@ogdenvoeleague.example"}', '{}', 'Re: Ogden Valley Outdoor Education League''s reserves', 'Hi Sharon,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-20 14:27:39 America/Denver', false, '2026-04-20 14:27:39 America/Denver'),
+  (940, 356, 987, 'jon@gaard.example', '<mock-000940@gaard.example>', 'thread-000987', 'outbound', 'jon@gaard.example', '{"gwood@cachevyinitiative.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Gary,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cache Valley Youth Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 14:46:24 America/Denver', false, '2026-04-20 14:46:24 America/Denver'),
+  (941, 352, 989, 'jon@gaard.example', '<mock-000941@gaard.example>', 'thread-000989', 'outbound', 'jon@gaard.example', '{"bryan@moabdscoalition.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Bryan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Moab Disability Services Coalition keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 15:09:48 America/Denver', false, '2026-04-20 15:09:48 America/Denver'),
+  (942, 352, 989, 'jon@gaard.example', '<mock-000942@gaard.example>', 'thread-000989', 'inbound', 'bryan@moabdscoalition.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'This has been on my list. Happy to talk, does Apr 27 work?', '2026-04-23 13:09:48 America/Denver', false, '2026-04-23 13:09:48 America/Denver'),
+  (943, 341, 990, 'jon@gaard.example', '<mock-000943@gaard.example>', 'thread-000990', 'outbound', 'jon@gaard.example', '{"jasonr@weberrasalliance.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Jason,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Weber River After School Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 15:28:03 America/Denver', false, '2026-04-20 15:28:03 America/Denver'),
+  (944, 341, 990, 'jon@gaard.example', '<mock-000944@gaard.example>', 'thread-000990', 'inbound', 'jasonr@weberrasalliance.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Yes, I''d like to learn more. I''m free Wednesday afternoon.', '2026-04-21 17:28:03 America/Denver', false, '2026-04-21 17:28:03 America/Denver'),
+  (945, 337, 991, 'jon@gaard.example', '<mock-000945@gaard.example>', 'thread-000991', 'outbound', 'jon@gaard.example', '{"walters@wasatchccouncil.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Walter,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Conservation Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 15:45:57 America/Denver', false, '2026-04-20 15:45:57 America/Denver'),
+  (946, 339, 992, 'jon@gaard.example', '<mock-000946@gaard.example>', 'thread-000992', 'outbound', 'jon@gaard.example', '{"julie.mahe@canyonlandsaenetwork.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Julie,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Canyonlands Adult Education Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 15:46:14 America/Denver', false, '2026-04-20 15:46:14 America/Denver'),
+  (947, 339, 992, 'jon@gaard.example', '<mock-000947@gaard.example>', 'thread-000992', 'inbound', 'julie.mahe@canyonlandsaenetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Not something we are looking at. Thank you.', '2026-04-21 13:46:14 America/Denver', false, '2026-04-21 13:46:14 America/Denver'),
+  (948, 358, 993, 'jon@gaard.example', '<mock-000948@gaard.example>', 'thread-000993', 'outbound', 'jon@gaard.example', '{"lisa.anderson@friendsbrsymphony.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Lisa,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Bear River Symphony keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 15:56:24 America/Denver', false, '2026-04-20 15:56:24 America/Denver'),
+  (949, 358, 993, 'jon@gaard.example', '<mock-000949@gaard.example>', 'thread-000993', 'inbound', 'lisa.anderson@friendsbrsymphony.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'This has been on my list. Happy to talk, does Apr 27 work?', '2026-04-21 09:56:24 America/Denver', false, '2026-04-21 09:56:24 America/Denver'),
+  (950, 348, 994, 'jon@gaard.example', '<mock-000950@gaard.example>', 'thread-000994', 'outbound', 'jon@gaard.example', '{"christinet@wasatchyouthalliance.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Christine,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Youth Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-20 16:39:29 America/Denver', false, '2026-04-20 16:39:29 America/Denver'),
+  (951, 348, 994, 'jon@gaard.example', '<mock-000951@gaard.example>', 'thread-000994', 'inbound', 'christinet@wasatchyouthalliance.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Jon, thanks for reaching out. We already work with an advisor and are happy with the relationship, so we''ll pass for now.', '2026-04-21 11:39:29 America/Denver', false, '2026-04-21 11:39:29 America/Denver'),
+  (952, 254, 995, 'jon@gaard.example', '<mock-000952@gaard.example>', 'thread-000995', 'outbound', 'jon@gaard.example', '{"steven.hernandez@tooelevwcouncil.example"}', '{}', 'Re: Quick question about Tooele Valley Watershed Council''s endowment', 'Hi Steven,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-21 09:12:32 America/Denver', false, '2026-04-21 09:12:32 America/Denver'),
+  (953, 338, 996, 'jon@gaard.example', '<mock-000953@gaard.example>', 'thread-000996', 'outbound', 'jon@gaard.example', '{"javier.cruz@cottonwoodmalliance.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Javier,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Cottonwood Music Alliance keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-21 09:45:00 America/Denver', false, '2026-04-21 09:45:00 America/Denver'),
+  (954, 338, 996, 'jon@gaard.example', '<mock-000954@gaard.example>', 'thread-000996', 'inbound', 'javier.cruz@cottonwoodmalliance.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Jon, thanks for reaching out. We already work with an advisor and are happy with the relationship, so we''ll pass for now.', '2026-04-23 08:45:00 America/Denver', false, '2026-04-23 08:45:00 America/Denver'),
+  (955, 354, 997, 'jon@gaard.example', '<mock-000955@gaard.example>', 'thread-000997', 'outbound', 'jon@gaard.example', '{"ethan.olson@wasatchhcollective.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Ethan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Housing Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-21 10:05:43 America/Denver', false, '2026-04-21 10:05:43 America/Denver'),
+  (956, 354, 997, 'jon@gaard.example', '<mock-000956@gaard.example>', 'thread-000997', 'inbound', 'ethan.olson@wasatchhcollective.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Not right now, this quarter is busy for us. Please reach out again in July.', '2026-04-21 16:05:43 America/Denver', false, '2026-04-21 16:05:43 America/Denver'),
+  (957, 353, 998, 'jon@gaard.example', '<mock-000957@gaard.example>', 'thread-000998', 'outbound', 'jon@gaard.example', '{"julieb@hebervcaservices.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Julie,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Heber Valley Clean Air Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-21 10:35:32 America/Denver', false, '2026-04-21 10:35:32 America/Denver'),
+  (958, 355, 999, 'jon@gaard.example', '<mock-000958@gaard.example>', 'thread-000999', 'outbound', 'jon@gaard.example', '{"scott.ramos@veteransascounty.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Scott,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Veterans Alliance of Summit County keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-21 11:09:39 America/Denver', false, '2026-04-21 11:09:39 America/Denver'),
+  (959, 355, 999, 'jon@gaard.example', '<mock-000959@gaard.example>', 'thread-000999', 'inbound', 'scott.ramos@veteransascounty.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'This has been on my list. Happy to talk, does Apr 29 work?', '2026-04-22 07:09:39 America/Denver', false, '2026-04-22 07:09:39 America/Denver'),
+  (960, 190, 1001, 'jon@gaard.example', '<mock-000960@gaard.example>', 'thread-001001', 'outbound', 'jon@gaard.example', '{"peter.wells@summitridge.edu.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Peter,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-21 13:10:11 America/Denver', false, '2026-04-21 13:10:11 America/Denver'),
+  (961, 344, 1002, 'jon@gaard.example', '<mock-000961@gaard.example>', 'thread-001002', 'outbound', 'jon@gaard.example', '{"kristen_mendoza@weberrcaassociation.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Kristen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Weber River Clean Air Association keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-21 15:28:28 America/Denver', false, '2026-04-21 15:28:28 America/Denver'),
+  (962, 359, 1003, 'jon@gaard.example', '<mock-000962@gaard.example>', 'thread-001003', 'outbound', 'jon@gaard.example', '{"nia.warren@friendsshtrails.example"}', '{}', 'Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Nia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Sugar House Trails keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-04-21 15:42:25 America/Denver', false, '2026-04-21 15:42:25 America/Denver'),
+  (963, 194, 1004, 'jon@gaard.example', '<mock-000963@gaard.example>', 'thread-001004', 'outbound', 'jon@gaard.example', '{"logan.fonua@summitridge.edu.example"}', '{}', 'Re: Introduction, Logan', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-22 09:39:17 America/Denver', false, '2026-04-22 09:39:17 America/Denver'),
+  (964, 34, 1005, 'jon@gaard.example', '<mock-000964@gaard.example>', 'thread-001005', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Quarterly check-in', 'Hi Kimberly,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-04-22 15:50:59 America/Denver', false, '2026-04-22 15:50:59 America/Denver'),
+  (965, 34, 1005, 'jon@gaard.example', '<mock-000965@gaard.example>', 'thread-001005', 'inbound', 'kimberly.zhang@boxecacollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-04-23 04:50:59 America/Denver', false, '2026-04-23 04:50:59 America/Denver'),
+  (966, 298, 1006, 'ryan@gaard.example', '<mock-000966@gaard.example>', 'thread-001006', 'outbound', 'ryan@gaard.example', '{"sarahs@dancespvalley.example"}', '{}', 'Dance Society of Platte Valley''s reserves', 'Hi Sarah,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Dance Society of Platte Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-23 08:52:56 America/Denver', false, '2026-04-23 08:52:56 America/Denver'),
+  (967, 235, 1008, 'jon@gaard.example', '<mock-000967@gaard.example>', 'thread-001008', 'outbound', 'jon@gaard.example', '{"bradley@danceleaguegreatbasin.example"}', '{}', 'Re: Investment support for Dance League of Great Basin', 'Hi Bradley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-23 11:35:40 America/Denver', false, '2026-04-23 11:35:40 America/Denver'),
+  (968, 177, 1009, 'ryan@gaard.example', '<mock-000968@gaard.example>', 'thread-001009', 'outbound', 'ryan@gaard.example', '{"roy.schmidt@oquirrhvclinic.example"}', '{}', 'Quarterly check-in', 'Hi Roy,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-04-23 11:48:11 America/Denver', false, '2026-04-23 11:48:11 America/Denver'),
+  (969, 177, 1009, 'ryan@gaard.example', '<mock-000969@gaard.example>', 'thread-001009', 'inbound', 'roy.schmidt@oquirrhvclinic.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, our board meets later in the year. Please reach out again in June.', '2026-04-24 19:48:11 America/Denver', false, '2026-04-24 19:48:11 America/Denver'),
+  (970, 283, 1012, 'ryan@gaard.example', '<mock-000970@gaard.example>', 'thread-001012', 'outbound', 'ryan@gaard.example', '{"brianp@owyheeascouncil.example"}', '{}', 'Quick question about Owyhee After School Council''s endowment', 'Hi Brian,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Owyhee After School Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-24 11:21:28 America/Denver', false, '2026-04-24 11:21:28 America/Denver'),
+  (971, 200, 1013, 'jon@gaard.example', '<mock-000971@gaard.example>', 'thread-001013', 'outbound', 'jon@gaard.example', '{"shirley.phillips9@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Shirley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-27 08:42:45 America/Denver', false, '2026-04-27 08:42:45 America/Denver'),
+  (972, 464, 1015, 'ryan@gaard.example', '<mock-000972@gaard.example>', 'thread-001015', 'outbound', 'ryan@gaard.example', '{"natalie.castillo@absarokapediatrics.example"}', '{}', '401(k) options for Absaroka Pediatrics', 'Hi Natalie,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-27 08:56:47 America/Denver', false, '2026-04-27 08:56:47 America/Denver'),
+  (973, 280, 1021, 'ryan@gaard.example', '<mock-000973@gaard.example>', 'thread-001021', 'outbound', 'ryan@gaard.example', '{"thomas@friendssrparks.example"}', '{}', 'Investment support for Friends of Salmon River Parks', 'Hi Thomas,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Salmon River Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-04-28 08:09:28 America/Denver', false, '2026-04-28 08:09:28 America/Denver'),
+  (974, 303, 1022, 'ryan@gaard.example', '<mock-000974@gaard.example>', 'thread-001022', 'outbound', 'ryan@gaard.example', '{"mjenkins@friendspayettemuseum.example"}', '{}', 'Re: Friends of Payette Museum''s reserves', 'Hi Marie,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-28 08:33:49 America/Denver', false, '2026-04-28 08:33:49 America/Denver'),
+  (975, 265, 1023, 'jon@gaard.example', '<mock-000975@gaard.example>', 'thread-001023', 'outbound', 'jon@gaard.example', '{"jae.sato@seviervoecenter.example"}', '{}', 'Re: Quick question about Sevier Valley Outdoor Education Center''s endowment', 'Hi Jae,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-29 09:23:40 America/Denver', false, '2026-04-29 09:23:40 America/Denver'),
+  (976, 170, 1024, 'ryan@gaard.example', '<mock-000976@gaard.example>', 'thread-001024', 'outbound', 'ryan@gaard.example', '{"gabriel.nelson93@mail.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Gabriel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-29 09:30:48 America/Denver', false, '2026-04-29 09:30:48 America/Denver'),
+  (977, 170, 1024, 'ryan@gaard.example', '<mock-000977@gaard.example>', 'thread-001024', 'inbound', 'gabriel.nelson93@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Re: Great meeting you at Boise Philanthropy Forum 2025', 'Not something we are looking at. Thank you.', '2026-05-01 09:30:48 America/Denver', false, '2026-05-01 09:30:48 America/Denver'),
+  (978, 160, 1026, 'ryan@gaard.example', '<mock-000978@gaard.example>', 'thread-001026', 'outbound', 'ryan@gaard.example', '{"beverly@camasphfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Beverly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-04-29 11:09:50 America/Denver', false, '2026-04-29 11:09:50 America/Denver'),
+  (979, 260, 1028, 'jon@gaard.example', '<mock-000979@gaard.example>', 'thread-001028', 'outbound', 'jon@gaard.example', '{"brenda.dixon@tooelevtalliance.example"}', '{}', 'Re: Investment support for Tooele Valley Trails Alliance', 'Hi Brenda,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-29 13:42:46 America/Denver', false, '2026-04-29 13:42:46 America/Denver'),
+  (980, 246, 1029, 'jon@gaard.example', '<mock-000980@gaard.example>', 'thread-001029', 'outbound', 'jon@gaard.example', '{"logan.tuilagi@greatbaspartners.example"}', '{}', 'Re: Quick question about Great Basin After School Partners''s endowment', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-04-30 11:34:55 America/Denver', false, '2026-04-30 11:34:55 America/Denver'),
+  (981, 26, 1030, 'jon@gaard.example', '<mock-000981@gaard.example>', 'thread-001030', 'outbound', 'jon@gaard.example', '{"lisa@redrockveteranscouncil.example"}', '{}', 'Quarterly check-in', 'Hi Lisa,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-04-30 14:12:52 America/Denver', false, '2026-04-30 14:12:52 America/Denver'),
+  (982, 26, 1030, 'jon@gaard.example', '<mock-000982@gaard.example>', 'thread-001030', 'inbound', 'lisa@redrockveteranscouncil.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in June and we can talk.', '2026-05-01 03:12:52 America/Denver', false, '2026-05-01 03:12:52 America/Denver'),
+  (983, 107, 1031, 'jon@gaard.example', '<mock-000983@gaard.example>', 'thread-001031', 'outbound', 'jon@gaard.example', '{"lowens@seviervgassociation.example"}', '{}', 'Re: OCIO support for Sevier Valley Growers Association', 'Hi Leilani,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-01 08:38:39 America/Denver', false, '2026-05-01 08:38:39 America/Denver'),
+  (984, 136, 1032, 'jon@gaard.example', '<mock-000984@gaard.example>', 'thread-001032', 'outbound', 'jon@gaard.example', '{"javier.madsen@canyonlandsasinitiative.example"}', '{}', 'Quarterly check-in', 'Hi Javier,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-01 09:21:21 America/Denver', false, '2026-05-01 09:21:21 America/Denver'),
+  (985, 136, 1032, 'jon@gaard.example', '<mock-000985@gaard.example>', 'thread-001032', 'inbound', 'javier.madsen@canyonlandsasinitiative.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-05-01 17:21:21 America/Denver', false, '2026-05-01 17:21:21 America/Denver'),
+  (986, 531, 1033, 'jon@gaard.example', '<mock-000986@gaard.example>', 'thread-001033', 'outbound', 'jon@gaard.example', '{"emma.hudson@foodbipriver.example"}', '{}', 'Quarterly check-in', 'Hi Emma,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-01 09:23:21 America/Denver', false, '2026-05-01 09:23:21 America/Denver'),
+  (987, 531, 1033, 'jon@gaard.example', '<mock-000987@gaard.example>', 'thread-001033', 'inbound', 'emma.hudson@foodbipriver.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-05-02 19:23:21 America/Denver', false, '2026-05-02 19:23:21 America/Denver'),
+  (988, 327, 1034, 'jon@gaard.example', '<mock-000988@gaard.example>', 'thread-001034', 'outbound', 'jon@gaard.example', '{"tmarshall@adulteahvalley.example"}', '{}', 'Checking back in', 'Hi Tariq,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Adult Education Association of Heber Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-05-01 09:54:47 America/Denver', false, '2026-05-01 09:54:47 America/Denver'),
+  (989, 449, 1035, 'ryan@gaard.example', '<mock-000989@gaard.example>', 'thread-001035', 'outbound', 'ryan@gaard.example', '{"shernandez@beehivehomehealth.example"}', '{}', 'A retirement plan for your team', 'Hi Sandra,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-01 11:46:03 America/Denver', false, '2026-05-01 11:46:03 America/Denver'),
+  (990, 433, 1036, 'ryan@gaard.example', '<mock-000990@gaard.example>', 'thread-001036', 'outbound', 'ryan@gaard.example', '{"pamela.jensen@davislawgroup.example"}', '{}', 'Davis Law Group, Inc. 401(k) question', 'Hi Pamela,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-01 11:59:46 America/Denver', false, '2026-05-01 11:59:46 America/Denver'),
+  (991, 433, 1036, 'ryan@gaard.example', '<mock-000991@gaard.example>', 'thread-001036', 'inbound', 'mailer-daemon@mail.example', '{"ryan@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to pamela.jensen@davislawgroup.example because the address couldn''t be found or is unable to receive mail.', '2026-05-01 12:00:46 America/Denver', true, '2026-05-01 12:00:46 America/Denver'),
+  (992, 218, 1037, 'jon@gaard.example', '<mock-000992@gaard.example>', 'thread-001037', 'outbound', 'jon@gaard.example', '{"alexis.elliott@webmail.example"}', '{}', 'Checking back in', 'Hi Alexis,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-05-01 14:55:18 America/Denver', false, '2026-05-01 14:55:18 America/Denver'),
+  (993, 218, 1037, 'jon@gaard.example', '<mock-000993@gaard.example>', 'thread-001037', 'inbound', 'alexis.elliott@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks Jon, the timing is actually good. Could we set up a call Wednesday the 6?', '2026-05-02 02:55:18 America/Denver', false, '2026-05-02 02:55:18 America/Denver'),
+  (994, 281, 1038, 'ryan@gaard.example', '<mock-000994@gaard.example>', 'thread-001038', 'outbound', 'ryan@gaard.example', '{"madison.rivera@magicvelleague.example"}', '{}', 'Quick question about Magic Valley Early Learning League''s endowment', 'Hi Madison,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Magic Valley Early Learning League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-01 15:49:36 America/Denver', false, '2026-05-01 15:49:36 America/Denver'),
+  (995, 264, 1039, 'jon@gaard.example', '<mock-000995@gaard.example>', 'thread-001039', 'outbound', 'jon@gaard.example', '{"jacke@wasatchcmcenter.example"}', '{}', 'Checking back in', 'Hi Jack,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Chamber Music Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-05-01 16:36:30 America/Denver', false, '2026-05-01 16:36:30 America/Denver'),
+  (996, 261, 1040, 'jon@gaard.example', '<mock-000996@gaard.example>', 'thread-001040', 'outbound', 'jon@gaard.example', '{"kimberly.begay@summitcmcoalition.example"}', '{}', 'Re: Quick question about Summit County Mentoring Coalition''s endowment', 'Hi Kimberly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-04 08:07:30 America/Denver', false, '2026-05-04 08:07:30 America/Denver'),
+  (997, 261, 1040, 'jon@gaard.example', '<mock-000997@gaard.example>', 'thread-001040', 'inbound', 'kimberly.begay@summitcmcoalition.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Quick question about Summit County Mentoring Coalition''s endowment', 'Not something we are looking at. Thank you.', '2026-05-06 15:07:30 America/Denver', false, '2026-05-06 15:07:30 America/Denver'),
+  (998, 311, 1041, 'jon@gaard.example', '<mock-000998@gaard.example>', 'thread-001041', 'outbound', 'jon@gaard.example', '{"pelliott@boydfamilyfoundation.example"}', '{}', 'OCIO support for Boyd Family Foundation', 'Hi Priya,
+
+We provide OCIO-style investment management for foundations and institutions like Boyd Family Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-05-04 08:19:07 America/Denver', false, '2026-05-04 08:19:07 America/Denver'),
+  (999, 460, 1042, 'ryan@gaard.example', '<mock-000999@gaard.example>', 'thread-001042', 'outbound', 'ryan@gaard.example', '{"zacharys@sugarhouseorthodontics.example"}', '{}', 'A retirement plan for your team', 'Hi Zachary,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-04 08:38:33 America/Denver', false, '2026-05-04 08:38:33 America/Denver'),
+  (1000, 304, 1043, 'ryan@gaard.example', '<mock-001000@gaard.example>', 'thread-001043', 'outbound', 'ryan@gaard.example', '{"mcastro@friendscpsymphony.example"}', '{}', 'Friends of Camas Prairie Symphony''s reserves', 'Hi Malia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Camas Prairie Symphony keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-04 09:35:51 America/Denver', false, '2026-05-04 09:35:51 America/Denver');
+
+insert into public.email_messages (id, contact_id, touchpoint_id, mailbox, external_id, thread_id, direction, from_email, to_emails, cc_emails, subject, body_text, sent_at, is_auto_reply, created_at) values
+  (1001, 161, 1045, 'ryan@gaard.example', '<mock-001001@gaard.example>', 'thread-001045', 'outbound', 'ryan@gaard.example', '{"pamelah@camasptassociation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Pamela,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-04 10:32:12 America/Denver', false, '2026-05-04 10:32:12 America/Denver'),
+  (1002, 452, 1046, 'ryan@gaard.example', '<mock-001002@gaard.example>', 'thread-001046', 'outbound', 'ryan@gaard.example', '{"teresat@ogdenvmanufacturing.example"}', '{}', '401(k) options for Ogden Valley Manufacturing', 'Hi Teresa,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-04 11:25:57 America/Denver', false, '2026-05-04 11:25:57 America/Denver'),
+  (1003, 274, 1047, 'ryan@gaard.example', '<mock-001003@gaard.example>', 'thread-001047', 'outbound', 'ryan@gaard.example', '{"joshua.sharma@literacyssvalley.example"}', '{}', 'Investment support for Literacy Services of Star Valley', 'Hi Joshua,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Literacy Services of Star Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-04 13:03:31 America/Denver', false, '2026-05-04 13:03:31 America/Denver'),
+  (1004, 333, 1048, 'jon@gaard.example', '<mock-001004@gaard.example>', 'thread-001048', 'outbound', 'jon@gaard.example', '{"nicholasa@santacmctrust.example"}', '{}', 'Quarterly check-in', 'Hi Nicholas,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-04 13:11:22 America/Denver', false, '2026-05-04 13:11:22 America/Denver'),
+  (1005, 333, 1048, 'jon@gaard.example', '<mock-001005@gaard.example>', 'thread-001048', 'inbound', 'nicholasa@santacmctrust.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-05-04 20:11:22 America/Denver', false, '2026-05-04 20:11:22 America/Denver'),
+  (1006, 300, 1049, 'ryan@gaard.example', '<mock-001006@gaard.example>', 'thread-001049', 'outbound', 'ryan@gaard.example', '{"khoward2@sawtoothseleague.example"}', '{}', 'Sawtooth Science Education League''s reserves', 'Hi Kwame,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sawtooth Science Education League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-05 14:59:12 America/Denver', false, '2026-05-05 14:59:12 America/Denver'),
+  (1007, 300, 1049, 'ryan@gaard.example', '<mock-001007@gaard.example>', 'thread-001049', 'inbound', 'khoward2@sawtoothseleague.example', '{"ryan@gaard.example"}', '{}', 'Re: Sawtooth Science Education League''s reserves', 'This has been on my list. Happy to talk, does May 13 work?', '2026-05-06 03:59:12 America/Denver', false, '2026-05-06 03:59:12 America/Denver'),
+  (1008, 115, 1050, 'ryan@gaard.example', '<mock-001008@gaard.example>', 'thread-001050', 'outbound', 'ryan@gaard.example', '{"grace.torres@whitecharitabletrust.example"}', '{}', 'Re: Investment management for White Charitable Trust', 'Hi Grace,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-06 09:15:30 America/Denver', false, '2026-05-06 09:15:30 America/Denver'),
+  (1009, 435, 1051, 'ryan@gaard.example', '<mock-001009@gaard.example>', 'thread-001051', 'outbound', 'ryan@gaard.example', '{"brandonv@palousemanufacturing.example"}', '{}', 'A retirement plan for your team', 'Hi Brandon,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-06 09:39:53 America/Denver', false, '2026-05-06 09:39:53 America/Denver'),
+  (1010, 242, 1053, 'jon@gaard.example', '<mock-001010@gaard.example>', 'thread-001053', 'outbound', 'jon@gaard.example', '{"imani@moabdscoalition.example"}', '{}', 'Re: Investment support for Moab Disability Services Coalition', 'Hi Imani,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-06 10:43:24 America/Denver', false, '2026-05-06 10:43:24 America/Denver'),
+  (1011, 109, 1057, 'jon@gaard.example', '<mock-001011@gaard.example>', 'thread-001057', 'outbound', 'jon@gaard.example', '{"btran@montereybhfoundation.example"}', '{}', 'Re: OCIO support for Monterey Bay Hospital Foundation', 'Hi Brian,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-06 15:19:52 America/Denver', false, '2026-05-06 15:19:52 America/Denver'),
+  (1012, 134, 1064, 'jon@gaard.example', '<mock-001012@gaard.example>', 'thread-001064', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-07 14:18:45 America/Denver', false, '2026-05-07 14:18:45 America/Denver'),
+  (1013, 437, 1066, 'ryan@gaard.example', '<mock-001013@gaard.example>', 'thread-001066', 'outbound', 'ryan@gaard.example', '{"cheryl.duncan@oquirrhbrewing.example"}', '{}', 'Oquirrh Brewing Co. 401(k) question', 'Hi Cheryl,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-07 14:29:47 America/Denver', false, '2026-05-07 14:29:47 America/Denver'),
+  (1014, 250, 1072, 'jon@gaard.example', '<mock-001014@gaard.example>', 'thread-001072', 'outbound', 'jon@gaard.example', '{"kayla.turner@utahvscenter.example"}', '{}', 'Re: Investment support for Utah Valley Scholarship Center', 'Hi Kayla,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-08 09:40:29 America/Denver', false, '2026-05-08 09:40:29 America/Denver'),
+  (1015, 321, 1073, 'jon@gaard.example', '<mock-001015@gaard.example>', 'thread-001073', 'outbound', 'jon@gaard.example', '{"chawkins@uintawildlifecenter.example"}', '{}', 'Quarterly check-in', 'Hi Cheryl,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-08 10:42:48 America/Denver', false, '2026-05-08 10:42:48 America/Denver'),
+  (1016, 100, 1075, 'ryan@gaard.example', '<mock-001016@gaard.example>', 'thread-001075', 'outbound', 'ryan@gaard.example', '{"amara.webb@shoshoneefoundation.example"}', '{}', 'Re: Investment management for Shoshone Education Foundation', 'Hi Amara,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-08 14:57:20 America/Denver', false, '2026-05-08 14:57:20 America/Denver'),
+  (1017, 363, 1076, 'ryan@gaard.example', '<mock-001017@gaard.example>', 'thread-001076', 'outbound', 'ryan@gaard.example', '{"gerald.foster@snowyrangehomehealth.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Gerald,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 09:40:41 America/Denver', false, '2026-05-11 09:40:41 America/Denver'),
+  (1018, 363, 1076, 'ryan@gaard.example', '<mock-001018@gaard.example>', 'thread-001076', 'inbound', 'gerald.foster@snowyrangehomehealth.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-05-14 04:40:41 America/Denver', false, '2026-05-14 04:40:41 America/Denver'),
+  (1019, 229, 1077, 'jon@gaard.example', '<mock-001019@gaard.example>', 'thread-001077', 'outbound', 'jon@gaard.example', '{"natalie@utahvfsproject.example"}', '{}', 'Re: Utah Valley Food Security Project''s reserves', 'Hi Natalie,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-11 09:46:31 America/Denver', false, '2026-05-11 09:46:31 America/Denver'),
+  (1020, 224, 1078, 'jon@gaard.example', '<mock-001020@gaard.example>', 'thread-001078', 'outbound', 'jon@gaard.example', '{"andrew.nelson@sugarhmcollective.example"}', '{}', 'Re: Quick question about Sugar House Mentoring Collective''s endowment', 'Hi Andrew,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-11 09:46:58 America/Denver', false, '2026-05-11 09:46:58 America/Denver'),
+  (1021, 362, 1079, 'ryan@gaard.example', '<mock-001021@gaard.example>', 'thread-001079', 'outbound', 'ryan@gaard.example', '{"eking@carrollsurveying.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Emma,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 09:47:40 America/Denver', false, '2026-05-11 09:47:40 America/Denver'),
+  (1022, 362, 1079, 'ryan@gaard.example', '<mock-001022@gaard.example>', 'thread-001079', 'inbound', 'eking@carrollsurveying.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in August?', '2026-05-12 00:47:40 America/Denver', false, '2026-05-12 00:47:40 America/Denver'),
+  (1023, 174, 1080, 'ryan@gaard.example', '<mock-001023@gaard.example>', 'thread-001080', 'outbound', 'ryan@gaard.example', '{"daniel@hollowayarchitecture.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Hi Daniel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-11 09:48:46 America/Denver', false, '2026-05-11 09:48:46 America/Denver'),
+  (1024, 244, 1081, 'jon@gaard.example', '<mock-001024@gaard.example>', 'thread-001081', 'outbound', 'jon@gaard.example', '{"gregory.rivera@moabtrailscollective.example"}', '{}', 'Re: Moab Trails Collective''s reserves', 'Hi Gregory,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-11 10:08:47 America/Denver', false, '2026-05-11 10:08:47 America/Denver'),
+  (1025, 367, 1082, 'ryan@gaard.example', '<mock-001025@gaard.example>', 'thread-001082', 'outbound', 'ryan@gaard.example', '{"jvasquez@bighornlandscaping.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Juan,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 10:47:22 America/Denver', false, '2026-05-11 10:47:22 America/Denver'),
+  (1026, 367, 1082, 'ryan@gaard.example', '<mock-001026@gaard.example>', 'thread-001082', 'inbound', 'jvasquez@bighornlandscaping.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Good timing question, but this quarter is busy for us. Circle back in August and we can talk.', '2026-05-12 03:47:22 America/Denver', false, '2026-05-12 03:47:22 America/Denver'),
+  (1027, 360, 1083, 'ryan@gaard.example', '<mock-001027@gaard.example>', 'thread-001083', 'outbound', 'ryan@gaard.example', '{"kevin.petersen@snowyrangeorthodontics.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Kevin,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 10:53:59 America/Denver', false, '2026-05-11 10:53:59 America/Denver'),
+  (1028, 11, 1084, 'jon@gaard.example', '<mock-001028@gaard.example>', 'thread-001084', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-11 11:01:34 America/Denver', false, '2026-05-11 11:01:34 America/Denver'),
+  (1029, 365, 1085, 'ryan@gaard.example', '<mock-001029@gaard.example>', 'thread-001085', 'outbound', 'ryan@gaard.example', '{"christian.turner@sweetwatertitleescrow.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Christian,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 11:10:47 America/Denver', false, '2026-05-11 11:10:47 America/Denver'),
+  (1030, 361, 1086, 'ryan@gaard.example', '<mock-001030@gaard.example>', 'thread-001086', 'outbound', 'ryan@gaard.example', '{"lucia.kennedy@medicinebowsoftware.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Lucia,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 13:07:19 America/Denver', false, '2026-05-11 13:07:19 America/Denver'),
+  (1031, 361, 1086, 'ryan@gaard.example', '<mock-001031@gaard.example>', 'thread-001086', 'inbound', 'lucia.kennedy@medicinebowsoftware.example', '{"ryan@gaard.example"}', '{}', 'Automatic reply: Great meeting you at Cheyenne Small Business Expo', 'I am out of the office until Monday, May 25 with limited access to email. For anything urgent please call our main office.', '2026-05-11 13:10:19 America/Denver', true, '2026-05-11 13:10:19 America/Denver'),
+  (1032, 366, 1087, 'ryan@gaard.example', '<mock-001032@gaard.example>', 'thread-001087', 'outbound', 'ryan@gaard.example', '{"kai.zhang@plattevchiropractic.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Kai,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 13:27:13 America/Denver', false, '2026-05-11 13:27:13 America/Denver'),
+  (1033, 291, 1088, 'ryan@gaard.example', '<mock-001033@gaard.example>', 'thread-001088', 'outbound', 'ryan@gaard.example', '{"joseph.holloway@clearwaterfsleague.example"}', '{}', 'Quick question about Clearwater Food Security League''s endowment', 'Hi Joseph,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Clearwater Food Security League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 14:14:37 America/Denver', false, '2026-05-11 14:14:37 America/Denver'),
+  (1034, 369, 1090, 'ryan@gaard.example', '<mock-001034@gaard.example>', 'thread-001090', 'outbound', 'ryan@gaard.example', '{"austin.harrison@dunnlawgroup.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Austin,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 14:36:13 America/Denver', false, '2026-05-11 14:36:13 America/Denver'),
+  (1035, 276, 1091, 'ryan@gaard.example', '<mock-001035@gaard.example>', 'thread-001091', 'outbound', 'ryan@gaard.example', '{"atanaka@housingamvalley.example"}', '{}', 'Housing Association of Magic Valley''s reserves', 'Hi Aiyana,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Housing Association of Magic Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-11 14:47:12 America/Denver', false, '2026-05-11 14:47:12 America/Denver'),
+  (1036, 240, 1093, 'jon@gaard.example', '<mock-001036@gaard.example>', 'thread-001093', 'outbound', 'jon@gaard.example', '{"hiroshi.allen@friendsredrocksymphony.example"}', '{}', 'Re: Quick question about Friends of Red Rock Symphony''s endowment', 'Hi Hiroshi,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-12 09:37:04 America/Denver', false, '2026-05-12 09:37:04 America/Denver'),
+  (1037, 368, 1094, 'ryan@gaard.example', '<mock-001037@gaard.example>', 'thread-001094', 'outbound', 'ryan@gaard.example', '{"caleb.armstrong@gibsonmarketing.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Caleb,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-12 09:52:02 America/Denver', false, '2026-05-12 09:52:02 America/Denver'),
+  (1038, 457, 1095, 'ryan@gaard.example', '<mock-001038@gaard.example>', 'thread-001095', 'outbound', 'ryan@gaard.example', '{"jpeters@panhandleelectric.example"}', '{}', '401(k) options for Panhandle Electric', 'Hi Joshua,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-12 10:25:28 America/Denver', false, '2026-05-12 10:25:28 America/Denver'),
+  (1039, 370, 1096, 'ryan@gaard.example', '<mock-001039@gaard.example>', 'thread-001096', 'outbound', 'ryan@gaard.example', '{"samuel@belllawgroup.example"}', '{}', 'Great meeting you at Cheyenne Small Business Expo', 'Hi Samuel,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-12 14:50:38 America/Denver', false, '2026-05-12 14:50:38 America/Denver'),
+  (1040, 222, 1097, 'jon@gaard.example', '<mock-001040@gaard.example>', 'thread-001097', 'outbound', 'jon@gaard.example', '{"aisha@bearrsealliance.example"}', '{}', 'Re: Quick question about Bear River Science Education Alliance''s endowment', 'Hi Aisha,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-13 13:20:04 America/Denver', false, '2026-05-13 13:20:04 America/Denver'),
+  (1041, 288, 1099, 'ryan@gaard.example', '<mock-001041@gaard.example>', 'thread-001099', 'outbound', 'ryan@gaard.example', '{"raymondd@starvssnetwork.example"}', '{}', 'Re: Quick question about Star Valley Senior Services Network''s endowment', 'Hi Raymond,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-14 08:53:59 America/Denver', false, '2026-05-14 08:53:59 America/Denver'),
+  (1042, 108, 1100, 'jon@gaard.example', '<mock-001042@gaard.example>', 'thread-001100', 'outbound', 'jon@gaard.example', '{"fatima@hebervlfoundation.example"}', '{}', 'Re: Investment management for Heber Valley Library Foundation', 'Hi Fatima,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-14 16:09:50 America/Denver', false, '2026-05-14 16:09:50 America/Denver'),
+  (1043, 454, 1101, 'ryan@gaard.example', '<mock-001043@gaard.example>', 'thread-001101', 'outbound', 'ryan@gaard.example', '{"julie.harrison@redrocktitleescrow.example"}', '{}', 'A retirement plan for your team', 'Hi Julie,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-15 11:30:58 America/Denver', false, '2026-05-15 11:30:58 America/Denver'),
+  (1044, 241, 1102, 'jon@gaard.example', '<mock-001044@gaard.example>', 'thread-001102', 'outbound', 'jon@gaard.example', '{"sthomas@boxefbnetwork.example"}', '{}', 'Re: Quick question about Box Elder Food Bank Network''s endowment', 'Hi Shirley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-15 13:22:22 America/Denver', false, '2026-05-15 13:22:22 America/Denver'),
+  (1045, 266, 1103, 'jon@gaard.example', '<mock-001045@gaard.example>', 'thread-001103', 'outbound', 'jon@gaard.example', '{"tsmith@sugarhchservices.example"}', '{}', 'Re: Investment support for Sugar House Community Health Services', 'Hi Tala,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-18 10:23:00 America/Denver', false, '2026-05-18 10:23:00 America/Denver'),
+  (1046, 328, 1104, 'jon@gaard.example', '<mock-001046@gaard.example>', 'thread-001104', 'outbound', 'jon@gaard.example', '{"christineo@boxercollective.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Christine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-18 10:52:38 America/Denver', false, '2026-05-18 10:52:38 America/Denver'),
+  (1047, 226, 1106, 'jon@gaard.example', '<mock-001047@gaard.example>', 'thread-001106', 'outbound', 'jon@gaard.example', '{"vrogers@friendsmvparks.example"}', '{}', 'Re: Friends of Morgan Valley Parks''s reserves', 'Hi Victoria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-18 11:16:52 America/Denver', false, '2026-05-18 11:16:52 America/Denver'),
+  (1048, 447, 1107, 'ryan@gaard.example', '<mock-001048@gaard.example>', 'thread-001107', 'outbound', 'ryan@gaard.example', '{"daniel.dixon@boxelderroofing.example"}', '{}', '401(k) options for Box Elder Roofing', 'Hi Daniel,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-18 11:32:24 America/Denver', false, '2026-05-18 11:32:24 America/Denver'),
+  (1049, 172, 1109, 'ryan@gaard.example', '<mock-001049@gaard.example>', 'thread-001109', 'outbound', 'ryan@gaard.example', '{"larry.wright@seviervalleyroofing.example"}', '{}', 'Checking back in', 'Hi Larry,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-18 14:58:11 America/Denver', false, '2026-05-18 14:58:11 America/Denver'),
+  (1050, 172, 1109, 'ryan@gaard.example', '<mock-001050@gaard.example>', 'thread-001109', 'inbound', 'larry.wright@seviervalleyroofing.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in June and we can talk.', '2026-05-18 18:58:11 America/Denver', false, '2026-05-18 18:58:11 America/Denver'),
+  (1051, 335, 1110, 'jon@gaard.example', '<mock-001051@gaard.example>', 'thread-001110', 'outbound', 'jon@gaard.example', '{"david.snyder@redwoodcmsociety.example"}', '{}', 'Quarterly check-in', 'Hi David,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-18 14:59:04 America/Denver', false, '2026-05-18 14:59:04 America/Denver'),
+  (1052, 335, 1110, 'jon@gaard.example', '<mock-001052@gaard.example>', 'thread-001110', 'inbound', 'david.snyder@redwoodcmsociety.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-05-18 21:59:04 America/Denver', false, '2026-05-18 21:59:04 America/Denver'),
+  (1053, 99, 1112, 'jon@gaard.example', '<mock-001053@gaard.example>', 'thread-001112', 'outbound', 'jon@gaard.example', '{"logan.tuilagi@sugarhhfoundation.example"}', '{}', 'Re: Investment management for Sugar House Hospital Foundation', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-19 14:10:01 America/Denver', false, '2026-05-19 14:10:01 America/Denver'),
+  (1054, 319, 1113, 'jon@gaard.example', '<mock-001054@gaard.example>', 'thread-001113', 'outbound', 'jon@gaard.example', '{"karen.turner@tooelevtalliance.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Karen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-20 09:40:42 America/Denver', false, '2026-05-20 09:40:42 America/Denver'),
+  (1055, 326, 1114, 'jon@gaard.example', '<mock-001055@gaard.example>', 'thread-001114', 'outbound', 'jon@gaard.example', '{"carl.hoffman@millcreekhscoalition.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Carl,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-20 15:15:22 America/Denver', false, '2026-05-20 15:15:22 America/Denver'),
+  (1056, 317, 1116, 'jon@gaard.example', '<mock-001056@gaard.example>', 'thread-001116', 'outbound', 'jon@gaard.example', '{"dennis.freeman@beehivecmservices.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Dennis,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-21 09:09:51 America/Denver', false, '2026-05-21 09:09:51 America/Denver'),
+  (1057, 324, 1118, 'jon@gaard.example', '<mock-001057@gaard.example>', 'thread-001118', 'outbound', 'jon@gaard.example', '{"timothy.sanders@ironcountydanceproject.example"}', '{}', 'Quarterly check-in', 'Hi Timothy,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-21 16:17:06 America/Denver', false, '2026-05-21 16:17:06 America/Denver'),
+  (1058, 324, 1118, 'jon@gaard.example', '<mock-001058@gaard.example>', 'thread-001118', 'inbound', 'timothy.sanders@ironcountydanceproject.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-05-22 03:17:06 America/Denver', false, '2026-05-22 03:17:06 America/Denver'),
+  (1059, 268, 1119, 'jon@gaard.example', '<mock-001059@gaard.example>', 'thread-001119', 'outbound', 'jon@gaard.example', '{"lucia.moore@greatbelleague.example"}', '{}', 'Re: Quick question about Great Basin Early Learning League''s endowment', 'Hi Lucia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-22 08:28:38 America/Denver', false, '2026-05-22 08:28:38 America/Denver'),
+  (1060, 301, 1121, 'ryan@gaard.example', '<mock-001060@gaard.example>', 'thread-001121', 'outbound', 'ryan@gaard.example', '{"amanda.flores@tetonbfsservices.example"}', '{}', 'Teton Basin Family Services Services''s reserves', 'Hi Amanda,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Teton Basin Family Services Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-22 13:22:26 America/Denver', false, '2026-05-22 13:22:26 America/Denver'),
+  (1061, 516, 1122, 'ryan@gaard.example', '<mock-001061@gaard.example>', 'thread-001122', 'outbound', 'ryan@gaard.example', '{"evelyn.romero84@webmail.example"}', '{}', 'Introduction via Amy', 'Hi Evelyn,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-05-25 08:38:23 America/Denver', false, '2026-05-25 08:38:23 America/Denver'),
+  (1062, 516, 1122, 'ryan@gaard.example', '<mock-001062@gaard.example>', 'thread-001122', 'inbound', 'evelyn.romero84@webmail.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Amy', 'Yes, I''d like to learn more. I''m free Monday afternoon.', '2026-05-27 05:38:23 America/Denver', false, '2026-05-27 05:38:23 America/Denver'),
+  (1063, 262, 1123, 'jon@gaard.example', '<mock-001063@gaard.example>', 'thread-001123', 'outbound', 'jon@gaard.example', '{"abigail_gardner@beehiveyouthpartners.example"}', '{}', 'Re: Investment support for Beehive Youth Partners', 'Hi Abigail,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-25 10:33:08 America/Denver', false, '2026-05-25 10:33:08 America/Denver'),
+  (1064, 299, 1124, 'ryan@gaard.example', '<mock-001064@gaard.example>', 'thread-001124', 'outbound', 'ryan@gaard.example', '{"narnold@friendswrsymphony.example"}', '{}', 'Re: Investment support for Friends of Wood River Symphony', 'Hi Nathan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-25 10:35:00 America/Denver', false, '2026-05-25 10:35:00 America/Denver'),
+  (1065, 252, 1125, 'jon@gaard.example', '<mock-001065@gaard.example>', 'thread-001125', 'outbound', 'jon@gaard.example', '{"steven_graham@weberrcaassociation.example"}', '{}', 'Re: Quick question about Weber River Clean Air Association''s endowment', 'Hi Steven,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-25 11:58:43 America/Denver', false, '2026-05-25 11:58:43 America/Denver'),
+  (1066, 187, 1126, 'ryan@gaard.example', '<mock-001066@gaard.example>', 'thread-001126', 'outbound', 'ryan@gaard.example', '{"larry.spencer14@mail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Larry,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-25 11:59:16 America/Denver', false, '2026-05-25 11:59:16 America/Denver'),
+  (1067, 178, 1127, 'ryan@gaard.example', '<mock-001067@gaard.example>', 'thread-001127', 'outbound', 'ryan@gaard.example', '{"paul.myers@ironcountyheatingair.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Hi Paul,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-25 13:57:55 America/Denver', false, '2026-05-25 13:57:55 America/Denver'),
+  (1068, 323, 1128, 'jon@gaard.example', '<mock-001068@gaard.example>', 'thread-001128', 'outbound', 'jon@gaard.example', '{"sofia.ford@theaterpcanyonlands.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Sofia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-26 10:41:52 America/Denver', false, '2026-05-26 10:41:52 America/Denver'),
+  (1069, 275, 1129, 'ryan@gaard.example', '<mock-001069@gaard.example>', 'thread-001129', 'outbound', 'ryan@gaard.example', '{"sofia.havili@plattevdcoalition.example"}', '{}', 'Re: Quick question about Platte Valley Dance Coalition''s endowment', 'Hi Sofia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-26 11:34:19 America/Denver', false, '2026-05-26 11:34:19 America/Denver'),
+  (1070, 329, 1130, 'jon@gaard.example', '<mock-001070@gaard.example>', 'thread-001130', 'outbound', 'jon@gaard.example', '{"meganm@bayacfoundation.example"}', '{}', 'Quarterly check-in', 'Hi Megan,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-26 11:47:48 America/Denver', false, '2026-05-26 11:47:48 America/Denver'),
+  (1071, 329, 1130, 'jon@gaard.example', '<mock-001071@gaard.example>', 'thread-001130', 'inbound', 'meganm@bayacfoundation.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, our board meets later in the year. Please reach out again in August.', '2026-05-27 09:47:48 America/Denver', false, '2026-05-27 09:47:48 America/Denver'),
+  (1072, 361, 1131, 'ryan@gaard.example', '<mock-001072@gaard.example>', 'thread-001131', 'outbound', 'ryan@gaard.example', '{"lucia.kennedy@medicinebowsoftware.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Hi Lucia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-26 15:35:18 America/Denver', false, '2026-05-26 15:35:18 America/Denver'),
+  (1073, 113, 1132, 'jon@gaard.example', '<mock-001073@gaard.example>', 'thread-001132', 'outbound', 'jon@gaard.example', '{"gerald.cooper@boxelderartsendowment.example"}', '{}', 'Re: OCIO support for Box Elder Arts Endowment', 'Hi Gerald,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-27 08:20:27 America/Denver', false, '2026-05-27 08:20:27 America/Denver'),
+  (1074, 290, 1133, 'ryan@gaard.example', '<mock-001074@gaard.example>', 'thread-001133', 'outbound', 'ryan@gaard.example', '{"aisha.watson@friendsssymphony.example"}', '{}', 'Re: Friends of Sawtooth Symphony''s reserves', 'Hi Aisha,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-05-27 11:42:46 America/Denver', false, '2026-05-27 11:42:46 America/Denver'),
+  (1075, 249, 1134, 'jon@gaard.example', '<mock-001075@gaard.example>', 'thread-001134', 'outbound', 'jon@gaard.example', '{"calebr@bonnevilleaepartners.example"}', '{}', 'Re: Bonneville Adult Education Partners''s reserves', 'Hi Caleb,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-27 13:55:38 America/Denver', false, '2026-05-27 13:55:38 America/Denver'),
+  (1076, 357, 1136, 'jon@gaard.example', '<mock-001076@gaard.example>', 'thread-001136', 'outbound', 'jon@gaard.example', '{"jlarsen@beehiveaenetwork.example"}', '{}', 'Quarterly check-in', 'Hi Janet,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-28 11:42:19 America/Denver', false, '2026-05-28 11:42:19 America/Denver'),
+  (1077, 357, 1136, 'jon@gaard.example', '<mock-001077@gaard.example>', 'thread-001136', 'inbound', 'jlarsen@beehiveaenetwork.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-05-30 04:42:19 America/Denver', false, '2026-05-30 04:42:19 America/Denver'),
+  (1078, 255, 1138, 'jon@gaard.example', '<mock-001078@gaard.example>', 'thread-001138', 'outbound', 'jon@gaard.example', '{"jordanr@weberrasalliance.example"}', '{}', 'Re: Investment support for Weber River After School Alliance', 'Hi Jordan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-05-29 11:22:31 America/Denver', false, '2026-05-29 11:22:31 America/Denver'),
+  (1079, 5, 1139, 'jon@gaard.example', '<mock-001079@gaard.example>', 'thread-001139', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-05-29 15:23:58 America/Denver', false, '2026-05-29 15:23:58 America/Denver'),
+  (1080, 5, 1139, 'jon@gaard.example', '<mock-001080@gaard.example>', 'thread-001139', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-05-31 05:23:58 America/Denver', false, '2026-05-31 05:23:58 America/Denver'),
+  (1081, 179, 1140, 'ryan@gaard.example', '<mock-001081@gaard.example>', 'thread-001140', 'outbound', 'ryan@gaard.example', '{"nsantos@cachevalleyprintsign.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Hi Nicholas,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-01 08:53:04 America/Denver', false, '2026-06-01 08:53:04 America/Denver'),
+  (1082, 279, 1141, 'ryan@gaard.example', '<mock-001082@gaard.example>', 'thread-001141', 'outbound', 'ryan@gaard.example', '{"kathleen.elliott@magicvarcoalition.example"}', '{}', 'Re: Quick question about Magic Valley Animal Rescue Coalition''s endowment', 'Hi Kathleen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-01 09:19:07 America/Denver', false, '2026-06-01 09:19:07 America/Denver'),
+  (1083, 172, 1142, 'ryan@gaard.example', '<mock-001083@gaard.example>', 'thread-001142', 'outbound', 'ryan@gaard.example', '{"larry.wright@seviervalleyroofing.example"}', '{}', 'Checking back in', 'Hi Larry,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-01 09:47:47 America/Denver', false, '2026-06-01 09:47:47 America/Denver'),
+  (1084, 172, 1142, 'ryan@gaard.example', '<mock-001084@gaard.example>', 'thread-001142', 'inbound', 'larry.wright@seviervalleyroofing.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Good timing question, but this quarter is busy for us. Circle back in October and we can talk.', '2026-06-01 20:47:47 America/Denver', false, '2026-06-01 20:47:47 America/Denver'),
+  (1085, 526, 1143, 'ryan@gaard.example', '<mock-001085@gaard.example>', 'thread-001143', 'outbound', 'ryan@gaard.example', '{"hannah.green@palousewservices.example"}', '{}', 'Checking back in', 'Hi Hannah,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Palouse Watershed Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-01 09:50:07 America/Denver', false, '2026-06-01 09:50:07 America/Denver'),
+  (1086, 526, 1143, 'ryan@gaard.example', '<mock-001086@gaard.example>', 'thread-001143', 'inbound', 'hannah.green@palousewservices.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks Ryan, the timing is actually good. Could we set up a call Monday the 8?', '2026-06-02 21:50:07 America/Denver', false, '2026-06-02 21:50:07 America/Denver'),
+  (1087, 285, 1144, 'ryan@gaard.example', '<mock-001087@gaard.example>', 'thread-001144', 'outbound', 'ryan@gaard.example', '{"ewright@sweetwatertpartners.example"}', '{}', 'Re: Quick question about Sweetwater Trails Partners''s endowment', 'Hi Ethan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-01 10:15:12 America/Denver', false, '2026-06-01 10:15:12 America/Denver'),
+  (1088, 318, 1145, 'jon@gaard.example', '<mock-001088@gaard.example>', 'thread-001145', 'outbound', 'jon@gaard.example', '{"martha@utahvfsproject.example"}', '{}', 'Quarterly check-in', 'Hi Martha,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-01 10:25:24 America/Denver', false, '2026-06-01 10:25:24 America/Denver'),
+  (1089, 318, 1145, 'jon@gaard.example', '<mock-001089@gaard.example>', 'thread-001145', 'inbound', 'martha@utahvfsproject.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-06-02 20:25:24 America/Denver', false, '2026-06-02 20:25:24 America/Denver'),
+  (1090, 177, 1146, 'ryan@gaard.example', '<mock-001090@gaard.example>', 'thread-001146', 'outbound', 'ryan@gaard.example', '{"roy.schmidt@oquirrhvclinic.example"}', '{}', 'Quarterly check-in', 'Hi Roy,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-06-01 13:56:20 America/Denver', false, '2026-06-01 13:56:20 America/Denver'),
+  (1091, 177, 1146, 'ryan@gaard.example', '<mock-001091@gaard.example>', 'thread-001146', 'inbound', 'roy.schmidt@oquirrhvclinic.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-06-02 15:56:20 America/Denver', false, '2026-06-02 15:56:20 America/Denver'),
+  (1092, 536, 1148, 'ryan@gaard.example', '<mock-001092@gaard.example>', 'thread-001148', 'outbound', 'ryan@gaard.example', '{"ecarroll@silvasonsconstruction.example"}', '{}', 'Re: Introduction via Albert', 'Hi Eric,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-01 14:14:22 America/Denver', false, '2026-06-01 14:14:22 America/Denver'),
+  (1093, 333, 1150, 'jon@gaard.example', '<mock-001093@gaard.example>', 'thread-001150', 'outbound', 'jon@gaard.example', '{"nicholasa@santacmctrust.example"}', '{}', 'Quarterly check-in', 'Hi Nicholas,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-01 15:09:00 America/Denver', false, '2026-06-01 15:09:00 America/Denver'),
+  (1094, 333, 1150, 'jon@gaard.example', '<mock-001094@gaard.example>', 'thread-001150', 'inbound', 'nicholasa@santacmctrust.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-06-02 17:09:00 America/Denver', false, '2026-06-02 17:09:00 America/Denver'),
+  (1095, 202, 1151, 'jon@gaard.example', '<mock-001095@gaard.example>', 'thread-001151', 'outbound', 'jon@gaard.example', '{"wei.hart91@webmail.example"}', '{}', 'Checking back in', 'Hi Wei,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-06-01 15:21:14 America/Denver', false, '2026-06-01 15:21:14 America/Denver'),
+  (1096, 202, 1151, 'jon@gaard.example', '<mock-001096@gaard.example>', 'thread-001151', 'inbound', 'wei.hart91@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Good timing question, but I''m in the middle of a move. Circle back in August and we can talk.', '2026-06-04 06:21:14 America/Denver', false, '2026-06-04 06:21:14 America/Denver'),
+  (1097, 34, 1152, 'jon@gaard.example', '<mock-001097@gaard.example>', 'thread-001152', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Quarterly check-in', 'Hi Kimberly,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-02 09:37:43 America/Denver', false, '2026-06-02 09:37:43 America/Denver'),
+  (1098, 34, 1152, 'jon@gaard.example', '<mock-001098@gaard.example>', 'thread-001152', 'inbound', 'kimberly.zhang@boxecacollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-06-03 22:37:43 America/Denver', false, '2026-06-03 22:37:43 America/Denver'),
+  (1099, 112, 1154, 'ryan@gaard.example', '<mock-001099@gaard.example>', 'thread-001154', 'outbound', 'ryan@gaard.example', '{"jae.stone@camaspgassociation.example"}', '{}', 'Re: OCIO support for Camas Prairie Growers Association', 'Hi Jae,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-03 08:53:24 America/Denver', false, '2026-06-03 08:53:24 America/Denver'),
+  (1100, 112, 1154, 'ryan@gaard.example', '<mock-001100@gaard.example>', 'thread-001154', 'inbound', 'jae.stone@camaspgassociation.example', '{"ryan@gaard.example"}', '{}', 'Re: Re: OCIO support for Camas Prairie Growers Association', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in October.', '2026-06-05 05:53:24 America/Denver', false, '2026-06-05 05:53:24 America/Denver'),
+  (1101, 193, 1155, 'jon@gaard.example', '<mock-001101@gaard.example>', 'thread-001155', 'outbound', 'jon@gaard.example', '{"jonathan.peters@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Jonathan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-03 09:21:27 America/Denver', false, '2026-06-03 09:21:27 America/Denver'),
+  (1102, 269, 1157, 'ryan@gaard.example', '<mock-001102@gaard.example>', 'thread-001157', 'outbound', 'ryan@gaard.example', '{"kwame.bennett@medicinebseassociation.example"}', '{}', 'Re: Medicine Bow Science Education Association''s reserves', 'Hi Kwame,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-03 16:21:39 America/Denver', false, '2026-06-03 16:21:39 America/Denver'),
+  (1103, 269, 1157, 'ryan@gaard.example', '<mock-001103@gaard.example>', 'thread-001157', 'inbound', 'kwame.bennett@medicinebseassociation.example', '{"ryan@gaard.example"}', '{}', 'Automatic reply: Re: Medicine Bow Science Education Association''s reserves', 'I am out of the office until Thursday, June 18 with limited access to email. For anything urgent please call our main office.', '2026-06-03 16:23:39 America/Denver', true, '2026-06-03 16:23:39 America/Denver'),
+  (1104, 519, 1158, 'ryan@gaard.example', '<mock-001104@gaard.example>', 'thread-001158', 'outbound', 'ryan@gaard.example', '{"mateo.sanchez69@mail.example"}', '{}', 'Introduction via Amber', 'Hi Mateo,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-04 10:01:18 America/Denver', false, '2026-06-04 10:01:18 America/Denver'),
+  (1105, 519, 1158, 'ryan@gaard.example', '<mock-001105@gaard.example>', 'thread-001158', 'inbound', 'mateo.sanchez69@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Amber', 'Good timing question, but work is busy right now. Circle back in July and we can talk.', '2026-06-06 11:01:18 America/Denver', false, '2026-06-06 11:01:18 America/Denver'),
+  (1106, 96, 1160, 'ryan@gaard.example', '<mock-001106@gaard.example>', 'thread-001160', 'outbound', 'ryan@gaard.example', '{"ethan.scott@shoshonelfoundation.example"}', '{}', 'Re: Investment management for Shoshone Library Foundation', 'Hi Ethan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-05 08:15:47 America/Denver', false, '2026-06-05 08:15:47 America/Denver'),
+  (1107, 523, 1161, 'ryan@gaard.example', '<mock-001107@gaard.example>', 'thread-001161', 'outbound', 'ryan@gaard.example', '{"gabriel.knight36@inbox.example"}', '{}', 'Introduction via Arthur', 'Hi Gabriel,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-05 08:55:52 America/Denver', false, '2026-06-05 08:55:52 America/Denver'),
+  (1108, 523, 1161, 'ryan@gaard.example', '<mock-001108@gaard.example>', 'thread-001161', 'inbound', 'gabriel.knight36@inbox.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Arthur', 'We''re not interested, thanks.', '2026-06-05 22:55:52 America/Denver', false, '2026-06-05 22:55:52 America/Denver'),
+  (1109, 102, 1162, 'jon@gaard.example', '<mock-001109@gaard.example>', 'thread-001162', 'outbound', 'jon@gaard.example', '{"catherine.barnes@cunninghamffoundation.example"}', '{}', 'Re: OCIO support for Cunningham Family Foundation', 'Hi Catherine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-05 09:12:51 America/Denver', false, '2026-06-05 09:12:51 America/Denver'),
+  (1110, 97, 1163, 'ryan@gaard.example', '<mock-001110@gaard.example>', 'thread-001163', 'outbound', 'ryan@gaard.example', '{"gpetersen@absarokalfoundation.example"}', '{}', 'Re: Investment management for Absaroka Library Foundation', 'Hi Gloria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-05 09:49:36 America/Denver', false, '2026-06-05 09:49:36 America/Denver'),
+  (1111, 540, 1165, 'jon@gaard.example', '<mock-001111@gaard.example>', 'thread-001165', 'outbound', 'jon@gaard.example', '{"timothyt@summitcgassociation.example"}', '{}', 'Re: Introduction via Isabella', 'Hi Timothy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-08 08:03:18 America/Denver', false, '2026-06-08 08:03:18 America/Denver'),
+  (1112, 239, 1166, 'jon@gaard.example', '<mock-001112@gaard.example>', 'thread-001166', 'outbound', 'jon@gaard.example', '{"jkim@beehivercoalition.example"}', '{}', 'Re: Beehive Recovery Coalition''s reserves', 'Hi Jeremy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-08 08:46:24 America/Denver', false, '2026-06-08 08:46:24 America/Denver'),
+  (1113, 227, 1167, 'jon@gaard.example', '<mock-001113@gaard.example>', 'thread-001167', 'outbound', 'jon@gaard.example', '{"jgonzalez@cottonwoodmassociation.example"}', '{}', 'Re: Cottonwood Mentoring Association''s reserves', 'Hi Jessica,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-08 08:56:21 America/Denver', false, '2026-06-08 08:56:21 America/Denver'),
+  (1114, 282, 1168, 'ryan@gaard.example', '<mock-001114@gaard.example>', 'thread-001168', 'outbound', 'ryan@gaard.example', '{"matthew.boyd@watershedibriver.example"}', '{}', 'Quick question about Watershed Initiative of Boise River''s endowment', 'Hi Matthew,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Watershed Initiative of Boise River keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-08 10:58:12 America/Denver', false, '2026-06-08 10:58:12 America/Denver'),
+  (1115, 282, 1168, 'ryan@gaard.example', '<mock-001115@gaard.example>', 'thread-001168', 'inbound', 'matthew.boyd@watershedibriver.example', '{"ryan@gaard.example"}', '{}', 'Re: Quick question about Watershed Initiative of Boise River''s endowment', 'No thank you.', '2026-06-10 16:58:12 America/Denver', false, '2026-06-10 16:58:12 America/Denver'),
+  (1116, 316, 1169, 'jon@gaard.example', '<mock-001116@gaard.example>', 'thread-001169', 'outbound', 'jon@gaard.example', '{"jacqueline.sorensen@centralvlfoundation.example"}', '{}', 'Investment management for Central Valley Library Foundation', 'Hi Jacqueline,
+
+We provide OCIO-style investment management for foundations and institutions like Central Valley Library Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-06-08 11:34:37 America/Denver', false, '2026-06-08 11:34:37 America/Denver'),
+  (1117, 287, 1170, 'ryan@gaard.example', '<mock-001117@gaard.example>', 'thread-001170', 'outbound', 'ryan@gaard.example', '{"jgibson@sweetwaterartspartners.example"}', '{}', 'Investment support for Sweetwater Arts Partners', 'Hi Jessica,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sweetwater Arts Partners keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-08 11:39:53 America/Denver', false, '2026-06-08 11:39:53 America/Denver'),
+  (1118, 287, 1170, 'ryan@gaard.example', '<mock-001118@gaard.example>', 'thread-001170', 'inbound', 'jgibson@sweetwaterartspartners.example', '{"ryan@gaard.example"}', '{}', 'Automatic reply: Investment support for Sweetwater Arts Partners', 'I am out of the office until Monday, June 15 with limited access to email. For anything urgent please call our main office.', '2026-06-08 11:40:53 America/Denver', true, '2026-06-08 11:40:53 America/Denver'),
+  (1119, 238, 1171, 'jon@gaard.example', '<mock-001119@gaard.example>', 'thread-001171', 'outbound', 'jon@gaard.example', '{"matthew@cottonwoodchsociety.example"}', '{}', 'Re: Investment support for Cottonwood Community Health Society', 'Hi Matthew,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-08 11:49:44 America/Denver', false, '2026-06-08 11:49:44 America/Denver'),
+  (1120, 215, 1172, 'ryan@gaard.example', '<mock-001120@gaard.example>', 'thread-001172', 'outbound', 'ryan@gaard.example', '{"noah.johnston58@mail.example"}', '{}', 'Introduction via a', 'Hi Noah,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-08 13:01:16 America/Denver', false, '2026-06-08 13:01:16 America/Denver'),
+  (1121, 215, 1172, 'ryan@gaard.example', '<mock-001121@gaard.example>', 'thread-001172', 'inbound', 'noah.johnston58@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via a', 'Thanks for following up. Right now we are traveling. Could you check back in July?', '2026-06-10 23:01:16 America/Denver', false, '2026-06-10 23:01:16 America/Denver'),
+  (1122, 20, 1173, 'jon@gaard.example', '<mock-001122@gaard.example>', 'thread-001173', 'outbound', 'jon@gaard.example', '{"kimberly@clarkkellycpas.example"}', '{}', 'Checking back in', 'Hi Kimberly,
+
+Several of our clients came to us through CPAs and attorneys, and I think there is a natural fit for a referral relationship.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-06-08 13:08:44 America/Denver', false, '2026-06-08 13:08:44 America/Denver'),
+  (1123, 20, 1173, 'jon@gaard.example', '<mock-001123@gaard.example>', 'thread-001173', 'inbound', 'kimberly@clarkkellycpas.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'No thanks, we are all set.', '2026-06-10 22:08:44 America/Denver', false, '2026-06-10 22:08:44 America/Denver'),
+  (1124, 218, 1176, 'jon@gaard.example', '<mock-001124@gaard.example>', 'thread-001176', 'outbound', 'jon@gaard.example', '{"alexis.elliott@webmail.example"}', '{}', 'Quarterly check-in', 'Hi Alexis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-08 14:16:24 America/Denver', false, '2026-06-08 14:16:24 America/Denver'),
+  (1125, 218, 1176, 'jon@gaard.example', '<mock-001125@gaard.example>', 'thread-001176', 'inbound', 'alexis.elliott@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but we are traveling. Circle back in July and we can talk.', '2026-06-10 06:16:24 America/Denver', false, '2026-06-10 06:16:24 America/Denver'),
+  (1126, 26, 1177, 'jon@gaard.example', '<mock-001126@gaard.example>', 'thread-001177', 'outbound', 'jon@gaard.example', '{"lisa@redrockveteranscouncil.example"}', '{}', 'Quarterly check-in', 'Hi Lisa,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-08 15:01:09 America/Denver', false, '2026-06-08 15:01:09 America/Denver'),
+  (1127, 527, 1179, 'ryan@gaard.example', '<mock-001127@gaard.example>', 'thread-001179', 'outbound', 'ryan@gaard.example', '{"aiyana.morgan@friendsbighornsymphony.example"}', '{}', 'Quarterly check-in', 'Hi Aiyana,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-06-09 09:01:48 America/Denver', false, '2026-06-09 09:01:48 America/Denver'),
+  (1128, 321, 1180, 'jon@gaard.example', '<mock-001128@gaard.example>', 'thread-001180', 'outbound', 'jon@gaard.example', '{"chawkins@uintawildlifecenter.example"}', '{}', 'Quarterly check-in', 'Hi Cheryl,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-09 09:44:46 America/Denver', false, '2026-06-09 09:44:46 America/Denver'),
+  (1129, 92, 1182, 'ryan@gaard.example', '<mock-001129@gaard.example>', 'thread-001182', 'outbound', 'ryan@gaard.example', '{"bradleyo@petersonpfoundation.example"}', '{}', 'Re: OCIO support for Peterson-Porter Foundation', 'Hi Bradley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-09 13:33:06 America/Denver', false, '2026-06-09 13:33:06 America/Denver'),
+  (1130, 441, 1183, 'ryan@gaard.example', '<mock-001130@gaard.example>', 'thread-001183', 'outbound', 'ryan@gaard.example', '{"kai.boyd@weberrvclinic.example"}', '{}', '401(k) options for Weber River Veterinary Clinic', 'Hi Kai,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-10 08:31:59 America/Denver', false, '2026-06-10 08:31:59 America/Denver'),
+  (1131, 104, 1188, 'jon@gaard.example', '<mock-001131@gaard.example>', 'thread-001188', 'outbound', 'jon@gaard.example', '{"mward@deltaefoundation.example"}', '{}', 'Re: Investment management for Delta Education Foundation', 'Hi Mei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-10 11:50:50 America/Denver', false, '2026-06-10 11:50:50 America/Denver'),
+  (1132, 289, 1190, 'ryan@gaard.example', '<mock-001132@gaard.example>', 'thread-001190', 'outbound', 'ryan@gaard.example', '{"martha.meyer@watershedcsriver.example"}', '{}', 'Watershed Center of Salmon River''s reserves', 'Hi Martha,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Watershed Center of Salmon River keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-10 13:09:18 America/Denver', false, '2026-06-10 13:09:18 America/Denver'),
+  (1133, 289, 1190, 'ryan@gaard.example', '<mock-001133@gaard.example>', 'thread-001190', 'inbound', 'mailer-daemon@mail.example', '{"ryan@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to martha.meyer@watershedcsriver.example because the address couldn''t be found or is unable to receive mail.', '2026-06-10 13:10:18 America/Denver', true, '2026-06-10 13:10:18 America/Denver'),
+  (1134, 247, 1201, 'jon@gaard.example', '<mock-001134@gaard.example>', 'thread-001201', 'outbound', 'jon@gaard.example', '{"kristen@tooelevaassociation.example"}', '{}', 'Re: Quick question about Tooele Valley Arts Association''s endowment', 'Hi Kristen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-11 09:02:19 America/Denver', false, '2026-06-11 09:02:19 America/Denver'),
+  (1135, 313, 1202, 'jon@gaard.example', '<mock-001135@gaard.example>', 'thread-001202', 'outbound', 'jon@gaard.example', '{"redwards@sacramentovgassociation.example"}', '{}', 'Investment management for Sacramento Valley Growers Association', 'Hi Russell,
+
+We provide OCIO-style investment management for foundations and institutions like Sacramento Valley Growers Association.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-06-11 10:19:29 America/Denver', false, '2026-06-11 10:19:29 America/Denver'),
+  (1136, 459, 1203, 'ryan@gaard.example', '<mock-001136@gaard.example>', 'thread-001203', 'outbound', 'ryan@gaard.example', '{"kai.willis@weberrcroasters.example"}', '{}', '401(k) options for Weber River Coffee Roasters, Inc.', 'Hi Kai,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-11 10:25:44 America/Denver', false, '2026-06-11 10:25:44 America/Denver'),
+  (1137, 459, 1203, 'ryan@gaard.example', '<mock-001137@gaard.example>', 'thread-001203', 'inbound', 'kai.willis@weberrcroasters.example', '{"ryan@gaard.example"}', '{}', 'Re: 401(k) options for Weber River Coffee Roasters, Inc.', 'Thanks Ryan, the timing is actually good. Could we set up a call Monday the 22?', '2026-06-14 05:25:44 America/Denver', false, '2026-06-14 05:25:44 America/Denver'),
+  (1138, 248, 1205, 'jon@gaard.example', '<mock-001138@gaard.example>', 'thread-001205', 'outbound', 'jon@gaard.example', '{"jtran@summitchservices.example"}', '{}', 'Re: Summit County Habitat Services''s reserves', 'Hi Judy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-11 11:34:49 America/Denver', false, '2026-06-11 11:34:49 America/Denver'),
+  (1139, 475, 1206, 'ryan@gaard.example', '<mock-001139@gaard.example>', 'thread-001206', 'outbound', 'ryan@gaard.example', '{"nicholas.palmer@mensahinsuranceagency.example"}', '{}', '401(k) options for Mensah Insurance Agency', 'Hi Nicholas,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-11 11:55:07 America/Denver', false, '2026-06-11 11:55:07 America/Denver'),
+  (1140, 284, 1207, 'ryan@gaard.example', '<mock-001140@gaard.example>', 'thread-001207', 'outbound', 'ryan@gaard.example', '{"douglas.romero@portneufveteransleague.example"}', '{}', 'Re: Investment support for Portneuf Veterans League', 'Hi Douglas,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-11 14:10:01 America/Denver', false, '2026-06-11 14:10:01 America/Denver'),
+  (1141, 518, 1208, 'ryan@gaard.example', '<mock-001141@gaard.example>', 'thread-001208', 'outbound', 'ryan@gaard.example', '{"albert.barnes@webmail.example"}', '{}', 'Introduction via a', 'Hi Albert,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-11 15:08:12 America/Denver', false, '2026-06-11 15:08:12 America/Denver'),
+  (1142, 518, 1208, 'ryan@gaard.example', '<mock-001142@gaard.example>', 'thread-001208', 'inbound', 'albert.barnes@webmail.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via a', 'This has been on my list. Happy to talk, does Jun 22 work?', '2026-06-12 22:08:12 America/Denver', false, '2026-06-12 22:08:12 America/Denver'),
+  (1143, 378, 1209, 'ryan@gaard.example', '<mock-001143@gaard.example>', 'thread-001209', 'outbound', 'ryan@gaard.example', '{"fatima.nichols@timpanogosroofing.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Fatima,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-12 08:10:41 America/Denver', false, '2026-06-12 08:10:41 America/Denver'),
+  (1144, 378, 1209, 'ryan@gaard.example', '<mock-001144@gaard.example>', 'thread-001209', 'inbound', 'fatima.nichols@timpanogosroofing.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in July?', '2026-06-12 13:10:41 America/Denver', false, '2026-06-12 13:10:41 America/Denver'),
+  (1145, 385, 1210, 'ryan@gaard.example', '<mock-001145@gaard.example>', 'thread-001210', 'outbound', 'ryan@gaard.example', '{"vjimenez@clarkengineering.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Vincent,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-12 10:42:12 America/Denver', false, '2026-06-12 10:42:12 America/Denver'),
+  (1146, 385, 1210, 'ryan@gaard.example', '<mock-001146@gaard.example>', 'thread-001210', 'inbound', 'vjimenez@clarkengineering.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in August.', '2026-06-14 17:42:12 America/Denver', false, '2026-06-14 17:42:12 America/Denver'),
+  (1147, 525, 1211, 'ryan@gaard.example', '<mock-001147@gaard.example>', 'thread-001211', 'outbound', 'ryan@gaard.example', '{"amara.spencer78@inbox.example"}', '{}', 'Introduction via a', 'Hi Amara,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-12 13:48:07 America/Denver', false, '2026-06-12 13:48:07 America/Denver'),
+  (1148, 375, 1212, 'ryan@gaard.example', '<mock-001148@gaard.example>', 'thread-001212', 'outbound', 'ryan@gaard.example', '{"albert.chavez@uintacoffeeroasters.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Albert,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-12 15:23:37 America/Denver', false, '2026-06-12 15:23:37 America/Denver'),
+  (1149, 375, 1212, 'ryan@gaard.example', '<mock-001149@gaard.example>', 'thread-001212', 'inbound', 'albert.chavez@uintacoffeeroasters.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-06-15 10:23:37 America/Denver', false, '2026-06-15 10:23:37 America/Denver'),
+  (1150, 383, 1213, 'ryan@gaard.example', '<mock-001150@gaard.example>', 'thread-001213', 'outbound', 'ryan@gaard.example', '{"kathleenc@jordanriverpediatrics.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Kathleen,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-12 16:54:23 America/Denver', false, '2026-06-12 16:54:23 America/Denver'),
+  (1151, 383, 1213, 'ryan@gaard.example', '<mock-001151@gaard.example>', 'thread-001213', 'inbound', 'kathleenc@jordanriverpediatrics.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in October?', '2026-06-15 03:54:23 America/Denver', false, '2026-06-15 03:54:23 America/Denver'),
+  (1152, 472, 1214, 'ryan@gaard.example', '<mock-001152@gaard.example>', 'thread-001214', 'outbound', 'ryan@gaard.example', '{"arjun.graham@provoriversoftware.example"}', '{}', 'A retirement plan for your team', 'Hi Arjun,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 09:01:16 America/Denver', false, '2026-06-15 09:01:16 America/Denver'),
+  (1153, 472, 1214, 'ryan@gaard.example', '<mock-001153@gaard.example>', 'thread-001214', 'inbound', 'arjun.graham@provoriversoftware.example', '{"ryan@gaard.example"}', '{}', 'Re: A retirement plan for your team', 'Thanks. I''m copying our hr director, who handles our investment accounts.', '2026-06-16 16:01:16 America/Denver', false, '2026-06-16 16:01:16 America/Denver'),
+  (1154, 377, 1215, 'ryan@gaard.example', '<mock-001154@gaard.example>', 'thread-001215', 'outbound', 'ryan@gaard.example', '{"karen.choi@emigrationcmanufacturing.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Karen,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 09:08:21 America/Denver', false, '2026-06-15 09:08:21 America/Denver'),
+  (1155, 377, 1215, 'ryan@gaard.example', '<mock-001155@gaard.example>', 'thread-001215', 'inbound', 'karen.choi@emigrationcmanufacturing.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Yes, I''d like to learn more. I''m free Wednesday afternoon.', '2026-06-16 01:08:21 America/Denver', false, '2026-06-16 01:08:21 America/Denver'),
+  (1156, 381, 1216, 'ryan@gaard.example', '<mock-001156@gaard.example>', 'thread-001216', 'outbound', 'ryan@gaard.example', '{"arthur.yazzie@emigrationctservice.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Arthur,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 09:31:30 America/Denver', false, '2026-06-15 09:31:30 America/Denver'),
+  (1157, 380, 1217, 'ryan@gaard.example', '<mock-001157@gaard.example>', 'thread-001217', 'outbound', 'ryan@gaard.example', '{"kwame.robertson@escalantehomehealth.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Kwame,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 10:18:07 America/Denver', false, '2026-06-15 10:18:07 America/Denver'),
+  (1158, 380, 1217, 'ryan@gaard.example', '<mock-001158@gaard.example>', 'thread-001217', 'inbound', 'kwame.robertson@escalantehomehealth.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Not something we are looking at. Thank you.', '2026-06-15 19:18:07 America/Denver', false, '2026-06-15 19:18:07 America/Denver'),
+  (1159, 371, 1218, 'ryan@gaard.example', '<mock-001159@gaard.example>', 'thread-001218', 'outbound', 'ryan@gaard.example', '{"luciac@panhandlesoftware.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Lucia,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 10:18:14 America/Denver', false, '2026-06-15 10:18:14 America/Denver'),
+  (1160, 371, 1218, 'ryan@gaard.example', '<mock-001160@gaard.example>', 'thread-001218', 'inbound', 'luciac@panhandlesoftware.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'No thanks, we are all set.', '2026-06-16 13:18:14 America/Denver', false, '2026-06-16 13:18:14 America/Denver'),
+  (1161, 297, 1219, 'ryan@gaard.example', '<mock-001161@gaard.example>', 'thread-001219', 'outbound', 'ryan@gaard.example', '{"nadia_smith@tetonfoodbankcenter.example"}', '{}', 'Quick question about Teton Food Bank Center''s endowment', 'Hi Nadia,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Teton Food Bank Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 10:41:56 America/Denver', false, '2026-06-15 10:41:56 America/Denver'),
+  (1162, 382, 1220, 'ryan@gaard.example', '<mock-001162@gaard.example>', 'thread-001220', 'outbound', 'ryan@gaard.example', '{"stevenw@tooelevalleypediatrics.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Steven,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 11:17:44 America/Denver', false, '2026-06-15 11:17:44 America/Denver'),
+  (1163, 382, 1220, 'ryan@gaard.example', '<mock-001163@gaard.example>', 'thread-001220', 'inbound', 'stevenw@tooelevalleypediatrics.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'This has been on my list. Happy to talk, does Jun 23 work?', '2026-06-15 19:17:44 America/Denver', false, '2026-06-15 19:17:44 America/Denver'),
+  (1164, 379, 1221, 'ryan@gaard.example', '<mock-001164@gaard.example>', 'thread-001221', 'outbound', 'ryan@gaard.example', '{"laura.dixon@boxeldercoffeeroasters.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Laura,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 11:20:55 America/Denver', false, '2026-06-15 11:20:55 America/Denver'),
+  (1165, 374, 1222, 'ryan@gaard.example', '<mock-001165@gaard.example>', 'thread-001222', 'outbound', 'ryan@gaard.example', '{"anelson@boxeldermanufacturing.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Alexis,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 11:22:37 America/Denver', false, '2026-06-15 11:22:37 America/Denver'),
+  (1166, 374, 1222, 'ryan@gaard.example', '<mock-001166@gaard.example>', 'thread-001222', 'inbound', 'anelson@boxeldermanufacturing.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Thanks Ryan. We already work with a local firm and aren''t looking at alternatives right now.', '2026-06-17 22:22:37 America/Denver', false, '2026-06-17 22:22:37 America/Denver'),
+  (1167, 234, 1223, 'jon@gaard.example', '<mock-001167@gaard.example>', 'thread-001223', 'outbound', 'jon@gaard.example', '{"julie@friendsblibrary.example"}', '{}', 'Re: Investment support for Friends of Bonneville Library', 'Hi Julie,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-15 11:30:45 America/Denver', false, '2026-06-15 11:30:45 America/Denver'),
+  (1168, 376, 1224, 'ryan@gaard.example', '<mock-001168@gaard.example>', 'thread-001224', 'outbound', 'ryan@gaard.example', '{"tariq.anderson@hebervalleytitleescrow.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Tariq,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 11:42:11 America/Denver', false, '2026-06-15 11:42:11 America/Denver'),
+  (1169, 376, 1224, 'ryan@gaard.example', '<mock-001169@gaard.example>', 'thread-001224', 'inbound', 'tariq.anderson@hebervalleytitleescrow.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Thanks Ryan, the timing is actually good. Could we set up a call Monday the 22?', '2026-06-16 04:42:11 America/Denver', false, '2026-06-16 04:42:11 America/Denver'),
+  (1170, 373, 1225, 'ryan@gaard.example', '<mock-001170@gaard.example>', 'thread-001225', 'outbound', 'ryan@gaard.example', '{"bpetersen@weberrptherapy.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Bradley,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 13:03:30 America/Denver', false, '2026-06-15 13:03:30 America/Denver'),
+  (1171, 373, 1225, 'ryan@gaard.example', '<mock-001171@gaard.example>', 'thread-001225', 'inbound', 'bpetersen@weberrptherapy.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in July and we can talk.', '2026-06-17 21:03:30 America/Denver', false, '2026-06-17 21:03:30 America/Denver'),
+  (1172, 456, 1226, 'ryan@gaard.example', '<mock-001172@gaard.example>', 'thread-001226', 'outbound', 'ryan@gaard.example', '{"brooke.jones@lemhiautoworks.example"}', '{}', 'A retirement plan for your team', 'Hi Brooke,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 13:09:15 America/Denver', false, '2026-06-15 13:09:15 America/Denver'),
+  (1173, 384, 1227, 'ryan@gaard.example', '<mock-001173@gaard.example>', 'thread-001227', 'outbound', 'ryan@gaard.example', '{"martha.zhang@greatbasindentalgroup.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Martha,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 13:10:18 America/Denver', false, '2026-06-15 13:10:18 America/Denver'),
+  (1174, 253, 1228, 'jon@gaard.example', '<mock-001174@gaard.example>', 'thread-001228', 'outbound', 'jon@gaard.example', '{"dylan.fernandez@saltltassociation.example"}', '{}', 'Re: Investment support for Salt Lake Trails Association', 'Hi Dylan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-15 14:35:12 America/Denver', false, '2026-06-15 14:35:12 America/Denver'),
+  (1175, 106, 1229, 'jon@gaard.example', '<mock-001175@gaard.example>', 'thread-001229', 'outbound', 'jon@gaard.example', '{"michael.carter@greatbhsociety.example"}', '{}', 'Re: Investment management for Great Basin Heritage Society', 'Hi Michael,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-15 15:18:06 America/Denver', false, '2026-06-15 15:18:06 America/Denver'),
+  (1176, 98, 1230, 'jon@gaard.example', '<mock-001176@gaard.example>', 'thread-001230', 'outbound', 'jon@gaard.example', '{"kenneth.pena@davisccfoundation.example"}', '{}', 'Re: Investment management for Davis County Community Foundation', 'Hi Kenneth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-15 15:47:40 America/Denver', false, '2026-06-15 15:47:40 America/Denver'),
+  (1177, 372, 1231, 'ryan@gaard.example', '<mock-001177@gaard.example>', 'thread-001231', 'outbound', 'ryan@gaard.example', '{"sophia.wagner@daviscountytireservice.example"}', '{}', 'Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Sophia,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-15 16:56:53 America/Denver', false, '2026-06-15 16:56:53 America/Denver'),
+  (1178, 372, 1231, 'ryan@gaard.example', '<mock-001178@gaard.example>', 'thread-001231', 'inbound', 'sophia.wagner@daviscountytireservice.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-06-18 06:56:53 America/Denver', false, '2026-06-18 06:56:53 America/Denver'),
+  (1179, 219, 1232, 'jon@gaard.example', '<mock-001179@gaard.example>', 'thread-001232', 'outbound', 'jon@gaard.example', '{"andrea.hughes@webmail.example"}', '{}', 'Quarterly check-in', 'Hi Andrea,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-16 08:26:04 America/Denver', false, '2026-06-16 08:26:04 America/Denver'),
+  (1180, 219, 1232, 'jon@gaard.example', '<mock-001180@gaard.example>', 'thread-001232', 'inbound', 'andrea.hughes@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now work is busy right now. Could you check back in September?', '2026-06-17 16:26:04 America/Denver', false, '2026-06-17 16:26:04 America/Denver'),
+  (1181, 310, 1233, 'jon@gaard.example', '<mock-001181@gaard.example>', 'thread-001233', 'outbound', 'jon@gaard.example', '{"samantha@redwoodchfoundation.example"}', '{}', 'Investment management for Redwood Coast Health Foundation', 'Hi Samantha,
+
+We provide OCIO-style investment management for foundations and institutions like Redwood Coast Health Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-06-16 09:18:16 America/Denver', false, '2026-06-16 09:18:16 America/Denver'),
+  (1182, 514, 1234, 'ryan@gaard.example', '<mock-001182@gaard.example>', 'thread-001234', 'outbound', 'ryan@gaard.example', '{"amara.stone@mail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Amara,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-16 09:42:14 America/Denver', false, '2026-06-16 09:42:14 America/Denver'),
+  (1183, 514, 1234, 'ryan@gaard.example', '<mock-001183@gaard.example>', 'thread-001234', 'inbound', 'mailer-daemon@mail.example', '{"ryan@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to amara.stone@mail.example because the address couldn''t be found or is unable to receive mail.', '2026-06-16 09:43:14 America/Denver', true, '2026-06-16 09:43:14 America/Denver'),
+  (1184, 300, 1235, 'ryan@gaard.example', '<mock-001184@gaard.example>', 'thread-001235', 'outbound', 'ryan@gaard.example', '{"khoward2@sawtoothseleague.example"}', '{}', 'Quarterly check-in', 'Hi Kwame,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-06-16 09:56:12 America/Denver', false, '2026-06-16 09:56:12 America/Denver'),
+  (1185, 300, 1235, 'ryan@gaard.example', '<mock-001185@gaard.example>', 'thread-001235', 'inbound', 'khoward2@sawtoothseleague.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-06-17 15:56:12 America/Denver', false, '2026-06-17 15:56:12 America/Denver'),
+  (1186, 134, 1236, 'jon@gaard.example', '<mock-001186@gaard.example>', 'thread-001236', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-16 11:16:02 America/Denver', false, '2026-06-16 11:16:02 America/Denver'),
+  (1187, 287, 1237, 'ryan@gaard.example', '<mock-001187@gaard.example>', 'thread-001237', 'outbound', 'ryan@gaard.example', '{"jgibson@sweetwaterartspartners.example"}', '{}', 'Re: Investment support for Sweetwater Arts Partners', 'Hi Jessica,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-16 14:09:48 America/Denver', false, '2026-06-16 14:09:48 America/Denver'),
+  (1188, 287, 1237, 'ryan@gaard.example', '<mock-001188@gaard.example>', 'thread-001237', 'inbound', 'jgibson@sweetwaterartspartners.example', '{"ryan@gaard.example"}', '{}', 'Re: Re: Investment support for Sweetwater Arts Partners', 'We''re not interested, thanks.', '2026-06-19 07:09:48 America/Denver', false, '2026-06-19 07:09:48 America/Denver'),
+  (1189, 455, 1238, 'ryan@gaard.example', '<mock-001189@gaard.example>', 'thread-001238', 'outbound', 'ryan@gaard.example', '{"lsantos@panhandlelandscaping.example"}', '{}', '401(k) options for Panhandle Landscaping LLC', 'Hi Luis,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-16 14:46:08 America/Denver', false, '2026-06-16 14:46:08 America/Denver'),
+  (1190, 192, 1239, 'jon@gaard.example', '<mock-001190@gaard.example>', 'thread-001239', 'outbound', 'jon@gaard.example', '{"doris.parker@webmail.example"}', '{}', 'Re: Introduction, Doris', 'Hi Doris,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-17 08:22:38 America/Denver', false, '2026-06-17 08:22:38 America/Denver'),
+  (1191, 11, 1240, 'jon@gaard.example', '<mock-001191@gaard.example>', 'thread-001240', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-17 08:39:11 America/Denver', false, '2026-06-17 08:39:11 America/Denver'),
+  (1192, 11, 1240, 'jon@gaard.example', '<mock-001192@gaard.example>', 'thread-001240', 'inbound', 'dennis@tooelevpservices.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-06-19 04:39:11 America/Denver', false, '2026-06-19 04:39:11 America/Denver'),
+  (1193, 231, 1242, 'jon@gaard.example', '<mock-001193@gaard.example>', 'thread-001242', 'outbound', 'jon@gaard.example', '{"hreed@daviscseinitiative.example"}', '{}', 'Re: Quick question about Davis County Science Education Initiative''s endowment', 'Hi Harold,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-17 09:36:52 America/Denver', false, '2026-06-17 09:36:52 America/Denver'),
+  (1194, 473, 1243, 'ryan@gaard.example', '<mock-001194@gaard.example>', 'thread-001243', 'outbound', 'ryan@gaard.example', '{"jae.hayes@provoriversoftware.example"}', '{}', 'Introduction via Arjun', 'Hi Jae,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-17 10:30:22 America/Denver', false, '2026-06-17 10:30:22 America/Denver'),
+  (1195, 473, 1243, 'ryan@gaard.example', '<mock-001195@gaard.example>', 'thread-001243', 'inbound', 'jae.hayes@provoriversoftware.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Arjun', 'Good timing question, but our board meets later in the year. Circle back in August and we can talk.', '2026-06-19 10:30:22 America/Denver', false, '2026-06-19 10:30:22 America/Denver'),
+  (1196, 434, 1244, 'ryan@gaard.example', '<mock-001196@gaard.example>', 'thread-001244', 'outbound', 'ryan@gaard.example', '{"abigail@castlevtescrow.example"}', '{}', '401(k) options for Castle Valley Title & Escrow', 'Hi Abigail,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-18 09:26:57 America/Denver', false, '2026-06-18 09:26:57 America/Denver'),
+  (1197, 164, 1245, 'ryan@gaard.example', '<mock-001197@gaard.example>', 'thread-001245', 'outbound', 'ryan@gaard.example', '{"anna_hicks@portneufcfoundation.example"}', '{}', 'Quarterly check-in', 'Hi Anna,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-06-18 10:48:49 America/Denver', false, '2026-06-18 10:48:49 America/Denver'),
+  (1198, 164, 1245, 'ryan@gaard.example', '<mock-001198@gaard.example>', 'thread-001245', 'inbound', 'anna_hicks@portneufcfoundation.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but our board meets later in the year. Circle back in July and we can talk.', '2026-06-19 19:48:49 America/Denver', false, '2026-06-19 19:48:49 America/Denver'),
+  (1199, 201, 1247, 'jon@gaard.example', '<mock-001199@gaard.example>', 'thread-001247', 'outbound', 'jon@gaard.example', '{"harold.sorensen@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Harold,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-18 14:27:37 America/Denver', false, '2026-06-18 14:27:37 America/Denver'),
+  (1200, 185, 1248, 'jon@gaard.example', '<mock-001200@gaard.example>', 'thread-001248', 'outbound', 'jon@gaard.example', '{"carmen.park@mail.example"}', '{}', 'Re: Introduction, Carmen', 'Hi Carmen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-18 15:19:16 America/Denver', false, '2026-06-18 15:19:16 America/Denver');
+
+insert into public.email_messages (id, contact_id, touchpoint_id, mailbox, external_id, thread_id, direction, from_email, to_emails, cc_emails, subject, body_text, sent_at, is_auto_reply, created_at) values
+  (1201, 296, 1249, 'ryan@gaard.example', '<mock-001201@gaard.example>', 'thread-001249', 'outbound', 'ryan@gaard.example', '{"jae.armstrong@friendsbrmuseum.example"}', '{}', 'Re: Quick question about Friends of Boise River Museum''s endowment', 'Hi Jae,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-19 10:56:51 America/Denver', false, '2026-06-19 10:56:51 America/Denver'),
+  (1202, 269, 1250, 'ryan@gaard.example', '<mock-001202@gaard.example>', 'thread-001250', 'outbound', 'ryan@gaard.example', '{"kwame.bennett@medicinebseassociation.example"}', '{}', 'Re: Medicine Bow Science Education Association''s reserves', 'Hi Kwame,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-19 11:38:19 America/Denver', false, '2026-06-19 11:38:19 America/Denver'),
+  (1203, 458, 1251, 'ryan@gaard.example', '<mock-001203@gaard.example>', 'thread-001251', 'outbound', 'ryan@gaard.example', '{"lawrenceh@sugarhousesoftware.example"}', '{}', 'A retirement plan for your team', 'Hi Lawrence,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-19 16:46:21 America/Denver', false, '2026-06-19 16:46:21 America/Denver'),
+  (1204, 458, 1251, 'ryan@gaard.example', '<mock-001204@gaard.example>', 'thread-001251', 'inbound', 'lawrenceh@sugarhousesoftware.example', '{"ryan@gaard.example"}', '{}', 'Re: A retirement plan for your team', 'Thanks for following up. Right now we''re in the middle of our budget cycle. Could you check back in October?', '2026-06-21 17:46:21 America/Denver', false, '2026-06-21 17:46:21 America/Denver'),
+  (1205, 293, 1253, 'ryan@gaard.example', '<mock-001205@gaard.example>', 'thread-001253', 'outbound', 'ryan@gaard.example', '{"susan.griffin@adultessvalley.example"}', '{}', 'Quick question about Adult Education Services of Star Valley''s endowment', 'Hi Susan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Adult Education Services of Star Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-22 08:43:36 America/Denver', false, '2026-06-22 08:43:36 America/Denver'),
+  (1206, 259, 1254, 'jon@gaard.example', '<mock-001206@gaard.example>', 'thread-001254', 'outbound', 'jon@gaard.example', '{"brenda@ogdenvdssociety.example"}', '{}', 'Re: Ogden Valley Disability Services Society''s reserves', 'Hi Brenda,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-22 08:45:47 America/Denver', false, '2026-06-22 08:45:47 America/Denver'),
+  (1207, 491, 1255, 'ryan@gaard.example', '<mock-001207@gaard.example>', 'thread-001255', 'outbound', 'ryan@gaard.example', '{"barbara.green@mail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Barbara,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-22 08:56:05 America/Denver', false, '2026-06-22 08:56:05 America/Denver'),
+  (1208, 148, 1256, 'ryan@gaard.example', '<mock-001208@gaard.example>', 'thread-001256', 'outbound', 'ryan@gaard.example', '{"joseph_patterson@greenriverartssociety.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Joseph,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-22 10:25:23 America/Denver', false, '2026-06-22 10:25:23 America/Denver'),
+  (1209, 358, 1257, 'jon@gaard.example', '<mock-001209@gaard.example>', 'thread-001257', 'outbound', 'jon@gaard.example', '{"lisa.anderson@friendsbrsymphony.example"}', '{}', 'Quarterly check-in', 'Hi Lisa,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-22 10:31:28 America/Denver', false, '2026-06-22 10:31:28 America/Denver'),
+  (1210, 358, 1257, 'jon@gaard.example', '<mock-001210@gaard.example>', 'thread-001257', 'inbound', 'lisa.anderson@friendsbrsymphony.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-06-23 12:31:28 America/Denver', false, '2026-06-23 12:31:28 America/Denver'),
+  (1211, 213, 1258, 'jon@gaard.example', '<mock-001211@gaard.example>', 'thread-001258', 'outbound', 'jon@gaard.example', '{"juan.wright@webmail.example"}', '{}', 'Re: Introduction via Albert', 'Hi Juan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-22 10:41:09 America/Denver', false, '2026-06-22 10:41:09 America/Denver'),
+  (1212, 251, 1261, 'jon@gaard.example', '<mock-001212@gaard.example>', 'thread-001261', 'outbound', 'jon@gaard.example', '{"gerald.carroll@sugarhfbleague.example"}', '{}', 'Re: Investment support for Sugar House Food Bank League', 'Hi Gerald,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-22 13:33:28 America/Denver', false, '2026-06-22 13:33:28 America/Denver'),
+  (1213, 324, 1262, 'jon@gaard.example', '<mock-001213@gaard.example>', 'thread-001262', 'outbound', 'jon@gaard.example', '{"timothy.sanders@ironcountydanceproject.example"}', '{}', 'Quarterly check-in', 'Hi Timothy,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-22 13:38:00 America/Denver', false, '2026-06-22 13:38:00 America/Denver'),
+  (1214, 198, 1263, 'jon@gaard.example', '<mock-001214@gaard.example>', 'thread-001263', 'outbound', 'jon@gaard.example', '{"carol.hoffman@summitridge.edu.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Carol,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-22 13:42:35 America/Denver', false, '2026-06-22 13:42:35 America/Denver'),
+  (1215, 232, 1265, 'jon@gaard.example', '<mock-001215@gaard.example>', 'thread-001265', 'outbound', 'jon@gaard.example', '{"gary@friendsutahvalleyparks.example"}', '{}', 'Re: Investment support for Friends of Utah Valley Parks', 'Hi Gary,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-23 08:25:04 America/Denver', false, '2026-06-23 08:25:04 America/Denver'),
+  (1216, 232, 1265, 'jon@gaard.example', '<mock-001216@gaard.example>', 'thread-001265', 'inbound', 'gary@friendsutahvalleyparks.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment support for Friends of Utah Valley Parks', 'Thanks. I''m copying our finance director, who handles our investment accounts.', '2026-06-23 14:25:04 America/Denver', false, '2026-06-23 14:25:04 America/Denver'),
+  (1217, 233, 1268, 'jon@gaard.example', '<mock-001217@gaard.example>', 'thread-001268', 'outbound', 'jon@gaard.example', '{"emily@friendsutahvalleyparks.example"}', '{}', 'Introduction via Gary', 'Hi Emily,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Utah Valley Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-06-24 10:57:34 America/Denver', false, '2026-06-24 10:57:34 America/Denver'),
+  (1218, 233, 1268, 'jon@gaard.example', '<mock-001218@gaard.example>', 'thread-001268', 'inbound', 'emily@friendsutahvalleyparks.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Gary', 'Thanks for following up. Right now our board meets later in the year. Could you check back in August?', '2026-06-25 10:57:34 America/Denver', false, '2026-06-25 10:57:34 America/Denver'),
+  (1219, 349, 1269, 'jon@gaard.example', '<mock-001219@gaard.example>', 'thread-001269', 'outbound', 'jon@gaard.example', '{"alice.garza@escalantetinitiative.example"}', '{}', 'Quarterly check-in', 'Hi Alice,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-06-24 13:06:26 America/Denver', false, '2026-06-24 13:06:26 America/Denver'),
+  (1220, 349, 1269, 'jon@gaard.example', '<mock-001220@gaard.example>', 'thread-001269', 'inbound', 'alice.garza@escalantetinitiative.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but this quarter is busy for us. Circle back in August and we can talk.', '2026-06-24 22:06:26 America/Denver', false, '2026-06-24 22:06:26 America/Denver'),
+  (1221, 307, 1270, 'jon@gaard.example', '<mock-001221@gaard.example>', 'thread-001270', 'outbound', 'jon@gaard.example', '{"kain@deltacfoundation.example"}', '{}', 'Investment management for Delta Community Foundation', 'Hi Kai,
+
+We provide OCIO-style investment management for foundations and institutions like Delta Community Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-06-24 14:28:20 America/Denver', false, '2026-06-24 14:28:20 America/Denver'),
+  (1222, 515, 1272, 'ryan@gaard.example', '<mock-001222@gaard.example>', 'thread-001272', 'outbound', 'ryan@gaard.example', '{"samuel.campbell@inbox.example"}', '{}', 'Low-cost automated investing', 'Hi Samuel,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-25 09:02:37 America/Denver', false, '2026-06-25 09:02:37 America/Denver'),
+  (1223, 330, 1273, 'jon@gaard.example', '<mock-001223@gaard.example>', 'thread-001273', 'outbound', 'jon@gaard.example', '{"keith@murrayfamilyfoundation.example"}', '{}', 'Re: Great meeting you at Bay Area Foundation Investment Forum', 'Hi Keith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-25 09:06:37 America/Denver', false, '2026-06-25 09:06:37 America/Denver'),
+  (1224, 273, 1274, 'ryan@gaard.example', '<mock-001224@gaard.example>', 'thread-001274', 'outbound', 'ryan@gaard.example', '{"pmorales@caspermmcenter.example"}', '{}', 'Re: Casper Mountain Mentoring Center''s reserves', 'Hi Paulo,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-06-25 09:10:51 America/Denver', false, '2026-06-25 09:10:51 America/Denver'),
+  (1225, 225, 1275, 'jon@gaard.example', '<mock-001225@gaard.example>', 'thread-001275', 'outbound', 'jon@gaard.example', '{"javier.alvarez@cottonwoodmalliance.example"}', '{}', 'Re: Cottonwood Music Alliance''s reserves', 'Hi Javier,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-25 14:17:14 America/Denver', false, '2026-06-25 14:17:14 America/Denver'),
+  (1226, 488, 1276, 'ryan@gaard.example', '<mock-001226@gaard.example>', 'thread-001276', 'outbound', 'ryan@gaard.example', '{"logan.carter38@mail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Logan,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-26 09:57:00 America/Denver', false, '2026-06-26 09:57:00 America/Denver'),
+  (1227, 488, 1276, 'ryan@gaard.example', '<mock-001227@gaard.example>', 'thread-001276', 'inbound', 'logan.carter38@mail.example', '{"ryan@gaard.example"}', '{}', 'Automatic reply: GAARD''s new robo-advisor', 'I am out of the office until Monday, July 6 with limited access to email. For anything urgent please call our main office.', '2026-06-26 10:00:00 America/Denver', true, '2026-06-26 10:00:00 America/Denver'),
+  (1228, 490, 1277, 'ryan@gaard.example', '<mock-001228@gaard.example>', 'thread-001277', 'outbound', 'ryan@gaard.example', '{"evelyn.marshall@inbox.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Evelyn,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-26 14:02:06 America/Denver', false, '2026-06-26 14:02:06 America/Denver'),
+  (1229, 157, 1278, 'jon@gaard.example', '<mock-001229@gaard.example>', 'thread-001278', 'outbound', 'jon@gaard.example', '{"andrew.elliott@sugarhtcoalition.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Andrew,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-26 15:30:29 America/Denver', false, '2026-06-26 15:30:29 America/Denver'),
+  (1230, 332, 1280, 'jon@gaard.example', '<mock-001230@gaard.example>', 'thread-001280', 'outbound', 'jon@gaard.example', '{"gadams@redwoodchsociety.example"}', '{}', 'Re: Great meeting you at Bay Area Foundation Investment Forum', 'Hi Grace,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-29 09:31:17 America/Denver', false, '2026-06-29 09:31:17 America/Denver'),
+  (1231, 332, 1280, 'jon@gaard.example', '<mock-001231@gaard.example>', 'thread-001280', 'inbound', 'gadams@redwoodchsociety.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Great meeting you at Bay Area Foundation Investment Forum', 'Not something we are looking at. Thank you.', '2026-07-02 07:31:17 America/Denver', false, '2026-07-02 07:31:17 America/Denver'),
+  (1232, 305, 1281, 'jon@gaard.example', '<mock-001232@gaard.example>', 'thread-001281', 'outbound', 'jon@gaard.example', '{"anthonyo@jensencharitabletrust.example"}', '{}', 'Re: Investment management for Jensen Charitable Trust', 'Hi Anthony,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-29 10:13:02 America/Denver', false, '2026-06-29 10:13:02 America/Denver'),
+  (1233, 305, 1281, 'jon@gaard.example', '<mock-001233@gaard.example>', 'thread-001281', 'inbound', 'anthonyo@jensencharitabletrust.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Re: Investment management for Jensen Charitable Trust', 'I am out of the office until Tuesday, July 7 with limited access to email. For anything urgent please call our main office.', '2026-06-29 10:16:02 America/Denver', true, '2026-06-29 10:16:02 America/Denver'),
+  (1234, 223, 1283, 'jon@gaard.example', '<mock-001234@gaard.example>', 'thread-001283', 'outbound', 'jon@gaard.example', '{"tgray@canyonlandsvcouncil.example"}', '{}', 'Re: Quick question about Canyonlands Veterans Council''s endowment', 'Hi Thomas,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-29 10:53:38 America/Denver', false, '2026-06-29 10:53:38 America/Denver'),
+  (1235, 147, 1284, 'jon@gaard.example', '<mock-001235@gaard.example>', 'thread-001284', 'outbound', 'jon@gaard.example', '{"malia.morgan@friendswrmuseum.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Malia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-29 13:35:41 America/Denver', false, '2026-06-29 13:35:41 America/Denver'),
+  (1236, 271, 1285, 'ryan@gaard.example', '<mock-001236@gaard.example>', 'thread-001285', 'outbound', 'ryan@gaard.example', '{"rrose@treasurevvcollective.example"}', '{}', 'Investment support for Treasure Valley Veterans Collective', 'Hi Roger,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Treasure Valley Veterans Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-29 16:18:04 America/Denver', false, '2026-06-29 16:18:04 America/Denver'),
+  (1237, 154, 1288, 'jon@gaard.example', '<mock-001237@gaard.example>', 'thread-001288', 'outbound', 'jon@gaard.example', '{"kelly.kim@sanjfsservices.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Kelly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-30 09:55:47 America/Denver', false, '2026-06-30 09:55:47 America/Denver'),
+  (1238, 503, 1289, 'ryan@gaard.example', '<mock-001238@gaard.example>', 'thread-001289', 'outbound', 'ryan@gaard.example', '{"fatima.fox40@mail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Fatima,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-06-30 10:15:01 America/Denver', false, '2026-06-30 10:15:01 America/Denver'),
+  (1239, 503, 1289, 'ryan@gaard.example', '<mock-001239@gaard.example>', 'thread-001289', 'inbound', 'fatima.fox40@mail.example', '{"ryan@gaard.example"}', '{}', 'Automatic reply: GAARD''s new robo-advisor', 'I am out of the office until Friday, July 10 with limited access to email. For anything urgent please call our main office.', '2026-06-30 10:17:01 America/Denver', true, '2026-06-30 10:17:01 America/Denver'),
+  (1240, 334, 1291, 'jon@gaard.example', '<mock-001240@gaard.example>', 'thread-001291', 'outbound', 'jon@gaard.example', '{"anya.yazzie@sierractrust.example"}', '{}', 'Re: Great meeting you at Bay Area Foundation Investment Forum', 'Hi Anya,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-06-30 14:48:58 America/Denver', false, '2026-06-30 14:48:58 America/Denver'),
+  (1241, 519, 1292, 'ryan@gaard.example', '<mock-001241@gaard.example>', 'thread-001292', 'outbound', 'ryan@gaard.example', '{"mateo.sanchez69@mail.example"}', '{}', 'Checking back in', 'Hi Mateo,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-01 08:31:58 America/Denver', false, '2026-07-01 08:31:58 America/Denver'),
+  (1242, 519, 1292, 'ryan@gaard.example', '<mock-001242@gaard.example>', 'thread-001292', 'inbound', 'mateo.sanchez69@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks for following up. Right now I''m in the middle of a move. Could you check back in November?', '2026-07-02 10:31:58 America/Denver', false, '2026-07-02 10:31:58 America/Denver'),
+  (1243, 373, 1293, 'ryan@gaard.example', '<mock-001243@gaard.example>', 'thread-001293', 'outbound', 'ryan@gaard.example', '{"bpetersen@weberrptherapy.example"}', '{}', 'Checking back in', 'Hi Bradley,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-01 08:43:45 America/Denver', false, '2026-07-01 08:43:45 America/Denver'),
+  (1244, 111, 1294, 'jon@gaard.example', '<mock-001244@gaard.example>', 'thread-001294', 'outbound', 'jon@gaard.example', '{"betty@wasatchheritagesociety.example"}', '{}', 'Checking back in', 'Hi Betty,
+
+We provide OCIO-style investment management for foundations and institutions like Wasatch Heritage Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-07-01 08:50:18 America/Denver', false, '2026-07-01 08:50:18 America/Denver'),
+  (1245, 111, 1294, 'jon@gaard.example', '<mock-001245@gaard.example>', 'thread-001294', 'inbound', 'betty@wasatchheritagesociety.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Hi Jon, thanks for reaching out. We already work with an advisor and are happy with the relationship, so we''ll pass for now.', '2026-07-04 00:50:18 America/Denver', false, '2026-07-04 00:50:18 America/Denver'),
+  (1246, 354, 1295, 'jon@gaard.example', '<mock-001246@gaard.example>', 'thread-001295', 'outbound', 'jon@gaard.example', '{"ethan.olson@wasatchhcollective.example"}', '{}', 'Checking back in', 'Hi Ethan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Housing Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-07-01 09:16:03 America/Denver', false, '2026-07-01 09:16:03 America/Denver'),
+  (1247, 354, 1295, 'jon@gaard.example', '<mock-001247@gaard.example>', 'thread-001295', 'inbound', 'ethan.olson@wasatchhcollective.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in August and we can talk.', '2026-07-02 14:16:03 America/Denver', false, '2026-07-02 14:16:03 America/Denver'),
+  (1248, 505, 1296, 'ryan@gaard.example', '<mock-001248@gaard.example>', 'thread-001296', 'outbound', 'ryan@gaard.example', '{"jordan.simpson@inbox.example"}', '{}', 'Low-cost automated investing', 'Hi Jordan,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-01 10:09:20 America/Denver', false, '2026-07-01 10:09:20 America/Denver'),
+  (1249, 186, 1297, 'jon@gaard.example', '<mock-001249@gaard.example>', 'thread-001297', 'outbound', 'jon@gaard.example', '{"helen.medina@summitridge.edu.example"}', '{}', 'Checking back in', 'Hi Helen,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-07-01 10:25:03 America/Denver', false, '2026-07-01 10:25:03 America/Denver'),
+  (1250, 186, 1297, 'jon@gaard.example', '<mock-001250@gaard.example>', 'thread-001297', 'inbound', 'helen.medina@summitridge.edu.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Yes, I''d like to learn more. I''m free Tuesday afternoon.', '2026-07-03 19:25:03 America/Denver', false, '2026-07-03 19:25:03 America/Denver'),
+  (1251, 340, 1298, 'jon@gaard.example', '<mock-001251@gaard.example>', 'thread-001298', 'outbound', 'jon@gaard.example', '{"wayne.gomez@sugarhmcollective.example"}', '{}', 'Checking back in', 'Hi Wayne,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sugar House Mentoring Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-07-01 10:33:53 America/Denver', false, '2026-07-01 10:33:53 America/Denver'),
+  (1252, 218, 1299, 'jon@gaard.example', '<mock-001252@gaard.example>', 'thread-001299', 'outbound', 'jon@gaard.example', '{"alexis.elliott@webmail.example"}', '{}', 'Quarterly check-in', 'Hi Alexis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-01 10:57:49 America/Denver', false, '2026-07-01 10:57:49 America/Denver'),
+  (1253, 215, 1300, 'ryan@gaard.example', '<mock-001253@gaard.example>', 'thread-001300', 'outbound', 'ryan@gaard.example', '{"noah.johnston58@mail.example"}', '{}', 'Checking back in', 'Hi Noah,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-01 11:02:29 America/Denver', false, '2026-07-01 11:02:29 America/Denver'),
+  (1254, 378, 1301, 'ryan@gaard.example', '<mock-001254@gaard.example>', 'thread-001301', 'outbound', 'ryan@gaard.example', '{"fatima.nichols@timpanogosroofing.example"}', '{}', 'Checking back in', 'Hi Fatima,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-01 11:22:37 America/Denver', false, '2026-07-01 11:22:37 America/Denver'),
+  (1255, 378, 1301, 'ryan@gaard.example', '<mock-001255@gaard.example>', 'thread-001301', 'inbound', 'fatima.nichols@timpanogosroofing.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Yes, I''d like to learn more. I''m free Monday afternoon.', '2026-07-04 02:22:37 America/Denver', false, '2026-07-04 02:22:37 America/Denver'),
+  (1256, 331, 1302, 'jon@gaard.example', '<mock-001256@gaard.example>', 'thread-001302', 'outbound', 'jon@gaard.example', '{"jeffrey.west@sacramentovmsociety.example"}', '{}', 'Re: Great meeting you at Bay Area Foundation Investment Forum', 'Hi Jeffrey,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-01 11:24:35 America/Denver', false, '2026-07-01 11:24:35 America/Denver'),
+  (1257, 245, 1303, 'jon@gaard.example', '<mock-001257@gaard.example>', 'thread-001303', 'outbound', 'jon@gaard.example', '{"nmarshall@seviervmcollective.example"}', '{}', 'Quarterly check-in', 'Hi Natalie,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-01 11:57:53 America/Denver', false, '2026-07-01 11:57:53 America/Denver'),
+  (1258, 245, 1303, 'jon@gaard.example', '<mock-001258@gaard.example>', 'thread-001303', 'inbound', 'nmarshall@seviervmcollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-07-03 00:57:53 America/Denver', false, '2026-07-03 00:57:53 America/Denver'),
+  (1259, 164, 1304, 'ryan@gaard.example', '<mock-001259@gaard.example>', 'thread-001304', 'outbound', 'ryan@gaard.example', '{"anna_hicks@portneufcfoundation.example"}', '{}', 'Quarterly check-in', 'Hi Anna,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-07-01 13:59:57 America/Denver', false, '2026-07-01 13:59:57 America/Denver'),
+  (1260, 164, 1304, 'ryan@gaard.example', '<mock-001260@gaard.example>', 'thread-001304', 'inbound', 'anna_hicks@portneufcfoundation.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-07-02 11:59:57 America/Denver', false, '2026-07-02 11:59:57 America/Denver'),
+  (1261, 286, 1305, 'ryan@gaard.example', '<mock-001261@gaard.example>', 'thread-001305', 'outbound', 'ryan@gaard.example', '{"ayazzie@adultecsriver.example"}', '{}', 'Quick question about Adult Education Coalition of Salmon River''s endowment', 'Hi Ann,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Adult Education Coalition of Salmon River keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-02 08:35:34 America/Denver', false, '2026-07-02 08:35:34 America/Denver'),
+  (1262, 511, 1306, 'ryan@gaard.example', '<mock-001262@gaard.example>', 'thread-001306', 'outbound', 'ryan@gaard.example', '{"madison.jensen46@mail.example"}', '{}', 'Low-cost automated investing', 'Hi Madison,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-02 11:51:09 America/Denver', false, '2026-07-02 11:51:09 America/Denver'),
+  (1263, 474, 1307, 'ryan@gaard.example', '<mock-001263@gaard.example>', 'thread-001307', 'outbound', 'ryan@gaard.example', '{"dmorales@koloboptometry.example"}', '{}', 'A retirement plan for your team', 'Hi Daniel,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-03 09:55:02 America/Denver', false, '2026-07-03 09:55:02 America/Denver'),
+  (1264, 438, 1308, 'ryan@gaard.example', '<mock-001264@gaard.example>', 'thread-001308', 'outbound', 'ryan@gaard.example', '{"sokafor@snowyrangeelectric.example"}', '{}', '401(k) options for Snowy Range Electric', 'Hi Sharon,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-03 10:17:25 America/Denver', false, '2026-07-03 10:17:25 America/Denver'),
+  (1265, 295, 1309, 'ryan@gaard.example', '<mock-001265@gaard.example>', 'thread-001309', 'outbound', 'ryan@gaard.example', '{"efisher@plattevrwcouncil.example"}', '{}', 'Quick question about Platte Valley Refugee Welcome Council''s endowment', 'Hi Evelyn,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Platte Valley Refugee Welcome Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-03 10:53:06 America/Denver', false, '2026-07-03 10:53:06 America/Denver'),
+  (1266, 152, 1312, 'jon@gaard.example', '<mock-001266@gaard.example>', 'thread-001312', 'outbound', 'jon@gaard.example', '{"jdixon@seviervmcollective.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Jean,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-06 09:53:25 America/Denver', false, '2026-07-06 09:53:25 America/Denver'),
+  (1267, 292, 1313, 'ryan@gaard.example', '<mock-001267@gaard.example>', 'thread-001313', 'outbound', 'ryan@gaard.example', '{"mmadsen@scienceespalouse.example"}', '{}', 'Re: Quick question about Science Education Services of Palouse''s endowment', 'Hi Madison,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-06 10:22:01 America/Denver', false, '2026-07-06 10:22:01 America/Denver'),
+  (1268, 494, 1314, 'ryan@gaard.example', '<mock-001268@gaard.example>', 'thread-001314', 'outbound', 'ryan@gaard.example', '{"melissa.gray60@mail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Melissa,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-06 11:47:17 America/Denver', false, '2026-07-06 11:47:17 America/Denver'),
+  (1269, 207, 1315, 'ryan@gaard.example', '<mock-001269@gaard.example>', 'thread-001315', 'outbound', 'ryan@gaard.example', '{"ronald.sorensen46@inbox.example"}', '{}', 'Checking back in', 'Hi Ronald,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-06 13:18:37 America/Denver', false, '2026-07-06 13:18:37 America/Denver'),
+  (1270, 207, 1315, 'ryan@gaard.example', '<mock-001270@gaard.example>', 'thread-001315', 'inbound', 'ronald.sorensen46@inbox.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2026-07-09 00:18:37 America/Denver', false, '2026-07-09 00:18:37 America/Denver'),
+  (1271, 533, 1316, 'ryan@gaard.example', '<mock-001271@gaard.example>', 'thread-001316', 'outbound', 'ryan@gaard.example', '{"dylan.robinson@friendsbighornlibrary.example"}', '{}', 'Re: Introduction via Jesse', 'Hi Dylan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-06 13:20:49 America/Denver', false, '2026-07-06 13:20:49 America/Denver'),
+  (1272, 318, 1317, 'jon@gaard.example', '<mock-001272@gaard.example>', 'thread-001317', 'outbound', 'jon@gaard.example', '{"martha@utahvfsproject.example"}', '{}', 'Quarterly check-in', 'Hi Martha,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-06 13:41:06 America/Denver', false, '2026-07-06 13:41:06 America/Denver'),
+  (1273, 502, 1318, 'ryan@gaard.example', '<mock-001273@gaard.example>', 'thread-001318', 'outbound', 'ryan@gaard.example', '{"vincent.wood@inbox.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Vincent,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-06 13:41:42 America/Denver', false, '2026-07-06 13:41:42 America/Denver'),
+  (1274, 158, 1320, 'jon@gaard.example', '<mock-001274@gaard.example>', 'thread-001320', 'outbound', 'jon@gaard.example', '{"jason.gomez@friendssanpetelibrary.example"}', '{}', 'Re: Great meeting you at Endowment Basics for Nonprofit Boards (GAARD webinar)', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-06 16:51:46 America/Denver', false, '2026-07-06 16:51:46 America/Denver'),
+  (1275, 315, 1321, 'jon@gaard.example', '<mock-001275@gaard.example>', 'thread-001321', 'outbound', 'jon@gaard.example', '{"charlottep@deltaartsendowment.example"}', '{}', 'Re: Investment management for Delta Arts Endowment', 'Hi Charlotte,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-07 08:07:08 America/Denver', false, '2026-07-07 08:07:08 America/Denver'),
+  (1276, 461, 1322, 'ryan@gaard.example', '<mock-001276@gaard.example>', 'thread-001322', 'outbound', 'ryan@gaard.example', '{"anya.romero@portneufheatingair.example"}', '{}', 'Re: Portneuf Heating & Air 401(k) question', 'Hi Anya,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-07 08:40:18 America/Denver', false, '2026-07-07 08:40:18 America/Denver'),
+  (1277, 210, 1323, 'jon@gaard.example', '<mock-001277@gaard.example>', 'thread-001323', 'outbound', 'jon@gaard.example', '{"jose.long60@mail.example"}', '{}', 'Introduction via Mei', 'Hi Jose,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-07-07 09:44:56 America/Denver', false, '2026-07-07 09:44:56 America/Denver'),
+  (1278, 210, 1323, 'jon@gaard.example', '<mock-001278@gaard.example>', 'thread-001323', 'inbound', 'jose.long60@mail.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Mei', 'Thanks Jon, the timing is actually good. Could we set up a call Tuesday the 14?', '2026-07-08 13:44:56 America/Denver', false, '2026-07-08 13:44:56 America/Denver'),
+  (1279, 258, 1324, 'jon@gaard.example', '<mock-001279@gaard.example>', 'thread-001324', 'outbound', 'jon@gaard.example', '{"hjenkins@cachevyinitiative.example"}', '{}', 'Re: Investment support for Cache Valley Youth Initiative', 'Hi Hailey,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-07 10:18:44 America/Denver', false, '2026-07-07 10:18:44 America/Denver'),
+  (1280, 488, 1325, 'ryan@gaard.example', '<mock-001280@gaard.example>', 'thread-001325', 'outbound', 'ryan@gaard.example', '{"logan.carter38@mail.example"}', '{}', 'Re: GAARD''s new robo-advisor', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-07 13:34:54 America/Denver', false, '2026-07-07 13:34:54 America/Denver'),
+  (1281, 166, 1328, 'ryan@gaard.example', '<mock-001281@gaard.example>', 'thread-001328', 'outbound', 'ryan@gaard.example', '{"benjamin.lawrence@palmervfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Benjamin,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-08 10:19:07 America/Denver', false, '2026-07-08 10:19:07 America/Denver'),
+  (1282, 171, 1329, 'ryan@gaard.example', '<mock-001282@gaard.example>', 'thread-001329', 'outbound', 'ryan@gaard.example', '{"frances.pierce@mail.example"}', '{}', 'Checking back in', 'Hi Frances,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-08 13:15:01 America/Denver', false, '2026-07-08 13:15:01 America/Denver'),
+  (1283, 305, 1330, 'jon@gaard.example', '<mock-001283@gaard.example>', 'thread-001330', 'outbound', 'jon@gaard.example', '{"anthonyo@jensencharitabletrust.example"}', '{}', 'Re: Investment management for Jensen Charitable Trust', 'Hi Anthony,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-08 13:50:34 America/Denver', false, '2026-07-08 13:50:34 America/Denver'),
+  (1284, 506, 1331, 'ryan@gaard.example', '<mock-001284@gaard.example>', 'thread-001331', 'outbound', 'ryan@gaard.example', '{"sandra.moore@inbox.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Sandra,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-08 15:30:09 America/Denver', false, '2026-07-08 15:30:09 America/Denver'),
+  (1285, 506, 1331, 'ryan@gaard.example', '<mock-001285@gaard.example>', 'thread-001331', 'inbound', 'sandra.moore@inbox.example', '{"ryan@gaard.example"}', '{}', 'Re: GAARD''s new robo-advisor', 'Good timing question, but we are traveling. Circle back in October and we can talk.', '2026-07-11 12:30:09 America/Denver', false, '2026-07-11 12:30:09 America/Denver'),
+  (1286, 468, 1332, 'ryan@gaard.example', '<mock-001286@gaard.example>', 'thread-001332', 'outbound', 'ryan@gaard.example', '{"mateo@jordanriverlandscaping.example"}', '{}', 'Jordan River Landscaping LLC 401(k) question', 'Hi Mateo,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-09 09:30:34 America/Denver', false, '2026-07-09 09:30:34 America/Denver'),
+  (1287, 522, 1335, 'ryan@gaard.example', '<mock-001287@gaard.example>', 'thread-001335', 'outbound', 'ryan@gaard.example', '{"judith.jensen@inbox.example"}', '{}', 'Introduction via a', 'Hi Judith,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-10 08:19:57 America/Denver', false, '2026-07-10 08:19:57 America/Denver'),
+  (1288, 183, 1336, 'jon@gaard.example', '<mock-001288@gaard.example>', 'thread-001336', 'outbound', 'jon@gaard.example', '{"keith.tran87@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Keith,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-10 09:41:05 America/Denver', false, '2026-07-10 09:41:05 America/Denver'),
+  (1289, 183, 1336, 'jon@gaard.example', '<mock-001289@gaard.example>', 'thread-001336', 'inbound', 'keith.tran87@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Institutional-style investing for your family', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2026-07-11 14:41:05 America/Denver', false, '2026-07-11 14:41:05 America/Denver'),
+  (1290, 462, 1337, 'ryan@gaard.example', '<mock-001290@gaard.example>', 'thread-001337', 'outbound', 'ryan@gaard.example', '{"jeffrey.larsen@highplainsbrewing.example"}', '{}', 'High Plains Brewing Co. 401(k) question', 'Hi Jeffrey,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-10 11:43:09 America/Denver', false, '2026-07-10 11:43:09 America/Denver'),
+  (1291, 191, 1338, 'jon@gaard.example', '<mock-001291@gaard.example>', 'thread-001338', 'outbound', 'jon@gaard.example', '{"carmen.olson57@mail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Carmen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-10 13:15:20 America/Denver', false, '2026-07-10 13:15:20 America/Denver'),
+  (1292, 191, 1338, 'jon@gaard.example', '<mock-001292@gaard.example>', 'thread-001338', 'inbound', 'carmen.olson57@mail.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Institutional-style investing for your family', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2026-07-13 03:15:20 America/Denver', false, '2026-07-13 03:15:20 America/Denver'),
+  (1293, 278, 1339, 'ryan@gaard.example', '<mock-001293@gaard.example>', 'thread-001339', 'outbound', 'ryan@gaard.example', '{"dakota.herrera@bighcmnetwork.example"}', '{}', 'Investment support for Big Horn Chamber Music Network', 'Hi Dakota,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Big Horn Chamber Music Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-10 13:53:36 America/Denver', false, '2026-07-10 13:53:36 America/Denver'),
+  (1294, 278, 1339, 'ryan@gaard.example', '<mock-001294@gaard.example>', 'thread-001339', 'inbound', 'mailer-daemon@mail.example', '{"ryan@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to dakota.herrera@bighcmnetwork.example because the address couldn''t be found or is unable to receive mail.', '2026-07-10 13:54:36 America/Denver', true, '2026-07-10 13:54:36 America/Denver'),
+  (1295, 503, 1341, 'ryan@gaard.example', '<mock-001295@gaard.example>', 'thread-001341', 'outbound', 'ryan@gaard.example', '{"fatima.fox40@mail.example"}', '{}', 'Re: GAARD''s new robo-advisor', 'Hi Fatima,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-13 08:44:18 America/Denver', false, '2026-07-13 08:44:18 America/Denver'),
+  (1296, 134, 1342, 'jon@gaard.example', '<mock-001296@gaard.example>', 'thread-001342', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-13 08:52:35 America/Denver', false, '2026-07-13 08:52:35 America/Denver'),
+  (1297, 5, 1343, 'jon@gaard.example', '<mock-001297@gaard.example>', 'thread-001343', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-13 09:10:53 America/Denver', false, '2026-07-13 09:10:53 America/Denver'),
+  (1298, 5, 1343, 'jon@gaard.example', '<mock-001298@gaard.example>', 'thread-001343', 'inbound', 'kromero@wasatchfipartners.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-07-15 09:10:53 America/Denver', false, '2026-07-15 09:10:53 America/Denver'),
+  (1299, 439, 1344, 'ryan@gaard.example', '<mock-001299@gaard.example>', 'thread-001344', 'outbound', 'ryan@gaard.example', '{"julia.dunn@morganvalleyheatingair.example"}', '{}', 'A retirement plan for your team', 'Hi Julia,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-13 09:37:06 America/Denver', false, '2026-07-13 09:37:06 America/Denver'),
+  (1300, 432, 1345, 'ryan@gaard.example', '<mock-001300@gaard.example>', 'thread-001345', 'outbound', 'ryan@gaard.example', '{"gary.sorensen@sanpetehomehealth.example"}', '{}', 'Sanpete Home Health LLC 401(k) question', 'Hi Gary,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-13 09:54:16 America/Denver', false, '2026-07-13 09:54:16 America/Denver'),
+  (1301, 431, 1350, 'ryan@gaard.example', '<mock-001301@gaard.example>', 'thread-001350', 'outbound', 'ryan@gaard.example', '{"rwalker@millcreektireservice.example"}', '{}', '401(k) options for Millcreek Tire & Service', 'Hi Rosa,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-13 11:46:51 America/Denver', false, '2026-07-13 11:46:51 America/Denver'),
+  (1302, 188, 1351, 'ryan@gaard.example', '<mock-001302@gaard.example>', 'thread-001351', 'outbound', 'ryan@gaard.example', '{"joshua.hughes89@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Joshua,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-13 11:59:58 America/Denver', false, '2026-07-13 11:59:58 America/Denver'),
+  (1303, 165, 1352, 'jon@gaard.example', '<mock-001303@gaard.example>', 'thread-001352', 'outbound', 'jon@gaard.example', '{"jperry@myerskimfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Jason,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-13 13:40:50 America/Denver', false, '2026-07-13 13:40:50 America/Denver'),
+  (1304, 105, 1353, 'jon@gaard.example', '<mock-001304@gaard.example>', 'thread-001353', 'outbound', 'jon@gaard.example', '{"elizabeth.castro@escalantehfoundation.example"}', '{}', 'Re: OCIO support for Escalante Health Foundation', 'Hi Elizabeth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-13 13:45:48 America/Denver', false, '2026-07-13 13:45:48 America/Denver'),
+  (1305, 162, 1354, 'ryan@gaard.example', '<mock-001305@gaard.example>', 'thread-001354', 'outbound', 'ryan@gaard.example', '{"cbrown@tetonbtassociation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Christine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-13 14:13:00 America/Denver', false, '2026-07-13 14:13:00 America/Denver'),
+  (1306, 445, 1356, 'ryan@gaard.example', '<mock-001306@gaard.example>', 'thread-001356', 'outbound', 'ryan@gaard.example', '{"apalmer@snakeriverautoworks.example"}', '{}', 'Snake River Auto Works 401(k) question', 'Hi Ann,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-14 10:10:26 America/Denver', false, '2026-07-14 10:10:26 America/Denver'),
+  (1307, 347, 1358, 'jon@gaard.example', '<mock-001307@gaard.example>', 'thread-001358', 'outbound', 'jon@gaard.example', '{"blarsen@sugarhrnetwork.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Bruce,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-14 11:27:18 America/Denver', false, '2026-07-14 11:27:18 America/Denver'),
+  (1308, 277, 1362, 'ryan@gaard.example', '<mock-001308@gaard.example>', 'thread-001362', 'outbound', 'ryan@gaard.example', '{"martha.nichols@laramiehinitiative.example"}', '{}', 'Investment support for Laramie Habitat Initiative', 'Hi Martha,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Laramie Habitat Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-15 10:26:38 America/Denver', false, '2026-07-15 10:26:38 America/Denver'),
+  (1309, 353, 1363, 'jon@gaard.example', '<mock-001309@gaard.example>', 'thread-001363', 'outbound', 'jon@gaard.example', '{"julieb@hebervcaservices.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Julie,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-15 11:24:28 America/Denver', false, '2026-07-15 11:24:28 America/Denver'),
+  (1310, 500, 1365, 'ryan@gaard.example', '<mock-001310@gaard.example>', 'thread-001365', 'outbound', 'ryan@gaard.example', '{"jason.cook45@mail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Jason,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-15 14:33:00 America/Denver', false, '2026-07-15 14:33:00 America/Denver'),
+  (1311, 321, 1366, 'jon@gaard.example', '<mock-001311@gaard.example>', 'thread-001366', 'outbound', 'jon@gaard.example', '{"chawkins@uintawildlifecenter.example"}', '{}', 'Quarterly check-in', 'Hi Cheryl,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-15 16:27:53 America/Denver', false, '2026-07-15 16:27:53 America/Denver'),
+  (1312, 529, 1367, 'jon@gaard.example', '<mock-001312@gaard.example>', 'thread-001367', 'outbound', 'jon@gaard.example', '{"caleb.armstrong@escalantehousingcenter.example"}', '{}', 'Introduction via Laura', 'Hi Caleb,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Escalante Housing Center keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-07-15 16:46:24 America/Denver', false, '2026-07-15 16:46:24 America/Denver'),
+  (1313, 529, 1367, 'jon@gaard.example', '<mock-001313@gaard.example>', 'thread-001367', 'inbound', 'caleb.armstrong@escalantehousingcenter.example', '{"jon@gaard.example"}', '{}', 'Re: Introduction via Laura', 'Yes, I''d like to learn more. I''m free Tuesday afternoon.', '2026-07-16 01:46:24 America/Denver', false, '2026-07-16 01:46:24 America/Denver'),
+  (1314, 333, 1371, 'jon@gaard.example', '<mock-001314@gaard.example>', 'thread-001371', 'outbound', 'jon@gaard.example', '{"nicholasa@santacmctrust.example"}', '{}', 'Quarterly check-in', 'Hi Nicholas,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-16 11:44:25 America/Denver', false, '2026-07-16 11:44:25 America/Denver'),
+  (1315, 333, 1371, 'jon@gaard.example', '<mock-001315@gaard.example>', 'thread-001371', 'inbound', 'nicholasa@santacmctrust.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, this quarter is busy for us. Please reach out again in August.', '2026-07-17 07:44:25 America/Denver', false, '2026-07-17 07:44:25 America/Denver'),
+  (1316, 343, 1372, 'jon@gaard.example', '<mock-001316@gaard.example>', 'thread-001372', 'outbound', 'jon@gaard.example', '{"lperkins@summitcrcoalition.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Luis,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-16 11:58:50 America/Denver', false, '2026-07-16 11:58:50 America/Denver'),
+  (1317, 343, 1372, 'jon@gaard.example', '<mock-001317@gaard.example>', 'thread-001372', 'inbound', 'lperkins@summitcrcoalition.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'This has been on my list. Happy to talk, does Jul 27 work?', '2026-07-18 08:58:50 America/Denver', false, '2026-07-18 08:58:50 America/Denver'),
+  (1318, 364, 1373, 'ryan@gaard.example', '<mock-001318@gaard.example>', 'thread-001373', 'outbound', 'ryan@gaard.example', '{"emorales@laramiebrewing.example"}', '{}', 'Quarterly check-in', 'Hi Eric,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-07-16 14:12:03 America/Denver', false, '2026-07-16 14:12:03 America/Denver'),
+  (1319, 364, 1373, 'ryan@gaard.example', '<mock-001319@gaard.example>', 'thread-001373', 'inbound', 'emorales@laramiebrewing.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, this quarter is busy for us. Please reach out again in October.', '2026-07-18 00:12:03 America/Denver', false, '2026-07-18 00:12:03 America/Denver'),
+  (1320, 196, 1375, 'ryan@gaard.example', '<mock-001320@gaard.example>', 'thread-001375', 'outbound', 'ryan@gaard.example', '{"christina.begay@webmail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Christina,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-16 15:13:39 America/Denver', false, '2026-07-16 15:13:39 America/Denver'),
+  (1321, 350, 1376, 'jon@gaard.example', '<mock-001321@gaard.example>', 'thread-001376', 'outbound', 'jon@gaard.example', '{"sporter@watershediwasatch.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Scott,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-17 09:04:59 America/Denver', false, '2026-07-17 09:04:59 America/Denver'),
+  (1322, 26, 1378, 'jon@gaard.example', '<mock-001322@gaard.example>', 'thread-001378', 'outbound', 'jon@gaard.example', '{"lisa@redrockveteranscouncil.example"}', '{}', 'Quarterly check-in', 'Hi Lisa,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-17 09:58:28 America/Denver', false, '2026-07-17 09:58:28 America/Denver'),
+  (1323, 26, 1378, 'jon@gaard.example', '<mock-001323@gaard.example>', 'thread-001378', 'inbound', 'lisa@redrockveteranscouncil.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in September.', '2026-07-18 07:58:28 America/Denver', false, '2026-07-18 07:58:28 America/Denver'),
+  (1324, 34, 1379, 'jon@gaard.example', '<mock-001324@gaard.example>', 'thread-001379', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Quarterly check-in', 'Hi Kimberly,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-17 10:12:43 America/Denver', false, '2026-07-17 10:12:43 America/Denver'),
+  (1325, 34, 1379, 'jon@gaard.example', '<mock-001325@gaard.example>', 'thread-001379', 'inbound', 'kimberly.zhang@boxecacollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in September?', '2026-07-18 14:12:43 America/Denver', false, '2026-07-18 14:12:43 America/Denver'),
+  (1326, 324, 1380, 'jon@gaard.example', '<mock-001326@gaard.example>', 'thread-001380', 'outbound', 'jon@gaard.example', '{"timothy.sanders@ironcountydanceproject.example"}', '{}', 'Quarterly check-in', 'Hi Timothy,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-17 14:46:53 America/Denver', false, '2026-07-17 14:46:53 America/Denver'),
+  (1327, 324, 1380, 'jon@gaard.example', '<mock-001327@gaard.example>', 'thread-001380', 'inbound', 'timothy.sanders@ironcountydanceproject.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, this quarter is busy for us. Please reach out again in August.', '2026-07-19 13:46:53 America/Denver', false, '2026-07-19 13:46:53 America/Denver'),
+  (1328, 114, 1381, 'jon@gaard.example', '<mock-001328@gaard.example>', 'thread-001381', 'outbound', 'jon@gaard.example', '{"brittany@wasatchmedicalsociety.example"}', '{}', 'Re: OCIO support for Wasatch Medical Society', 'Hi Brittany,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-17 15:08:47 America/Denver', false, '2026-07-17 15:08:47 America/Denver'),
+  (1329, 337, 1382, 'jon@gaard.example', '<mock-001329@gaard.example>', 'thread-001382', 'outbound', 'jon@gaard.example', '{"walters@wasatchccouncil.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Walter,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-20 08:04:10 America/Denver', false, '2026-07-20 08:04:10 America/Denver'),
+  (1330, 169, 1384, 'ryan@gaard.example', '<mock-001330@gaard.example>', 'thread-001384', 'outbound', 'ryan@gaard.example', '{"jack.vargas@summitridge.edu.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Jack,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-20 09:05:02 America/Denver', false, '2026-07-20 09:05:02 America/Denver'),
+  (1331, 184, 1385, 'jon@gaard.example', '<mock-001331@gaard.example>', 'thread-001385', 'outbound', 'jon@gaard.example', '{"mei.mahe95@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Mei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-20 10:02:21 America/Denver', false, '2026-07-20 10:02:21 America/Denver'),
+  (1332, 446, 1386, 'ryan@gaard.example', '<mock-001332@gaard.example>', 'thread-001386', 'outbound', 'ryan@gaard.example', '{"amara.choi@owyheechiropractic.example"}', '{}', 'A retirement plan for your team', 'Hi Amara,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-20 10:05:15 America/Denver', false, '2026-07-20 10:05:15 America/Denver'),
+  (1333, 493, 1390, 'ryan@gaard.example', '<mock-001333@gaard.example>', 'thread-001390', 'outbound', 'ryan@gaard.example', '{"emma.king88@inbox.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Emma,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-20 13:00:00 America/Denver', false, '2026-07-20 13:00:00 America/Denver'),
+  (1334, 194, 1391, 'jon@gaard.example', '<mock-001334@gaard.example>', 'thread-001391', 'outbound', 'jon@gaard.example', '{"logan.fonua@summitridge.edu.example"}', '{}', 'Re: Introduction, Logan', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-20 13:20:20 America/Denver', false, '2026-07-20 13:20:20 America/Denver'),
+  (1335, 498, 1392, 'ryan@gaard.example', '<mock-001335@gaard.example>', 'thread-001392', 'outbound', 'ryan@gaard.example', '{"douglas.johnston@summitridge.edu.example"}', '{}', 'Low-cost automated investing', 'Hi Douglas,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-20 13:24:19 America/Denver', false, '2026-07-20 13:24:19 America/Denver'),
+  (1336, 471, 1394, 'ryan@gaard.example', '<mock-001336@gaard.example>', 'thread-001394', 'outbound', 'ryan@gaard.example', '{"calebb@myersmarketing.example"}', '{}', 'Myers Marketing 401(k) question', 'Hi Caleb,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-20 14:22:22 America/Denver', false, '2026-07-20 14:22:22 America/Denver'),
+  (1337, 312, 1395, 'jon@gaard.example', '<mock-001337@gaard.example>', 'thread-001395', 'outbound', 'jon@gaard.example', '{"bradley.morris@danielsffoundation.example"}', '{}', 'OCIO support for Daniels Family Foundation', 'Hi Bradley,
+
+We provide OCIO-style investment management for foundations and institutions like Daniels Family Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-07-20 14:31:47 America/Denver', false, '2026-07-20 14:31:47 America/Denver'),
+  (1338, 510, 1397, 'ryan@gaard.example', '<mock-001338@gaard.example>', 'thread-001397', 'outbound', 'ryan@gaard.example', '{"camila.walker@summitridge.edu.example"}', '{}', 'Low-cost automated investing', 'Hi Camila,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-20 16:44:17 America/Denver', false, '2026-07-20 16:44:17 America/Denver'),
+  (1339, 510, 1397, 'ryan@gaard.example', '<mock-001339@gaard.example>', 'thread-001397', 'inbound', 'mailer-daemon@mail.example', '{"ryan@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to camila.walker@summitridge.edu.example because the address couldn''t be found or is unable to receive mail.', '2026-07-20 16:45:17 America/Denver', true, '2026-07-20 16:45:17 America/Denver'),
+  (1340, 200, 1398, 'jon@gaard.example', '<mock-001340@gaard.example>', 'thread-001398', 'outbound', 'jon@gaard.example', '{"shirley.phillips9@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Shirley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-21 08:10:29 America/Denver', false, '2026-07-21 08:10:29 America/Denver'),
+  (1341, 272, 1401, 'ryan@gaard.example', '<mock-001341@gaard.example>', 'thread-001401', 'outbound', 'ryan@gaard.example', '{"janet.payne@sawtoothdsservices.example"}', '{}', 'Investment support for Sawtooth Disability Services Services', 'Hi Janet,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sawtooth Disability Services Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-21 13:50:13 America/Denver', false, '2026-07-21 13:50:13 America/Denver'),
+  (1342, 538, 1410, 'ryan@gaard.example', '<mock-001342@gaard.example>', 'thread-001410', 'outbound', 'ryan@gaard.example', '{"patrick.tsosie@utahvalleysoftware.example"}', '{}', 'Introduction via Albert', 'Hi Patrick,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-22 13:15:04 America/Denver', false, '2026-07-22 13:15:04 America/Denver'),
+  (1343, 538, 1410, 'ryan@gaard.example', '<mock-001343@gaard.example>', 'thread-001410', 'inbound', 'patrick.tsosie@utahvalleysoftware.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Albert', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in September and we can talk.', '2026-07-24 16:15:04 America/Denver', false, '2026-07-24 16:15:04 America/Denver'),
+  (1344, 512, 1418, 'ryan@gaard.example', '<mock-001344@gaard.example>', 'thread-001418', 'outbound', 'ryan@gaard.example', '{"ivan.russell74@inbox.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Ivan,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-23 08:14:27 America/Denver', false, '2026-07-23 08:14:27 America/Denver'),
+  (1345, 518, 1419, 'ryan@gaard.example', '<mock-001345@gaard.example>', 'thread-001419', 'outbound', 'ryan@gaard.example', '{"albert.barnes@webmail.example"}', '{}', 'Quarterly check-in', 'Hi Albert,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-07-23 10:19:25 America/Denver', false, '2026-07-23 10:19:25 America/Denver'),
+  (1346, 518, 1419, 'ryan@gaard.example', '<mock-001346@gaard.example>', 'thread-001419', 'inbound', 'albert.barnes@webmail.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-07-24 13:19:25 America/Denver', false, '2026-07-24 13:19:25 America/Denver'),
+  (1347, 527, 1422, 'ryan@gaard.example', '<mock-001347@gaard.example>', 'thread-001422', 'outbound', 'ryan@gaard.example', '{"aiyana.morgan@friendsbighornsymphony.example"}', '{}', 'Quarterly check-in', 'Hi Aiyana,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-07-23 11:38:26 America/Denver', false, '2026-07-23 11:38:26 America/Denver'),
+  (1348, 346, 1423, 'jon@gaard.example', '<mock-001348@gaard.example>', 'thread-001423', 'outbound', 'jon@gaard.example', '{"sean.hunt@disabilitysptvalley.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Sean,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-23 11:56:24 America/Denver', false, '2026-07-23 11:56:24 America/Denver'),
+  (1349, 346, 1423, 'jon@gaard.example', '<mock-001349@gaard.example>', 'thread-001423', 'inbound', 'sean.hunt@disabilitysptvalley.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in October and we can talk.', '2026-07-25 09:56:24 America/Denver', false, '2026-07-25 09:56:24 America/Denver'),
+  (1350, 387, 1425, 'ryan@gaard.example', '<mock-001350@gaard.example>', 'thread-001425', 'outbound', 'ryan@gaard.example', '{"jose.holloway@sawtoothaeinitiative.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Jose,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Sawtooth Adult Education Initiative keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-24 09:22:54 America/Denver', false, '2026-07-24 09:22:54 America/Denver'),
+  (1351, 389, 1426, 'ryan@gaard.example', '<mock-001351@gaard.example>', 'thread-001426', 'outbound', 'ryan@gaard.example', '{"gerald.coleman@woodrarsociety.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Gerald,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wood River Animal Rescue Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-24 10:12:10 America/Denver', false, '2026-07-24 10:12:10 America/Denver'),
+  (1352, 396, 1427, 'ryan@gaard.example', '<mock-001352@gaard.example>', 'thread-001427', 'outbound', 'ryan@gaard.example', '{"jclark@boiserlleague.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Joseph,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Boise River Literacy League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-24 11:37:23 America/Denver', false, '2026-07-24 11:37:23 America/Denver'),
+  (1353, 526, 1428, 'ryan@gaard.example', '<mock-001353@gaard.example>', 'thread-001428', 'outbound', 'ryan@gaard.example', '{"hannah.green@palousewservices.example"}', '{}', 'Quarterly check-in', 'Hi Hannah,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-07-24 11:48:30 America/Denver', false, '2026-07-24 11:48:30 America/Denver'),
+  (1354, 393, 1429, 'ryan@gaard.example', '<mock-001354@gaard.example>', 'thread-001429', 'outbound', 'ryan@gaard.example', '{"richard.crawford@portneufssproject.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Richard,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Portneuf Senior Services Project keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-24 13:32:52 America/Denver', false, '2026-07-24 13:32:52 America/Denver'),
+  (1355, 393, 1429, 'ryan@gaard.example', '<mock-001355@gaard.example>', 'thread-001429', 'inbound', 'richard.crawford@portneufssproject.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Gem State Nonprofit Conference', 'Good timing question, but this quarter is busy for us. Circle back in August and we can talk.', '2026-07-25 06:32:52 America/Denver', false, '2026-07-25 06:32:52 America/Denver'),
+  (1356, 349, 1430, 'jon@gaard.example', '<mock-001356@gaard.example>', 'thread-001430', 'outbound', 'jon@gaard.example', '{"alice.garza@escalantetinitiative.example"}', '{}', 'Quarterly check-in', 'Hi Alice,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-24 14:35:49 America/Denver', false, '2026-07-24 14:35:49 America/Denver'),
+  (1357, 349, 1430, 'jon@gaard.example', '<mock-001357@gaard.example>', 'thread-001430', 'inbound', 'alice.garza@escalantetinitiative.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-07-25 22:35:49 America/Denver', false, '2026-07-25 22:35:49 America/Denver'),
+  (1358, 508, 1431, 'ryan@gaard.example', '<mock-001358@gaard.example>', 'thread-001431', 'outbound', 'ryan@gaard.example', '{"isabella.hayes@mail.example"}', '{}', 'Low-cost automated investing', 'Hi Isabella,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 08:35:09 America/Denver', false, '2026-07-27 08:35:09 America/Denver'),
+  (1359, 398, 1433, 'ryan@gaard.example', '<mock-001359@gaard.example>', 'thread-001433', 'outbound', 'ryan@gaard.example', '{"zachary@payetteseleague.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Zachary,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Payette Science Education League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 08:59:43 America/Denver', false, '2026-07-27 08:59:43 America/Denver'),
+  (1360, 398, 1433, 'ryan@gaard.example', '<mock-001360@gaard.example>', 'thread-001433', 'inbound', 'zachary@payetteseleague.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Gem State Nonprofit Conference', 'This has been on my list. Happy to talk, does Aug 3 work?', '2026-07-29 07:59:43 America/Denver', false, '2026-07-29 07:59:43 America/Denver'),
+  (1361, 388, 1436, 'ryan@gaard.example', '<mock-001361@gaard.example>', 'thread-001436', 'outbound', 'ryan@gaard.example', '{"susan@friendsportneufparks.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Susan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Portneuf Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 09:35:35 America/Denver', false, '2026-07-27 09:35:35 America/Denver'),
+  (1362, 388, 1436, 'ryan@gaard.example', '<mock-001362@gaard.example>', 'thread-001436', 'inbound', 'susan@friendsportneufparks.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Gem State Nonprofit Conference', 'Thanks Ryan, the timing is actually good. Could we set up a call Monday the 3?', '2026-07-28 15:35:35 America/Denver', false, '2026-07-28 15:35:35 America/Denver'),
+  (1363, 386, 1438, 'ryan@gaard.example', '<mock-001363@gaard.example>', 'thread-001438', 'outbound', 'ryan@gaard.example', '{"sandra_gomez@friendsselkirkmuseum.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Sandra,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Selkirk Museum keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 09:44:20 America/Denver', false, '2026-07-27 09:44:20 America/Denver'),
+  (1364, 344, 1444, 'jon@gaard.example', '<mock-001364@gaard.example>', 'thread-001444', 'outbound', 'jon@gaard.example', '{"kristen_mendoza@weberrcaassociation.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Kristen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-27 11:06:28 America/Denver', false, '2026-07-27 11:06:28 America/Denver'),
+  (1365, 359, 1445, 'jon@gaard.example', '<mock-001365@gaard.example>', 'thread-001445', 'outbound', 'jon@gaard.example', '{"nia.warren@friendsshtrails.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Nia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-27 11:19:12 America/Denver', false, '2026-07-27 11:19:12 America/Denver'),
+  (1366, 399, 1448, 'ryan@gaard.example', '<mock-001366@gaard.example>', 'thread-001448', 'outbound', 'ryan@gaard.example', '{"gblack@portneufccouncil.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi George,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Portneuf Conservation Council keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 13:48:05 America/Denver', false, '2026-07-27 13:48:05 America/Denver'),
+  (1367, 397, 1449, 'ryan@gaard.example', '<mock-001367@gaard.example>', 'thread-001449', 'outbound', 'ryan@gaard.example', '{"sscott@adultestvalley.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Sara,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Adult Education Services of Treasure Valley keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 13:48:19 America/Denver', false, '2026-07-27 13:48:19 America/Denver'),
+  (1368, 11, 1450, 'jon@gaard.example', '<mock-001368@gaard.example>', 'thread-001450', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-07-27 14:17:19 America/Denver', false, '2026-07-27 14:17:19 America/Denver'),
+  (1369, 390, 1452, 'ryan@gaard.example', '<mock-001369@gaard.example>', 'thread-001452', 'outbound', 'ryan@gaard.example', '{"lauren.palmer@theaterleaguepalouse.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Lauren,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Theater League of Palouse keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 14:42:13 America/Denver', false, '2026-07-27 14:42:13 America/Denver'),
+  (1370, 390, 1452, 'ryan@gaard.example', '<mock-001370@gaard.example>', 'thread-001452', 'inbound', 'lauren.palmer@theaterleaguepalouse.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Gem State Nonprofit Conference', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-07-28 12:42:13 America/Denver', false, '2026-07-28 12:42:13 America/Denver'),
+  (1371, 392, 1455, 'ryan@gaard.example', '<mock-001371@gaard.example>', 'thread-001455', 'outbound', 'ryan@gaard.example', '{"srogers@clearwaterhrleague.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Sara,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Clearwater Hunger Relief League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 14:57:59 America/Denver', false, '2026-07-27 14:57:59 America/Denver'),
+  (1372, 392, 1455, 'ryan@gaard.example', '<mock-001372@gaard.example>', 'thread-001455', 'inbound', 'srogers@clearwaterhrleague.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Gem State Nonprofit Conference', 'Thanks for following up. Right now our board meets later in the year. Could you check back in August?', '2026-07-30 00:57:59 America/Denver', false, '2026-07-30 00:57:59 America/Denver'),
+  (1373, 394, 1456, 'ryan@gaard.example', '<mock-001373@gaard.example>', 'thread-001456', 'outbound', 'ryan@gaard.example', '{"bradley.castillo@clearwatertcollective.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Bradley,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Clearwater Trails Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 15:01:48 America/Denver', false, '2026-07-27 15:01:48 America/Denver'),
+  (1374, 394, 1456, 'ryan@gaard.example', '<mock-001374@gaard.example>', 'thread-001456', 'inbound', 'bradley.castillo@clearwatertcollective.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Gem State Nonprofit Conference', 'This has been on my list. Happy to talk, does Aug 6 work?', '2026-07-28 17:01:48 America/Denver', false, '2026-07-28 17:01:48 America/Denver'),
+  (1375, 395, 1458, 'ryan@gaard.example', '<mock-001375@gaard.example>', 'thread-001458', 'outbound', 'ryan@gaard.example', '{"joseph.robertson@camasphsnetwork.example"}', '{}', 'Great meeting you at Gem State Nonprofit Conference', 'Hi Joseph,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Camas Prairie Homeless Services Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-27 15:16:52 America/Denver', false, '2026-07-27 15:16:52 America/Denver'),
+  (1376, 395, 1458, 'ryan@gaard.example', '<mock-001376@gaard.example>', 'thread-001458', 'inbound', 'joseph.robertson@camasphsnetwork.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Gem State Nonprofit Conference', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in September.', '2026-07-29 11:16:52 America/Denver', false, '2026-07-29 11:16:52 America/Denver'),
+  (1377, 190, 1462, 'jon@gaard.example', '<mock-001377@gaard.example>', 'thread-001462', 'outbound', 'jon@gaard.example', '{"peter.wells@summitridge.edu.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Peter,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-28 09:58:55 America/Denver', false, '2026-07-28 09:58:55 America/Denver'),
+  (1378, 160, 1464, 'ryan@gaard.example', '<mock-001378@gaard.example>', 'thread-001464', 'outbound', 'ryan@gaard.example', '{"beverly@camasphfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Beverly,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-28 14:16:23 America/Denver', false, '2026-07-28 14:16:23 America/Denver'),
+  (1379, 510, 1466, 'ryan@gaard.example', '<mock-001379@gaard.example>', 'thread-001466', 'outbound', 'ryan@gaard.example', '{"cwalker@summitridge.edu.example"}', '{}', 'Low-cost automated investing', 'Hi Camila,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-28 14:57:38 America/Denver', false, '2026-07-28 14:57:38 America/Denver'),
+  (1380, 510, 1466, 'ryan@gaard.example', '<mock-001380@gaard.example>', 'thread-001466', 'inbound', 'cwalker@summitridge.edu.example', '{"ryan@gaard.example"}', '{}', 'Re: Low-cost automated investing', 'I retired from our family office this spring. Our finance director would be the right person now.', '2026-07-30 11:57:38 America/Denver', false, '2026-07-30 11:57:38 America/Denver'),
+  (1381, 356, 1467, 'jon@gaard.example', '<mock-001381@gaard.example>', 'thread-001467', 'outbound', 'jon@gaard.example', '{"gwood@cachevyinitiative.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Gary,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-28 14:57:57 America/Denver', false, '2026-07-28 14:57:57 America/Denver'),
+  (1382, 504, 1468, 'ryan@gaard.example', '<mock-001382@gaard.example>', 'thread-001468', 'outbound', 'ryan@gaard.example', '{"ronald.ruiz@summitridge.edu.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Ronald,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-29 08:25:49 America/Denver', false, '2026-07-29 08:25:49 America/Denver'),
+  (1383, 163, 1469, 'ryan@gaard.example', '<mock-001383@gaard.example>', 'thread-001469', 'outbound', 'ryan@gaard.example', '{"smarshall@selkirkcfoundation.example"}', '{}', 'Re: Great meeting you at Boise Philanthropy Forum 2025', 'Hi Sandra,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-07-29 09:39:36 America/Denver', false, '2026-07-29 09:39:36 America/Denver'),
+  (1384, 520, 1470, 'ryan@gaard.example', '<mock-001384@gaard.example>', 'thread-001470', 'outbound', 'ryan@gaard.example', '{"kimberly.gutierrez@mail.example"}', '{}', 'Introduction via Amber', 'Hi Kimberly,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-07-29 10:47:37 America/Denver', false, '2026-07-29 10:47:37 America/Denver'),
+  (1385, 107, 1472, 'jon@gaard.example', '<mock-001385@gaard.example>', 'thread-001472', 'outbound', 'jon@gaard.example', '{"lowens@seviervgassociation.example"}', '{}', 'Re: OCIO support for Sevier Valley Growers Association', 'Hi Leilani,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-29 13:02:08 America/Denver', false, '2026-07-29 13:02:08 America/Denver'),
+  (1386, 342, 1473, 'jon@gaard.example', '<mock-001386@gaard.example>', 'thread-001473', 'outbound', 'jon@gaard.example', '{"diana.edwards@wasatchrpartners.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Diana,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-29 15:45:30 America/Denver', false, '2026-07-29 15:45:30 America/Denver'),
+  (1387, 345, 1475, 'jon@gaard.example', '<mock-001387@gaard.example>', 'thread-001475', 'outbound', 'jon@gaard.example', '{"fcoleman@trailsservicesuinta.example"}', '{}', 'Re: Great meeting you at Wasatch Nonprofit Leadership Summit 2026', 'Hi Frank,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-07-29 16:58:39 America/Denver', false, '2026-07-29 16:58:39 America/Denver'),
+  (1388, 203, 1477, 'jon@gaard.example', '<mock-001388@gaard.example>', 'thread-001477', 'outbound', 'jon@gaard.example', '{"barbara.nielsen94@mail.example"}', '{}', 'Introduction via Carmen', 'Hi Barbara,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-07-30 08:57:30 America/Denver', false, '2026-07-30 08:57:30 America/Denver'),
+  (1389, 473, 1487, 'ryan@gaard.example', '<mock-001389@gaard.example>', 'thread-001487', 'outbound', 'ryan@gaard.example', '{"jae.hayes@provoriversoftware.example"}', '{}', 'Checking back in', 'Hi Jae,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-03 09:03:36 America/Denver', false, '2026-08-03 09:03:36 America/Denver'),
+  (1390, 473, 1487, 'ryan@gaard.example', '<mock-001390@gaard.example>', 'thread-001487', 'inbound', 'jae.hayes@provoriversoftware.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in October?', '2026-08-05 02:03:36 America/Denver', false, '2026-08-05 02:03:36 America/Denver'),
+  (1391, 463, 1489, 'ryan@gaard.example', '<mock-001391@gaard.example>', 'thread-001489', 'outbound', 'ryan@gaard.example', '{"stephanie@ellisarchitecture.example"}', '{}', 'A retirement plan for your team', 'Hi Stephanie,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-03 09:07:35 America/Denver', false, '2026-08-03 09:07:35 America/Denver'),
+  (1392, 463, 1489, 'ryan@gaard.example', '<mock-001392@gaard.example>', 'thread-001489', 'inbound', 'stephanie@ellisarchitecture.example', '{"ryan@gaard.example"}', '{}', 'Re: A retirement plan for your team', 'Thanks Ryan, the timing is actually good. Could we set up a call Thursday the 13?', '2026-08-05 00:07:35 America/Denver', false, '2026-08-05 00:07:35 America/Denver'),
+  (1393, 202, 1493, 'jon@gaard.example', '<mock-001393@gaard.example>', 'thread-001493', 'outbound', 'jon@gaard.example', '{"wei.hart91@webmail.example"}', '{}', 'Checking back in', 'Hi Wei,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-08-03 09:38:22 America/Denver', false, '2026-08-03 09:38:22 America/Denver'),
+  (1394, 202, 1493, 'jon@gaard.example', '<mock-001394@gaard.example>', 'thread-001493', 'inbound', 'wei.hart91@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Checking back in', 'Hi Jon, thanks for reaching out. We already work with an advisor and are happy with the relationship, so we''ll pass for now.', '2026-08-04 16:38:22 America/Denver', false, '2026-08-04 16:38:22 America/Denver'),
+  (1395, 354, 1495, 'jon@gaard.example', '<mock-001395@gaard.example>', 'thread-001495', 'outbound', 'jon@gaard.example', '{"ethan.olson@wasatchhcollective.example"}', '{}', 'Checking back in', 'Hi Ethan,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Wasatch Housing Collective keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-08-03 09:48:54 America/Denver', false, '2026-08-03 09:48:54 America/Denver'),
+  (1396, 329, 1497, 'jon@gaard.example', '<mock-001396@gaard.example>', 'thread-001497', 'outbound', 'jon@gaard.example', '{"meganm@bayacfoundation.example"}', '{}', 'Quarterly check-in', 'Hi Megan,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-03 10:29:12 America/Denver', false, '2026-08-03 10:29:12 America/Denver'),
+  (1397, 329, 1497, 'jon@gaard.example', '<mock-001397@gaard.example>', 'thread-001497', 'inbound', 'meganm@bayacfoundation.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-08-03 22:29:12 America/Denver', false, '2026-08-03 22:29:12 America/Denver'),
+  (1398, 385, 1499, 'ryan@gaard.example', '<mock-001398@gaard.example>', 'thread-001499', 'outbound', 'ryan@gaard.example', '{"vjimenez@clarkengineering.example"}', '{}', 'Checking back in', 'Hi Vincent,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-03 10:42:14 America/Denver', false, '2026-08-03 10:42:14 America/Denver'),
+  (1399, 385, 1499, 'ryan@gaard.example', '<mock-001399@gaard.example>', 'thread-001499', 'inbound', 'vjimenez@clarkengineering.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Not right now, this quarter is busy for us. Please reach out again in November.', '2026-08-04 20:42:14 America/Denver', false, '2026-08-04 20:42:14 America/Denver'),
+  (1400, 233, 1501, 'jon@gaard.example', '<mock-001400@gaard.example>', 'thread-001501', 'outbound', 'jon@gaard.example', '{"emily@friendsutahvalleyparks.example"}', '{}', 'Checking back in', 'Hi Emily,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Friends of Utah Valley Parks keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-08-03 11:10:32 America/Denver', false, '2026-08-03 11:10:32 America/Denver');
+
+insert into public.email_messages (id, contact_id, touchpoint_id, mailbox, external_id, thread_id, direction, from_email, to_emails, cc_emails, subject, body_text, sent_at, is_auto_reply, created_at) values
+  (1401, 278, 1502, 'ryan@gaard.example', '<mock-001401@gaard.example>', 'thread-001502', 'outbound', 'ryan@gaard.example', '{"dherrera@bighcmnetwork.example"}', '{}', 'Investment support for Big Horn Chamber Music Network', 'Hi Dakota,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Big Horn Chamber Music Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-03 11:20:36 America/Denver', false, '2026-08-03 11:20:36 America/Denver'),
+  (1402, 362, 1504, 'ryan@gaard.example', '<mock-001402@gaard.example>', 'thread-001504', 'outbound', 'ryan@gaard.example', '{"eking@carrollsurveying.example"}', '{}', 'Checking back in', 'Hi Emma,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-03 11:55:32 America/Denver', false, '2026-08-03 11:55:32 America/Denver'),
+  (1403, 362, 1504, 'ryan@gaard.example', '<mock-001403@gaard.example>', 'thread-001504', 'inbound', 'eking@carrollsurveying.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'No thanks, we are all set.', '2026-08-04 01:55:32 America/Denver', false, '2026-08-04 01:55:32 America/Denver'),
+  (1404, 367, 1506, 'ryan@gaard.example', '<mock-001404@gaard.example>', 'thread-001506', 'outbound', 'ryan@gaard.example', '{"jvasquez@bighornlandscaping.example"}', '{}', 'Checking back in', 'Hi Juan,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-03 13:49:56 America/Denver', false, '2026-08-03 13:49:56 America/Denver'),
+  (1405, 205, 1507, 'jon@gaard.example', '<mock-001405@gaard.example>', 'thread-001507', 'outbound', 'jon@gaard.example', '{"shirley.sharma85@inbox.example"}', '{}', 'Checking back in', 'Hi Shirley,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-08-03 14:16:50 America/Denver', false, '2026-08-03 14:16:50 America/Denver'),
+  (1406, 392, 1508, 'ryan@gaard.example', '<mock-001406@gaard.example>', 'thread-001508', 'outbound', 'ryan@gaard.example', '{"srogers@clearwaterhrleague.example"}', '{}', 'Checking back in', 'Hi Sara,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Clearwater Hunger Relief League keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-03 14:38:26 America/Denver', false, '2026-08-03 14:38:26 America/Denver'),
+  (1407, 392, 1508, 'ryan@gaard.example', '<mock-001407@gaard.example>', 'thread-001508', 'inbound', 'srogers@clearwaterhrleague.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Thanks Ryan, the timing is actually good. Could we set up a call Monday the 10?', '2026-08-04 18:38:26 America/Denver', false, '2026-08-04 18:38:26 America/Denver'),
+  (1408, 100, 1509, 'ryan@gaard.example', '<mock-001408@gaard.example>', 'thread-001509', 'outbound', 'ryan@gaard.example', '{"amara.webb@shoshoneefoundation.example"}', '{}', 'Re: Investment management for Shoshone Education Foundation', 'Hi Amara,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-03 14:49:39 America/Denver', false, '2026-08-03 14:49:39 America/Denver'),
+  (1409, 393, 1510, 'ryan@gaard.example', '<mock-001409@gaard.example>', 'thread-001510', 'outbound', 'ryan@gaard.example', '{"richard.crawford@portneufssproject.example"}', '{}', 'Checking back in', 'Hi Richard,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Portneuf Senior Services Project keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-03 15:09:44 America/Denver', false, '2026-08-03 15:09:44 America/Denver'),
+  (1410, 393, 1510, 'ryan@gaard.example', '<mock-001410@gaard.example>', 'thread-001510', 'inbound', 'richard.crawford@portneufssproject.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'No thanks, we are all set.', '2026-08-04 05:09:44 America/Denver', false, '2026-08-04 05:09:44 America/Denver'),
+  (1411, 370, 1516, 'ryan@gaard.example', '<mock-001411@gaard.example>', 'thread-001516', 'outbound', 'ryan@gaard.example', '{"samuel@belllawgroup.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Hi Samuel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-05 08:32:28 America/Denver', false, '2026-08-05 08:32:28 America/Denver'),
+  (1412, 524, 1517, 'ryan@gaard.example', '<mock-001412@gaard.example>', 'thread-001517', 'outbound', 'ryan@gaard.example', '{"ashley.harrison@webmail.example"}', '{}', 'Introduction via a', 'Hi Ashley,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-05 11:47:31 America/Denver', false, '2026-08-05 11:47:31 America/Denver'),
+  (1413, 524, 1517, 'ryan@gaard.example', '<mock-001413@gaard.example>', 'thread-001517', 'inbound', 'ashley.harrison@webmail.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via a', 'Good timing question, but work is busy right now. Circle back in December and we can talk.', '2026-08-07 05:47:31 America/Denver', false, '2026-08-07 05:47:31 America/Denver'),
+  (1414, 115, 1518, 'ryan@gaard.example', '<mock-001414@gaard.example>', 'thread-001518', 'outbound', 'ryan@gaard.example', '{"grace.torres@whitecharitabletrust.example"}', '{}', 'Re: Investment management for White Charitable Trust', 'Hi Grace,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-05 13:28:32 America/Denver', false, '2026-08-05 13:28:32 America/Denver'),
+  (1415, 492, 1519, 'ryan@gaard.example', '<mock-001415@gaard.example>', 'thread-001519', 'outbound', 'ryan@gaard.example', '{"jordan.park@summitridge.edu.example"}', '{}', 'Low-cost automated investing', 'Hi Jordan,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-05 14:25:01 America/Denver', false, '2026-08-05 14:25:01 America/Denver'),
+  (1416, 369, 1522, 'ryan@gaard.example', '<mock-001416@gaard.example>', 'thread-001522', 'outbound', 'ryan@gaard.example', '{"austin.harrison@dunnlawgroup.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Hi Austin,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-06 10:44:18 America/Denver', false, '2026-08-06 10:44:18 America/Denver'),
+  (1417, 448, 1529, 'ryan@gaard.example', '<mock-001417@gaard.example>', 'thread-001529', 'outbound', 'ryan@gaard.example', '{"wcastro@nguyenengineering.example"}', '{}', '401(k) options for Nguyen Engineering', 'Hi Wayne,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-07 15:22:29 America/Denver', false, '2026-08-07 15:22:29 America/Denver'),
+  (1418, 108, 1533, 'jon@gaard.example', '<mock-001418@gaard.example>', 'thread-001533', 'outbound', 'jon@gaard.example', '{"fatima@hebervlfoundation.example"}', '{}', 'Re: Investment management for Heber Valley Library Foundation', 'Hi Fatima,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-08-10 08:58:11 America/Denver', false, '2026-08-10 08:58:11 America/Denver'),
+  (1419, 108, 1533, 'jon@gaard.example', '<mock-001419@gaard.example>', 'thread-001533', 'inbound', 'fatima@hebervlfoundation.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment management for Heber Valley Library Foundation', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in October.', '2026-08-11 13:58:11 America/Denver', false, '2026-08-11 13:58:11 America/Denver'),
+  (1420, 444, 1537, 'ryan@gaard.example', '<mock-001420@gaard.example>', 'thread-001537', 'outbound', 'ryan@gaard.example', '{"msalazar@wasatchfrontprintsign.example"}', '{}', 'Wasatch Front Print & Sign 401(k) question', 'Hi Marie,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-10 09:33:24 America/Denver', false, '2026-08-10 09:33:24 America/Denver'),
+  (1421, 321, 1540, 'jon@gaard.example', '<mock-001421@gaard.example>', 'thread-001540', 'outbound', 'jon@gaard.example', '{"chawkins@uintawildlifecenter.example"}', '{}', 'Quarterly check-in', 'Hi Cheryl,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-10 11:23:21 America/Denver', false, '2026-08-10 11:23:21 America/Denver'),
+  (1422, 321, 1540, 'jon@gaard.example', '<mock-001422@gaard.example>', 'thread-001540', 'inbound', 'chawkins@uintawildlifecenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for following up. Right now our board meets later in the year. Could you check back in September?', '2026-08-11 15:23:21 America/Denver', false, '2026-08-11 15:23:21 America/Denver'),
+  (1423, 486, 1541, 'ryan@gaard.example', '<mock-001423@gaard.example>', 'thread-001541', 'outbound', 'ryan@gaard.example', '{"logan.green@summitridge.edu.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Logan,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-10 13:04:47 America/Denver', false, '2026-08-10 13:04:47 America/Denver'),
+  (1424, 489, 1543, 'ryan@gaard.example', '<mock-001424@gaard.example>', 'thread-001543', 'outbound', 'ryan@gaard.example', '{"julie.campbell72@webmail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Julie,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-10 13:10:10 America/Denver', false, '2026-08-10 13:10:10 America/Denver'),
+  (1425, 311, 1545, 'jon@gaard.example', '<mock-001425@gaard.example>', 'thread-001545', 'outbound', 'jon@gaard.example', '{"pelliott@boydfamilyfoundation.example"}', '{}', 'Re: OCIO support for Boyd Family Foundation', 'Hi Priya,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-08-10 15:02:12 America/Denver', false, '2026-08-10 15:02:12 America/Denver'),
+  (1426, 451, 1547, 'ryan@gaard.example', '<mock-001426@gaard.example>', 'thread-001547', 'outbound', 'ryan@gaard.example', '{"talvarez@daviscountyheatingair.example"}', '{}', '401(k) options for Davis County Heating & Air', 'Hi Teresa,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-10 15:10:56 America/Denver', false, '2026-08-10 15:10:56 America/Denver'),
+  (1427, 366, 1548, 'ryan@gaard.example', '<mock-001427@gaard.example>', 'thread-001548', 'outbound', 'ryan@gaard.example', '{"kai.zhang@plattevchiropractic.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Hi Kai,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-10 16:48:49 America/Denver', false, '2026-08-10 16:48:49 America/Denver'),
+  (1428, 318, 1557, 'jon@gaard.example', '<mock-001428@gaard.example>', 'thread-001557', 'outbound', 'jon@gaard.example', '{"martha@utahvfsproject.example"}', '{}', 'Quarterly check-in', 'Hi Martha,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-12 09:01:05 America/Denver', false, '2026-08-12 09:01:05 America/Denver'),
+  (1429, 513, 1558, 'ryan@gaard.example', '<mock-001429@gaard.example>', 'thread-001558', 'outbound', 'ryan@gaard.example', '{"keith.dixon2@inbox.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Keith,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-12 09:13:50 America/Denver', false, '2026-08-12 09:13:50 America/Denver'),
+  (1430, 109, 1559, 'jon@gaard.example', '<mock-001430@gaard.example>', 'thread-001559', 'outbound', 'jon@gaard.example', '{"btran@montereybhfoundation.example"}', '{}', 'Re: OCIO support for Monterey Bay Hospital Foundation', 'Hi Brian,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-08-12 13:16:11 America/Denver', false, '2026-08-12 13:16:11 America/Denver'),
+  (1431, 459, 1560, 'ryan@gaard.example', '<mock-001431@gaard.example>', 'thread-001560', 'outbound', 'ryan@gaard.example', '{"kai.willis@weberrcroasters.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-08-12 14:27:28 America/Denver', false, '2026-08-12 14:27:28 America/Denver'),
+  (1432, 459, 1560, 'ryan@gaard.example', '<mock-001432@gaard.example>', 'thread-001560', 'inbound', 'kai.willis@weberrcroasters.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, this quarter is busy for us. Please reach out again in November.', '2026-08-14 01:27:28 America/Denver', false, '2026-08-14 01:27:28 America/Denver'),
+  (1433, 360, 1561, 'ryan@gaard.example', '<mock-001433@gaard.example>', 'thread-001561', 'outbound', 'ryan@gaard.example', '{"kevin.petersen@snowyrangeorthodontics.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Hi Kevin,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-13 10:40:24 America/Denver', false, '2026-08-13 10:40:24 America/Denver'),
+  (1434, 414, 1589, 'ryan@gaard.example', '<mock-001434@gaard.example>', 'thread-001589', 'outbound', 'ryan@gaard.example', '{"rebecca.morris45@webmail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Rebecca,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 08:18:38 America/Denver', false, '2026-08-17 08:18:38 America/Denver'),
+  (1435, 414, 1589, 'ryan@gaard.example', '<mock-001435@gaard.example>', 'thread-001589', 'inbound', 'rebecca.morris45@webmail.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Good timing question, but work is busy right now. Circle back in October and we can talk.', '2026-08-18 03:18:38 America/Denver', false, '2026-08-18 03:18:38 America/Denver'),
+  (1436, 328, 1590, 'jon@gaard.example', '<mock-001436@gaard.example>', 'thread-001590', 'outbound', 'jon@gaard.example', '{"christineo@boxercollective.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Christine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-08-17 08:22:24 America/Denver', false, '2026-08-17 08:22:24 America/Denver'),
+  (1437, 415, 1592, 'ryan@gaard.example', '<mock-001437@gaard.example>', 'thread-001592', 'outbound', 'ryan@gaard.example', '{"cynthia.garza96@inbox.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Cynthia,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 08:46:49 America/Denver', false, '2026-08-17 08:46:49 America/Denver'),
+  (1438, 415, 1592, 'ryan@gaard.example', '<mock-001438@gaard.example>', 'thread-001592', 'inbound', 'cynthia.garza96@inbox.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-08-18 13:46:49 America/Denver', false, '2026-08-18 13:46:49 America/Denver'),
+  (1439, 174, 1594, 'ryan@gaard.example', '<mock-001439@gaard.example>', 'thread-001594', 'outbound', 'ryan@gaard.example', '{"daniel@hollowayarchitecture.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Hi Daniel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-17 09:04:44 America/Denver', false, '2026-08-17 09:04:44 America/Denver'),
+  (1440, 400, 1596, 'ryan@gaard.example', '<mock-001440@gaard.example>', 'thread-001596', 'outbound', 'ryan@gaard.example', '{"ethan.hoffman@webmail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Ethan,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 09:23:58 America/Denver', false, '2026-08-17 09:23:58 America/Denver'),
+  (1441, 406, 1597, 'ryan@gaard.example', '<mock-001441@gaard.example>', 'thread-001597', 'outbound', 'ryan@gaard.example', '{"cynthia.nguyen@mail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Cynthia,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 09:31:36 America/Denver', false, '2026-08-17 09:31:36 America/Denver'),
+  (1442, 406, 1597, 'ryan@gaard.example', '<mock-001442@gaard.example>', 'thread-001597', 'inbound', 'cynthia.nguyen@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-08-19 19:31:36 America/Denver', false, '2026-08-19 19:31:36 America/Denver'),
+  (1443, 409, 1599, 'ryan@gaard.example', '<mock-001443@gaard.example>', 'thread-001599', 'outbound', 'ryan@gaard.example', '{"jesse.perez43@webmail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Jesse,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 09:45:20 America/Denver', false, '2026-08-17 09:45:20 America/Denver'),
+  (1444, 419, 1600, 'ryan@gaard.example', '<mock-001444@gaard.example>', 'thread-001600', 'outbound', 'ryan@gaard.example', '{"adam.miller@inbox.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Adam,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 09:45:52 America/Denver', false, '2026-08-17 09:45:52 America/Denver'),
+  (1445, 419, 1600, 'ryan@gaard.example', '<mock-001445@gaard.example>', 'thread-001600', 'inbound', 'adam.miller@inbox.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Thanks for following up. Right now we are traveling. Could you check back in October?', '2026-08-17 14:45:52 America/Denver', false, '2026-08-17 14:45:52 America/Denver'),
+  (1446, 5, 1603, 'jon@gaard.example', '<mock-001446@gaard.example>', 'thread-001603', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-17 10:17:58 America/Denver', false, '2026-08-17 10:17:58 America/Denver'),
+  (1447, 417, 1606, 'ryan@gaard.example', '<mock-001447@gaard.example>', 'thread-001606', 'outbound', 'ryan@gaard.example', '{"kimberly.garza41@inbox.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Kimberly,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 10:28:51 America/Denver', false, '2026-08-17 10:28:51 America/Denver'),
+  (1448, 401, 1608, 'ryan@gaard.example', '<mock-001448@gaard.example>', 'thread-001608', 'outbound', 'ryan@gaard.example', '{"laura.henderson@summitridge.edu.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Laura,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 10:46:58 America/Denver', false, '2026-08-17 10:46:58 America/Denver'),
+  (1449, 401, 1608, 'ryan@gaard.example', '<mock-001449@gaard.example>', 'thread-001608', 'inbound', 'laura.henderson@summitridge.edu.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Good timing question, but work is busy right now. Circle back in October and we can talk.', '2026-08-19 06:46:58 America/Denver', false, '2026-08-19 06:46:58 America/Denver'),
+  (1450, 320, 1609, 'jon@gaard.example', '<mock-001450@gaard.example>', 'thread-001609', 'outbound', 'jon@gaard.example', '{"kristen_soto@oquirrhyouthsociety.example"}', '{}', 'Checking back in', 'Hi Kristen,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Oquirrh Youth Society keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-08-17 10:49:03 America/Denver', false, '2026-08-17 10:49:03 America/Denver'),
+  (1451, 430, 1610, 'ryan@gaard.example', '<mock-001451@gaard.example>', 'thread-001610', 'outbound', 'ryan@gaard.example', '{"edward.cole@emigrationchhealth.example"}', '{}', 'A retirement plan for your team', 'Hi Edward,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 10:56:16 America/Denver', false, '2026-08-17 10:56:16 America/Denver'),
+  (1452, 418, 1611, 'ryan@gaard.example', '<mock-001452@gaard.example>', 'thread-001611', 'outbound', 'ryan@gaard.example', '{"caleb.white@canyonlandsstate.edu.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Caleb,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 11:07:35 America/Denver', false, '2026-08-17 11:07:35 America/Denver'),
+  (1453, 418, 1611, 'ryan@gaard.example', '<mock-001453@gaard.example>', 'thread-001611', 'inbound', 'caleb.white@canyonlandsstate.edu.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2026-08-19 17:07:35 America/Denver', false, '2026-08-19 17:07:35 America/Denver'),
+  (1454, 365, 1613, 'ryan@gaard.example', '<mock-001454@gaard.example>', 'thread-001613', 'outbound', 'ryan@gaard.example', '{"christian.turner@sweetwatertitleescrow.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Hi Christian,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-17 11:21:29 America/Denver', false, '2026-08-17 11:21:29 America/Denver'),
+  (1455, 314, 1615, 'jon@gaard.example', '<mock-001455@gaard.example>', 'thread-001615', 'outbound', 'jon@gaard.example', '{"julie.schmidt@sacramentovefoundation.example"}', '{}', 'OCIO support for Sacramento Valley Education Foundation', 'Hi Julie,
+
+We provide OCIO-style investment management for foundations and institutions like Sacramento Valley Education Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-08-17 11:31:36 America/Denver', false, '2026-08-17 11:31:36 America/Denver'),
+  (1456, 403, 1616, 'ryan@gaard.example', '<mock-001456@gaard.example>', 'thread-001616', 'outbound', 'ryan@gaard.example', '{"donald.young@inbox.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Donald,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 13:20:53 America/Denver', false, '2026-08-17 13:20:53 America/Denver'),
+  (1457, 403, 1616, 'ryan@gaard.example', '<mock-001457@gaard.example>', 'thread-001616', 'inbound', 'donald.young@inbox.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Ryan, thanks for reaching out. We already work with an advisor and are happy with the relationship, so we''ll pass for now.', '2026-08-17 21:20:53 America/Denver', false, '2026-08-17 21:20:53 America/Denver'),
+  (1458, 410, 1617, 'ryan@gaard.example', '<mock-001458@gaard.example>', 'thread-001617', 'outbound', 'ryan@gaard.example', '{"michael.bennett92@webmail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Michael,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 13:39:45 America/Denver', false, '2026-08-17 13:39:45 America/Denver'),
+  (1459, 413, 1618, 'ryan@gaard.example', '<mock-001459@gaard.example>', 'thread-001618', 'outbound', 'ryan@gaard.example', '{"dylan.ward@webmail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Dylan,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 13:46:22 America/Denver', false, '2026-08-17 13:46:22 America/Denver'),
+  (1460, 413, 1618, 'ryan@gaard.example', '<mock-001460@gaard.example>', 'thread-001618', 'inbound', 'dylan.ward@webmail.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'We''re not interested, thanks.', '2026-08-18 10:46:22 America/Denver', false, '2026-08-18 10:46:22 America/Denver'),
+  (1461, 402, 1619, 'ryan@gaard.example', '<mock-001461@gaard.example>', 'thread-001619', 'outbound', 'ryan@gaard.example', '{"edward.harris@mail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Edward,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 13:48:11 America/Denver', false, '2026-08-17 13:48:11 America/Denver'),
+  (1462, 402, 1619, 'ryan@gaard.example', '<mock-001462@gaard.example>', 'thread-001619', 'inbound', 'edward.harris@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'No thank you.', '2026-08-17 18:48:11 America/Denver', false, '2026-08-17 18:48:11 America/Denver'),
+  (1463, 412, 1620, 'ryan@gaard.example', '<mock-001463@gaard.example>', 'thread-001620', 'outbound', 'ryan@gaard.example', '{"carol.larsen28@mail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Carol,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 13:57:45 America/Denver', false, '2026-08-17 13:57:45 America/Denver'),
+  (1464, 412, 1620, 'ryan@gaard.example', '<mock-001464@gaard.example>', 'thread-001620', 'inbound', 'carol.larsen28@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'We''re not interested, thanks.', '2026-08-17 19:57:45 America/Denver', false, '2026-08-17 19:57:45 America/Denver'),
+  (1465, 416, 1622, 'ryan@gaard.example', '<mock-001465@gaard.example>', 'thread-001622', 'outbound', 'ryan@gaard.example', '{"yusuf.arnold@inbox.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Yusuf,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 14:35:16 America/Denver', false, '2026-08-17 14:35:16 America/Denver'),
+  (1466, 416, 1622, 'ryan@gaard.example', '<mock-001466@gaard.example>', 'thread-001622', 'inbound', 'yusuf.arnold@inbox.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Thanks for following up. Right now work is busy right now. Could you check back in November?', '2026-08-19 20:35:16 America/Denver', false, '2026-08-19 20:35:16 America/Denver'),
+  (1467, 319, 1625, 'jon@gaard.example', '<mock-001467@gaard.example>', 'thread-001625', 'outbound', 'jon@gaard.example', '{"karen.turner@tooelevtalliance.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Karen,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-08-17 15:59:20 America/Denver', false, '2026-08-17 15:59:20 America/Denver'),
+  (1468, 436, 1626, 'ryan@gaard.example', '<mock-001468@gaard.example>', 'thread-001626', 'outbound', 'ryan@gaard.example', '{"yperkins@cottonwoodoptometry.example"}', '{}', 'Cottonwood Optometry 401(k) question', 'Hi Yusuf,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-17 16:26:53 America/Denver', false, '2026-08-17 16:26:53 America/Denver'),
+  (1469, 407, 1628, 'ryan@gaard.example', '<mock-001469@gaard.example>', 'thread-001628', 'outbound', 'ryan@gaard.example', '{"karen.edwards@summitridge.edu.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Karen,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-18 08:27:09 America/Denver', false, '2026-08-18 08:27:09 America/Denver'),
+  (1470, 405, 1629, 'ryan@gaard.example', '<mock-001470@gaard.example>', 'thread-001629', 'outbound', 'ryan@gaard.example', '{"sharon.carpenter@mail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Sharon,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-18 09:02:09 America/Denver', false, '2026-08-18 09:02:09 America/Denver'),
+  (1471, 405, 1629, 'ryan@gaard.example', '<mock-001471@gaard.example>', 'thread-001629', 'inbound', 'sharon.carpenter@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Not right now, work is busy right now. Please reach out again in October.', '2026-08-20 22:02:09 America/Denver', false, '2026-08-20 22:02:09 America/Denver'),
+  (1472, 509, 1631, 'ryan@gaard.example', '<mock-001472@gaard.example>', 'thread-001631', 'outbound', 'ryan@gaard.example', '{"matthew.jackson@webmail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Matthew,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-18 10:42:37 America/Denver', false, '2026-08-18 10:42:37 America/Denver'),
+  (1473, 187, 1633, 'ryan@gaard.example', '<mock-001473@gaard.example>', 'thread-001633', 'outbound', 'ryan@gaard.example', '{"larry.spencer14@mail.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Larry,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-18 11:14:39 America/Denver', false, '2026-08-18 11:14:39 America/Denver'),
+  (1474, 404, 1634, 'ryan@gaard.example', '<mock-001474@gaard.example>', 'thread-001634', 'outbound', 'ryan@gaard.example', '{"tyler.mensah@mail.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Tyler,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-18 11:18:53 America/Denver', false, '2026-08-18 11:18:53 America/Denver'),
+  (1475, 404, 1634, 'ryan@gaard.example', '<mock-001475@gaard.example>', 'thread-001634', 'inbound', 'tyler.mensah@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Thanks for following up. Right now work is busy right now. Could you check back in December?', '2026-08-19 19:18:53 America/Denver', false, '2026-08-19 19:18:53 America/Denver'),
+  (1476, 411, 1635, 'ryan@gaard.example', '<mock-001476@gaard.example>', 'thread-001635', 'outbound', 'ryan@gaard.example', '{"abigail.bailey52@inbox.example"}', '{}', 'Great meeting you at Investing for Young Professionals: Robo-Advisor Launch', 'Hi Abigail,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-18 11:22:19 America/Denver', false, '2026-08-18 11:22:19 America/Denver'),
+  (1477, 26, 1637, 'jon@gaard.example', '<mock-001477@gaard.example>', 'thread-001637', 'outbound', 'jon@gaard.example', '{"lisa@redrockveteranscouncil.example"}', '{}', 'Quarterly check-in', 'Hi Lisa,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-18 13:44:33 America/Denver', false, '2026-08-18 13:44:33 America/Denver'),
+  (1478, 368, 1638, 'ryan@gaard.example', '<mock-001478@gaard.example>', 'thread-001638', 'outbound', 'ryan@gaard.example', '{"caleb.armstrong@gibsonmarketing.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Hi Caleb,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-19 08:38:24 America/Denver', false, '2026-08-19 08:38:24 America/Denver'),
+  (1479, 326, 1639, 'jon@gaard.example', '<mock-001479@gaard.example>', 'thread-001639', 'outbound', 'jon@gaard.example', '{"carl.hoffman@millcreekhscoalition.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Carl,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-08-19 10:20:02 America/Denver', false, '2026-08-19 10:20:02 America/Denver'),
+  (1480, 134, 1650, 'jon@gaard.example', '<mock-001480@gaard.example>', 'thread-001650', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-21 09:59:38 America/Denver', false, '2026-08-21 09:59:38 America/Denver'),
+  (1481, 134, 1650, 'jon@gaard.example', '<mock-001481@gaard.example>', 'thread-001650', 'inbound', 'kai_ruiz@ironcfscenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but our board meets later in the year. Circle back in October and we can talk.', '2026-08-21 11:59:38 America/Denver', false, '2026-08-21 11:59:38 America/Denver'),
+  (1482, 306, 1653, 'jon@gaard.example', '<mock-001482@gaard.example>', 'thread-001653', 'outbound', 'jon@gaard.example', '{"alice.rodriguez@centralvhsociety.example"}', '{}', 'OCIO support for Central Valley Heritage Society', 'Hi Alice,
+
+We provide OCIO-style investment management for foundations and institutions like Central Valley Heritage Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-08-21 15:18:51 America/Denver', false, '2026-08-21 15:18:51 America/Denver'),
+  (1483, 324, 1655, 'jon@gaard.example', '<mock-001483@gaard.example>', 'thread-001655', 'outbound', 'jon@gaard.example', '{"timothy.sanders@ironcountydanceproject.example"}', '{}', 'Quarterly check-in', 'Hi Timothy,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-24 09:04:31 America/Denver', false, '2026-08-24 09:04:31 America/Denver'),
+  (1484, 361, 1657, 'ryan@gaard.example', '<mock-001484@gaard.example>', 'thread-001657', 'outbound', 'ryan@gaard.example', '{"lucia.kennedy@medicinebowsoftware.example"}', '{}', 'Re: Great meeting you at Cheyenne Small Business Expo', 'Hi Lucia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-24 09:24:44 America/Denver', false, '2026-08-24 09:24:44 America/Denver'),
+  (1485, 499, 1658, 'ryan@gaard.example', '<mock-001485@gaard.example>', 'thread-001658', 'outbound', 'ryan@gaard.example', '{"linda.wells98@mail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Linda,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-24 09:41:22 America/Denver', false, '2026-08-24 09:41:22 America/Denver'),
+  (1486, 210, 1660, 'jon@gaard.example', '<mock-001486@gaard.example>', 'thread-001660', 'outbound', 'jon@gaard.example', '{"jose.long60@mail.example"}', '{}', 'Quarterly check-in', 'Hi Jose,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-24 10:15:46 America/Denver', false, '2026-08-24 10:15:46 America/Denver'),
+  (1487, 210, 1660, 'jon@gaard.example', '<mock-001487@gaard.example>', 'thread-001660', 'inbound', 'jose.long60@mail.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-08-24 12:15:46 America/Denver', false, '2026-08-24 12:15:46 America/Denver'),
+  (1488, 178, 1664, 'ryan@gaard.example', '<mock-001488@gaard.example>', 'thread-001664', 'outbound', 'ryan@gaard.example', '{"paul.myers@ironcountyheatingair.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Hi Paul,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-08-24 11:49:02 America/Denver', false, '2026-08-24 11:49:02 America/Denver'),
+  (1489, 467, 1666, 'ryan@gaard.example', '<mock-001489@gaard.example>', 'thread-001666', 'outbound', 'ryan@gaard.example', '{"scott.patel@panhandleheatingair.example"}', '{}', 'A retirement plan for your team', 'Hi Scott,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-24 13:10:02 America/Denver', false, '2026-08-24 13:10:02 America/Denver'),
+  (1490, 467, 1666, 'ryan@gaard.example', '<mock-001490@gaard.example>', 'thread-001666', 'inbound', 'scott.patel@panhandleheatingair.example', '{"ryan@gaard.example"}', '{}', 'Re: A retirement plan for your team', 'Scott is no longer with Panhandle Heating & Air. Please reach out to our new executive director.', '2026-08-26 02:10:02 America/Denver', false, '2026-08-26 02:10:02 America/Denver'),
+  (1491, 309, 1667, 'jon@gaard.example', '<mock-001491@gaard.example>', 'thread-001667', 'outbound', 'jon@gaard.example', '{"andrea.snyder@tahoebgassociation.example"}', '{}', 'Investment management for Tahoe Basin Growers Association', 'Hi Andrea,
+
+We provide OCIO-style investment management for foundations and institutions like Tahoe Basin Growers Association.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-08-24 13:22:49 America/Denver', false, '2026-08-24 13:22:49 America/Denver'),
+  (1492, 317, 1671, 'jon@gaard.example', '<mock-001492@gaard.example>', 'thread-001671', 'outbound', 'jon@gaard.example', '{"dennis.freeman@beehivecmservices.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Dennis,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-08-24 13:49:11 America/Denver', false, '2026-08-24 13:49:11 America/Denver'),
+  (1493, 539, 1672, 'ryan@gaard.example', '<mock-001493@gaard.example>', 'thread-001672', 'outbound', 'ryan@gaard.example', '{"sofia@morganvmanufacturing.example"}', '{}', 'Checking back in', 'Hi Sofia,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-24 14:59:46 America/Denver', false, '2026-08-24 14:59:46 America/Denver'),
+  (1494, 539, 1672, 'ryan@gaard.example', '<mock-001494@gaard.example>', 'thread-001672', 'inbound', 'sofia@morganvmanufacturing.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in December and we can talk.', '2026-08-26 14:59:46 America/Denver', false, '2026-08-26 14:59:46 America/Denver'),
+  (1495, 442, 1673, 'ryan@gaard.example', '<mock-001495@gaard.example>', 'thread-001673', 'outbound', 'ryan@gaard.example', '{"kevin.walker@powderriverroofing.example"}', '{}', 'A retirement plan for your team', 'Hi Kevin,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-24 15:12:02 America/Denver', false, '2026-08-24 15:12:02 America/Denver'),
+  (1496, 323, 1674, 'jon@gaard.example', '<mock-001496@gaard.example>', 'thread-001674', 'outbound', 'jon@gaard.example', '{"sofia.ford@theaterpcanyonlands.example"}', '{}', 'Re: Great meeting you at Board Treasurer Workshop: Investment Policy 101', 'Hi Sofia,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-08-24 15:13:57 America/Denver', false, '2026-08-24 15:13:57 America/Denver'),
+  (1497, 534, 1676, 'ryan@gaard.example', '<mock-001497@gaard.example>', 'thread-001676', 'outbound', 'ryan@gaard.example', '{"golsen@simmonsengineering.example"}', '{}', 'Introduction via Caleb', 'Hi Gabriel,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-24 15:59:55 America/Denver', false, '2026-08-24 15:59:55 America/Denver'),
+  (1498, 534, 1676, 'ryan@gaard.example', '<mock-001498@gaard.example>', 'thread-001676', 'inbound', 'golsen@simmonsengineering.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Caleb', 'Good timing question, but our board meets later in the year. Circle back in December and we can talk.', '2026-08-27 01:59:55 America/Denver', false, '2026-08-27 01:59:55 America/Denver'),
+  (1499, 11, 1677, 'jon@gaard.example', '<mock-001499@gaard.example>', 'thread-001677', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-25 08:52:27 America/Denver', false, '2026-08-25 08:52:27 America/Denver'),
+  (1500, 99, 1684, 'jon@gaard.example', '<mock-001500@gaard.example>', 'thread-001684', 'outbound', 'jon@gaard.example', '{"logan.tuilagi@sugarhhfoundation.example"}', '{}', 'Re: Investment management for Sugar House Hospital Foundation', 'Hi Logan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-08-26 09:16:11 America/Denver', false, '2026-08-26 09:16:11 America/Denver'),
+  (1501, 518, 1689, 'ryan@gaard.example', '<mock-001501@gaard.example>', 'thread-001689', 'outbound', 'ryan@gaard.example', '{"albert.barnes@webmail.example"}', '{}', 'Quarterly check-in', 'Hi Albert,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-08-26 15:39:40 America/Denver', false, '2026-08-26 15:39:40 America/Denver'),
+  (1502, 521, 1692, 'ryan@gaard.example', '<mock-001502@gaard.example>', 'thread-001692', 'outbound', 'ryan@gaard.example', '{"grace.morris14@mail.example"}', '{}', 'Introduction via Evelyn', 'Hi Grace,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-27 11:20:00 America/Denver', false, '2026-08-27 11:20:00 America/Denver'),
+  (1503, 521, 1692, 'ryan@gaard.example', '<mock-001503@gaard.example>', 'thread-001692', 'inbound', 'grace.morris14@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: Introduction via Evelyn', 'Not something we are looking at. Thank you.', '2026-08-29 14:20:00 America/Denver', false, '2026-08-29 14:20:00 America/Denver'),
+  (1504, 466, 1696, 'ryan@gaard.example', '<mock-001504@gaard.example>', 'thread-001696', 'outbound', 'ryan@gaard.example', '{"roy@gemstatelandscaping.example"}', '{}', '401(k) options for Gem State Landscaping, Inc.', 'Hi Roy,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-28 09:28:44 America/Denver', false, '2026-08-28 09:28:44 America/Denver'),
+  (1505, 333, 1697, 'jon@gaard.example', '<mock-001505@gaard.example>', 'thread-001697', 'outbound', 'jon@gaard.example', '{"nicholasa@santacmctrust.example"}', '{}', 'Quarterly check-in', 'Hi Nicholas,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-28 09:44:01 America/Denver', false, '2026-08-28 09:44:01 America/Denver'),
+  (1506, 333, 1697, 'jon@gaard.example', '<mock-001506@gaard.example>', 'thread-001697', 'inbound', 'nicholasa@santacmctrust.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-08-29 06:44:01 America/Denver', false, '2026-08-29 06:44:01 America/Denver'),
+  (1507, 487, 1700, 'ryan@gaard.example', '<mock-001507@gaard.example>', 'thread-001700', 'outbound', 'ryan@gaard.example', '{"roy.reynolds2@mail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Roy,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-28 14:11:32 America/Denver', false, '2026-08-28 14:11:32 America/Denver'),
+  (1508, 487, 1700, 'ryan@gaard.example', '<mock-001508@gaard.example>', 'thread-001700', 'inbound', 'roy.reynolds2@mail.example', '{"ryan@gaard.example"}', '{}', 'Re: GAARD''s new robo-advisor', 'Not right now, I''m in the middle of a move. Please reach out again in October.', '2026-08-30 10:11:32 America/Denver', false, '2026-08-30 10:11:32 America/Denver'),
+  (1509, 495, 1701, 'ryan@gaard.example', '<mock-001509@gaard.example>', 'thread-001701', 'outbound', 'ryan@gaard.example', '{"sharon.harrison16@inbox.example"}', '{}', 'Low-cost automated investing', 'Hi Sharon,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-08-28 14:11:41 America/Denver', false, '2026-08-28 14:11:41 America/Denver'),
+  (1510, 529, 1706, 'jon@gaard.example', '<mock-001510@gaard.example>', 'thread-001706', 'outbound', 'jon@gaard.example', '{"caleb.armstrong@escalantehousingcenter.example"}', '{}', 'Quarterly check-in', 'Hi Caleb,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-31 10:26:25 America/Denver', false, '2026-08-31 10:26:25 America/Denver'),
+  (1511, 529, 1706, 'jon@gaard.example', '<mock-001511@gaard.example>', 'thread-001706', 'inbound', 'caleb.armstrong@escalantehousingcenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-09-01 17:26:25 America/Denver', false, '2026-09-01 17:26:25 America/Denver'),
+  (1512, 199, 1708, 'jon@gaard.example', '<mock-001512@gaard.example>', 'thread-001708', 'outbound', 'jon@gaard.example', '{"carmen.patterson@mail.example"}', '{}', 'Checking back in', 'Hi Carmen,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-08-31 11:02:07 America/Denver', false, '2026-08-31 11:02:07 America/Denver'),
+  (1513, 34, 1713, 'jon@gaard.example', '<mock-001513@gaard.example>', 'thread-001713', 'outbound', 'jon@gaard.example', '{"kimberly.zhang@boxecacollective.example"}', '{}', 'Quarterly check-in', 'Hi Kimberly,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-08-31 15:11:34 America/Denver', false, '2026-08-31 15:11:34 America/Denver'),
+  (1514, 34, 1713, 'jon@gaard.example', '<mock-001514@gaard.example>', 'thread-001713', 'inbound', 'kimberly.zhang@boxecacollective.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but this quarter is busy for us. Circle back in October and we can talk.', '2026-09-01 14:11:34 America/Denver', false, '2026-09-01 14:11:34 America/Denver'),
+  (1515, 395, 1715, 'ryan@gaard.example', '<mock-001515@gaard.example>', 'thread-001715', 'outbound', 'ryan@gaard.example', '{"joseph.robertson@camasphsnetwork.example"}', '{}', 'Checking back in', 'Hi Joseph,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Camas Prairie Homeless Services Network keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-01 09:14:18 America/Denver', false, '2026-09-01 09:14:18 America/Denver'),
+  (1516, 395, 1715, 'ryan@gaard.example', '<mock-001516@gaard.example>', 'thread-001715', 'inbound', 'joseph.robertson@camasphsnetwork.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Not right now, this quarter is busy for us. Please reach out again in November.', '2026-09-01 20:14:18 America/Denver', false, '2026-09-01 20:14:18 America/Denver'),
+  (1517, 538, 1716, 'ryan@gaard.example', '<mock-001517@gaard.example>', 'thread-001716', 'outbound', 'ryan@gaard.example', '{"patrick.tsosie@utahvalleysoftware.example"}', '{}', 'Checking back in', 'Hi Patrick,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-01 10:07:59 America/Denver', false, '2026-09-01 10:07:59 America/Denver'),
+  (1518, 538, 1716, 'ryan@gaard.example', '<mock-001518@gaard.example>', 'thread-001716', 'inbound', 'patrick.tsosie@utahvalleysoftware.example', '{"ryan@gaard.example"}', '{}', 'Re: Checking back in', 'Not right now, this quarter is busy for us. Please reach out again in October.', '2026-09-02 09:07:59 America/Denver', false, '2026-09-02 09:07:59 America/Denver'),
+  (1519, 219, 1717, 'jon@gaard.example', '<mock-001519@gaard.example>', 'thread-001717', 'outbound', 'jon@gaard.example', '{"andrea.hughes@webmail.example"}', '{}', 'Quarterly check-in', 'Hi Andrea,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-01 10:34:18 America/Denver', false, '2026-09-01 10:34:18 America/Denver'),
+  (1520, 113, 1720, 'jon@gaard.example', '<mock-001520@gaard.example>', 'thread-001720', 'outbound', 'jon@gaard.example', '{"gerald.cooper@boxelderartsendowment.example"}', '{}', 'Re: OCIO support for Box Elder Arts Endowment', 'Hi Gerald,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-02 08:02:57 America/Denver', false, '2026-09-02 08:02:57 America/Denver'),
+  (1521, 179, 1721, 'ryan@gaard.example', '<mock-001521@gaard.example>', 'thread-001721', 'outbound', 'ryan@gaard.example', '{"nsantos@cachevalleyprintsign.example"}', '{}', 'Re: Great meeting you at Salt Lake Small Business Mixer', 'Hi Nicholas,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-02 09:04:55 America/Denver', false, '2026-09-02 09:04:55 America/Denver'),
+  (1522, 526, 1723, 'ryan@gaard.example', '<mock-001522@gaard.example>', 'thread-001723', 'outbound', 'ryan@gaard.example', '{"hannah.green@palousewservices.example"}', '{}', 'Quarterly check-in', 'Hi Hannah,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-09-02 09:26:20 America/Denver', false, '2026-09-02 09:26:20 America/Denver'),
+  (1523, 527, 1724, 'ryan@gaard.example', '<mock-001523@gaard.example>', 'thread-001724', 'outbound', 'ryan@gaard.example', '{"aiyana.morgan@friendsbighornsymphony.example"}', '{}', 'Quarterly check-in', 'Hi Aiyana,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-09-02 09:36:28 America/Denver', false, '2026-09-02 09:36:28 America/Denver'),
+  (1524, 527, 1724, 'ryan@gaard.example', '<mock-001524@gaard.example>', 'thread-001724', 'inbound', 'aiyana.morgan@friendsbighornsymphony.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-09-02 11:36:28 America/Denver', false, '2026-09-02 11:36:28 America/Denver'),
+  (1525, 453, 1726, 'ryan@gaard.example', '<mock-001525@gaard.example>', 'thread-001726', 'outbound', 'ryan@gaard.example', '{"amanda.elliott@summitcountypediatrics.example"}', '{}', '401(k) options for Summit County Pediatrics, Inc.', 'Hi Amanda,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-02 14:35:58 America/Denver', false, '2026-09-02 14:35:58 America/Denver'),
+  (1526, 453, 1726, 'ryan@gaard.example', '<mock-001526@gaard.example>', 'thread-001726', 'inbound', 'amanda.elliott@summitcountypediatrics.example', '{"ryan@gaard.example"}', '{}', 'Re: 401(k) options for Summit County Pediatrics, Inc.', 'Not right now, we''re in the middle of our budget cycle. Please reach out again in January.', '2026-09-03 14:35:58 America/Denver', false, '2026-09-03 14:35:58 America/Denver'),
+  (1527, 497, 1729, 'ryan@gaard.example', '<mock-001527@gaard.example>', 'thread-001729', 'outbound', 'ryan@gaard.example', '{"kevin.hicks@webmail.example"}', '{}', 'Low-cost automated investing', 'Hi Kevin,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-03 11:24:30 America/Denver', false, '2026-09-03 11:24:30 America/Denver'),
+  (1528, 496, 1734, 'ryan@gaard.example', '<mock-001528@gaard.example>', 'thread-001734', 'outbound', 'ryan@gaard.example', '{"larry.fox38@webmail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Larry,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-04 13:41:13 America/Denver', false, '2026-09-04 13:41:13 America/Denver'),
+  (1529, 496, 1734, 'ryan@gaard.example', '<mock-001529@gaard.example>', 'thread-001734', 'inbound', 'mailer-daemon@mail.example', '{"ryan@gaard.example"}', '{}', 'Delivery Status Notification (Failure)', 'Address not found. Your message wasn''t delivered to larry.fox38@webmail.example because the address couldn''t be found or is unable to receive mail.', '2026-09-04 13:42:13 America/Denver', true, '2026-09-04 13:42:13 America/Denver'),
+  (1530, 349, 1739, 'jon@gaard.example', '<mock-001530@gaard.example>', 'thread-001739', 'outbound', 'jon@gaard.example', '{"alice.garza@escalantetinitiative.example"}', '{}', 'Quarterly check-in', 'Hi Alice,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-07 10:23:39 America/Denver', false, '2026-09-07 10:23:39 America/Denver'),
+  (1531, 343, 1740, 'jon@gaard.example', '<mock-001531@gaard.example>', 'thread-001740', 'outbound', 'jon@gaard.example', '{"lperkins@summitcrcoalition.example"}', '{}', 'Quarterly check-in', 'Hi Luis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-07 11:00:43 America/Denver', false, '2026-09-07 11:00:43 America/Denver'),
+  (1532, 343, 1740, 'jon@gaard.example', '<mock-001532@gaard.example>', 'thread-001740', 'inbound', 'lperkins@summitcrcoalition.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but our board meets later in the year. Circle back in October and we can talk.', '2026-09-07 13:00:43 America/Denver', false, '2026-09-07 13:00:43 America/Denver'),
+  (1533, 102, 1742, 'jon@gaard.example', '<mock-001533@gaard.example>', 'thread-001742', 'outbound', 'jon@gaard.example', '{"catherine.barnes@cunninghamffoundation.example"}', '{}', 'Re: OCIO support for Cunningham Family Foundation', 'Hi Catherine,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-07 11:56:47 America/Denver', false, '2026-09-07 11:56:47 America/Denver'),
+  (1534, 536, 1746, 'ryan@gaard.example', '<mock-001534@gaard.example>', 'thread-001746', 'outbound', 'ryan@gaard.example', '{"ecarroll@silvasonsconstruction.example"}', '{}', 'Re: Introduction via Albert', 'Hi Eric,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-08 10:00:35 America/Denver', false, '2026-09-08 10:00:35 America/Denver'),
+  (1535, 391, 1747, 'ryan@gaard.example', '<mock-001535@gaard.example>', 'thread-001747', 'outbound', 'ryan@gaard.example', '{"lorim@camaspcacouncil.example"}', '{}', 'Quarterly check-in', 'Hi Lori,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-09-08 10:11:33 America/Denver', false, '2026-09-08 10:11:33 America/Denver'),
+  (1536, 391, 1747, 'ryan@gaard.example', '<mock-001536@gaard.example>', 'thread-001747', 'inbound', 'lorim@camaspcacouncil.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'After discussing internally we have decided not to make a change this year.', '2026-09-09 03:11:33 America/Denver', false, '2026-09-09 03:11:33 America/Denver'),
+  (1537, 507, 1750, 'ryan@gaard.example', '<mock-001537@gaard.example>', 'thread-001750', 'outbound', 'ryan@gaard.example', '{"camila.peters38@inbox.example"}', '{}', 'Low-cost automated investing', 'Hi Camila,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-08 15:04:59 America/Denver', false, '2026-09-08 15:04:59 America/Denver'),
+  (1538, 507, 1750, 'ryan@gaard.example', '<mock-001538@gaard.example>', 'thread-001750', 'inbound', 'camila.peters38@inbox.example', '{"ryan@gaard.example"}', '{}', 'Re: Low-cost automated investing', 'Thanks. I''m copying our finance director, who handles our investment accounts.', '2026-09-09 23:04:59 America/Denver', false, '2026-09-09 23:04:59 America/Denver'),
+  (1539, 97, 1752, 'ryan@gaard.example', '<mock-001539@gaard.example>', 'thread-001752', 'outbound', 'ryan@gaard.example', '{"gpetersen@absarokalfoundation.example"}', '{}', 'Re: Investment management for Absaroka Library Foundation', 'Hi Gloria,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-09 08:51:42 America/Denver', false, '2026-09-09 08:51:42 America/Denver'),
+  (1540, 398, 1753, 'ryan@gaard.example', '<mock-001540@gaard.example>', 'thread-001753', 'outbound', 'ryan@gaard.example', '{"zachary@payetteseleague.example"}', '{}', 'Quarterly check-in', 'Hi Zachary,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-09-09 09:08:39 America/Denver', false, '2026-09-09 09:08:39 America/Denver'),
+  (1541, 398, 1753, 'ryan@gaard.example', '<mock-001541@gaard.example>', 'thread-001753', 'inbound', 'zachary@payetteseleague.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in December and we can talk.', '2026-09-11 00:08:39 America/Denver', false, '2026-09-11 00:08:39 America/Denver'),
+  (1542, 450, 1754, 'ryan@gaard.example', '<mock-001542@gaard.example>', 'thread-001754', 'outbound', 'ryan@gaard.example', '{"brittany.ruiz@clearwatertitleescrow.example"}', '{}', '401(k) options for Clearwater Title & Escrow', 'Hi Brittany,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-09 11:18:21 America/Denver', false, '2026-09-09 11:18:21 America/Denver'),
+  (1543, 450, 1754, 'ryan@gaard.example', '<mock-001543@gaard.example>', 'thread-001754', 'inbound', 'brittany.ruiz@clearwatertitleescrow.example', '{"ryan@gaard.example"}', '{}', 'Re: 401(k) options for Clearwater Title & Escrow', 'Thanks Ryan. We already work with a local firm and aren''t looking at alternatives right now.', '2026-09-10 04:18:21 America/Denver', false, '2026-09-10 04:18:21 America/Denver'),
+  (1544, 106, 1757, 'jon@gaard.example', '<mock-001544@gaard.example>', 'thread-001757', 'outbound', 'jon@gaard.example', '{"michael.carter@greatbhsociety.example"}', '{}', 'Re: Investment management for Great Basin Heritage Society', 'Hi Michael,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-09 15:26:35 America/Denver', false, '2026-09-09 15:26:35 America/Denver'),
+  (1545, 496, 1758, 'ryan@gaard.example', '<mock-001545@gaard.example>', 'thread-001758', 'outbound', 'ryan@gaard.example', '{"lfox@webmail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Larry,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-10 09:32:55 America/Denver', false, '2026-09-10 09:32:55 America/Denver'),
+  (1546, 98, 1759, 'jon@gaard.example', '<mock-001546@gaard.example>', 'thread-001759', 'outbound', 'jon@gaard.example', '{"kenneth.pena@davisccfoundation.example"}', '{}', 'Re: Investment management for Davis County Community Foundation', 'Hi Kenneth,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-10 11:28:14 America/Denver', false, '2026-09-10 11:28:14 America/Denver'),
+  (1547, 465, 1760, 'ryan@gaard.example', '<mock-001547@gaard.example>', 'thread-001760', 'outbound', 'ryan@gaard.example', '{"nia.edwards@timpanogoshomehealth.example"}', '{}', '401(k) options for Timpanogos Home Health', 'Hi Nia,
+
+We help small businesses set up or improve their 401(k): lower fees, better fund lineups, and a fiduciary partner for the owner.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-10 13:03:29 America/Denver', false, '2026-09-10 13:03:29 America/Denver'),
+  (1548, 501, 1764, 'ryan@gaard.example', '<mock-001548@gaard.example>', 'thread-001764', 'outbound', 'ryan@gaard.example', '{"lawrence.harris@webmail.example"}', '{}', 'GAARD''s new robo-advisor', 'Hi Lawrence,
+
+We just launched a low-cost robo-advisor for people getting started with investing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-11 08:23:47 America/Denver', false, '2026-09-11 08:23:47 America/Denver'),
+  (1549, 501, 1764, 'ryan@gaard.example', '<mock-001549@gaard.example>', 'thread-001764', 'inbound', 'lawrence.harris@webmail.example', '{"ryan@gaard.example"}', '{}', 'Re: GAARD''s new robo-advisor', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-09-12 03:23:47 America/Denver', false, '2026-09-12 03:23:47 America/Denver'),
+  (1550, 379, 1765, 'ryan@gaard.example', '<mock-001550@gaard.example>', 'thread-001765', 'outbound', 'ryan@gaard.example', '{"laura.dixon@boxeldercoffeeroasters.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Laura,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-11 10:09:30 America/Denver', false, '2026-09-11 10:09:30 America/Denver'),
+  (1551, 379, 1765, 'ryan@gaard.example', '<mock-001551@gaard.example>', 'thread-001765', 'inbound', 'laura.dixon@boxeldercoffeeroasters.example', '{"ryan@gaard.example"}', '{}', 'Re: Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Appreciate you thinking of us. We already have an advisor we''re happy with. Best of luck!', '2026-09-12 10:09:30 America/Denver', false, '2026-09-12 10:09:30 America/Denver'),
+  (1552, 96, 1767, 'ryan@gaard.example', '<mock-001552@gaard.example>', 'thread-001767', 'outbound', 'ryan@gaard.example', '{"ethan.scott@shoshonelfoundation.example"}', '{}', 'Re: Investment management for Shoshone Library Foundation', 'Hi Ethan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-11 10:44:01 America/Denver', false, '2026-09-11 10:44:01 America/Denver'),
+  (1553, 316, 1768, 'jon@gaard.example', '<mock-001553@gaard.example>', 'thread-001768', 'outbound', 'jon@gaard.example', '{"jacqueline.sorensen@centralvlfoundation.example"}', '{}', 'Re: Investment management for Central Valley Library Foundation', 'Hi Jacqueline,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-11 11:19:29 America/Denver', false, '2026-09-11 11:19:29 America/Denver'),
+  (1554, 310, 1771, 'jon@gaard.example', '<mock-001554@gaard.example>', 'thread-001771', 'outbound', 'jon@gaard.example', '{"samantha@redwoodchfoundation.example"}', '{}', 'Re: Investment management for Redwood Coast Health Foundation', 'Hi Samantha,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-14 09:33:24 America/Denver', false, '2026-09-14 09:33:24 America/Denver'),
+  (1555, 310, 1771, 'jon@gaard.example', '<mock-001555@gaard.example>', 'thread-001771', 'inbound', 'samantha@redwoodchfoundation.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment management for Redwood Coast Health Foundation', 'Yes, I''d like to learn more. I''m free Thursday afternoon.', '2026-09-15 05:33:24 America/Denver', false, '2026-09-15 05:33:24 America/Denver'),
+  (1556, 384, 1772, 'ryan@gaard.example', '<mock-001556@gaard.example>', 'thread-001772', 'outbound', 'ryan@gaard.example', '{"martha.zhang@greatbasindentalgroup.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Martha,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-14 09:34:04 America/Denver', false, '2026-09-14 09:34:04 America/Denver'),
+  (1557, 388, 1773, 'ryan@gaard.example', '<mock-001557@gaard.example>', 'thread-001773', 'outbound', 'ryan@gaard.example', '{"susan@friendsportneufparks.example"}', '{}', 'Quarterly check-in', 'Hi Susan,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-09-14 09:37:31 America/Denver', false, '2026-09-14 09:37:31 America/Denver'),
+  (1558, 388, 1773, 'ryan@gaard.example', '<mock-001558@gaard.example>', 'thread-001773', 'inbound', 'susan@friendsportneufparks.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-09-15 19:37:31 America/Denver', false, '2026-09-15 19:37:31 America/Denver'),
+  (1559, 392, 1774, 'ryan@gaard.example', '<mock-001559@gaard.example>', 'thread-001774', 'outbound', 'ryan@gaard.example', '{"srogers@clearwaterhrleague.example"}', '{}', 'Quarterly check-in', 'Hi Sara,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-09-14 09:47:32 America/Denver', false, '2026-09-14 09:47:32 America/Denver'),
+  (1560, 321, 1776, 'jon@gaard.example', '<mock-001560@gaard.example>', 'thread-001776', 'outbound', 'jon@gaard.example', '{"chawkins@uintawildlifecenter.example"}', '{}', 'Quarterly check-in', 'Hi Cheryl,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-14 09:58:27 America/Denver', false, '2026-09-14 09:58:27 America/Denver'),
+  (1561, 321, 1776, 'jon@gaard.example', '<mock-001561@gaard.example>', 'thread-001776', 'inbound', 'chawkins@uintawildlifecenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-09-15 10:58:27 America/Denver', false, '2026-09-15 10:58:27 America/Denver'),
+  (1562, 92, 1778, 'ryan@gaard.example', '<mock-001562@gaard.example>', 'thread-001778', 'outbound', 'ryan@gaard.example', '{"bradleyo@petersonpfoundation.example"}', '{}', 'Re: OCIO support for Peterson-Porter Foundation', 'Hi Bradley,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-14 10:59:53 America/Denver', false, '2026-09-14 10:59:53 America/Denver'),
+  (1563, 92, 1778, 'ryan@gaard.example', '<mock-001563@gaard.example>', 'thread-001778', 'inbound', 'bradleyo@petersonpfoundation.example', '{"ryan@gaard.example"}', '{}', 'Re: Re: OCIO support for Peterson-Porter Foundation', 'We''re not interested, thanks.', '2026-09-16 16:59:53 America/Denver', false, '2026-09-16 16:59:53 America/Denver'),
+  (1564, 104, 1781, 'jon@gaard.example', '<mock-001564@gaard.example>', 'thread-001781', 'outbound', 'jon@gaard.example', '{"mward@deltaefoundation.example"}', '{}', 'Re: Investment management for Delta Education Foundation', 'Hi Mei,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-14 13:11:12 America/Denver', false, '2026-09-14 13:11:12 America/Denver'),
+  (1565, 104, 1781, 'jon@gaard.example', '<mock-001565@gaard.example>', 'thread-001781', 'inbound', 'mward@deltaefoundation.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment management for Delta Education Foundation', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in January?', '2026-09-16 22:11:12 America/Denver', false, '2026-09-16 22:11:12 America/Denver'),
+  (1566, 5, 1783, 'jon@gaard.example', '<mock-001566@gaard.example>', 'thread-001783', 'outbound', 'jon@gaard.example', '{"kromero@wasatchfipartners.example"}', '{}', 'Quarterly check-in', 'Hi Karen,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-14 13:44:00 America/Denver', false, '2026-09-14 13:44:00 America/Denver'),
+  (1567, 540, 1785, 'jon@gaard.example', '<mock-001567@gaard.example>', 'thread-001785', 'outbound', 'jon@gaard.example', '{"timothyt@summitcgassociation.example"}', '{}', 'Re: Introduction via Isabella', 'Hi Timothy,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-15 10:57:35 America/Denver', false, '2026-09-15 10:57:35 America/Denver'),
+  (1568, 540, 1785, 'jon@gaard.example', '<mock-001568@gaard.example>', 'thread-001785', 'inbound', 'timothyt@summitcgassociation.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Introduction via Isabella', 'Good timing question, but we''re in the middle of our budget cycle. Circle back in December and we can talk.', '2026-09-16 05:57:35 America/Denver', false, '2026-09-16 05:57:35 America/Denver'),
+  (1569, 525, 1803, 'ryan@gaard.example', '<mock-001569@gaard.example>', 'thread-001803', 'outbound', 'ryan@gaard.example', '{"amara.spencer78@inbox.example"}', '{}', 'Re: Introduction via a', 'Hi Amara,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-18 13:06:41 America/Denver', false, '2026-09-18 13:06:41 America/Denver'),
+  (1570, 515, 1805, 'ryan@gaard.example', '<mock-001570@gaard.example>', 'thread-001805', 'outbound', 'ryan@gaard.example', '{"samuel.campbell@inbox.example"}', '{}', 'Re: Low-cost automated investing', 'Hi Samuel,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-21 09:21:36 America/Denver', false, '2026-09-21 09:21:36 America/Denver'),
+  (1571, 313, 1806, 'jon@gaard.example', '<mock-001571@gaard.example>', 'thread-001806', 'outbound', 'jon@gaard.example', '{"redwards@sacramentovgassociation.example"}', '{}', 'Re: Investment management for Sacramento Valley Growers Association', 'Hi Russell,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-21 09:23:49 America/Denver', false, '2026-09-21 09:23:49 America/Denver'),
+  (1572, 313, 1806, 'jon@gaard.example', '<mock-001572@gaard.example>', 'thread-001806', 'inbound', 'redwards@sacramentovgassociation.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment management for Sacramento Valley Growers Association', 'Yes, I''d like to learn more. I''m free Monday afternoon.', '2026-09-22 19:23:49 America/Denver', false, '2026-09-22 19:23:49 America/Denver'),
+  (1573, 423, 1807, 'ryan@gaard.example', '<mock-001573@gaard.example>', 'thread-001807', 'outbound', 'ryan@gaard.example', '{"larry@powderrhfoundation.example"}', '{}', 'Great meeting you at Jackson Hole Philanthropy Retreat', 'Hi Larry,
+
+We provide OCIO-style investment management for foundations and institutions like Powder River Hospital Foundation.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-21 09:30:29 America/Denver', false, '2026-09-21 09:30:29 America/Denver'),
+  (1574, 423, 1807, 'ryan@gaard.example', '<mock-001574@gaard.example>', 'thread-001807', 'inbound', 'larry@powderrhfoundation.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Jackson Hole Philanthropy Retreat', 'We''re not interested, thanks.', '2026-09-21 14:30:29 America/Denver', false, '2026-09-21 14:30:29 America/Denver'),
+  (1575, 424, 1808, 'ryan@gaard.example', '<mock-001575@gaard.example>', 'thread-001808', 'outbound', 'ryan@gaard.example', '{"isabella.garcia@bighornartsendowment.example"}', '{}', 'Great meeting you at Jackson Hole Philanthropy Retreat', 'Hi Isabella,
+
+We provide OCIO-style investment management for foundations and institutions like Big Horn Arts Endowment.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-21 09:53:25 America/Denver', false, '2026-09-21 09:53:25 America/Denver'),
+  (1576, 424, 1808, 'ryan@gaard.example', '<mock-001576@gaard.example>', 'thread-001808', 'inbound', 'isabella.garcia@bighornartsendowment.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Jackson Hole Philanthropy Retreat', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-09-22 22:53:25 America/Denver', false, '2026-09-22 22:53:25 America/Denver'),
+  (1577, 134, 1810, 'jon@gaard.example', '<mock-001577@gaard.example>', 'thread-001810', 'outbound', 'jon@gaard.example', '{"kai_ruiz@ironcfscenter.example"}', '{}', 'Quarterly check-in', 'Hi Kai,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-21 10:38:46 America/Denver', false, '2026-09-21 10:38:46 America/Denver'),
+  (1578, 134, 1810, 'jon@gaard.example', '<mock-001578@gaard.example>', 'thread-001810', 'inbound', 'kai_ruiz@ironcfscenter.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-09-22 17:38:46 America/Denver', false, '2026-09-22 17:38:46 America/Denver'),
+  (1579, 425, 1812, 'jon@gaard.example', '<mock-001579@gaard.example>', 'thread-001812', 'outbound', 'jon@gaard.example', '{"rburns@hebervhsociety.example"}', '{}', 'Great meeting you at Jackson Hole Philanthropy Retreat', 'Hi Randy,
+
+We provide OCIO-style investment management for foundations and institutions like Heber Valley Heritage Society.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-09-21 10:51:51 America/Denver', false, '2026-09-21 10:51:51 America/Denver'),
+  (1580, 425, 1812, 'jon@gaard.example', '<mock-001580@gaard.example>', 'thread-001812', 'inbound', 'rburns@hebervhsociety.example', '{"jon@gaard.example"}', '{}', 'Re: Great meeting you at Jackson Hole Philanthropy Retreat', 'Thanks Jon, the timing is actually good. Could we set up a call Friday the 2?', '2026-09-22 10:51:51 America/Denver', false, '2026-09-22 10:51:51 America/Denver'),
+  (1581, 421, 1813, 'jon@gaard.example', '<mock-001581@gaard.example>', 'thread-001813', 'outbound', 'jon@gaard.example', '{"dherrera@uintaartsendowment.example"}', '{}', 'Great meeting you at Jackson Hole Philanthropy Retreat', 'Hi Deborah,
+
+We provide OCIO-style investment management for foundations and institutions like Uinta Arts Endowment.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-09-21 11:19:02 America/Denver', false, '2026-09-21 11:19:02 America/Denver'),
+  (1582, 422, 1814, 'jon@gaard.example', '<mock-001582@gaard.example>', 'thread-001814', 'outbound', 'jon@gaard.example', '{"bdixon@millcreekcfoundation.example"}', '{}', 'Great meeting you at Jackson Hole Philanthropy Retreat', 'Hi Bryan,
+
+We provide OCIO-style investment management for foundations and institutions like Millcreek Community Foundation.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-09-21 11:26:57 America/Denver', false, '2026-09-21 11:26:57 America/Denver'),
+  (1583, 422, 1814, 'jon@gaard.example', '<mock-001583@gaard.example>', 'thread-001814', 'inbound', 'bdixon@millcreekcfoundation.example', '{"jon@gaard.example"}', '{}', 'Automatic reply: Great meeting you at Jackson Hole Philanthropy Retreat', 'I am out of the office until Monday, October 5 with limited access to email. For anything urgent please call our main office.', '2026-09-21 11:29:57 America/Denver', true, '2026-09-21 11:29:57 America/Denver'),
+  (1584, 427, 1815, 'jon@gaard.example', '<mock-001584@gaard.example>', 'thread-001815', 'outbound', 'jon@gaard.example', '{"carmen.owens99@webmail.example"}', '{}', 'Great meeting you at Jackson Hole Philanthropy Retreat', 'Hi Carmen,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Jon
+GAARD Capital', '2026-09-21 11:27:18 America/Denver', false, '2026-09-21 11:27:18 America/Denver'),
+  (1585, 150, 1817, 'ryan@gaard.example', '<mock-001585@gaard.example>', 'thread-001817', 'outbound', 'ryan@gaard.example', '{"lsanders@laramiehrservices.example"}', '{}', 'Checking back in', 'Hi Lauren,
+
+We are a Salt Lake City investment adviser working with nonprofits on reserves and endowments. Many organizations like Laramie Hunger Relief Services keep most of their reserves in bank accounts; we help boards put an investment policy in place and manage it at institutional pricing.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-21 13:26:04 America/Denver', false, '2026-09-21 13:26:04 America/Denver'),
+  (1586, 213, 1819, 'jon@gaard.example', '<mock-001586@gaard.example>', 'thread-001819', 'outbound', 'jon@gaard.example', '{"juan.wright@webmail.example"}', '{}', 'Re: Introduction via Albert', 'Hi Juan,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-21 13:31:59 America/Denver', false, '2026-09-21 13:31:59 America/Denver'),
+  (1587, 213, 1819, 'jon@gaard.example', '<mock-001587@gaard.example>', 'thread-001819', 'inbound', 'juan.wright@webmail.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Introduction via Albert', 'Please stop emailing me. Thanks.', '2026-09-23 06:31:59 America/Denver', false, '2026-09-23 06:31:59 America/Denver'),
+  (1588, 318, 1820, 'jon@gaard.example', '<mock-001588@gaard.example>', 'thread-001820', 'outbound', 'jon@gaard.example', '{"martha@utahvfsproject.example"}', '{}', 'Quarterly check-in', 'Hi Martha,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-21 13:53:47 America/Denver', false, '2026-09-21 13:53:47 America/Denver'),
+  (1589, 318, 1820, 'jon@gaard.example', '<mock-001589@gaard.example>', 'thread-001820', 'inbound', 'martha@utahvfsproject.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, our board meets later in the year. Please reach out again in November.', '2026-09-21 17:53:47 America/Denver', false, '2026-09-21 17:53:47 America/Denver'),
+  (1590, 463, 1821, 'ryan@gaard.example', '<mock-001590@gaard.example>', 'thread-001821', 'outbound', 'ryan@gaard.example', '{"stephanie@ellisarchitecture.example"}', '{}', 'Quarterly check-in', 'Hi Stephanie,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-09-21 14:21:39 America/Denver', false, '2026-09-21 14:21:39 America/Denver'),
+  (1591, 420, 1823, 'ryan@gaard.example', '<mock-001591@gaard.example>', 'thread-001823', 'outbound', 'ryan@gaard.example', '{"megan.collins@plattevgassociation.example"}', '{}', 'Great meeting you at Jackson Hole Philanthropy Retreat', 'Hi Megan,
+
+We provide OCIO-style investment management for foundations and institutions like Platte Valley Growers Association.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-21 15:21:48 America/Denver', false, '2026-09-21 15:21:48 America/Denver'),
+  (1592, 420, 1823, 'ryan@gaard.example', '<mock-001592@gaard.example>', 'thread-001823', 'inbound', 'megan.collins@plattevgassociation.example', '{"ryan@gaard.example"}', '{}', 'Re: Great meeting you at Jackson Hole Philanthropy Retreat', 'Thank you for the note. We have a long-standing relationship with our current advisor, so we are not looking to make a change.', '2026-09-23 20:21:48 America/Denver', false, '2026-09-23 20:21:48 America/Denver'),
+  (1593, 381, 1824, 'ryan@gaard.example', '<mock-001593@gaard.example>', 'thread-001824', 'outbound', 'ryan@gaard.example', '{"arthur.yazzie@emigrationctservice.example"}', '{}', 'Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Hi Arthur,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Ryan', '2026-09-21 15:42:15 America/Denver', false, '2026-09-21 15:42:15 America/Denver'),
+  (1594, 381, 1824, 'ryan@gaard.example', '<mock-001594@gaard.example>', 'thread-001824', 'inbound', 'arthur.yazzie@emigrationctservice.example', '{"ryan@gaard.example"}', '{}', 'Re: Re: Great meeting you at 401(k) Fiduciary Basics for Business Owners (GAARD webinar)', 'Good timing question, but our board meets later in the year. Circle back in December and we can talk.', '2026-09-23 13:42:15 America/Denver', false, '2026-09-23 13:42:15 America/Denver'),
+  (1595, 307, 1825, 'jon@gaard.example', '<mock-001595@gaard.example>', 'thread-001825', 'outbound', 'jon@gaard.example', '{"kain@deltacfoundation.example"}', '{}', 'Re: Investment management for Delta Community Foundation', 'Hi Kai,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-22 10:08:37 America/Denver', false, '2026-09-22 10:08:37 America/Denver'),
+  (1596, 307, 1825, 'jon@gaard.example', '<mock-001596@gaard.example>', 'thread-001825', 'inbound', 'kain@deltacfoundation.example', '{"jon@gaard.example"}', '{}', 'Re: Re: Investment management for Delta Community Foundation', 'Thanks for following up. Right now this quarter is busy for us. Could you check back in December?', '2026-09-24 19:08:37 America/Denver', false, '2026-09-24 19:08:37 America/Denver'),
+  (1597, 288, 1826, 'ryan@gaard.example', '<mock-001597@gaard.example>', 'thread-001826', 'outbound', 'ryan@gaard.example', '{"raymondd@starvssnetwork.example"}', '{}', 'Quarterly check-in', 'Hi Raymond,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Ryan
+GAARD Capital', '2026-09-22 11:38:18 America/Denver', false, '2026-09-22 11:38:18 America/Denver'),
+  (1598, 288, 1826, 'ryan@gaard.example', '<mock-001598@gaard.example>', 'thread-001826', 'inbound', 'raymondd@starvssnetwork.example', '{"ryan@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Good timing question, but our board meets later in the year. Circle back in November and we can talk.', '2026-09-23 09:38:18 America/Denver', false, '2026-09-23 09:38:18 America/Denver'),
+  (1599, 429, 1828, 'ryan@gaard.example', '<mock-001599@gaard.example>', 'thread-001828', 'outbound', 'ryan@gaard.example', '{"scott.sandoval@inbox.example"}', '{}', 'Great meeting you at Jackson Hole Philanthropy Retreat', 'Hi Scott,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-22 14:33:14 America/Denver', false, '2026-09-22 14:33:14 America/Denver'),
+  (1600, 428, 1829, 'ryan@gaard.example', '<mock-001600@gaard.example>', 'thread-001829', 'outbound', 'ryan@gaard.example', '{"katherine.madsen@mail.example"}', '{}', 'Great meeting you at Jackson Hole Philanthropy Retreat', 'Hi Katherine,
+
+We bring an institutional, endowment-style approach to families and individuals.
+
+Would you be open to a short call?
+
+Best,
+Ryan
+GAARD Capital', '2026-09-22 16:03:01 America/Denver', false, '2026-09-22 16:03:01 America/Denver');
+
+insert into public.email_messages (id, contact_id, touchpoint_id, mailbox, external_id, thread_id, direction, from_email, to_emails, cc_emails, subject, body_text, sent_at, is_auto_reply, created_at) values
+  (1601, 428, 1829, 'ryan@gaard.example', '<mock-001601@gaard.example>', 'thread-001829', 'inbound', 'katherine.madsen@mail.example', '{"ryan@gaard.example"}', '{}', 'Automatic reply: Great meeting you at Jackson Hole Philanthropy Retreat', 'I am out of the office until Thursday, October 1 with limited access to email. For anything urgent please call our main office.', '2026-09-22 16:05:01 America/Denver', true, '2026-09-22 16:05:01 America/Denver'),
+  (1602, 11, 1830, 'jon@gaard.example', '<mock-001602@gaard.example>', 'thread-001830', 'outbound', 'jon@gaard.example', '{"dennis@tooelevpservices.example"}', '{}', 'Quarterly check-in', 'Hi Dennis,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-23 08:05:06 America/Denver', false, '2026-09-23 08:05:06 America/Denver'),
+  (1603, 324, 1831, 'jon@gaard.example', '<mock-001603@gaard.example>', 'thread-001831', 'outbound', 'jon@gaard.example', '{"timothy.sanders@ironcountydanceproject.example"}', '{}', 'Quarterly check-in', 'Hi Timothy,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-23 10:12:41 America/Denver', false, '2026-09-23 10:12:41 America/Denver'),
+  (1604, 324, 1831, 'jon@gaard.example', '<mock-001604@gaard.example>', 'thread-001831', 'inbound', 'timothy.sanders@ironcountydanceproject.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Thanks for the materials. Can we get the rest of the committee on a call?', '2026-09-24 20:12:41 America/Denver', false, '2026-09-24 20:12:41 America/Denver'),
+  (1605, 333, 1832, 'jon@gaard.example', '<mock-001605@gaard.example>', 'thread-001832', 'outbound', 'jon@gaard.example', '{"nicholasa@santacmctrust.example"}', '{}', 'Quarterly check-in', 'Hi Nicholas,
+
+Checking in and sharing our latest quarterly update. Happy to answer any questions or set up time to talk.
+
+Best,
+Jon
+GAARD Capital', '2026-09-23 15:51:18 America/Denver', false, '2026-09-23 15:51:18 America/Denver'),
+  (1606, 333, 1832, 'jon@gaard.example', '<mock-001606@gaard.example>', 'thread-001832', 'inbound', 'nicholasa@santacmctrust.example', '{"jon@gaard.example"}', '{}', 'Re: Quarterly check-in', 'Not right now, our board meets later in the year. Please reach out again in November.', '2026-09-25 10:51:18 America/Denver', false, '2026-09-25 10:51:18 America/Denver'),
+  (1607, 201, 1833, 'jon@gaard.example', '<mock-001607@gaard.example>', 'thread-001833', 'outbound', 'jon@gaard.example', '{"harold.sorensen@inbox.example"}', '{}', 'Re: Institutional-style investing for your family', 'Hi Harold,
+
+Following up on my note below in case it got buried. Would a 20-minute call in the next few weeks be useful?
+
+Best,
+Jon', '2026-09-24 08:18:58 America/Denver', false, '2026-09-24 08:18:58 America/Denver');
+
+
+select set_config('app.seeding', 'off', false);

@@ -1,0 +1,14 @@
+id,name,event_type,format,hosted_by_us,host_org,start_on,end_on,city,state,cost_usd,attendees_est,target_segment_code,owner_id,notes,created_at
+1,Wasatch Nonprofit Leadership Summit 2025,conference,in_person,f,Wasatch Nonprofit Network,2025-04-17,,Salt Lake City,UT,1450.00,400,ORG_NONPROFIT,1,"Cost includes registration, travel and sponsorship.",2025-03-18 12:04:02-06
+2,Nonprofit Finance Roundtable: Ogden,networking,in_person,f,Northern Utah Nonprofit Circle,2025-06-11,,Ogden,UT,120.00,35,ORG_NONPROFIT,1,"Cost includes registration, travel and sponsorship.",2025-05-12 12:01:37-06
+3,Endowment Basics for Nonprofit Boards (GAARD webinar),webinar,virtual,t,,2025-09-18,,,UT,150.00,60,ORG_NONPROFIT,1,GAARD-hosted; cost is ads and venue.,2025-08-19 12:14:54-06
+4,Boise Philanthropy Forum 2025,conference,in_person,f,Treasure Valley Giving Council,2025-10-09,,Boise,ID,1100.00,250,ORG_OTHER,2,"Cost includes registration, travel and sponsorship.",2025-09-09 12:32:53-06
+5,Salt Lake Small Business Mixer,networking,in_person,f,Downtown SLC Business Circle,2025-11-13,,Salt Lake City,UT,60.00,80,RET_401K,2,"Cost includes registration, travel and sponsorship.",2025-10-14 12:11:40-06
+6,Board Treasurer Workshop: Investment Policy 101,workshop,in_person,t,,2026-02-12,,Salt Lake City,UT,480.00,28,ORG_NONPROFIT,1,GAARD-hosted; cost is ads and venue.,2026-01-13 12:02:07-07
+7,Bay Area Foundation Investment Forum,conference,virtual,f,Pacific Philanthropy Network,2026-03-19,,,CA,295.00,300,ORG_OTHER,1,"Cost includes registration, travel and sponsorship.",2026-02-17 12:23:31-07
+8,Wasatch Nonprofit Leadership Summit 2026,conference,in_person,f,Wasatch Nonprofit Network,2026-04-16,,Salt Lake City,UT,1600.00,450,ORG_NONPROFIT,1,"Cost includes registration, travel and sponsorship.",2026-03-17 12:49:15-06
+9,Cheyenne Small Business Expo,conference,in_person,f,Cheyenne Business Council,2026-05-07,,Cheyenne,WY,950.00,300,RET_401K,2,"Cost includes registration, travel and sponsorship.",2026-04-07 12:54:14-06
+10,401(k) Fiduciary Basics for Business Owners (GAARD webinar),webinar,virtual,t,,2026-06-10,,,UT,200.00,45,RET_401K,2,GAARD-hosted; cost is ads and venue.,2026-05-11 12:08:44-06
+11,Gem State Nonprofit Conference,conference,in_person,f,Gem State Nonprofit Association,2026-07-22,,Boise,ID,1250.00,350,ORG_NONPROFIT,2,"Cost includes registration, travel and sponsorship.",2026-06-22 12:47:26-06
+12,Investing for Young Professionals: Robo-Advisor Launch,workshop,virtual,t,,2026-08-13,,,UT,350.00,70,IND_ROBO,2,GAARD-hosted; cost is ads and venue.,2026-07-14 12:44:03-06
+13,Jackson Hole Philanthropy Retreat,networking,in_person,f,Teton Giving Circle,2026-09-17,,Jackson,WY,2100.00,90,ORG_OTHER,1,"Cost includes registration, travel and sponsorship.",2026-08-18 12:46:19-06

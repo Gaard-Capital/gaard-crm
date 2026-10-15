@@ -1,0 +1,6 @@
+channel_code,channel,leads,responded,calls,hot,onboarding,funded,funded_aum,response_rate,lead_to_call_rate,call_to_funded_rate
+COLD_EMAIL,Cold email,293,92,20,13,5,3,15602000.00,0.3140,0.0683,0.1500
+COLD_CALL,Cold call,10,5,0,0,0,0,0,0.5000,0.0000,
+EVENT,Event,184,115,46,27,11,5,17381000.00,0.6250,0.2500,0.1087
+REFERRAL,Referral / personal intro,54,47,24,16,9,8,14199000.00,0.8704,0.4444,0.3333
+RFP,RFP,6,5,4,3,2,2,21585000.00,0.8333,0.6667,0.5000

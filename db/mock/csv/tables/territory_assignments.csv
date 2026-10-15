@@ -1,0 +1,7 @@
+id,team_member_id,state,segment_code
+1,1,UT,
+2,1,CA,
+3,2,ID,
+4,2,WY,
+5,2,,IND_ROBO
+6,2,,RET_401K

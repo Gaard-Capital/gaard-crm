@@ -1,0 +1,10 @@
+id,organization_id,contact_id,title,mandate_type,found_via,est_mandate_aum,released_on,questions_due_on,due_on,submitted_on,status,decision_on,owner_id,notes,created_at,updated_at
+1,349,543,Investment Management Services RFP,OCIO,RFP database,18000000.00,2025-02-10,2025-02-24,2025-03-21,2025-03-19,won,2025-06-12,1,,2025-02-10 12:27:34-07,2026-09-26 20:46:49.686136-06
+2,350,544,OCIO Services RFP,OCIO,Consultant invitation,25000000.00,2025-07-07,2025-07-21,2025-08-15,2025-08-14,lost,2025-10-20,1,,2025-07-07 12:42:22-06,2026-09-26 20:46:49.686136-06
+3,351,545,Endowment Investment Consultant RFP,Investment consulting,Direct invitation,6000000.00,2025-10-06,2025-10-20,2025-11-14,2025-11-12,won,2026-02-09,2,,2025-10-06 12:39:09-06,2026-09-26 20:46:49.686136-06
+4,352,546,401(k) Plan Advisor Services RFP,401(k) plan advisor,RFP database,4200000.00,2026-02-16,2026-03-02,2026-03-20,2026-03-18,lost,2026-05-08,2,,2026-02-16 12:14:37-07,2026-09-26 20:46:49.686136-06
+5,353,547,Investment Advisory Services for Reserves,Investment advisory,RFP database,9000000.00,2026-04-20,2026-05-04,2026-05-29,2026-05-27,finalist,,1,,2026-04-20 12:00:29-06,2026-09-26 20:46:49.686136-06
+6,354,548,OCIO Search 2026,OCIO,Consultant invitation,42000000.00,2026-09-08,2026-09-22,2026-10-16,,intent_to_bid,,1,,2026-09-08 12:19:30-06,2026-09-26 20:46:49.686136-06
+7,355,549,Investment Manager Search,Investment management,RFP database,15000000.00,2026-09-21,2026-10-05,2026-10-30,,identified,,2,,2026-09-21 12:09:58-06,2026-09-26 20:46:49.686136-06
+8,356,550,Investment Consulting RFP,Investment consulting,RFP database,3000000.00,2025-08-11,2025-08-25,2025-09-12,,declined,2025-08-20,2,Declined: mandate below our minimum and required on-site staff.,2025-08-11 12:27:29-06,2026-09-26 20:46:49.686136-06
+9,357,551,Retirement Plan Consultant RFP,401(k) plan advisor,Direct invitation,2100000.00,2026-07-27,2026-08-10,2026-08-28,2026-08-27,submitted,,2,,2026-07-27 12:50:05-06,2026-09-26 20:46:49.686136-06

@@ -1,0 +1,6 @@
+id,match_on,pattern,flag,reason,is_active,created_at
+1,email_domain,.edu,university,"University email: the founder may know them, consider a personal reach-out",t,2026-09-26 20:46:49.283935-06
+2,email_domain,.edu.example,university,Mock data: stands in for .edu addresses,t,2026-09-26 20:46:49.505662-06
+3,email_domain,summitpeakwealth.example,do_not_contact,Competitor firm: do not solicit,t,2026-09-26 20:46:49.505662-06
+4,org_name,Beehive State Credit Union,do_not_contact,Banking partner: founder handles the relationship,t,2026-09-26 20:46:49.505662-06
+5,email,r.hollis@mail.example,do_not_contact,Personal friend of the founder: he reaches out himself,t,2026-09-26 20:46:49.505662-06
