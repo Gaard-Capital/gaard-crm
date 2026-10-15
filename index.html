@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-14.11">
+<meta name="build-version" content="2026-10-15.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -314,6 +314,10 @@ tr.mm-blocked:hover td{background:transparent}
 .thread{display:flex;flex-direction:column}
 .entry{display:grid;grid-template-columns:104px 1fr;gap:5px 16px;padding:15px 18px;border-bottom:1px solid var(--line)}
 .entry:last-child{border-bottom:none}
+.entry{position:relative;padding-right:56px}
+.tp-edit{position:absolute;top:12px;right:14px;width:32px;height:32px;border-radius:50%;border:1px solid transparent;background:transparent;color:var(--ink-4);display:grid;place-items:center;cursor:pointer}
+.tp-edit svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tp-edit:hover,.tp-edit:focus-visible{color:var(--accent-strong);background:var(--accent-soft);border-color:var(--accent-line)}
 .entry .when{color:var(--ink-3);font-size:12px;line-height:1.45}
 .entry .when b{display:block;color:var(--ink);font-weight:600}
 .entry .subj{font-weight:500;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -478,7 +482,8 @@ table.edit tr:last-child td{border-bottom:none}
 .funnel-end b{font-weight:600;color:var(--ink)}
 
 /* ---------- Section tabs ---------- */
-.tabs{display:flex;gap:3px;align-items:flex-end;border-bottom:1px solid var(--line);margin:-4px 0 14px;overflow-x:auto}
+.tabs{display:flex;gap:3px;align-items:flex-end;border-bottom:1px solid var(--line);margin:-4px 0 14px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
 .tabs .tab{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border:1px solid transparent;border-bottom:none;border-radius:11px 11px 0 0;margin-bottom:-1px;color:var(--ink-3);text-decoration:none;font-weight:500;font-size:13.5px;white-space:nowrap}
 .tabs .tab:hover{color:var(--ink);background:var(--surface-2)}
 .tabs .tab[aria-current="page"]{background:var(--surface);border-color:var(--line);color:var(--ink);font-weight:600}
@@ -1071,12 +1076,17 @@ const Store = {
     this.state = { ...tables, dirty:false,
       flag_rules: tables.flag_rules && tables.flag_rules.length ? tables.flag_rules : JSON.parse(JSON.stringify(REFERENCE.flag_rules)),
       settings: { firm_name: prev?.firm_name || 'GAARD Capital', default_owner_id: member.id, assumed_fee_rate: prev?.assumed_fee_rate ?? 0.0045,
-        templates: prev?.templates || JSON.parse(JSON.stringify(MERGE_TEMPLATES)), loaded_at: new Date().toISOString() } };
+        templates: prev?.templates || (() => { try { return JSON.parse(localStorage.getItem('gaard_templates') || 'null'); } catch (e) { return null; } })()
+          || JSON.parse(JSON.stringify(MERGE_TEMPLATES)), loaded_at: new Date().toISOString() } };
     this.live = true; this.dirty = false; this.undoStack = []; this.version++;
     this.listeners.forEach(f => f('live'));
   },
 };
 const memo = fn => { let v = -1, cache = new Map(); return (...a) => { if (v !== Store.version){ v = Store.version; cache = new Map(); } const k = a.length ? JSON.stringify(a) : ''; if (!cache.has(k)) cache.set(k, fn(...a)); return cache.get(k); }; };
+
+/* Activities newest first, to the minute; two at the same moment, the one entered last first. */
+const newestFirst = (x, y) => (storedTime(y.touched_at) - storedTime(x.touched_at)) || (y.id - x.id);
+const storedTime = v => { const s = String(v || ''); const d = new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? s : s + 'Z'); return isNaN(d) ? 0 : d.getTime(); };
 
 /* ---------- Repo: the seam between the screens and the database ---------- */
 const Repo = {
@@ -1090,8 +1100,8 @@ const Repo = {
   _evIx:  memo(() => byId(Store.state.events)),
   _rfpIx: memo(() => byId(Store.state.rfps)),
   _campIx: memo(() => byId(Store.state.campaigns)),
-  _tpByContact: memo(() => { const m = new Map(); for (const t of Store.state.touchpoints){ if (!m.has(t.contact_id)) m.set(t.contact_id, []); m.get(t.contact_id).push(t); } for (const a of m.values()) a.sort((x,y) => String(y.touched_at).localeCompare(String(x.touched_at))); return m; }),
-  _tpByOrg: memo(() => { const m = new Map(); for (const t of Store.state.touchpoints){ if (t.organization_id == null) continue; if (!m.has(t.organization_id)) m.set(t.organization_id, []); m.get(t.organization_id).push(t); } for (const a of m.values()) a.sort((x,y) => String(y.touched_at).localeCompare(String(x.touched_at))); return m; }),
+  _tpByContact: memo(() => { const m = new Map(); for (const t of Store.state.touchpoints){ if (!m.has(t.contact_id)) m.set(t.contact_id, []); m.get(t.contact_id).push(t); } for (const a of m.values()) a.sort(newestFirst); return m; }),
+  _tpByOrg: memo(() => { const m = new Map(); for (const t of Store.state.touchpoints){ if (t.organization_id == null) continue; if (!m.has(t.organization_id)) m.set(t.organization_id, []); m.get(t.organization_id).push(t); } for (const a of m.values()) a.sort(newestFirst); return m; }),
   _conByOrg: memo(() => { const m = new Map(); for (const c of Store.state.contacts){ if (c.organization_id == null) continue; if (!m.has(c.organization_id)) m.set(c.organization_id, []); m.get(c.organization_id).push(c); } return m; }),
   _oppByContact: memo(() => { const m = new Map(); for (const o of Store.state.opportunities) m.set(o.contact_id, o); return m; }),
   _oppByOrg: memo(() => { const m = new Map(); for (const o of Store.state.opportunities){ if (o.organization_id != null && (!m.has(o.organization_id) || !STG.get(m.get(o.organization_id).stage)?.closed)) m.set(o.organization_id, o); } return m; }),
@@ -1192,7 +1202,7 @@ const Repo = {
     /** insert into touchpoints ... then the triggers in migration 3 run */
     log: (fields, { silent } = {}) => {
       let created = null, moved = null;
-      Store.commit('Touchpoint logged', st => {
+      Store.commit('Activity logged', st => {
         const t = { id: Math.max(0, ...st.touchpoints.map(x => x.id)) + 1, direction:'outbound', touched_at: new Date().toISOString().slice(0,19),
           outcome_status:'confirmed', owner_id: st.settings.default_owner_id, created_at: new Date().toISOString().slice(0,19), ...fields };
         st.touchpoints.push(t); created = t;
@@ -1201,6 +1211,23 @@ const Repo = {
       if (moved) Toast.show(moved, { kind:'ok', ms:7000 });
       return created;
     },
+    /** update touchpoints set ... where id = $1. A new outcome, date or follow-up runs the rules again. */
+    update: (id, patch) => { let moved = null;
+      Store.commit('Activity updated', st => { const t = st.touchpoints.find(x => x.id === id); if (!t) return;
+        const latest = st.touchpoints.filter(x => x.contact_id === t.contact_id).sort(newestFirst)[0];
+        const rerun = latest && latest.id === t.id && ['outcome_code', 'follow_up_on'].some(k => k in patch && patch[k] !== t[k]);
+        Object.assign(t, patch, { updated_at: new Date().toISOString().slice(0,19) });
+        if (rerun && t.outcome_code) Rules.applyOutcome(st, t, m => { moved = m; }); });
+      if (moved) Toast.show(moved, { kind:'ok', ms:7000 }); },
+    /** delete from touchpoints where id = $1, letting go of what pointed at it first */
+    remove: id => Store.commit('Activity deleted', st => {
+      st.email_messages = st.email_messages.filter(e => e.touchpoint_id !== id);
+      // the follow-up this activity scheduled goes with it
+      st.reminders.forEach(r => { if (r.touchpoint_id !== id) return;
+        if (r.status === 'open' || r.status === 'snoozed'){ r.status = 'dismissed'; r.completed_at = new Date().toISOString().slice(0,19); }
+        r.touchpoint_id = null; });
+      st.opportunities.forEach(o => { if (o.converting_touchpoint_id === id) o.converting_touchpoint_id = null; });
+      st.touchpoints = st.touchpoints.filter(t => t.id !== id); }),
     /** select confirm_outcome($1, $2): accept what the AI suggested */
     confirmOutcome: (id, outcomeCode) => Store.commit('Outcome confirmed', st => {
       const t = st.touchpoints.find(x => x.id === id); if (!t) return;
@@ -1277,9 +1304,23 @@ const Repo = {
   },
 
   templates: {
-    all: () => Store.state.settings.templates || [],
-    byId: id => (Store.state.settings.templates || []).find(t => t.id === id) || null,
-    save: list => Store.commit('Templates saved', st => { st.settings.templates = list; }),
+    /** The shared email_templates table when it is there; this browser's copy otherwise. */
+    shared: () => Store.live && !Live.missing.has('email_templates'),
+    all: () => Repo.templates.shared()
+      ? (Store.state.email_templates || []).slice().sort((a, b) => a.id - b.id).map(r => ({ id: r.id, name: r.name, segment: r.segment_code || '', subject: r.subject || '', body: r.body || '', first: !!r.is_first }))
+      : (Store.state.settings.templates || []),
+    byId: id => Repo.templates.all().find(t => String(t.id) === String(id)) || null,
+    /* Templates are not a database table yet, so they are also kept in this browser. */
+    save: list => {
+      if (Repo.templates.shared()) return Store.commit('Templates saved', st => {
+        const old = new Map((st.email_templates || []).map(r => [r.id, r])), now = new Date().toISOString().slice(0,19);
+        let next = Math.max(0, ...(st.email_templates || []).map(r => r.id));
+        st.email_templates = list.map(t => { const id = typeof t.id === 'number' ? t.id : ++next, was = old.get(id) || { created_at: now };
+          const row = { ...was, id, name: t.name || 'Untitled', segment_code: t.segment || null, subject: t.subject || '', body: t.body || '', is_first: !!t.first };
+          if (JSON.stringify(row) !== JSON.stringify(was)) row.updated_at = now;
+          return row; }); });
+      Store.commit('Templates saved', st => { st.settings.templates = list; });
+      try { localStorage.setItem('gaard_templates', JSON.stringify(list)); } catch (e) { /* private window */ } },
   },
 
   campaigns: { all: memo(() => Store.state.campaigns), byId: id => Repo._campIx().get(id) || null,
@@ -1959,9 +2000,11 @@ const Intelligence = (() => {
   function parseDate(v){
     const s = String(v||'').trim(); if (!s) return null;
     const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-    if (us){ let [,mo,d,y] = us; y = y.length === 2 ? '20'+y : y; return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+    if (us){ let [,mo,d,y] = us;
+      if (y.length === 3) return null;   // a typo like 11/20/205: left blank and flagged, never stored as the year 205
+      y = y.length === 2 ? '20'+y : y; return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
     const t = Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(s) ? s + 'T12:00:00' : s);
-    return isNaN(t) ? null : new Date(t).toISOString().slice(0,10);
+    return isNaN(t) || new Date(t).getFullYear() < 1900 ? null : new Date(t).toISOString().slice(0,10);
   }
 
   /** Stage one row and check it against the book, the way process_import_batch does. */
@@ -2370,10 +2413,10 @@ const Modal = {
   open({ title, body, foot, wide=false }){
     const back = document.getElementById('modal-back'), m = document.getElementById('modal');
     m.className = 'modal' + (wide ? ' wide' : '');
-    m.innerHTML = `<div class="card-head"><h2 id="modal-title">${esc(title)}</h2><button class="btn btn-sm" type="button" data-close style="background:transparent;color:inherit;border-color:rgba(255,255,255,.3)">Close</button></div><div class="card-body">${body}</div>` + (foot ? `<div class="card-foot">${foot}</div>` : '');
-    back.hidden = false; m.querySelector('[data-close]').onclick = () => Modal.close();
+    m.innerHTML = `<div class="card-head"><h2 id="modal-title">${esc(title)}</h2></div><div class="card-body">${body}</div>` + (foot ? `<div class="card-foot">${foot}</div>` : '');
+    back.hidden = false;
     back.onclick = e => { if (e.target === back) Modal.close(); };
-    const first = m.querySelector('input, select, textarea, button:not([data-close])'); if (first) first.focus();
+    const first = m.querySelector('input, select, textarea, button'); if (first) first.focus();
     return m;
   },
   close(){ document.getElementById('modal-back').hidden = true; document.getElementById('modal').innerHTML = ''; },
@@ -3026,7 +3069,7 @@ Views.mailmerge = { title:'Emails to send',
       <div class="filters" style="margin:0">
         <label class="sr-only" for="mm-tpl">Letter</label>
         <select id="mm-tpl" style="min-width:300px">${templates.map(t => `<option value="${t.id}" ${t.id===tpl.id?'selected':''}>${esc(t.name)}${t.segment ? ' (' + esc(segName(t.segment)) + ')' : ''}</option>`).join('')}</select>
-        <a class="btn btn-sm" href="${href('settings',{section:'templates'})}">Edit the wording</a>
+        <a class="btn btn-sm" href="${href('templates')}">Edit the wording</a>
         <span class="spacer"></span>
         <span class="muted small">${tpl.segment ? 'Written for ' + esc(segName(tpl.segment)) + ', so only those people are listed below.' : 'This one suits anybody.'}</span>
       </div></div></section>
@@ -3183,27 +3226,96 @@ Views.workflow = { title:'Workflow',
 };
 
 /* ---- shared dialogs ---- */
-async function openLogTouch(contactId, preset = {}){
+/* When an activity happened, with the time when one was recorded. Rows from
+   the old sheets carry a date only, stored at noon, and show no time. */
+const storedDate = v => { const s = String(v || ''); return new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? s : s + 'Z'); };
+function whenLabel(v){
+  const s = String(v || ''); if (!s) return '';
+  if (!/T\d\d:\d\d/.test(s) || /T12:00:00/.test(s)) return fmtDate(v);
+  return fmtDate(v) + ' &middot; ' + storedDate(s).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+}
+/* The outcome list, grouped so the common answers come first, and only the
+   outcomes that fit the kind of activity. */
+const OUTCOME_GROUPS = [
+  ['Their reply', ['INTERESTED', 'NOT_NOW', 'NOT_INTERESTED', 'BOUNCED', 'OUT_OF_OFFICE', 'UNSUBSCRIBE']],
+  ['No reply yet', ['NO_RESPONSE', 'NO_ANSWER', 'VOICEMAIL', 'WRONG_NUMBER']],
+  ['After a call or meeting', ['CALL_HELD', 'HOT', 'READY_TO_ONBOARD', 'NOT_A_FIT', 'REVIEW_HELD', 'MET_AT_EVENT', 'MEETING_AT_EVENT', 'INTRO_MADE']],
+  ['Other', ['WRONG_PERSON', 'REFERRED_INTERNALLY', 'HAS_ADVISOR', 'RFP_SUBMITTED', 'RFP_FINALIST', 'RFP_WON', 'RFP_LOST']],
+];
+function outcomeOptions(type, current){
+  const fits = code => (OUT.get(code)?.applies || []).includes(type);
+  const opt = code => `<option value="${code}" ${code === current ? 'selected' : ''}>${esc(outLabel(code))}</option>`;
+  const seen = new Set();
+  let html = `<option value="" ${!current ? 'selected' : ''}>No outcome</option>`;
+  for (const [label, codes] of OUTCOME_GROUPS){
+    const list = codes.filter(fits); list.forEach(x => seen.add(x));
+    if (list.length) html += `<optgroup label="${esc(label)}">${list.map(opt).join('')}</optgroup>`;
+  }
+  const rest = OUTCOMES.filter(o => fits(o.code) && !seen.has(o.code)).map(o => o.code);
+  if (rest.length) html += `<optgroup label="More">${rest.map(opt).join('')}</optgroup>`;
+  if (current && !fits(current)) html += opt(current);
+  return html;
+}
+async function openLogTouch(contactId, preset = {}){ return openActivity(contactId, null, preset); }
+/** Log an activity, or edit or delete one (tp). The person logging is the
+    owner; choosing an outcome that schedules a follow-up shows its date. */
+async function openActivity(contactId, tp = null, preset = {}){
   const c = Repo.contacts.byId(contactId); if (!c) return;
-  if (c.do_not_contact && !preset.force){
-    const ok = await Modal.confirm({ title:'This contact is on the do-not-contact list', message:`${c.full_name}: ${c.dnc_reason || 'asked not to be contacted'}. The database refuses outreach to this contact. Log an internal note anyway?`, okLabel:'Log a note', danger:true });
+  if (!tp && c.do_not_contact && !preset.force){
+    const ok = await Modal.confirm({ title:'This contact is on the do-not-contact list', message:`${c.full_name}: ${c.dnc_reason || 'asked not to be contacted'}. The database refuses outreach to this contact. Log an internal note anyway?`, okLabel:'Log a note' });
     if (!ok) return;
   }
-  const today = new Date().toISOString().slice(0,10);
-  const out = await Modal.form({ title:'Log a touchpoint for ' + c.full_name, wide:true, okLabel:'Save touchpoint', fields:[
-    { key:'touched_at', label:'Date', type:'date', value: preset.date || today },
-    { key:'touch_type', label:'Touch type', type:'select', value: preset.touch_type || 'email', options: TOUCH_TYPES.map(t => ({ value:t.code, label:t.name })) },
-    { key:'direction', label:'Direction', type:'select', value: preset.direction || 'outbound', options:[{value:'outbound',label:'Outbound'},{value:'inbound',label:'Inbound'}] },
-    { key:'outcome_code', label:'Outcome', hint:'an email you send stays "No response" until they reply', type:'select', value: preset.outcome || 'NO_RESPONSE', options: OUTCOMES.map(o => ({ value:o.code, label:o.label })) },
-    { key:'owner_id', label:'Owner', type:'select', value: String(preset.owner_id || Repo.settings().default_owner_id), options: Repo.team().map(t => ({ value:String(t.id), label:t.full_name })) },
-    { key:'event_id', label:'Linked event', type:'select', value: String(preset.event_id || ''), options:[{value:'',label:'None'}, ...Repo.events.all().map(e => ({ value:String(e.id), label:e.name }))] },
-    { key:'subject', label:'Subject', span:true, value: preset.subject || '' },
-    { key:'notes', label:'Notes, kept in full', type:'textarea', rows:5, span:true, value: preset.notes || '' },
-  ]});
-  if (!out) return;
-  Repo.touchpoints.log({ contact_id: c.id, organization_id: c.organization_id, touch_type: out.touch_type, direction: out.direction,
-    touched_at: out.touched_at + 'T12:00:00', outcome_code: out.outcome_code, outcome_status:'confirmed',
-    owner_id: Number(out.owner_id), event_id: out.event_id ? Number(out.event_id) : null, subject: out.subject || null, notes: out.notes || null });
+  /* The time is the moment it is logged, never typed. Only the latest activity
+     sets the next follow-up: editing an older one leaves the schedule alone. */
+  const latest = Repo.contacts.touchpoints(c.id)[0], isLatest = !tp || (latest && latest.id === tp.id);
+  const base = tp ? storedDate(tp.touched_at) : new Date();
+  const tomorrow = Rules.addDays(Rules.startOfDay(new Date()), 1).toISOString().slice(0, 10);
+  const type0 = tp ? tp.touch_type : (preset.touch_type || 'email');
+  const dir0 = tp ? tp.direction : (preset.direction || 'outbound');
+  const out0 = tp ? (tp.outcome_code || '') : (preset.outcome ?? (type0 === 'email' && dir0 === 'outbound' ? 'NO_RESPONSE' : ''));
+  const events = Repo.events.all(), ev0 = tp ? tp.event_id : preset.event_id;
+  const body = `<div class="form-grid">
+    <label class="f"><span>Type</span><select id="la-type">${TOUCH_TYPES.map(t => `<option value="${t.code}" ${t.code === type0 ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
+    <label class="f"><span>Direction</span><select id="la-dir"><option value="outbound" ${dir0 === 'outbound' ? 'selected' : ''}>Outbound</option><option value="inbound" ${dir0 === 'inbound' ? 'selected' : ''}>Inbound</option></select></label>
+    <label class="f"><span>Outcome</span><select id="la-out"></select></label>
+    <label class="f" id="la-fu-wrap" hidden><span>Next follow-up</span><input id="la-fu" type="date" min="${tomorrow}"></label>
+    ${events.length ? `<label class="f"><span>Event</span><select id="la-ev"><option value="">None</option>${events.map(e => `<option value="${e.id}" ${ev0 === e.id ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}</select></label>` : ''}
+    <label class="f span2"><span>Subject</span><input id="la-subj" type="text" value="${esc(tp ? tp.subject || '' : preset.subject || '')}"></label>
+    <label class="f span2"><span>Notes</span><textarea id="la-notes" rows="5">${esc(tp ? tp.notes || '' : preset.notes || '')}</textarea></label></div>`;
+  const foot = `${tp ? '<button class="btn btn-danger" type="button" data-del style="margin-right:auto">Delete</button>' : ''}<button class="btn" type="button" data-cancel>Cancel</button><button class="btn btn-primary" type="button" data-ok>Save</button>`;
+  const m = Modal.open({ title: (tp ? 'Edit activity for ' : 'Log activity for ') + c.full_name, body, foot, wide:true });
+  const $ = id => m.querySelector('#' + id);
+  let fuChosen = false;
+  const fill = keep => { $('la-out').innerHTML = outcomeOptions($('la-type').value, keep ?? $('la-out').value); };
+  const syncFu = () => {
+    const r = OUT.get($('la-out').value), show = isLatest && !!(r && r.reminder && r.next_days != null);
+    $('la-fu-wrap').hidden = !show;
+    if (show && !fuChosen){ const d = Rules.addDays(base, r.next_days).toISOString().slice(0, 10); $('la-fu').value = d < tomorrow ? tomorrow : d; }
+  };
+  fill(out0);
+  if (tp && tp.follow_up_on && tp.follow_up_on >= tomorrow){ $('la-fu').value = tp.follow_up_on; fuChosen = true; }
+  syncFu();
+  $('la-type').addEventListener('change', () => { fill(); syncFu(); });
+  $('la-out').addEventListener('change', () => { fuChosen = false; syncFu(); });
+  $('la-fu').addEventListener('change', () => { fuChosen = true; });
+  m.querySelector('[data-cancel]').onclick = () => Modal.close();
+  m.querySelector('[data-del]')?.addEventListener('click', async () => {
+    Modal.close();
+    if (await Modal.confirm({ title:'Delete this activity', message:'It comes off the history. The change log keeps a copy, so it can be restored.', okLabel:'Delete', danger:true }))
+      Repo.touchpoints.remove(tp.id);
+  });
+  m.querySelector('[data-ok]').onclick = () => {
+    const code = $('la-out').value || null, r = code ? OUT.get(code) : null, wantsFu = !$('la-fu-wrap').hidden;
+    if (wantsFu && (!$('la-fu').value || $('la-fu').value < tomorrow)) return Toast.show('Pick a follow-up date from tomorrow on.', { kind:'warn' });
+    const fields = { touch_type: $('la-type').value, direction: $('la-dir').value, outcome_code: code, outcome_status: 'confirmed',
+      ...(isLatest ? { follow_up_on: wantsFu ? $('la-fu').value : null } : {}),
+      event_id: $('la-ev') && $('la-ev').value ? Number($('la-ev').value) : null,
+      subject: $('la-subj').value.trim() || null, notes: $('la-notes').value.trim() || null };
+    Modal.close();
+    if (tp) Repo.touchpoints.update(tp.id, fields);
+    else Repo.touchpoints.log({ contact_id: c.id, organization_id: c.organization_id, owner_id: Repo.settings().default_owner_id,
+      touched_at: preset.date ? preset.date + 'T12:00:00' : new Date().toISOString().slice(0, 19), ...fields });
+  };
 }
 async function openAddContact(orgId){
   const org = orgId != null ? Repo.organizations.byId(orgId) : null;
@@ -3459,7 +3571,7 @@ Views.touchpoints = { title:'Correspondence',
 const SHEET_COLS = [
   { label:'Date', w:78, fixed:true }, { label:'Contact Name', w:150, fixed:true }, { label:'First Name', w:84 },
   { label:'Email', w:190 }, { label:'Organization', w:176 }, { label:'Website', w:150 }, { label:'LinkedIn', w:150 },
-  { label:'AUM', w:84 }, { label:'Notes', w:180 }, { label:'Initial Outcome', w:140 }, { label:'Recent correspondence', w:280 },
+  { label:'AUM', w:84 }, { label:'Notes', w:180 }, { label:'Initial Outcome', w:300 },
   { label:'Status', w:96 }, { label:'Next Reach out Date', w:76 }, { label:'Newsletter', w:74 }, { label:'Active/Dorm', w:74 },
   { label:'Title', w:140 }, { label:'Segment', w:120 }, { label:'State', w:44 }, { label:'First reached', w:82 },
   { label:'Last touch', w:82 }, { label:'Touches', w:52 }, { label:'Channel', w:92 }, { label:'Flags', w:150 } ];
@@ -3514,7 +3626,7 @@ Views.contacts = { title:'Contacts',
       return `<div class="rowthread">
         <div class="rowthread-head"><b>${esc(c.full_name)}</b>
           <a class="btn btn-sm" href="${href('contacts/'+c.id)}">Open full record</a>
-          <button class="btn btn-sm btn-primary" type="button" data-log="${c.id}">Log touchpoint</button>
+          <button class="btn btn-sm btn-primary" type="button" data-log="${c.id}">Log activity</button>
           <span class="muted">${tps.length} touchpoint${tps.length===1?'':'s'}, newest first</span></div>
         ${tps.slice(0,6).map(t => { const emails = Repo.touchpoints.emails(t.id); const body = t.notes || (emails[0] && emails[0].body_text) || '';
           return `<div class="rowmsg ${t.direction === 'inbound' ? 'in' : 'out'}">
@@ -3554,9 +3666,6 @@ Views.contacts = { title:'Contacts',
         <td class="num ed" data-edit="aum" data-id="${c.id}">${aum != null ? fmtUSD(aum) : '<span class="muted">-</span>'}</td>
         ${cell(esc(c.notes || ''), 'notes')}
         <td title="${esc(firstTouch ? outLabel(firstTouch.outcome_code) + ', ' + fmtDate(firstTouch.touched_at) : '')}">${firstTouch ? outcomePill(firstTouch.outcome_code) : '<span class="muted">-</span>'}</td>
-        <td class="corr" data-expand="${c.id}" title="Click to read the correspondence">
-          <span class="corr-toggle" aria-hidden="true">${open ? '\u25be' : '\u25b8'}</span>
-          ${a2 ? `<span class="corr-out">${esc(outLabel(a2.outcome_code))}</span><span class="corr-text">${esc(String(snippet).replace(/\s+/g,' ').slice(0,80))}</span>` : '<span class="muted">No correspondence yet</span>'}</td>
         <td class="${l.stage ? 'ed' : ''}" ${l.stage ? `data-edit="stage" data-id="${c.id}"` : 'title="A status appears once an outcome opens an opportunity"'}>${l.stage ? stagePill(l.stage) : '<span class="muted">-</span>'}</td>
         <td class="ed" data-edit="next" data-id="${c.id}">${n ? `<span class="pill st-${Repo.reminders.bucket(n)}">${fmtShort(n.due_on)}</span>` : '<span class="muted">-</span>'}</td>
         <td class="ed" data-edit="newsletter" data-id="${c.id}" title="${esc(NEWSLETTER_LABEL[c.newsletter_status] || '')}">${c.newsletter_status === 'subscribed' ? 'Y' : c.newsletter_status === 'unsubscribed' ? '<span class="muted">Out</span>' : '<span class="muted">N</span>'}</td>
@@ -3569,7 +3678,7 @@ Views.contacts = { title:'Contacts',
         <td class="num" title="Counted from the touchpoints, not typed">${fmtInt(l.touches)}</td>
         <td class="ed" data-edit="channel" data-id="${c.id}">${esc(chName(l.source_channel_code))}</td>
         <td title="Set from the record or by an outcome rule">${contactFlags(c) || '<span class="muted">-</span>'}</td></tr>
-      ${open ? `<tr class="threadrow"><td colspan="24">${threadPanel(c)}</td></tr>` : ''}`;
+      ${open ? `<tr class="threadrow"><td colspan="23">${threadPanel(c)}</td></tr>` : ''}`;
     };
 
     const news = params.mode === 'newsletter', cols = sheetCols(news);
@@ -3595,9 +3704,9 @@ Views.contacts = { title:'Contacts',
       <thead><tr>
       <th class="rn pin1" scope="col"><span class="sr-only">Row</span></th>
       ${thSort('Date','added',st,'pin2')}${thSort('Contact Name','full_name',st,'pin3')}<th>First Name</th><th>Email</th>${thSort('Organization','org',st)}<th>Website</th><th>LinkedIn</th>${thSort('AUM','aum',st,'num')}<th>Notes</th>
-      <th>Initial Outcome</th><th>Recent correspondence</th>${thSort('Status','stage',st)}${thSort('Next Reach out Date','next',st)}<th>Newsletter</th><th>Active/Dorm</th>
+      <th>Initial Outcome</th>${thSort('Status','stage',st)}${thSort('Next Reach out Date','next',st)}<th>Newsletter</th><th>Active/Dorm</th>
       <th>Title</th><th>Segment</th><th>State</th>${thSort('First reached','first_out',st)}${thSort('Last touch','last',st)}${thSort('Touches','touches',st,'num')}<th>Channel</th><th>Flags</th></tr></thead>
-      <tbody>${page.length ? page.map((c,i) => row(c, st.page*st.pageSize + i + 1)).join('') : `<tr><td colspan="24">${emptyState('No contacts match', st.q.trim() ? 'Nothing matches "' + st.q.trim() + '".' : 'Try clearing a filter.')}</td></tr>`}</tbody></table></div>${pager(st,total,'below')}
+      <tbody>${page.length ? page.map((c,i) => row(c, st.page*st.pageSize + i + 1)).join('') : `<tr><td colspan="23">${emptyState('No contacts match', st.q.trim() ? 'Nothing matches "' + st.q.trim() + '".' : 'Try clearing a filter.')}</td></tr>`}</tbody></table></div>${pager(st,total,'below')}
     <datalist id="sheet-orgs">${Repo.organizations.all().map(o => `<option value="${esc(o.name)}"></option>`).join('')}</datalist>`;
   },
   mount(root, params){
@@ -3807,9 +3916,9 @@ Views.contact = { title:'Contact',
       : /^auto:/i.test(c.newsletter_added_via) ? 'Added automatically when the outcome was "' + c.newsletter_added_via.replace(/^auto:\s*/i,'') + '"'
       : 'Added ' + c.newsletter_added_via;
     const entry = t => { const emails = Repo.touchpoints.emails(t.id);
-      return `<div class="entry ${t.direction === 'inbound' ? 'Inbound' : 'Outbound'}">
-        <div class="when"><b>${fmtDate(t.touched_at)}</b>${esc(TT.get(t.touch_type)?.name || t.touch_type)}</div>
-        <div><div class="subj"><span class="pill dir-${t.direction === 'inbound' ? 'Inbound':'Outbound'}">${t.direction === 'inbound' ? 'Inbound':'Outbound'}</span>${outcomePill(t.outcome_code)}
+      return `<div class="entry ${t.direction === 'inbound' ? 'Inbound' : 'Outbound'}"><button class="tp-edit" type="button" data-edit-tp="${t.id}" aria-label="Edit or delete this activity" title="Edit or delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg></button>
+        <div class="when"><b>${whenLabel(t.touched_at)}</b>${esc(TT.get(t.touch_type)?.name || t.touch_type)}</div>
+        <div><div class="subj"><span class="pill dir-${t.direction === 'inbound' ? 'Inbound':'Outbound'}">${t.direction === 'inbound' ? 'Inbound':'Outbound'}</span>${t.outcome_code ? outcomePill(t.outcome_code) : ''}
           ${t.outcome_status === 'needs_review' ? '<span class="pill warnflag">Needs review</span>' : ''}
           ${t.event_id != null ? `<span class="tag">${esc(Repo.events.byId(t.event_id)?.name || 'Event')}</span>` : ''}
           ${t.subject ? `<span>${esc(t.subject)}</span>` : ''}</div>
@@ -3819,14 +3928,14 @@ Views.contact = { title:'Contact',
         <div class="meta">${esc(Repo.teamName(t.owner_id))}${t.outcome_raw ? ' &middot; original wording: ' + esc(t.outcome_raw) : ''}${emails.length ? ' &middot; ' + emails.length + ' email' + (emails.length>1?'s':'') + ' on file' : ''}</div></div></div>`; };
     return `<div class="page-head"><div><a href="${href('contacts')}" class="small">All contacts</a><h1 style="margin-top:2px">${esc(c.full_name)}</h1>
       <p class="keep">${esc(c.title||'')}${org ? ` at <a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : ' <span class="muted">Individual investor</span>'}${c.state ? ' &middot; ' + esc([c.city,c.state].filter(Boolean).join(', ')) : ''}</p></div>
-      <div class="page-actions"><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}<button class="btn btn-primary" type="button" id="c-log">Log touchpoint</button></div></div>
+      <div class="page-actions"><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}</div></div>
     ${c.do_not_contact ? `<div class="banner danger"><b>Do not contact.</b> ${esc(c.dnc_reason || 'Asked not to be contacted')}${c.dnc_on ? ' (' + fmtDate(c.dnc_on) + ')' : ''}. The database refuses outreach to this contact.</div>` : ''}
     ${c.email_status === 'bounced' ? `<div class="banner warn"><b>Email bounced.</b> ${esc(c.email||'')} is on the wrong-email list. Fixing the address clears this and the reminder together.</div>` : ''}
     ${c.email_status === 'wrong_person' ? `<div class="banner warn"><b>Wrong person.</b> They are no longer at this organization. Find someone else with leadership authority.</div>` : ''}
     ${c.is_university_affiliated ? `<div class="banner demo"><b>No cold email (in person only).</b> This address is on the "Don't cold email" list in Settings (universities, and organizations Gaard reaches through people). The mail merge leaves them out; reach out personally.</div>` : ''}
     <div class="rec-grid">
       <div class="rec-main">
-        <section class="card"><div class="card-head"><h2>Contact</h2><span class="sub">${esc(c.email_status || '')}</span></div><div class="card-body"><dl class="kv two">
+        <section class="card"><div class="card-head"><h2>Contact</h2></div><div class="card-body"><dl class="kv two">
           <dt>Email</dt><dd>${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '<span class="muted">None</span>'}</dd>
           <dt>Phone</dt><dd>${esc(c.phone||'') || '<span class="muted">None</span>'}</dd>
           <dt>LinkedIn</dt><dd>${!blankish(c.linkedin_url) ? `<a href="${esc(/^https?:/i.test(c.linkedin_url) ? c.linkedin_url : 'https://' + c.linkedin_url)}" target="_blank" rel="noopener">${esc(c.linkedin_url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '<span class="muted">None</span>'}${c.linkedin_connected_on ? `<span class="sub">Connected ${fmtDate(c.linkedin_connected_on)}</span>` : ''}</dd>
@@ -3835,7 +3944,6 @@ Views.contact = { title:'Contact',
           <dt>Sourced</dt><dd>${fmtDate(c.sourced_on)||'<span class="muted">Unknown</span>'}</dd>
           <dt>Prospect AUM</dt><dd>${fmtUSD(c.prospect_aum)||'<span class="muted">Not recorded</span>'}</dd>
           <dt>Newsletter</dt><dd>${esc(NEWSLETTER_LABEL[c.newsletter_status] || c.newsletter_status || 'Not recorded')}${via ? `<span class="sub">${esc(via)}</span>` : ''}</dd>
-          <dt>Owner</dt><dd>${esc(Repo.teamName(c.owner_id))}</dd>
           ${c.legacy_ref ? `<dt>From the sheet</dt><dd>${esc(c.legacy_ref)}</dd>` : ''}</dl>
           <dl class="kv" style="grid-template-columns:120px minmax(0,1fr);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><dt>Notes</dt><dd style="white-space:pre-wrap">${esc(c.notes||'') || '<span class="muted">None</span>'}</dd></dl></div></section>
         ${opp ? `<section class="card"><div class="card-head"><h2>Opportunity</h2>${stagePill(opp.stage)}</div><div class="card-body">
@@ -3847,13 +3955,12 @@ Views.contact = { title:'Contact',
           <dl class="kv" style="margin-top:10px">${opp.lost_reason ? `<dt>Lost reason</dt><dd>${esc(opp.lost_reason)}</dd>` : ''}<dt>What booked the call</dt><dd>${esc(chName(opp.converting_channel_code)) || '<span class="muted">Not recorded</span>'}</dd>${opp.owner_id !== c.owner_id ? `<dt>Opportunity owner</dt><dd>${esc(Repo.teamName(opp.owner_id))}</dd>` : ''}</dl></div></section>` : ''}
       </div>
       <aside class="rec-side">
-        <section class="card"><div class="card-head"><h2>Next reminder</h2>${next ? `<span class="pill st-${Repo.reminders.bucket(next)}">${Repo.reminders.bucket(next)==='overdue'?'Overdue':Repo.reminders.bucket(next)==='today'?'Due today':'Upcoming'}</span>` : '<span class="sub">None open</span>'}</div><div class="card-body">
-          ${next ? `<p><b>${fmtDate(next.due_on,{weekday:'short',month:'short',day:'numeric'})}</b> <span class="muted">(${relDays(next.due_on)})</span> <span class="tag">${esc(RT.get(next.reminder_type)||next.reminder_type)}</span></p>
-            <p class="muted small" style="white-space:pre-wrap;margin-top:6px">${esc(next.details||'')}</p>
-            <div class="page-actions" style="margin-top:10px"><button class="btn btn-sm btn-primary" type="button" id="c-log2">Log touchpoint</button><button class="btn btn-sm" type="button" data-done="${next.id}">Done</button>
-            <div class="btn-group"><button class="btn btn-sm" type="button" data-snooze="${next.id}" data-days="7">+1w</button><button class="btn btn-sm" type="button" data-snooze="${next.id}" data-days="30">+1m</button><button class="btn btn-sm" type="button" data-snooze="${next.id}" data-days="90">+1q</button></div></div>
-            ${rems.length > 1 ? `<p class="muted small" style="margin-top:8px">${rems.length-1} more open for this contact.</p>` : ''}`
-            : `<p class="muted">${c.do_not_contact ? 'No reminders: this contact is on the do-not-contact list.' : 'Nothing open. Logging a touchpoint schedules the next one from the outcome rule.'}</p>`}</div></section>
+        <section class="card"><div class="card-head"><h2>Next follow-up</h2>${next ? `<span class="pill st-${Repo.reminders.bucket(next)}">${Repo.reminders.bucket(next)==='overdue'?'Overdue':Repo.reminders.bucket(next)==='today'?'Due today':'Upcoming'}</span>` : ''}</div><div class="card-body">
+          ${next ? (() => { const src = next.touchpoint_id != null ? Repo.touchpoints.byId(next.touchpoint_id) : null;
+            return `<p><b>${fmtDate(next.due_on,{weekday:'short',month:'short',day:'numeric'})}</b> <span class="muted">(${relDays(next.due_on)})</span> <span class="tag">${esc(RT.get(next.reminder_type)||next.reminder_type)}</span></p>
+            ${src ? `<p class="muted small" style="margin-top:6px">Set by the ${esc((TT.get(src.touch_type)?.name || src.touch_type).toLowerCase())} on ${whenLabel(src.touched_at)}${src.outcome_code ? ': ' + esc(outLabel(src.outcome_code)) : ''}</p>` : ''}
+            ${src && (src.notes || src.subject) ? `<p class="small" style="white-space:pre-wrap;margin-top:6px">${esc(src.notes || src.subject)}</p>` : next.details ? `<p class="muted small" style="white-space:pre-wrap;margin-top:6px">${esc(next.details)}</p>` : ''}`; })()
+            : `<p class="muted">${c.do_not_contact ? 'None: this contact is on the do-not-contact list.' : 'Nothing scheduled. Choose a follow-up date when you log an activity.'}</p>`}</div></section>
         ${org ? `<section class="card"><div class="card-head"><h2>${esc(org.name)}</h2><span class="sub">${esc(org.org_type||'')}</span></div><div class="card-body"><dl class="kv">
           ${org.segment_code !== c.segment_code ? `<dt>Segment</dt><dd>${segPill(org.segment_code)}</dd>` : ''}
           <dt>Website</dt><dd>${esc(org.website||'')||'<span class="muted">None</span>'}</dd>
@@ -3862,14 +3969,15 @@ Views.contact = { title:'Contact',
           <a class="btn btn-sm" style="margin-top:10px" href="${href('organizations/'+org.id)}">Open organization</a></div></section>` : ''}
       </aside>
     </div>
-    <section class="card"><div class="card-head"><h2>Touchpoints</h2><span class="sub">${tps.length} on file, newest first</span></div>
-        <div class="thread">${tps.length ? tps.map(entry).join('') : emptyState('No outreach logged yet','Use Log touchpoint to record the first one.')}</div></section>`;
+    <section class="card"><div class="card-head"><h2>Activity</h2><span class="sub" style="margin-left:auto;margin-right:12px">${tps.length} on file, newest first</span><button class="btn btn-sm btn-primary" type="button" id="c-log">Log activity</button></div>
+        <div class="thread">${tps.length ? tps.map(entry).join('') : emptyState('No activity yet','Use Log activity to record the first email, call or meeting.')}</div></section>`;
   },
   mount(root, params){
     const c = Repo.contacts.byId(Number(params.id)); if (!c) return;
     const log = () => openLogTouch(c.id);
     root.querySelector('#c-log').addEventListener('click', log);
-    root.querySelector('#c-log2')?.addEventListener('click', log);
+    root.querySelectorAll('[data-edit-tp]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
+      const t = Repo.touchpoints.byId(Number(b.dataset.editTp)); if (t) openActivity(c.id, t); }));
     root.querySelector('#c-opp')?.addEventListener('click', () => { const o = Repo.contacts.opportunity(c.id); if (o) openEditOpportunity(o.id); });
     root.querySelectorAll('[data-done]').forEach(b => b.addEventListener('click', () => Repo.reminders.complete(Number(b.dataset.done))));
     root.querySelectorAll('[data-snooze]').forEach(b => b.addEventListener('click', () => Repo.reminders.snooze(Number(b.dataset.snooze), Number(b.dataset.days))));
@@ -3971,8 +4079,8 @@ Views.organizations = { title:'Organizations',
     return `<div class="page-head" style="align-items:center;margin-bottom:12px"><div><h1 style="font-size:22px">Organizations</h1>
       <p style="margin-top:2px">One organization holds its people, its outreach and at most one open opportunity. Click a cell to change it, or the people cell to see who is there.</p></div>
       <div class="page-actions">${demoTag}<button class="btn btn-primary" type="button" id="new-org">New organization</button></div></div>
-    ${filterBar({ compact:true })}
-    <div class="filters"><label class="sr-only" for="o-q">Search</label><input type="search" id="o-q" placeholder="Search organization, city, state, type" value="${esc(st.q)}">
+    ${filterBar({ compact:true, search: `<label class="sr-only" for="o-q">Search</label><input type="search" id="o-q" placeholder="Search organization, city, state, type" value="${esc(st.q)}">` })}
+    <div class="filters">
       ${st.expanded.size ? `<button class="btn btn-sm" type="button" id="o-collapse">Collapse ${st.expanded.size} open</button>` : ''}
       <span class="spacer"></span>
       <span class="zoomer"><button class="btn btn-sm" type="button" data-zoom="-1" aria-label="Zoom out" ${st.zoom<=60?'disabled':''}>&minus;</button>
@@ -4167,48 +4275,57 @@ Views.organization = { title:'Organization',
     const opp = Repo.organizations.opportunity(o.id) || Repo.opportunities.all().find(x => x.organization_id === o.id) || null;
     const rems = Repo.organizations.openReminders(o.id), rfps = Repo.organizations.rfps(o.id);
     const latest = Repo.contacts.latestTouch();
+    const next = rems.slice().sort((a, b) => String(a.due_on).localeCompare(String(b.due_on)))[0];
+    const nextFor = next ? Repo.contacts.byId(next.contact_id) : null;
+    const editBtn = t => `<button class="tp-edit" type="button" data-edit-tp="${t.id}" aria-label="Edit or delete this activity" title="Edit or delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg></button>`;
     return `<div class="page-head"><div><a href="${href('organizations')}" class="small">All organizations</a><h1 style="margin-top:2px">${esc(o.name)}</h1>
-      <p class="keep">${segPill(o.segment_code)} ${esc(o.org_type||'')} &middot; ${esc([o.city,o.state].filter(Boolean).join(', '))}${o.is_university_affiliated ? ' &middot; No cold email (in person only)' : ''}</p></div>
-      <div class="page-actions"><button class="btn" type="button" id="o-edit">Edit</button>${opp ? `<button class="btn" type="button" id="o-opp">Opportunity</button>` : ''}<button class="btn btn-primary" type="button" id="o-add">Add contact</button></div></div>
+      <p class="keep">${esc(o.org_type||'')}${o.city || o.state ? ' &middot; ' + esc([o.city,o.state].filter(Boolean).join(', ')) : ''}${o.is_university_affiliated ? ' &middot; No cold email (in person only)' : ''}</p></div>
+      <div class="page-actions"><button class="btn" type="button" id="o-edit">Edit</button>${opp ? `<button class="btn" type="button" id="o-opp">Opportunity</button>` : ''}</div></div>
     ${o.do_not_contact ? `<div class="banner danger"><b>Do not contact.</b> ${esc(o.dnc_reason||'')}</div>` : ''}
-    <div class="aum-cols" style="margin-bottom:14px">
-      <div class="aum-cell"><div class="l">Reported AUM</div><div class="v">${fmtUSD(o.reported_aum)||'-'}</div></div>
-      <div class="aum-cell"><div class="l">Expected AUM</div><div class="v">${fmtUSD(opp && opp.expected_aum)||'-'}</div></div>
-      <div class="aum-cell"><div class="l">Funded AUM</div><div class="v">${fmtUSD(opp && opp.funded_aum)||'-'}</div></div></div>
-    <div class="split">
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <section class="card"><div class="card-head"><h2>Organization</h2>${opp ? stagePill(opp.stage) : ''}</div><div class="card-body"><dl class="kv">
-          <dt>Website</dt><dd>${esc(o.website||'')||'<span class="muted">None</span>'}</dd>
-          <dt>Phone</dt><dd>${esc(o.phone||'')||'<span class="muted">None</span>'}</dd>
-          <dt>Type</dt><dd>${esc(o.org_type||'')}</dd>
-          <dt>Employees</dt><dd>${o.employee_count != null ? fmtInt(o.employee_count) : '<span class="muted">Unknown</span>'}</dd>
-          <dt>Source</dt><dd>${esc(o.source_detail||'')||'<span class="muted">Unknown</span>'}</dd>
-          <dt>Owner</dt><dd>${esc(Repo.teamName(o.owner_id))}</dd>
-          <dt>From the sheet</dt><dd>${esc(o.legacy_ref||'')||'<span class="muted">Not imported</span>'}</dd>
-          <dt>Notes</dt><dd>${esc(o.notes||'')||'<span class="muted">None</span>'}</dd></dl></div></section>
-        <section class="card"><div class="card-head"><h2>People here</h2><span class="sub">${contacts.length}</span></div>
-          <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Name</th><th>Title</th><th>Last touch</th><th>Flags</th></tr></thead><tbody>
+    <div class="rec-grid">
+      <div class="rec-main">
+        <section class="card"><div class="card-head"><h2>Organization</h2>${opp ? stagePill(opp.stage) : ''}</div><div class="card-body">
+          <dl class="kv two">
+            <dt>Segment</dt><dd>${segPill(o.segment_code)}</dd>
+            <dt>Website</dt><dd>${!blankish(o.website) ? `<a href="${esc(/^https?:/i.test(o.website) ? o.website : 'https://' + o.website)}" target="_blank" rel="noopener">${esc(o.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}</a>` : '<span class="muted">None</span>'}</dd>
+            <dt>Phone</dt><dd>${esc(o.phone||'') || '<span class="muted">None</span>'}</dd>
+            <dt>Employees</dt><dd>${o.employee_count != null ? fmtInt(o.employee_count) : '<span class="muted">Unknown</span>'}</dd>
+            <dt>Reported AUM</dt><dd>${fmtUSD(o.reported_aum) || '<span class="muted">Not recorded</span>'}</dd>
+            ${opp ? `<dt>Expected AUM</dt><dd>${fmtUSD(opp.expected_aum) || '-'}</dd><dt>Funded AUM</dt><dd>${fmtUSD(opp.funded_aum) || '-'}</dd>` : ''}
+            <dt>Source</dt><dd>${esc(o.source_detail||'') || '<span class="muted">Unknown</span>'}</dd>
+            ${o.legacy_ref ? `<dt>From the sheet</dt><dd>${esc(o.legacy_ref)}</dd>` : ''}
+          </dl>
+          <dl class="kv" style="grid-template-columns:120px minmax(0,1fr);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><dt>Notes</dt><dd style="white-space:pre-wrap">${esc(o.notes||'') || '<span class="muted">None</span>'}</dd></dl>
+        </div></section>
+        <section class="card"><div class="card-head"><h2>People here</h2><span class="sub" style="margin-left:auto;margin-right:12px">${contacts.length}</span><button class="btn btn-sm btn-primary" type="button" id="o-add">Add contact</button></div>
+          <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Name</th><th>Title</th><th>Last activity</th><th>Flags</th></tr></thead><tbody>
           ${contacts.length ? contacts.map(c => { const a = latest.get(c.id); return `<tr class="row-link" data-href="${href('contacts/'+c.id)}">
             <td><span class="name">${esc(c.full_name)}</span><span class="sub">${esc(c.email||'')}</span></td><td>${esc(c.title||'')}</td>
             <td>${a ? fmtDate(a.touched_at) : '<span class="muted">Never</span>'}</td><td>${contactFlags(c)}</td></tr>`; }).join('')
-            : `<tr><td colspan="4">${emptyState('No contacts yet')}</td></tr>`}</tbody></table></div>
-          <div class="card-foot">Adding someone here links them to this organization. It never creates a second one.</div></section>
-        ${rems.length ? `<section class="card"><div class="card-head"><h2>Open reminders</h2><span class="sub">${rems.length}</span></div><div class="card-body">
-          ${rems.map(r => { const c = Repo.contacts.byId(r.contact_id); return `<div class="chip" style="margin-bottom:6px"><span class="k">${fmtDate(r.due_on,{month:'short',day:'numeric'})}</span><b>${esc(RT.get(r.reminder_type)||r.reminder_type)}</b><span class="muted">${c ? esc(c.full_name) : ''}</span></div>`; }).join('')}</div></section>` : ''}
+            : `<tr><td colspan="4">${emptyState('No contacts yet')}</td></tr>`}</tbody></table></div></section>
+      </div>
+      <aside class="rec-side">
+        <section class="card"><div class="card-head"><h2>Next follow-up</h2>${next ? `<span class="pill st-${Repo.reminders.bucket(next)}">${Repo.reminders.bucket(next)==='overdue'?'Overdue':Repo.reminders.bucket(next)==='today'?'Due today':'Upcoming'}</span>` : ''}</div><div class="card-body">
+          ${next ? `<p><b>${fmtDate(next.due_on,{weekday:'short',month:'short',day:'numeric'})}</b> <span class="muted">(${relDays(next.due_on)})</span> <span class="tag">${esc(RT.get(next.reminder_type)||next.reminder_type)}</span></p>
+            ${nextFor ? `<p class="muted small" style="margin-top:6px">With <a href="${href('contacts/'+nextFor.id)}">${esc(nextFor.full_name)}</a></p>` : ''}
+            ${rems.length > 1 ? `<p class="muted small" style="margin-top:8px">${rems.length - 1} more scheduled for people here.</p>` : ''}`
+            : '<p class="muted">Nothing scheduled.</p>'}</div></section>
         ${rfps.length ? `<section class="card"><div class="card-head"><h2>RFPs</h2></div><div class="card-body">
           ${rfps.map(r => `<div class="chip" style="margin-bottom:6px"><b>${esc(r.title)}</b><span class="k">${esc(r.status)}</span><span class="muted">due ${fmtDate(r.due_on)}</span><span class="muted">${fmtUSD(r.est_mandate_aum)}</span></div>`).join('')}</div></section>` : ''}
-      </div>
-      <section class="card"><div class="card-head"><h2>Outreach history</h2><span class="sub">${tps.length} touchpoints across everyone here</span></div>
-        <div class="thread">${tps.length ? tps.slice(0,80).map(t => { const c = Repo.contacts.byId(t.contact_id);
-          return `<div class="entry ${t.direction === 'inbound' ? 'Inbound':'Outbound'}"><div class="when"><b>${fmtDate(t.touched_at)}</b>${esc(TT.get(t.touch_type)?.name||t.touch_type)}</div>
-            <div><div class="subj"><span class="pill dir-${t.direction==='inbound'?'Inbound':'Outbound'}">${t.direction==='inbound'?'Inbound':'Outbound'}</span>${outcomePill(t.outcome_code)}<span class="muted">${c ? esc(c.full_name) : ''}</span></div>
-            <div class="body">${esc(t.notes || t.subject || '')}</div><div class="meta">${esc(Repo.teamName(t.owner_id))}</div></div></div>`; }).join('')
-          : emptyState('No outreach logged for this organization')}</div></section>
-    </div>`;
+      </aside>
+    </div>
+    <section class="card"><div class="card-head"><h2>Activity</h2><span class="sub">${tps.length} across everyone here, newest first</span></div>
+      <div class="thread">${tps.length ? tps.slice(0, 80).map(t => { const c = Repo.contacts.byId(t.contact_id);
+        return `<div class="entry ${t.direction === 'inbound' ? 'Inbound' : 'Outbound'}">${editBtn(t)}<div class="when"><b>${whenLabel(t.touched_at)}</b>${esc(TT.get(t.touch_type)?.name || t.touch_type)}</div>
+          <div><div class="subj"><span class="pill dir-${t.direction === 'inbound' ? 'Inbound' : 'Outbound'}">${t.direction === 'inbound' ? 'Inbound' : 'Outbound'}</span>${t.outcome_code ? outcomePill(t.outcome_code) : ''}${c ? `<a href="${href('contacts/'+c.id)}">${esc(c.full_name)}</a>` : ''}</div>
+          ${t.notes || t.subject ? `<div class="body">${esc(t.notes || t.subject)}</div>` : ''}<div class="meta">${esc(Repo.teamName(t.owner_id))}</div></div></div>`; }).join('')
+        : emptyState('No activity yet', 'Log activity from a person\'s page.')}</div></section>`;
   },
   mount(root, params){
     const o = Repo.organizations.byId(Number(params.id)); if (!o) return;
     bindRowNav(root);
+    root.querySelectorAll('[data-edit-tp]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
+      const t = Repo.touchpoints.byId(Number(b.dataset.editTp)); if (t) openActivity(t.contact_id, t); }));
     root.querySelector('#o-add').addEventListener('click', () => openAddContact(o.id));
     root.querySelector('#o-opp')?.addEventListener('click', () => { const x = Repo.organizations.opportunity(o.id) || Repo.opportunities.all().find(y => y.organization_id === o.id); if (x) openEditOpportunity(x.id); });
     root.querySelector('#o-edit').addEventListener('click', async () => {
@@ -4810,77 +4927,63 @@ const DEMO_BATCH_CSV = "Date,Source,Contact,First Name,Email,Org,Website,LinkedI
 
 /* ===== Settings ====================================================== */
 Views.settings = { title:'Settings',
-  render(params){
-    const s = Repo.settings();
-    const counts = { orgs: Store.state.organizations.length, contacts: Store.state.contacts.length, tps: Store.state.touchpoints.length,
-      rem: Store.state.reminders.length, opps: Store.state.opportunities.length, events: Store.state.events.length,
-      emails: Store.state.email_messages.length, camps: Store.state.campaigns.length, rfps: Store.state.rfps.length };
-    return `<div class="page-head"><div><h1>Settings</h1><p>The configuration tables the rest of the application reads. In the database these are ordinary rows Jon can edit, which is why none of it is hard coded here.</p></div><div class="page-actions">${demoTag}</div></div>
+  render(){
+    const who = Store.live ? (Live.member || {}) : null;
+    return `<div class="page-head"><div><h1>Settings</h1></div></div>
     <div class="dash-grid">
-      <section class="card col-6"><div class="card-head"><h2>Firm</h2></div><div class="card-body form-grid">
-        <label class="f"><span>Firm name</span><input id="s-firm" type="text" value="${esc(s.firm_name)}"></label>
-        <label class="f"><span>Default owner</span><select id="s-owner">${Repo.team().map(t => `<option value="${t.id}" ${s.default_owner_id===t.id?'selected':''}>${esc(t.full_name)}</option>`).join('')}</select></label>
-        <label class="f span2"><span>Assumed fee rate <span class="muted">used for estimated revenue and event return, nothing else</span></span><input id="s-fee" type="number" step="0.0005" min="0" max="0.05" value="${s.assumed_fee_rate}"></label></div>
-        <div class="card-foot">Team members come from the team_members table. Only active members can see anything once row-level security is on.</div></section>
-
-      <section class="card col-6" id="segments"><div class="card-head"><h2>Segments</h2><span class="sub">table: segments</span></div><div class="card-body">
-        <table class="edit"><thead><tr><th>Group</th><th>Segment</th><th>Code</th><th class="num">Contacts</th></tr></thead><tbody>
-        ${SEGMENTS.map(g => `<tr><td>${esc(g.group)}</td><td><b>${esc(g.name)}</b></td><td class="mono">${esc(g.code)}</td><td class="num">${fmtInt(Repo.contacts.all().filter(c => c.segment_code === g.code).length)}</td></tr>`).join('')}
-        </tbody></table>
-        <p class="muted small" style="margin-top:10px">Segment is what kind of client they are. Channel is how we met them. They are separate columns, so every count can be cut by both.</p></div></section>
-
-      <section class="card col-12" id="flag-rules"><div class="card-head"><h2>Don't cold email these addresses</h2><span class="sub">By the end of the email address, like utah.edu. Checked whenever a contact is added or their email changes.</span></div>
+      <section class="card col-6"><div class="card-head"><h2>Account</h2></div><div class="card-body">
+        ${who ? `<dl class="kv"><dt>Name</dt><dd>${esc(who.name || '')}</dd><dt>Email</dt><dd>${esc(Live.email || '')}</dd>
+          <dt>Role</dt><dd>${who.role === 'admin' ? 'Admin' : 'Member'}</dd></dl>
+          <div class="page-actions" style="margin-top:14px"><button class="btn btn-sm" type="button" id="s-pass">Change password</button><button class="btn btn-sm" type="button" id="s-out">Sign out</button></div>`
+        : `<p class="muted">You are looking at the demo data. Nothing here is the live database.</p>
+          <div class="page-actions" style="margin-top:12px"><button class="btn btn-sm btn-primary" type="button" id="s-in">Sign in to the live database</button></div>`}
+      </div></section>
+      <section class="card col-12" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
         <div class="card-body">
-        <table class="edit"><thead><tr><th>Domain</th><th>Rule</th><th>Reason</th><th class="num">Contacts</th><th>On</th><th></th></tr></thead><tbody>
+        <table class="edit"><thead><tr><th>Domain</th><th>Rule</th><th>Reason</th><th>On</th><th></th></tr></thead><tbody>
         ${Repo.flagRules.all().map(r => `<tr><td class="mono"><b>${esc(r.pattern)}</b></td>
           <td><select data-fr-flag="${r.id}" style="width:auto" aria-label="Rule for ${esc(r.pattern)}">
             <option value="university" ${r.flag === 'university' ? 'selected' : ''}>No cold email (in person only)</option>
             <option value="do_not_contact" ${r.flag !== 'university' ? 'selected' : ''}>Do not contact</option></select></td>
           <td><input data-fr-reason="${r.id}" type="text" value="${esc(r.reason || '')}" aria-label="Reason for ${esc(r.pattern)}"></td>
-          <td class="num">${fmtInt(Repo.flagRules.matches(r).length)}</td>
           <td><input type="checkbox" data-fr-active="${r.id}" ${r.is_active ? 'checked' : ''} aria-label="${esc(r.pattern)} rule is on"></td>
           <td><button class="btn btn-sm" type="button" data-fr-del="${r.id}">Remove</button></td></tr>`).join('')
-          || '<tr><td colspan="6" class="muted">No rules yet.</td></tr>'}
-        </tbody></table>
-        <div class="filters" style="margin-top:12px">
-          <label class="sr-only" for="fr-pattern">Domain</label><input id="fr-pattern" type="text" placeholder="utah.edu, or .edu for every school" style="max-width:280px">
-          <label class="sr-only" for="fr-flag">Rule</label><select id="fr-flag" style="width:auto"><option value="university">No cold email (in person only)</option><option value="do_not_contact">Do not contact</option></select>
-          <button class="btn btn-sm btn-primary" type="button" id="fr-add">Add</button></div>
-        <p class="muted small" style="margin-top:10px"><b>No cold email (in person only)</b> keeps the person out of the mail merge and gives them a reminder to reach out personally. <b>Do not contact</b> blocks every email and call.
-          <span class="mono">utah.edu</span> also covers its subdomains (<span class="mono">law.utah.edu</span>); start with a dot, <span class="mono">.edu</span>, to cover every address ending that way.
-          A rule only ever adds a label: removing one does not clear people already labelled. Change those on the contact.</p></div></section>
-      <section class="card col-12" id="integrations"><div class="card-head"><h2>What is not connected yet</h2><span class="sub">Written down so nothing in here pretends to work</span></div>
-        <div class="card-body"><dl class="kv" style="grid-template-columns:200px 1fr">
-        <dt>Sending email</dt><dd><b>Not connected.</b> The merge screen fills the letters and records that you sent them; the sending itself happens in your own mailbox. To make the button really send, three things are needed: a sending service or mailbox (Resend and Gmail were both raised on 3 October), a verified sending domain so the mail is not junked, and a reply address that posts replies back in, which is what would turn No response into a real outcome without anybody typing it.</dd>
-        <dt>Calendar invites</dt><dd><b>Not connected, and deliberately not automatic.</b> Nothing in here writes to a calendar. When it is built, the rule from the meeting holds: the invite is drafted from the confirmed thread and shown for review, and the time, the attendees and the link are confirmed by a person before anything is sent.</dd>
-        <dt>The database</dt><dd><b>Not connected.</b> This prototype reads an embedded snapshot and keeps your edits in this browser only. Supabase is the data layer; every read here already goes through one access layer, so connecting it swaps the source without touching the screens.</dd>
-        <dt>What does work today</dt><dd>Import with duplicate checking, the master contact list, the merge letters and the record of what was sent, the follow-up rules, and every number on the dashboard. All of it is computed from the rows, not typed in.</dd>
-        </dl></div></section>
-
-      <section class="card col-12" id="outcomes"><div class="card-head"><h2>Standardized outcomes and their rules</h2><span class="sub">table: outcomes. Each row decides the follow-up, the stage and the flags.</span></div>
-        <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Outcome</th><th>Applies to</th><th>Counts as a response</th><th class="num">Next outreach</th><th>Reminder</th><th>Moves stage to</th><th>Other effects</th><th class="num">Times used</th></tr></thead><tbody>
-        ${OUTCOMES.map(o => { const used = Store.state.touchpoints.filter(t => t.outcome_code === o.code).length;
-          const fx = [o.newsletter ? 'adds to newsletter' : '', o.dnc ? 'do not contact' : '', o.bad_email ? 'wrong-email list' : '', o.retry_limit ? `after ${o.retry_limit} tries, every ${o.after_limit_days} days` : ''].filter(Boolean).join(', ');
-          return `<tr><td><b>${esc(o.label)}</b><span class="sub mono">${esc(o.code)}</span></td>
-            <td class="muted">${esc(o.applies.map(a => TT.get(a)?.name || a).join(', '))}</td>
-            <td>${o.response ? 'Yes' : 'No'}</td><td class="num">${o.next_days == null ? 'none' : o.next_days + ' days'}</td>
-            <td>${esc(o.reminder ? (RT.get(o.reminder) || o.reminder) : '')}</td><td>${o.stage ? stagePill(o.stage) : ''}</td>
-            <td class="muted">${esc(fx)}</td><td class="num">${fmtInt(used)}</td></tr>`; }).join('')}
-        </tbody></table></div>
-        <div class="card-foot">Business-day maths skips weekends and US federal holidays. An out-of-office reply uses the return date when the auto-reply gives one.</div></section>
-
-      <section class="card col-6"><div class="card-head"><h2>Channels and touch types</h2></div><div class="card-body">
-        <table class="edit"><thead><tr><th>Channel</th><th>Touch types</th><th class="num">Leads</th><th class="num">Touches</th></tr></thead><tbody>
-        ${CHANNELS.map(c => { const leads = Repo.contacts.all().filter(x => x.source_channel_code === c.code).length;
-          const types = TOUCH_TYPES.filter(t => t.channel === c.code);
-          const touches = Store.state.touchpoints.filter(t => TT.get(t.touch_type)?.channel === c.code).length;
-          return `<tr><td><b>${esc(c.name)}</b><span class="sub mono">${esc(c.code)}</span></td><td class="muted">${esc(types.map(t => t.name).join(', '))}</td><td class="num">${fmtInt(leads)}</td><td class="num">${fmtInt(touches)}</td></tr>`; }).join('')}
-        <tr><td colspan="2" class="muted">Meetings and check-ins belong to no channel: they happen after the relationship exists, so they never claim credit for sourcing a lead.</td>
-          <td class="num"></td><td class="num">${fmtInt(Store.state.touchpoints.filter(t => !TT.get(t.touch_type)?.channel).length)}</td></tr>
+          || '<tr><td colspan="5" class="muted">No domains yet.</td></tr>'}
         </tbody></table></div></section>
+    </div>`;
+  },
+  mount(root){
+    root.querySelector('#s-pass')?.addEventListener('click', changePassword);
+    root.querySelector('#s-out')?.addEventListener('click', () => Live.signOut());
+    root.querySelector('#s-in')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
+    root.querySelector('#fr-add').addEventListener('click', async () => {
+      const out = await Modal.form({ title:'Add a domain', okLabel:'Add', fields:[
+        { key:'pattern', label:'Email ending', placeholder:'utah.edu, or .edu for every school' },
+        { key:'flag', label:'Rule', type:'select', value:'university', options:[{ value:'university', label:'No cold email (in person only)' }, { value:'do_not_contact', label:'Do not contact' }] } ]});
+      if (!out) return;
+      const pattern = out.pattern.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/^.*@/, '').replace(/\/.*$/, '');
+      if (!/^\.?[a-z0-9-]+(\.[a-z0-9-]+)*$/.test(pattern) || !pattern.replace(/^\./, '').length)
+        return Toast.show('Type a domain such as utah.edu, or .edu for every school', { kind:'warn' });
+      if (Repo.flagRules.all().some(r => r.pattern === pattern)) return Toast.show(pattern + ' is already on the list', { kind:'warn' });
+      Repo.flagRules.add({ pattern, flag: out.flag, reason: out.flag === 'university' ? 'University: reach out in person' : 'Matches the do-not-contact list' });
+    });
+    root.querySelectorAll('[data-fr-flag]').forEach(el => el.addEventListener('change', () => Repo.flagRules.update(Number(el.dataset.frFlag), { flag: el.value })));
+    root.querySelectorAll('[data-fr-reason]').forEach(el => el.addEventListener('change', () => Repo.flagRules.update(Number(el.dataset.frReason), { reason: el.value.trim() })));
+    root.querySelectorAll('[data-fr-active]').forEach(el => el.addEventListener('change', () => Repo.flagRules.update(Number(el.dataset.frActive), { is_active: el.checked })));
+    root.querySelectorAll('[data-fr-del]').forEach(b => b.addEventListener('click', async () => {
+      const r = Repo.flagRules.all().find(x => x.id === Number(b.dataset.frDel)); if (!r) return;
+      if (await Modal.confirm({ title:'Remove ' + r.pattern, message:'New contacts with this domain will no longer be labelled. People already labelled keep the label; change those on the contact.', okLabel:'Remove', danger:true }))
+        Repo.flagRules.remove(r.id); }));
+  }
+};
 
-      <section class="card col-12" id="templates"><div class="card-head"><h2>Email templates</h2><span class="sub">Used by the mail merge. Changes save when you leave the box.</span></div>
-        <div class="card-body">
+/* ===== Email templates ================================================
+   The letters the mail merge fills, kept under Follow-ups next to the merge
+   that uses them. Changes save when you leave a box. */
+Views.templates = { title:'Email templates',
+  render(){
+    return `<div class="page-head"><div><h1>Email templates</h1></div></div>
+    <section class="card"><div class="card-body">
         <p class="muted small" style="margin-bottom:12px">Merge fields: ${MERGE_FIELDS.map(([k,d]) => `<span class="tag" title="${esc(d)}">${esc(k)}</span>`).join(' ')}</p>
         ${Repo.templates.all().map((t,i) => `<div class="tplcard">
           <div class="tplcard-head">
@@ -4893,49 +4996,9 @@ Views.settings = { title:'Settings',
           <label class="f" style="margin-top:10px"><span>Subject</span><input data-tpl="${i}" data-k="subject" type="text" value="${esc(t.subject)}"></label>
           <label class="f" style="margin-top:8px"><span>Body</span><textarea data-tpl="${i}" data-k="body" rows="9">${esc(t.body)}</textarea></label>
         </div>`).join('')}
-        <button class="btn btn-sm" type="button" id="tpl-add">Add a template</button></div></section>
-
-      <section class="card col-6"><div class="card-head"><h2>Data</h2></div><div class="card-body"><dl class="kv" style="grid-template-columns:150px 1fr">
-        <dt>Rows loaded</dt><dd>${fmtInt(counts.orgs)} organizations, ${fmtInt(counts.contacts)} contacts, ${fmtInt(counts.tps)} touchpoints, ${fmtInt(counts.emails)} email messages, ${fmtInt(counts.opps)} opportunities, ${fmtInt(counts.rem)} reminders, ${counts.events} events, ${counts.camps} campaigns, ${counts.rfps} RFPs</dd>
-        <dt>Source</dt><dd>A snapshot of the Postgres database, exported from <span class="mono">data/mock_csv/tables</span>. Fictional data on the reserved <span class="mono">.example</span> domain.</dd>
-        <dt>Snapshot date</dt><dd>${fmtDate(DB_ANCHOR)}${SHIFT_DATES_TO_TODAY ? `, shifted forward so the reminder queue reads as though today is ${fmtDate(new Date())}` : ', shown exactly as stored'}</dd>
-        <dt>Storage</dt><dd>${Persist.available ? 'Edits are kept in this browser under <span class="mono">' + STORAGE_KEY + '</span>. ' : 'Browser storage is unavailable, so edits stay in memory. '}${Store.dirty ? 'You have local edits.' : 'No local edits yet.'}</dd>
-        <dt>Benchmarks</dt><dd>${REFERENCE.benchmarks.length ? '' : 'Empty on purpose. Industry norms go in only with a source.'}</dd></dl>
-        <div class="page-actions" style="margin-top:12px"><button class="btn btn-danger" type="button" id="s-reset">Reload the snapshot</button><span class="muted small">Discards local edits.</span></div></div></section>
-
-      <section class="card col-12"><div class="card-head"><h2>Where this goes next</h2></div><div class="card-body"><div class="dash-grid">
-        <div class="col-6"><h3 style="margin-bottom:6px">Connecting the real database</h3>
-          <p>The screens never touch the rows directly. They call <span class="mono">Repo</span>, and <span class="mono">Metrics</span> computes every figure from whatever it returns. Each <span class="mono">Repo</span> method carries the query it stands in for.</p>
-          <p style="margin-top:8px">Pointing this at Supabase means replacing the body of each method with that query and deleting the embedded snapshot. The tables, columns and codes in this prototype are the ones in <span class="mono">supabase/migrations</span>, so nothing has to be renamed.</p></div>
-        <div class="col-6"><h3 style="margin-bottom:6px">Still to come</h3>
-          <p>Inbox sync writes real messages into <span class="mono">email_messages</span>, the assistant suggests an outcome for each reply, and a person confirms it in one click. That queue already exists here, filled with the twelve replies the snapshot has waiting.</p>
-          <p style="margin-top:8px">Scheduled jobs bring snoozed reminders back and nudge opportunities that have gone quiet for three weeks.</p></div>
-      </div></div></section>
-    </div>`;
+        <button class="btn btn-sm" type="button" id="tpl-add">Add a template</button></div></section>`;
   },
-  mount(root, params){
-    const save = () => Store.commit('Settings saved', st => { st.settings.firm_name = root.querySelector('#s-firm').value.trim();
-      st.settings.default_owner_id = Number(root.querySelector('#s-owner').value);
-      st.settings.assumed_fee_rate = Number(root.querySelector('#s-fee').value) || 0; });
-    ['#s-firm','#s-owner','#s-fee'].forEach(id => root.querySelector(id).addEventListener('change', save));
-    const addRule = () => {
-      const pattern = root.querySelector('#fr-pattern').value.trim().toLowerCase()
-        .replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/^.*@/, '').replace(/\/.*$/, '');
-      if (!/^\.?[a-z0-9-]+(\.[a-z0-9-]+)*$/.test(pattern) || !pattern.replace(/^\./, '').length){
-        Toast.show('Type a domain such as utah.edu, or .edu for every school', { kind:'warn' }); return; }
-      if (Repo.flagRules.all().some(r => r.pattern === pattern)){ Toast.show(pattern + ' already has a rule', { kind:'warn' }); return; }
-      const flag = root.querySelector('#fr-flag').value;
-      Repo.flagRules.add({ pattern, flag, reason: flag === 'university' ? 'University: reach out in person' : 'Matches the do-not-contact list' });
-    };
-    root.querySelector('#fr-add').addEventListener('click', addRule);
-    root.querySelector('#fr-pattern').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); addRule(); } });
-    root.querySelectorAll('[data-fr-flag]').forEach(el => el.addEventListener('change', () => Repo.flagRules.update(Number(el.dataset.frFlag), { flag: el.value })));
-    root.querySelectorAll('[data-fr-reason]').forEach(el => el.addEventListener('change', () => Repo.flagRules.update(Number(el.dataset.frReason), { reason: el.value.trim() })));
-    root.querySelectorAll('[data-fr-active]').forEach(el => el.addEventListener('change', () => Repo.flagRules.update(Number(el.dataset.frActive), { is_active: el.checked })));
-    root.querySelectorAll('[data-fr-del]').forEach(b => b.addEventListener('click', async () => {
-      const r = Repo.flagRules.all().find(x => x.id === Number(b.dataset.frDel)); if (!r) return;
-      if (await Modal.confirm({ title:'Remove the rule for ' + r.pattern, message:'New contacts with this domain will no longer be labelled. People already labelled keep the label; change those on the contact.', okLabel:'Remove', danger:true }))
-        Repo.flagRules.remove(r.id); }));
+  mount(root){
     const saveTemplates = () => {
       const list = [...root.querySelectorAll('[data-tpl]')].reduce((acc, el) => {
         const i = Number(el.dataset.tpl);
@@ -4951,10 +5014,6 @@ Views.settings = { title:'Settings',
       if (await Modal.confirm({ title:'Remove this template', message:`"${t.name}" will be removed from the mail merge.`, okLabel:'Remove', danger:true }))
         Repo.templates.save(list.filter((_,i) => i !== Number(b.dataset.tplDel)));
     }));
-    root.querySelector('#s-reset').addEventListener('click', async () => {
-      if (await Modal.confirm({ title:'Reload the snapshot', message:'This discards every local edit and reloads the database snapshot. It cannot be undone.', okLabel:'Reload', danger:true })){
-        Store.reset(); Toast.show('Snapshot reloaded', { kind:'ok' }); } });
-    if (params.section) root.querySelector('#' + params.section)?.scrollIntoView({ block:'start' });
   }
 };
 
@@ -4979,10 +5038,10 @@ const NAV = [
 ];
 /* Which sidebar entry owns each screen, and the tabs that screen sits in. */
 const NAV_OF = { contact:'contacts', organization:'contacts', organizations:'contacts', touchpoints:'contacts',
-  mailmerge:'reminders', pipeline:'kpis' };
+  mailmerge:'reminders', templates:'reminders', pipeline:'kpis' };
 const TABS = [
-  ['reminders', [['reminders','One at a time'], ['mailmerge','Send as a batch']]],
-  ['contacts',  [['contacts','People'], ['organizations','Organizations'], ['touchpoints','Correspondence']]],
+  ['reminders', [['reminders','One at a time'], ['mailmerge','Send as a batch'], ['templates','Email templates']]],
+  ['contacts',  [['contacts','People'], ['organizations','Organizations']]],
   ['kpis',      [['kpis','KPIs'], ['pipeline','Pipeline']]],
 ];
 function tabStrip(name){
@@ -5031,17 +5090,17 @@ function renderNav(){
   menu.querySelector('a')?.addEventListener('click', () => setOpen(false));
   menu.querySelector('[data-um="reload"]')?.addEventListener('click', () => { setOpen(false); Live.reload(); });
   menu.querySelector('[data-um="out"]')?.addEventListener('click', () => Live.signOut());
-  menu.querySelector('[data-um="pass"]')?.addEventListener('click', async () => {
-    setOpen(false);
-    const out = await Modal.form({ title:'Change your password', okLabel:'Save password', fields:[
-      { key:'p1', label:'New password', type:'password', hint:'at least 8 characters' }, { key:'p2', label:'Type it again', type:'password' } ] });
-    if (!out) return;
-    if (out.p1.length < 8) return Toast.show('The password needs at least 8 characters. Nothing was changed.', { kind:'warn' });
-    if (out.p1 !== out.p2) return Toast.show('The two passwords are different. Nothing was changed.', { kind:'warn' });
-    const { error } = await (await Live.sb()).auth.updateUser({ password: out.p1 });
-    Toast.show(error ? 'Not changed: ' + error.message : 'Password changed', { kind: error ? 'warn' : 'ok' });
-  });
+  menu.querySelector('[data-um="pass"]')?.addEventListener('click', () => { setOpen(false); changePassword(); });
   menu.querySelector('[data-um="in"]')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
+}
+async function changePassword(){
+  const out = await Modal.form({ title:'Change your password', okLabel:'Save password', fields:[
+    { key:'p1', label:'New password', type:'password', hint:'at least 8 characters' }, { key:'p2', label:'Type it again', type:'password' } ] });
+  if (!out) return;
+  if (out.p1.length < 8) return Toast.show('The password needs at least 8 characters. Nothing was changed.', { kind:'warn' });
+  if (out.p1 !== out.p2) return Toast.show('The two passwords are different. Nothing was changed.', { kind:'warn' });
+  const { error } = await (await Live.sb()).auth.updateUser({ password: out.p1 });
+  Toast.show(error ? 'Not changed: ' + error.message : 'Password changed', { kind: error ? 'warn' : 'ok' });
 }
 /* The account menu closes on a click elsewhere or Escape. */
 document.addEventListener('click', () => { const m = document.getElementById('user-menu'); if (m && !m.hidden){ m.hidden = true; document.getElementById('user-btn')?.setAttribute('aria-expanded', 'false'); } });
@@ -5162,7 +5221,10 @@ const Live = {
   client: null, member: null, email: '',
   /* Parents before children, so a row is written after the rows it points at;
      deletes go the other way round. */
-  TABLES: ['team_members','events','campaigns','organizations','contacts','rfps','touchpoints','opportunities','reminders','email_messages','flag_rules'],
+  TABLES: ['team_members','events','campaigns','organizations','contacts','rfps','touchpoints','opportunities','reminders','email_messages','flag_rules','email_templates'],
+  /* Tables added by a later db/ file. Until that file has been run, the app
+     carries on without them instead of failing to open. */
+  OPTIONAL: ['email_templates'], missing: new Set(),
   shadow: null, queue: Promise.resolve(), saving: 0, lastSaved: null,
   /** What each row looked like at the last save, as JSON. */
   takeShadow(){ const s = {}; for (const t of this.TABLES) s[t] = new Map((Store.state[t] || []).map(r => [r.id, JSON.stringify(r)])); this.shadow = s; },
@@ -5213,7 +5275,7 @@ const Live = {
     const sb = await this.sb(), out = [];
     for (let from = 0; ; from += 1000){
       const { data, error } = await sb.from(table).select('*').order('id').range(from, from + 999);
-      if (error) throw new Error(`Reading ${table}: ${error.message}`);
+      if (error){ if (this.OPTIONAL.includes(table)){ this.missing.add(table); return []; } throw new Error(`Reading ${table}: ${error.message}`); }
       out.push(...data); if (data.length < 1000) break; }
     return out; },
   async load(onStatus){
@@ -5224,7 +5286,13 @@ const Live = {
   enter(tables){
     Store.useLive(tables, this.member);
     this.takeShadow();
-    demoTag = '<span class="demo-tag" title="Rows read from Supabase">Live database</span>';
+    // The shared templates start from the ones the app ships with
+    if (!this.missing.has('email_templates') && !(Store.state.email_templates || []).length){
+      const now = new Date().toISOString().slice(0,19);
+      Store.commit('Templates added', st => { st.email_templates = MERGE_TEMPLATES.map((t, i) => ({ id: i + 1, name: t.name, segment_code: t.segment || null,
+        subject: t.subject || '', body: t.body || '', is_first: !!t.first, created_at: now, updated_at: now })); }, { undoable:false, silent:true });
+    }
+    demoTag = '';   // the live app needs no label
     try { localStorage.setItem(MODE_KEY, 'live'); } catch (e) { /* private window */ }
     Gate.hide(); renderSideFoot(); },
   async reload(){

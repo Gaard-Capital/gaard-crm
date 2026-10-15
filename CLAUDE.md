@@ -102,6 +102,41 @@ Built in Supabase from Jon's mock spreadsheet. The `gaard-crm-db` repository men
 - **Dashboard settings this depends on** (Authentication section, needs Administrator role in the Supabase organization): Google provider with the OAuth client, URL Configuration (Site URL and redirect URLs for the Vercel site and localhost), Auth Hooks > Before User Created > `hook_before_user_created`, Multi-Factor > TOTP enabled. Invitation emails need custom SMTP (Authentication > Emails), planned as a Gaard Google Workspace mailbox; Supabase's default sender only delivers to project members.
 - The SQL Editor and Table Editor run as `postgres` and bypass all of this.
 
+## Outcome rules
+
+Every logged email, call, meeting or reply carries an outcome, and the outcome decides what happens next. The rules live in two places that must stay the same: `REFERENCE.outcomes` in Section 1 of `index.html` (used by `Rules.applyOutcome`) and the `outcomes` table in the database (used by `apply_outcome_rules` when the database's own automation runs). Change both together. Jon's six reply outcomes are INTERESTED, NOT_NOW, NOT_INTERESTED, BOUNCED (wrong email), OUT_OF_OFFICE and UNSUBSCRIBE (do not contact). Outbound emails start as NO_RESPONSE.
+
+"Next follow-up" is counted from the day the activity happened (an out-of-office reply uses its return date instead). Logging a new activity closes the contact's open follow-ups and schedules the next one from the new outcome.
+
+| Code | Label | Next follow-up | Reminder | Moves stage to | Also |
+|---|---|---|---|---|---|
+| NO_RESPONSE | No response | 90 days | follow_up |  |  |
+| OUT_OF_OFFICE | Out of office (auto-reply) | 14 days | ooo_follow_up |  |  |
+| BOUNCED | Bounced / wrong email | 2 days | fix_contact_info |  | marks email wrong |
+| WRONG_PERSON | No longer there / wrong person | 7 days | find_new_contact |  |  |
+| REFERRED_INTERNALLY | Pointed us to a colleague | 3 days | referral_follow_up |  |  |
+| NOT_NOW | Not now, check back later | 90 days | follow_up |  |  |
+| HAS_ADVISOR | Already has an advisor | 180 days | follow_up | lost |  |
+| NOT_INTERESTED | Not interested / no thank you | none |  | lost |  |
+| UNSUBSCRIBE | Asked not to be contacted | none |  | lost | do not contact |
+| INTERESTED | Interested, call scheduled | 7 days | post_call | call | adds to newsletter |
+| NO_ANSWER | No answer | 7 days | follow_up |  |  |
+| VOICEMAIL | Left voicemail | 7 days | follow_up |  |  |
+| WRONG_NUMBER | Wrong number | 2 days | fix_contact_info |  |  |
+| MET_AT_EVENT | Met at event, exchanged info | 3 days | event_follow_up |  |  |
+| MEETING_AT_EVENT | Had a meeting at the event | 5 days | event_follow_up |  |  |
+| INTRO_MADE | Introduction made | 3 days | referral_follow_up |  |  |
+| REVIEW_HELD | Portfolio review held | none |  |  |  |
+| CALL_HELD | Call held, next steps set | 14 days | post_call | call | adds to newsletter |
+| HOT | Next steps: a proposal, or taking it to the board | 7 days | post_call | hot | adds to newsletter |
+| READY_TO_ONBOARD | Wants to hire us, start onboarding | 14 days | onboarding_task | onboarding | adds to newsletter |
+| NOT_A_FIT | Not a fit after the call | none |  | lost |  |
+| RFP_SUBMITTED | RFP response submitted | 30 days | follow_up |  |  |
+| RFP_FINALIST | RFP finalist, presentation | 7 days | post_call | call | adds to newsletter |
+| RFP_WON | RFP won | 14 days | onboarding_task | onboarding | adds to newsletter |
+
+The estimated revenue on an opportunity uses an assumed fee of 0.45% of AUM (`settings.assumed_fee_rate`); it is no longer editable in the app.
+
 ## Changing the database
 
 - Each change is a new numbered file in `db/` (`001_…`, `002_…`), written to be safe to run twice, wrapped in `begin; … commit;`, and run by hand in the Supabase SQL Editor. Never edit a file that has already been run; add the next number.
@@ -114,12 +149,14 @@ changes on top, run by hand in order. A base change (rare) is a new file in `db/
 
 ## Status
 
-- **Done:** the full front end. The Supabase schema, views and automation, with fictional data. Row level security on every table. `db/001` (roles, 2FA, audit log, allowlist), `db/002` (RFP log columns), `db/003` (the in-person rule), `db/004` (relinking team members to their current accounts), `db/005` (`apply_changes`). The "Don't cold email these addresses" list in Settings (`flag_rules`; matching contacts are labelled No cold email (in person only), left out of the mail merge, and given a "Reach out in person" reminder). Import reads client replies, pasted as text or as a screenshot, into Jon's six outcomes.
+- **Done:** the full front end. The Supabase schema, views and automation, with fictional data. Row level security on every table. `db/001` (roles, 2FA, audit log, allowlist), `db/002` (RFP log columns), `db/003` (the in-person rule), `db/004` (relinking team members to their current accounts), `db/005` (`apply_changes`), `db/006` (three-digit years; `parse_loose_date` now refuses years before 1900), `db/007` (the shared `email_templates` table). The "Don't cold email these addresses" list in Settings (`flag_rules`; matching contacts are labelled No cold email (in person only), left out of the mail merge, and given a "Reach out in person" reminder). Import reads client replies, pasted as text or as a screenshot, into Jon's six outcomes.
+- **Settings** holds only the account (name, email, role, change password) and the No cold email list. Email templates are a tab under Follow-ups (`Views.templates`), stored in the shared `email_templates` table (db/007). `Live.OPTIONAL` lists tables from later db/ files: until such a file has been run the app opens without the table, and templates fall back to the browser (`localStorage` key `gaard_templates`). On first sign-in with the table empty, the app fills it from `MERGE_TEMPLATES`.
+- **Activity** (touchpoints) on a contact or organization page: `openActivity(contactId, tp)` logs a new one or edits or deletes an existing one. The person signed in is the owner (who logged it); there is no owner choice. Outcomes are grouped (`OUTCOME_GROUPS`) and filtered to the activity type, "No outcome" is allowed, and an outcome that schedules a follow-up shows its date, saved as `follow_up_on`. Deleting an activity dismisses the follow-up it scheduled. The time is the moment it is logged and cannot be edited; times show to the minute (`whenLabel`), and rows from the old sheets carry a date only, stored at noon. A follow-up date must be from tomorrow on. Only the contact's latest activity sets the next follow-up: editing an older one changes the history but leaves the schedule alone (`Repo.touchpoints.update` re-runs the rules only for the latest). The Next follow-up card only shows what the latest activity set; follow-ups change by editing the activity.
 - **The live database:** the page opens on a sign-in screen (the `Live` and `Gate` objects at the end of `index.html`). Email and password through Supabase Auth, then a TOTP code from an authenticator app, enrolled on first sign-in; `my_access()` checks the team list; then `Live.load` reads every table in `Live.TABLES` (a thousand rows per request) and `Store.useLive` swaps them in for the snapshot. Nothing from the live database goes into browser storage. "Use the demo data instead" keeps the snapshot mode (remembered in `localStorage` key `gaard_mode`).
 - **Saving:** in live mode every `Store.commit` and every undo calls `Live.save()`, which diffs the Store against the last saved copy (`Live.shadow`) and sends the inserts, changed columns and deletes, parents first, to `apply_changes()` in one transaction. That function sets `app.seeding` for the transaction, so the database's automation triggers stand down: the front end's `Rules` already did that work and the database doing it again would duplicate reminders. Keep the two rule sets in step. If the database refuses a change (row level security, the do-not-contact block, a constraint), the app shows the reason and reloads from the database. New ids are `max + 1` in the browser, so two people adding rows at the same moment can collide; the second save then fails and reloads.
 - **Accounts without email setup:** Supabase's default mailer only reaches members of the Supabase organization, and the dashboard's URL settings need the Administrator role. Until both are sorted, a builder with SQL Editor access can confirm an account (`update auth.users set email_confirmed_at = now() where email = …`) or set a temporary password (`encrypted_password = extensions.crypt('…', extensions.gen_salt('bf'))`); the person then changes it from the account menu. Someone who loses their authenticator app is reset with `delete from auth.mfa_factors where user_id = …`.
 - **Waiting on the Administrator role in Supabase** (Jon to grant): Google sign-in (the OAuth client exists), turning on `hook_before_user_created` and turning off open sign-up, URL Configuration for password-reset links, and custom SMTP for invitation emails; then an admin screen in Settings to invite staff, see who has joined, and read the audit log.
-- **Not connected yet:** sending email (the merge screen fills letters and records them as sent; sending happens from the user's own mailbox) and calendar invites (deliberately: when built, an invite is drafted from the thread and a person confirms it before it goes). These are also listed in the app under Settings; keep that list accurate.
+- **Not connected yet:** sending email (the merge screen fills letters and records them as sent; sending happens from the user's own mailbox) and calendar invites (deliberately: when built, an invite is drafted from the thread and a person confirms it before it goes).
 - **Open questions for Jon:**
   - Reading screenshots (and very messy pasted emails) with AI needs an Anthropic API account paid by Gaard (a few cents per image), the live Supabase connection (the key must sit server-side, in an Edge Function), and Jon's consent to send that content to the Claude API. Jon may not want to pay; the free fallback is in-browser OCR plus the rule-based reply matching.
   - Universities and referral-first organizations: confirm the "in person only" flag (no cold email, reminder to reach out in person) is what Jon means by "do not contact" before a send, as distinct from the `UNSUBSCRIBE` outcome (the person asked us to stop).
