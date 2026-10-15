@@ -107,6 +107,10 @@ Built in Supabase from Jon's mock spreadsheet. The `gaard-crm-db` repository men
 - Each change is a new numbered file in `db/` (`001_…`, `002_…`), written to be safe to run twice, wrapped in `begin; … commit;`, and run by hand in the Supabase SQL Editor. Never edit a file that has already been run; add the next number.
 - Keep every table under row level security with policies that call `is_team_member()` / `is_admin()`. A new table needs RLS enabled, policies, and the `zz_audit` trigger (see `db/001`).
 - New functions that bypass RLS (`security definer`) must check `is_team_member()` first and set `search_path`.
+- `db/base/` plus `db/gaard_crm_install.sql` are the base schema; the numbered files in `db/` are the
+changes on top, run by hand in order. A base change (rare) is a new file in `db/base/` followed by
+`bash db/scripts/build_install.sh`.
+
 
 ## Status
 
