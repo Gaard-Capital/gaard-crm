@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-15.7">
+<meta name="build-version" content="2026-10-15.16">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -387,6 +387,49 @@ select.undecided{border-color:var(--warn);box-shadow:0 0 0 2px var(--warn-soft)}
 .linkish{background:none;border:0;padding:0;font:inherit;color:var(--accent);text-decoration:underline;cursor:pointer}
 .linkish:hover{color:var(--accent-strong)}
 #im-drop.dragging{outline:2px dashed var(--accent);outline-offset:4px}
+/* The import check: a summary line, two choices, then one row per person */
+.imp-head{margin-bottom:14px}
+.imp-summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px}
+.imp-summary b{margin-right:6px}
+.imp-opts{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.imp-opts .f{min-width:220px}
+table.imp td{vertical-align:top;white-space:normal}
+table.imp td:last-child{width:330px}
+table.imp .sub{display:block;margin-top:4px}
+table.imp .imp-why{color:var(--warn);font-weight:500}
+table.imp tr.imp-out td{color:var(--ink-4)}
+table.imp tr.imp-cmp > td{width:auto;padding:0 16px 16px}
+table.imp tr.has-cmp > td{border-bottom:0}
+table.imp td:last-child select{width:100% !important;max-width:100%}
+.cmp-card{background:var(--surface);border:1.5px solid var(--ink-4);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 6px 18px rgba(15,30,51,.12)}
+.btn.btn-done{background:var(--good-soft);color:var(--good);border-color:var(--good);opacity:1;cursor:default}
+table.imp tr.imp-saved td:first-child{box-shadow:inset 3px 0 0 var(--good)}
+table.cmp{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+table.cmp col.c-label{width:150px} table.cmp col.c-upd{width:170px}
+table.cmp th,table.cmp td{padding:10px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;white-space:normal;word-break:break-word;width:auto;background:transparent}
+table.cmp thead th{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);background:var(--surface-3)}
+table.cmp tbody th{font-weight:700;color:var(--ink);font-size:12.5px;background:var(--surface-2)}
+table.cmp tbody td.v{color:var(--ink)}
+table.cmp tr:last-child th,table.cmp tr:last-child td{border-bottom:0}
+table.cmp tr.c-same td.v,table.cmp tr.c-kept td.v{color:var(--ink-3)}
+table.cmp tr.c-new td.mine,table.cmp tr.c-add td.mine{box-shadow:inset 3px 0 0 var(--good)}
+table.cmp tr.c-diff td.mine{box-shadow:inset 3px 0 0 var(--warn)}
+table.cmp .badge{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:var(--radius-pill)}
+table.cmp .b-same{color:var(--ink-3);background:var(--surface-2)}
+table.cmp .b-diff{color:var(--warn);background:var(--warn-soft)}
+table.cmp label.pick{display:inline-flex;gap:7px;align-items:center;cursor:pointer;font-weight:600;font-size:12.5px;padding:3px 10px 3px 7px;border-radius:var(--radius-pill);border:1px solid var(--line-strong)}
+table.cmp label.pick.on{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+table.cmp label.pick.diff.on{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
+table.cmp label.pick input{width:auto;margin:0}
+.cmp-legend{display:flex;gap:18px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--line);background:var(--surface-2);font-size:12px;color:var(--ink-3)}
+.cmp-legend i{display:inline-block;width:3px;height:12px;margin-right:7px;vertical-align:-1px}
+.im-box{border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface)}
+.im-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.im-box textarea{border:0;box-shadow:none !important;background:transparent}
+.im-shots{display:flex;gap:10px;flex-wrap:wrap;padding:0 11px 11px}
+.im-shots figure{position:relative;margin:0;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);overflow:hidden}
+.im-shots img{display:block;height:84px;max-width:260px;object-fit:contain;background:#fff;cursor:zoom-in}
+.im-shots .x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(15,30,51,.75);color:#fff;font-size:14px;line-height:22px;padding:0;cursor:pointer}
 .replies td{vertical-align:top}
 .replies .reply-text{white-space:pre-wrap;font-size:12px;line-height:1.5;color:var(--ink-2);max-height:7.5em;overflow:hidden;margin-top:4px}
 .replies input[list]{width:100%;min-width:240px}
@@ -2113,7 +2156,46 @@ const Intelligence = (() => {
       if (res.values.linkedin_url) ctx.seenLinkedIn.add(res.values.linkedin_url);
       return res; });
   }
-  return { parseCSV, autoMap, analyze, classifyAUM, mapOutcome, mapSegment, mapChannel, parseDate, orgKey, emailKey, linkedinKey, orgSimilarity, jaro, TARGETS, THRESH };
+  /* A sheet pasted with or without its header row. With one, the headers map
+     by name; without one (rows copied from the middle of a sheet), or for any
+     column a header did not explain, the column is recognized from what is in
+     it: an @ is an email, 8/17/2025 a date, linkedin.com a profile, and so on. */
+  function readRows(text){
+    const p = parseCSV(text);
+    if (!p.headers.length) return { headers: [], rows: [], mapping: [], hasHeader: false };
+    const first = p.headers, named = first.map(h => autoMap(h));
+    const looksLikeData = first.some(c => /@|\d{1,2}\/\d{1,2}\/\d{2,4}|https?:|www\.|linkedin\.com|\$\d/i.test(c));
+    const hasHeader = !looksLikeData && named.filter(Boolean).length >= Math.max(1, Math.ceil(first.length / 3));
+    const rows = hasHeader ? p.rows : [{ _line: 1, cells: first }, ...p.rows];
+    const width = Math.max(first.length, ...rows.map(r => r.cells.length));
+    const headers = Array.from({ length: width }, (_, i) => hasHeader && first[i] ? first[i] : `Column ${i + 1}`);
+    const mapping = headers.map((h, i) => (hasHeader && named[i]) || '');
+    const taken = new Set(mapping.filter(Boolean));
+    const take = (i, key) => { if (mapping[i] || taken.has(key)) return false; mapping[i] = key; taken.add(key); return true; };
+    const cols = headers.map((_, i) => rows.map(r => String(r.cells[i] ?? '').trim()).filter(Boolean).slice(0, 50));
+    const share = (vals, test) => vals.length ? vals.filter(test).length / vals.length : 0;
+    const EMAIL = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), LI = v => /linkedin\.com/i.test(v);
+    const URL = v => !EMAIL(v) && /^(https?:\/\/|www\.)|^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(v);
+    const DATE = v => /^(\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4}-\d{2}-\d{2})$/.test(v);
+    const PHONE = v => /^\+?[\d\s().-]{10,}$/.test(v) && v.replace(/\D/g, '').length >= 10;
+    const STATE = v => /^[A-Z]{2}$/.test(v);
+    const MONEY = v => /^\$?\s?\d[\d,]*(\.\d+)?\s*(k|m|mm|b|million|billion)?$/i.test(v) && (/\$|k|m|b/i.test(v) || Number(v.replace(/[^\d.]/g, '')) >= 10000);
+    const ORGWORD = /\b(inc|llc|ltd|group|foundation|fund|trust|partners|society|agency|association|center|centre|company|co|corp|network|alliance|project|coalition|council|services|management|capital|athlete|school|church|institute|bank)\b/i;
+    const NAME = v => /^[A-Z][a-zA-Z'’.-]+(\s+[A-Z][a-zA-Z'’.-]+){1,3}$/.test(v) && !ORGWORD.test(v);
+    const run = (test, key, min = .6) => cols.forEach((v, i) => { if (!mapping[i] && share(v, test) >= min) take(i, key); });
+    run(EMAIL, 'email'); run(LI, 'linkedin'); run(URL, 'website');
+    cols.forEach((v, i) => { if (!mapping[i] && share(v, DATE) >= .6) take(i, 'sourced_on') || take(i, 'touched_at'); });
+    run(PHONE, 'phone'); run(STATE, 'state', .8); run(MONEY, 'aum');
+    run(v => !!mapOutcome(v), 'outcome');
+    let nameCol = -1;
+    cols.forEach((v, i) => { if (nameCol < 0 && !mapping[i] && share(v, NAME) >= .6 && take(i, 'contact')) nameCol = i; });
+    if (nameCol >= 0) cols.forEach((v, i) => { if (!mapping[i] && v.length && rows.every(r => { const a = String(r.cells[i] ?? '').trim(), n = String(r.cells[nameCol] ?? '').trim();
+      return !a || n.split(/\s+/)[0].toLowerCase() === a.toLowerCase(); })) take(i, 'first_name'); });
+    run(v => /[A-Za-z]/.test(v) && v.split(/\s+/).length >= 2 && v.length < 80 && !/[.!?]$/.test(v), 'organization');
+    cols.forEach((v, i) => { if (!mapping[i] && v.some(x => x.length > 25)) take(i, 'notes'); });
+    return { headers, rows, mapping, hasHeader };
+  }
+  return { parseCSV, readRows, autoMap, analyze, classifyAUM, mapOutcome, mapSegment, mapChannel, parseDate, orgKey, emailKey, linkedinKey, orgSimilarity, jaro, TARGETS, THRESH };
 })();
 
 /* ---- Client replies ----
@@ -2157,7 +2239,10 @@ const Replies = (() => {
     const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n');
     const starts = [];
     lines.forEach((l, i) => { if (/^\s*from\s*:/i.test(l) || /^\s*[^<>@:\n]{1,80}<[^<>\s@]+@[^<>\s]+>\s*$/.test(l)) starts.push(i); });
-    if (!starts.length || (starts[0] > 0 && lines.slice(0, starts[0]).join(' ').trim())) starts.unshift(0);
+    // A Gmail screenshot starts with the subject ("Re: ..."), above the sender: it belongs to that reply
+    const pre = starts.length ? lines.slice(0, starts[0]).filter(l => l.trim()) : [];
+    if (pre.length === 1 && /^\s*(re|fwd?)\s*:/i.test(pre[0])) starts[0] = 0;
+    else if (!starts.length || (starts[0] > 0 && pre.length)) starts.unshift(0);
     return starts.map((s, k) => lines.slice(s, starts[k + 1] ?? lines.length).join('\n').trim()).filter(Boolean);
   }
   /** Headers off the top, our own quoted email off the bottom. */
@@ -2167,6 +2252,7 @@ const Replies = (() => {
     for (; i < Math.min(lines.length, 14); i++){
       const l = lines[i].trim(), m = l.match(/^(from|to|cc|sent|date|subject)\s*:\s*(.*)$/i);
       if (m){ head[m[1].toLowerCase()] = m[2].trim(); continue; }
+      if (!head.subject && !head.from && /^(re|fwd?)\s*:/i.test(l)){ head.subject = l; continue; }
       if (!head.from && /<[^<>\s@]+@[^<>\s]+>/.test(l)){ head.from = l; continue; }
       if (!l || /^to (me|[^,]{1,60})$/i.test(l) || (/^(mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s/i.test(l) && /\d/.test(l))) continue;
       break;
@@ -2202,6 +2288,10 @@ const Replies = (() => {
     for (const e of order){ const c = byEmail.get(e); if (c) return { contact: c, how: 'email' }; }
     if (p.fromName && code !== 'BOUNCED'){ const n = p.fromName.toLowerCase();
       const c = Repo.contacts.all().find(x => x.full_name && x.full_name.toLowerCase() === n); if (c) return { contact: c, how: 'name' }; }
+    // The address misread: a contact's full name near the top of the reply, if only one fits
+    if (code !== 'BOUNCED'){ const top = block.split('\n').slice(0, 5).join(' ').toLowerCase().replace(/\s+/g, ' ');
+      const hits = Repo.contacts.all().filter(x => x.full_name && x.full_name.length > 5 && /\s/.test(x.full_name) && top.includes(x.full_name.toLowerCase()));
+      if (hits.length === 1) return { contact: hits[0], how: 'name' }; }
     return { contact: null, how: null };
   }
   function read(text){
@@ -2304,11 +2394,64 @@ const Ocr = {
       document.head.appendChild(s);
     }));
   },
+  /* Screenshots are small; Tesseract reads text best at about twice the size, in grey. */
+  async sharpen(image){
+    try {
+      const bmp = await createImageBitmap(image), k = Math.min(2.5, 4000 / bmp.width, 4000 / bmp.height);
+      if (k <= 1.05) return image;
+      const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      const g = c.getContext('2d'); g.filter = 'grayscale(1) contrast(1.2)'; g.imageSmoothingQuality = 'high'; g.drawImage(bmp, 0, 0, c.width, c.height);
+      return c;
+    } catch { return image; }
+  },
+  /* A screenshot of a sheet: one person per line, each with an email. The
+     line is cut around the email, the links, the dollar amount and the date,
+     and written back as tab-separated rows with a header, so the normal row
+     check reads it and the box shows exactly what was read. Cells cut off in
+     the sheet itself ("RESPONDED - INTERES") are read by their start. */
+  sheetRows(text){
+    const EM = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.?(?:[A-Za-z]{2,})?/;
+    const lines = String(text || '').split(/\r?\n/).map(l => l.replace(/[|\[\]{}~]/g, ' ').replace(/\bh[it]{2,3}p(s?)\b:?\s?\/*/gi, 'http$1://').replace(/\s+/g, ' ').trim()).filter(l => EM.test(l));
+    if (lines.length < 2 || /^\s*from\s*:/im.test(text)) return null;
+    const outcomeOf = s => { const u = s.toUpperCase();
+      return /NOT\s*INT/.test(u) ? 'Not interested' : /NOT\s*N/.test(u) ? 'Not now' : /INTER/.test(u) ? 'Interested' : /NO\s*RESP/.test(u) ? 'No response'
+        : /BOUNC/.test(u) ? 'Bounced' : /OUT\s*OF/.test(u) ? 'Out of office' : /UNSUB/.test(u) ? 'Unsubscribe' : ''; };
+    const rows = lines.map(l => {
+      const m = l.match(EM), first = l.slice(0, m.index).trim().split(' ').slice(-1)[0] || '';
+      let email = m[0].toLowerCase().replace(/\.$/, '');
+      let rest = l.slice(m.index + m[0].length).trim();
+      const links = rest.match(/\b(?:https?:?\/*|www\.)\S+/gi) || [];
+      const li = links.find(x => /linkedin\.com\/in\/[\w-]+/i.test(x)) || '';
+      const site = links.find(x => !/linkedin/i.test(x) && /^(?:https?:\/\/)?(?:www\.)?[\w-]+(?:\.[\w-]+)+\/?$/i.test(x)) || '';
+      const org = rest.split(/\b(?:https?|www\.)|\$\s?\d|\d{1,2}\/\d{1,2}\/\d{2,4}/i)[0].trim();
+      links.forEach(x => { rest = rest.replace(x, ' '); });
+      const am = rest.match(/\$\s?[\d,]{3,}/), aum = am ? am[0].replace(/\s/g, '') : '';
+      const dm = rest.match(/\d{1,2}\/\d{1,2}\/\d{4}/);
+      const from = am ? am.index + am[0].length : org ? rest.indexOf(org) + org.length : 0;
+      const notes = rest.slice(from, dm ? dm.index : rest.length).trim();
+      const tail = dm ? rest.slice(dm.index + dm[0].length).trim() : '';
+      const outcome = outcomeOf(tail);
+      const next = tail.replace(/^\s*RESPONDED\s*-?\s*/i, '').replace(/^(?:NOT\s*)?(?:INTER\w*|NO\s*RESP\w*|NOT\s*NO\w*|NOT\s*INT\w*)\s*/i, '').trim();
+      // An address cut off by its column ("someone@mesaeducationsociety.") is finished from the website on the same line
+      if (!/\.[a-z]{2,}$/.test(email)){ const dom = (site.match(/^(?:https?:\/\/)?(?:www\.)?([^/]+)/i) || [])[1] || '', at = email.split('@')[1];
+        if (dom && at && dom.toLowerCase().startsWith(at)) email = email.split('@')[0] + '@' + dom.toLowerCase(); }
+      return [first, email, org, site, li, aum, notes, dm ? dm[0] : '', outcome, next];
+    });
+    return ['First name', 'Email', 'Organization', 'Website', 'LinkedIn', 'AUM', 'Notes', 'Date outreached', 'Outcome', 'Next steps'].join('\t') + '\n'
+      + rows.map(r => r.map(c => String(c).replace(/\t/g, ' ')).join('\t')).join('\n');
+  },
+  /* Common misreads in an email header: "redrock org" for redrock.org, "org=" for "org>", and the round avatar letter read as "(A)". */
+  tidy(text){
+    return String(text || '')
+      .replace(/(@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)[ ,]+(com|org|net|edu|gov|us|io|co|info|biz|example)\b/gi, '$1.$2')
+      .replace(/(<[^<>\s]+@[^<>\s=)\]}]+)[=)\]}]/g, '$1>')
+      .replace(/^\s*\(?[A-Z]\)?\s+(?=[A-Z][a-z]+ [A-Z][a-z]+)/gm, '');
+  },
   async read(image, onStatus){
     onStatus('Getting the screenshot reader ready. The first time takes a few seconds.');
     const T = await this.load();
     const worker = await T.createWorker('eng', 1, { logger: m => { if (m.status === 'recognizing text') onStatus(`Reading the screenshot: ${Math.round(m.progress * 100)}%`); } });
-    try { const { data } = await worker.recognize(image); return data.text || ''; }
+    try { const { data } = await worker.recognize(await this.sharpen(image)); return data.text || ''; }
     finally { await worker.terminate(); }
   },
 };
@@ -4606,98 +4749,137 @@ Views.import = { title:'Import',
         <div class="page-actions" style="margin-top:16px"><a class="btn btn-primary" href="${href('reminders')}">Open follow-ups</a><a class="btn" href="${href('pipeline')}">Open the pipeline</a>
           <button class="btn" type="button" id="im-again">Paste more</button></div></div></section>`;
     }
+    /* Client replies, checked the same way as a list: a reply matched to a
+       person with a clear outcome needs nothing; only an unknown sender or an
+       unsure outcome asks. */
     if (st.step === 'replies' && st.replies){
       const list = st.replies;
       const people = Repo.contacts.all().filter(c => c.email);
       const label = c => `${c.full_name} · ${c.email}`;
-      const ready = list.filter(r => r.contact_id && r.code && r.code !== 'skip').length;
-      const missing = list.filter(r => r.code !== 'skip' && !(r.contact_id && r.code)).length;
+      const needs = r => r.code !== 'skip' && (!r.contact_id || !r.code || (!r.sure && !r.confirmed));
+      const n = { ok:0, ask:0, skip:0 };
+      list.forEach(r => { if (r.code === 'skip') n.skip++; else if (needs(r)) n.ask++; else n.ok++; });
+      const reason = r => !r.contact_id ? 'Sender not found in the contacts. Type their name.' : !r.code ? 'The wording did not match an outcome. Choose one.' : 'The wording fits more than one outcome. Check it.';
       const opt = (code, cur) => `<option value="${code}" ${code === cur ? 'selected' : ''}>${esc(outLabel(code))}</option>`;
-      return `<div class="page-head"><div><h1>Client replies</h1><p>${list.length} repl${list.length === 1 ? 'y' : 'ies'} read. Each is matched to a contact by email address and given an outcome from its wording. Check them, change anything that is wrong, then save.</p></div>
-        <div class="page-actions"><button class="btn" type="button" id="im-back-r">Back</button><button class="btn btn-primary" type="button" id="im-save-r" ${ready ? '' : 'disabled'}>Save ${ready} repl${ready === 1 ? 'y' : 'ies'}</button></div></div>
-      ${missing ? `<div class="banner warn"><b>${missing} repl${missing === 1 ? 'y needs' : 'ies need'} a contact or an outcome.</b> Choose one, or set it to Skip. Until then ${missing === 1 ? 'it is' : 'they are'} left out.</div>` : ''}
+      const order = list.map((r, i) => i).sort((x, y) => (needs(list[y]) - needs(list[x])) || ((list[x].code === 'skip') - (list[y].code === 'skip')) || x - y);
+      const outcomeSelect = (r, i) => `<select id="im-ro-${i}" data-rout="${i}" style="width:auto" class="${r.code ? '' : 'undecided'}" aria-label="Outcome">
+          ${r.code ? '' : '<option value="" selected disabled>Choose</option>'}
+          ${outcomeOptions('email', r.code && r.code !== 'skip' ? r.code : null)}
+          <option value="skip" ${r.code === 'skip' ? 'selected' : ''}>Leave out</option></select>`;
+      return `<div class="page-head"><div><h1>Check the replies</h1></div>
+        <div class="page-actions"><button class="btn" type="button" id="im-back-r">Back</button>
+          <button class="btn btn-primary" type="button" id="im-save-r" ${n.ok && !n.ask ? '' : 'disabled'}>${n.ask ? `Choose for ${n.ask} repl${n.ask === 1 ? 'y' : 'ies'} first` : `Save ${n.ok}`}</button></div></div>
+      <section class="card imp-head"><div class="card-body">
+        <div class="imp-summary"><b>${list.length} repl${list.length === 1 ? 'y' : 'ies'} read</b>
+          <span class="pill g-new">${n.ok} ready</span>
+          ${n.ask ? `<span class="pill warnflag">${n.ask} need${n.ask === 1 ? 's' : ''} you</span>` : ''}
+          ${n.skip ? `<span class="muted">${n.skip} left out</span>` : ''}</div>
+      </div></section>
       <datalist id="im-people">${people.map(c => `<option value="${esc(label(c))}"></option>`).join('')}</datalist>
-      <div class="table-wrap"><table class="grid replies"><thead><tr><th>Reply</th><th>Contact</th><th>Outcome</th></tr></thead><tbody>
-        ${list.map((r, i) => { const c = r.contact_id ? Repo.contacts.byId(r.contact_id) : null, org = c ? Repo.contacts.organization(c.id) : null;
-          return `<tr class="${r.code !== 'skip' && !(r.contact_id && r.code) ? 'flagrow' : ''}">
-          <td style="max-width:420px"><span class="name">${esc(r.fromName || r.fromEmail || 'Unknown sender')}</span><span class="sub">${esc(r.subject || '')}</span>
-            <div class="reply-text">${esc(r.body.slice(0, 600))}</div></td>
-          <td><label class="sr-only" for="im-rc-${i}">Contact for reply ${i + 1}</label>
-            <input id="im-rc-${i}" list="im-people" data-rcontact="${i}" value="${c ? esc(label(c)) : ''}" placeholder="Type a name or email">
-            <span class="sub">${c ? esc([org && org.name, r.matchedBy === 'name' ? 'matched by name, check it' : r.matchedBy === 'chosen' ? 'chosen by you' : 'matched by email'].filter(Boolean).join(' · ')) : '<span style="color:var(--warn);font-weight:600">Not found. Type the name.</span>'}</span></td>
-          <td><label class="sr-only" for="im-ro-${i}">Outcome for reply ${i + 1}</label>
-            <select id="im-ro-${i}" data-rout="${i}" style="width:auto" class="${r.code ? '' : 'undecided'}">
-              ${r.code ? '' : '<option value="" selected>Choose an outcome</option>'}
-              <optgroup label="Jon's six">${Replies.MAIN.map(x => opt(x, r.code)).join('')}</optgroup>
-              <optgroup label="Other">${Replies.MORE.map(x => opt(x, r.code)).join('')}</optgroup>
-              <option value="skip" ${r.code === 'skip' ? 'selected' : ''}>Skip this reply</option>
-            </select>
-            ${r.code && r.code !== 'skip' && !r.sure ? '<span class="sub" style="color:var(--warn);font-weight:600">Suggested, check it</span>' : ''}
-            <div class="effect">${r.code === 'skip' ? 'Left out' : esc(Replies.effect(r.code, r.ooo_return_on))}</div></td></tr>`; }).join('')}
+      <div class="table-wrap"><table class="grid imp replies"><thead><tr><th>Reply</th><th>From</th><th>Outcome</th></tr></thead><tbody>
+        ${order.map(i => { const r = list[i], c = r.contact_id ? Repo.contacts.byId(r.contact_id) : null, ask = needs(r);
+          return `<tr class="${ask ? 'flagrow' : r.code === 'skip' ? 'imp-out' : ''}">
+          <td style="max-width:420px"><span class="sub" style="margin-top:0">${esc(r.subject || '')}</span><div class="reply-text">${esc(r.body.slice(0, 400))}</div></td>
+          <td>${c && !r.editContact ? `<b>${esc(c.full_name)}</b><span class="sub">${esc([Repo.contacts.organization(c.id)?.name, c.email].filter(Boolean).join(' · '))}</span>
+              <button class="linkish small" type="button" data-rcedit="${i}">Not them?</button>`
+            : `<label class="sr-only" for="im-rc-${i}">Who sent reply ${i + 1}</label><input id="im-rc-${i}" type="text" list="im-people" data-rcontact="${i}" value="" placeholder="Type a name or email">
+               <span class="sub">${esc(r.fromName || r.fromEmail || 'Unknown sender')}</span>`}</td>
+          <td>${ask || r.editOutcome ? `${outcomeSelect(r, i)}${ask ? `<span class="sub imp-why">${esc(reason(r))}</span>` : ''}`
+            : r.code === 'skip' ? `<span class="muted">Left out</span> <button class="linkish small" type="button" data-roedit="${i}">Change</button>`
+            : `${outcomePill(r.code)} <button class="linkish small" type="button" data-roedit="${i}">Change</button>`}
+            ${r.code && r.code !== 'skip' ? `<span class="sub">${esc(Replies.effect(r.code, r.ooo_return_on))}</span>` : ''}</td></tr>`; }).join('')}
       </tbody></table></div>`;
     }
-    if (st.result){ const r = st.result;
-      return `<div class="page-head"><div><h1>Batch committed</h1><p>${fmtDateTime(new Date())}. Every approved row became the records it describes.</p></div></div>
-      <section class="card" style="max-width:860px"><div class="card-body">
-        <div class="summary-nums"><div><b>${r.contacts}</b>contacts</div><div><b>${r.orgs}</b>organizations</div><div><b>${r.touchpoints}</b>touchpoints</div><div><b>${r.reminders}</b>reminders</div><div><b>${r.merged}</b>merged</div><div><b>${r.skipped}</b>skipped</div></div>
-        <p class="muted small" style="margin-top:12px">${r.extras} value${r.extras===1?'':'s'} from columns the CRM does not map were kept on the contact as extra data, so nothing from the sheet was lost.</p>
-        ${r.awaiting_first ? `<div class="banner demo" style="margin:16px 0 0"><b>${fmtInt(r.awaiting_first)} of the new contacts came in with no outreach date.</b>
-          Nobody has been marked No response: they are waiting for a first email, and sending it is what records the date.</div>` : ''}
-        ${r.in_person ? `<div class="banner demo" style="margin:16px 0 0"><b>${fmtInt(r.in_person)} of the new contacts are marked No cold email (in person only).</b>
-          Their address is on the "Don't cold email" list in Settings, so they are left out of the mail merge and each has a reminder to reach out personally.</div>` : ''}
-        <div class="page-actions" style="margin-top:16px">
-          ${r.awaiting_first ? `<a class="btn btn-primary btn-xl" href="${href('mailmerge',{source:'first'})}">Write the first email</a>` : ''}
-          <a class="btn" href="${href('contacts')}">Open contacts</a><a class="btn" href="${href('reminders')}">Open reminders</a><button class="btn" type="button" id="im-again">Import another file</button></div></div></section>`; }
-
-    if (st.step === 2 && st.parsed){
-      const p = st.parsed, sample = p.rows[0] || { cells: [] };
-      const mapped = st.mapping.filter(Boolean);
-      const missing = ['contact','email'].filter(k => !mapped.includes(k) && !(k === 'contact' && mapped.includes('first_name')));
-      return `<div class="page-head"><div><h1>Map the columns</h1><p>${p.headers.length} columns and ${p.rows.length} rows read. Change any mapping before checking. Columns left unmapped are kept as extra data rather than dropped.</p></div>
-        <div class="page-actions"><button class="btn" type="button" id="im-back">Back</button><button class="btn btn-primary" type="button" id="im-next">Check ${p.rows.length} rows</button></div></div>
-      ${missing.length ? `<div class="banner warn"><b>Nothing is mapped to ${missing.join(' or ')}.</b> Rows without them will be flagged.</div>`
-        : `<div class="banner demo"><b>Recognized the sheet.</b> Date, Source, Contact, First Name, Email, Org, Website, LinkedIn, Notes, Date Outreached, Outcome and Next Steps all mapped on sight.</div>`}
-      <div class="filters"><span class="muted small">Defaults for rows that do not say:</span>
-        <label class="sr-only" for="im-seg">Default segment</label><select id="im-seg">${SEGMENTS.map(s => `<option value="${s.code}" ${st.defaults.segment===s.code?'selected':''}>${esc(s.group === s.name ? s.name : s.group + ': ' + s.name)}</option>`).join('')}</select>
-        <label class="sr-only" for="im-ch">Default channel</label><select id="im-ch">${CHANNELS.map(c => `<option value="${c.code}" ${st.defaults.channel===c.code?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
-      <section class="card"><div class="table-wrap auto" style="box-shadow:none"><table class="grid map"><thead><tr><th>Sheet column</th><th>First row</th><th>Maps to</th><th>Table it lands in</th></tr></thead><tbody>
-        ${p.headers.map((h,i) => { const target = st.mapping[i], t = Intelligence.TARGETS.find(x => x.key === target);
-          return `<tr><td><b>${esc(h)}</b></td><td class="muted">${esc(String(sample.cells[i]||'').slice(0,46)) || '<span class="muted">empty</span>'}</td>
-            <td><select data-map="${i}"><option value="">Do not import (kept as extra data)</option>${Intelligence.TARGETS.map(x => `<option value="${x.key}" ${target===x.key?'selected':''}>${esc(x.label)}</option>`).join('')}</select></td>
-            <td>${t ? `<span class="pill seg">${esc(t.entity)}</span>` : '<span class="muted">extra data on the contact</span>'}</td></tr>`; }).join('')}
-      </tbody></table></div></section>`;
-    }
-
-    if (st.step === 3 && st.analysis){
-      const a = st.analysis;
-      const counts = a.reduce((m,r) => { m[r.status] = (m[r.status]||0)+1; return m; }, {});
-      const needing = a.filter(r => !r.decided).length;
-      const plan = { imp: a.filter(r => r.decision === 'import').length, mrg: a.filter(r => r.decision === 'merge').length, skp: a.filter(r => r.decision === 'skip').length };
-      const flagRow = r => `<div class="flaglist">${r.flags.map(f => `<span><i class="flag-dot ${f.level==='err'?'err':f.level==='warn'?'warn':'info'}"></i>${esc(f.text)}</span>`).join('')}</div>`;
-      return `<div class="page-head"><div><h1>Review the batch</h1><p>${a.length} rows checked against the master list: ${Object.entries(counts).map(([k,v]) => `${v} ${STATUS_LABEL[k].toLowerCase()}`).join(', ')}. Nothing is written until you commit.</p></div>
-        <div class="page-actions"><button class="btn" type="button" id="im-back2">Back to mapping</button><button class="btn btn-danger" type="button" id="im-cancel">Cancel</button>
-        <button class="btn btn-primary" type="button" id="im-commit" ${needing ? 'disabled' : ''}>Commit ${plan.imp} new, ${plan.mrg} merge, ${plan.skp} skip</button></div></div>
-      ${needing ? `<div class="banner warn" id="im-banner"><b>${needing} row${needing===1?'':'s'} need${needing===1?'s':''} a decision.</b>
-          Each one already has a suggestion. Accept them all in one click, or change any row's dropdown yourself.
-          <span class="spacer" style="flex:1"></span>
-          <button class="btn btn-sm btn-accent" type="button" id="im-accept-all">Accept all ${needing} suggestions</button>
-          <button class="btn btn-sm" type="button" id="im-skip-flagged">Skip them all instead</button></div>`
-        : `<div class="banner demo" id="im-banner"><b>Ready to commit.</b> ${plan.imp} imported as new, ${plan.mrg} added to contacts already on file, ${plan.skp} skipped.
-          Skipped rows are simply left out: nothing is deleted and your spreadsheet is untouched.</div>`}
-      <div class="table-wrap"><table class="grid review"><colgroup><col style="width:42px"><col style="width:168px"><col style="width:120px"><col style="width:170px"><col style="width:100px"><col style="width:118px"><col style="width:330px"><col style="width:214px"></colgroup>
-        <thead><tr><th>Row</th><th>Contact</th><th>Status</th><th>Organization</th><th>AUM</th><th>Outreach</th><th>Checks</th><th>What happens to it</th></tr></thead><tbody>
-        ${a.map((r,i) => { const v = r.values;
-          return `<tr class="${r.worst==='err'?'flagrow err':r.worst==='warn'?'flagrow':''}">
-          <td>${r.line}</td>
-          <td><span class="name">${esc(v.contact_name||'(no name)')}</span><span class="sub">${esc(v.email||'no email')}</span>${v.linkedin_url ? `<span class="sub">${esc(v.linkedin_url)}</span>` : ''}</td>
-          <td><span class="pill ${STATUS_PILL[r.status]}">${esc(STATUS_LABEL[r.status])}</span></td>
-          <td>${esc(v.organization||'')}${r.orgMatch ? `<span class="sub">links to ${esc(r.orgMatch.name)}</span>` : v.organization ? '<span class="sub">new organization</span>' : '<span class="muted">Individual</span>'}</td>
-          <td>${v.aum && v.aum.amount != null ? `${esc(fmtUSD(v.aum.amount))}<span class="sub">${esc(v.aum.kind)}</span>` : v.aum ? `<span class="muted">${esc(v.aum.raw)}</span>` : ''}</td>
-          <td>${v.touched_at ? fmtDate(v.touched_at) : '<span class="muted">No date</span>'}<span class="sub">${esc(v.outcome_code ? outLabel(v.outcome_code) : (v.outcome_raw || 'none'))}</span></td>
-          <td class="checks">${flagRow(r)}</td>
-          <td><select data-decide="${i}" style="width:auto" class="${r.decided ? '' : 'undecided'}"><option value="import" ${r.decision==='import'?'selected':''}>Import as new</option><option value="merge" ${r.decision==='merge'?'selected':''} ${r.match?'':'disabled'}>Add to the existing contact</option><option value="skip" ${r.decision==='skip'?'selected':''}>Skip this row</option></select>
-            ${r.match ? `<span class="sub">${esc(r.why)}: ${esc(r.match.full_name)}</span>` : ''}
-            ${r.decided ? '' : '<span class="sub needs-note" style="color:var(--warn);font-weight:600">Suggested, confirm it</span>'}</td></tr>`; }).join('')}
+    /* One screen to check a pasted list. Rows that are clear go in without a
+       question; only a possible duplicate asks for a choice; anything wrong
+       is one short line. */
+    if (st.step === 'check' && st.analysis){
+      const a = st.analysis, kind = st.kind || 'new', events = Repo.events.all();
+      const n = { add:0, merge:0, same:0, ask:0, skip:0 };
+      const picks = r => (r.picks || []).length;
+      a.forEach(r => { if (!r.decided) n.ask++; else if (r.decision === 'skip') n.skip++; else if (r.decision === 'merge') (picks(r) ? n.merge++ : n.same++); else n.add++; });
+      const ready = n.add + n.merge;
+      // For a row that needs a choice, the reason is the possible match; otherwise the first real problem
+      const problem = r => r.status === 'no_email' && !r.decided ? (r.badEmail ? `"${r.badEmail}" is not an email address. ` : 'No email in this row. ')
+          + (r.match ? `Someone named ${r.match.full_name} is already on file: compare them below.` : 'Add them without one?')
+        : r.nameDiffers && !r.decided ? `Same email as ${r.match.full_name} on file, but the name is different. Compare below.`
+        : (!r.decided && r.flags.find(f => ['dup_name', 'org_variant', 'dup_linkedin'].includes(f.code))
+        || r.flags.find(f => f.level === 'err') || r.flags.find(f => f.level === 'warn') || {}).text || '';
+      // Rows waiting for a choice first, then new, then already on file, then left out
+      const rank = r => !r.decided ? 0 : r.decision === 'import' ? 1 : r.decision === 'merge' ? (picks(r) ? 2 : 3) : 4;
+      // What a matched row has in common with the contact on file, and what it would write
+      const basis = r => (r.cmp || []).filter(x => x.how === 'same' && ['name', 'email', 'linkedin_url', 'phone', 'organization'].includes(x.key)).map(x => x.label === 'LinkedIn' ? x.label : x.label.toLowerCase());
+      const writes = r => (r.cmp || []).filter(x => (r.picks || []).includes(x.key)).map(x => (x.how === 'diff' ? 'replaces ' : '') + x.label.toLowerCase());
+      const toggle = (r, i) => r.cmp && r.cmp.length ? `<button class="linkish small" type="button" data-cmp="${i}" style="display:block;margin-top:4px">${r.open ? 'Hide the comparison' : 'Compare with the contact on file'}</button>` : '';
+      const TAG = { same:'<span class="badge b-same">Same</span>', diff:'<span class="badge b-diff">Different</span>', kept:'', new:'', add:'' };
+      const compare = (r, i) => `<tr class="imp-cmp ${!r.decided ? 'flagrow' : ''}"><td colspan="4"><div class="cmp-card">
+          <table class="cmp"><colgroup><col class="c-label"><col><col><col class="c-upd"></colgroup>
+          <thead><tr><th></th><th>In this list</th><th>On file: ${esc(r.match.full_name)}</th><th>Update</th></tr></thead><tbody>
+          ${r.cmp.map(x => { const on = (r.picks || []).includes(x.key), can = x.pickable && (!r.decided || r.decision === 'merge');
+            return `<tr class="c-${x.how}"><th>${esc(x.label)}</th><td class="v mine">${esc(x.mine) || '<span class="muted">—</span>'}</td><td class="v">${esc(x.theirs) || '<span class="muted">—</span>'}</td>
+            <td>${can ? `<label class="pick ${x.how === 'diff' ? 'diff' : ''} ${on ? 'on' : ''}"><input type="checkbox" data-pick="${i}" value="${x.key}" ${on ? 'checked' : ''}> ${x.how === 'diff' ? 'Replace' : 'Add'}</label>`
+              : TAG[x.how] || ''}</td></tr>`; }).join('')}
+          </tbody></table>
+          <div class="cmp-legend"><span><i style="background:var(--good)"></i>New: fills a blank</span><span><i style="background:var(--warn)"></i>Different from what is on file</span><span>Ticked lines are written only if this is the same person</span></div>
+        </div></td></tr>`;
+      const order = a.map((r, i) => i).sort((x, y) => rank(a[x]) - rank(a[y]) || x - y);
+      const colsRead = st.parsed.headers.map((h, i) => st.mapping[i] ? (Intelligence.TARGETS.find(t => t.key === st.mapping[i]) || {}).label : null).filter(Boolean);
+      const KINDS = [['new','New people'], ['event','People met at an event'], ['newsletter','Newsletter sign-ups'], ['benefit','Benefit group partners'], ['referral','Referral partners']];
+      const opt = (v, l, on) => `<option value="${esc(v)}" ${on ? 'selected' : ''}>${esc(l)}</option>`;
+      const done = st.result;
+      const result = (r, i) => {
+        if (done && r.savedId && !Repo.contacts.byId(r.savedId)) return `<span class="imp-why">Not saved: the database refused this row</span>`;
+        if (done) return r.savedId ? `<span class="pill g-new">${r.savedAs === 'added' ? 'Added' : 'Updated'}</span>${r.savedAs === 'updated' && writes(r).length ? `<span class="sub">${esc(writes(r).join(', '))}</span>` : ''}
+            <a class="linkish small" style="display:block;margin-top:4px" href="${href('contact', { id: r.savedId })}">Open ${esc((Repo.contacts.byId(r.savedId) || {}).full_name || 'the contact')}</a>`
+          : `<span class="muted">${r.decision === 'merge' ? 'Already on file, nothing changed' : 'Left out'}</span>`;
+        if (!r.decided) return `<select data-decide="${i}" class="undecided" style="width:auto">
+            <option value="" selected disabled>Choose</option>
+            ${r.match ? opt('merge', 'Same person as ' + r.match.full_name, false) : ''}${r.nameDiffers ? '' : opt('import', r.status === 'no_email' ? (r.match ? 'A different person: add without email' : 'Add without an email') : r.match ? 'A different person: add as new' : r.orgMatch ? 'Add, at ' + r.orgMatch.name : 'Add as a new person', false)}${opt('skip', 'Leave out', false)}</select>
+          <span class="sub imp-why">${esc(problem(r))}</span>${r.match && basis(r).length ? `<span class="sub">Matches on ${esc(basis(r).join(', '))}${toggle(r, i)}</span>` : ''}`;
+        if (r.decision === 'skip') return `<span class="muted">Left out${problem(r) ? ': ' + esc(problem(r).toLowerCase()) : ''}</span>${toggle(r, i)}`;
+        if (r.decision === 'merge') return (picks(r) ? `<span class="pill g-probable">Already on file</span>` : `<span class="muted">Already on file, nothing new</span>`)
+          + `<span class="sub">${basis(r).length ? 'Matches on ' + esc(basis(r).join(', ')) + '. ' : ''}${picks(r) ? 'Updates ' + esc(writes(r).join(', ')) + '.' : ''}${toggle(r, i)}</span>`;
+        const p = problem(r);
+        return `<span class="pill g-new">New</span>${p ? `<span class="sub imp-why">${esc(p)}</span>` : ''}${r.badEmail ? '<span class="sub">Added without an email</span>' : ''}${toggle(r, i)}`;
+      };
+      if (done) return `<div class="page-head"><div><h1>Imported</h1><p>${fmtDateTime(new Date(done.at))}. ${done.contacts} added, ${done.merged} updated. Undo is in the message at the bottom, or on the contact's page.</p></div>
+        <div class="page-actions"><button class="btn btn-done" type="button" disabled>✓ ${[done.contacts ? done.contacts + ' added' : '', done.merged ? done.merged + ' updated' : ''].filter(Boolean).join(' · ') || 'Saved'}</button>
+          <button class="btn btn-primary" type="button" id="im-again">Import more</button></div></div>
+      <div class="table-wrap"><table class="grid imp"><thead><tr><th>Name</th><th>Email</th><th>Organization</th><th>Result</th></tr></thead><tbody>
+        ${order.slice().sort((x, y) => !!a[y].savedId - !!a[x].savedId || 0).map(i => { const r = a[i], v = r.values;
+          return `<tr class="${r.savedId ? 'imp-saved' : 'imp-out'}"><td><b>${esc(v.contact_name || '(no name)')}</b></td><td>${esc(v.email || '')}</td>
+            <td>${esc(v.organization || '') || '<span class="muted">Individual</span>'}</td><td>${result(r, i)}</td></tr>`; }).join('')}
+      </tbody></table></div>`;
+      return `<div class="page-head"><div><h1>Check the list</h1></div>
+        <div class="page-actions"><button class="btn" type="button" id="im-back">Back</button>
+          <button class="btn btn-primary" type="button" id="im-commit" ${ready && !n.ask ? '' : 'disabled'}>${n.ask ? `Choose for ${n.ask} row${n.ask === 1 ? '' : 's'} first` : !ready ? 'Nothing new to import' : `Import ${[n.add ? n.add + ' new' : '', n.merge ? 'update ' + n.merge : ''].filter(Boolean).join(' · ')}`}</button></div></div>
+      <section class="card imp-head"><div class="card-body">
+        <div class="imp-summary"><b>${a.length} ${a.length === 1 ? 'person' : 'people'} read</b>
+          <span class="pill g-new">${n.add} new</span>
+          ${n.merge ? `<span class="pill g-probable">${n.merge} on file, with something new</span>` : ''}
+          ${n.same ? `<span class="muted">${n.same} on file, nothing new</span>` : ''}
+          ${n.ask ? `<span class="pill warnflag">${n.ask} need${n.ask === 1 ? 's' : ''} you</span>` : ''}
+          ${n.skip ? `<span class="muted">${n.skip} left out</span>` : ''}</div>
+        <div class="imp-opts">
+          <label class="f"><span>This list is</span><select id="im-kind">${KINDS.map(([v, l]) => opt(v, l, v === kind)).join('')}</select></label>
+          ${kind === 'event' ? (events.length ? `<label class="f"><span>Event</span><select id="im-event">${events.map(e => opt(e.id, e.name + (e.start_on ? ' (' + fmtDate(e.start_on) + ')' : ''), e.id === st.event_id)).join('')}</select></label>`
+            : `<p class="muted small" style="align-self:end">No events yet. Add the event on the Events page first.</p>`) : ''}
+          ${kind === 'new' || kind === 'event' || kind === 'newsletter' ? `<label class="f"><span>Segment, where a row does not say</span><select id="im-seg">${SEGMENTS.filter(s => s.code !== 'RET_BENEFIT' && s.code !== 'AFFILIATE').map(s => opt(s.code, s.group === s.name ? s.name : s.group + ': ' + s.name, st.defaults.segment === s.code)).join('')}</select></label>` : ''}
+        </div>
+        <p class="muted small" style="margin-top:12px">Columns read: ${esc(colsRead.join(' · ') || 'none')} <button class="linkish" type="button" id="im-cols">${st.showCols ? 'Done' : 'Change'}</button></p>
+        ${st.showCols ? `<div class="table-wrap auto" style="box-shadow:none;margin-top:10px"><table class="grid map"><thead><tr><th>Column</th><th>First value</th><th>Read as</th></tr></thead><tbody>
+          ${st.parsed.headers.map((h, i) => `<tr><td><b>${esc(h)}</b></td><td class="muted">${esc(String((st.parsed.rows[0] || { cells: [] }).cells[i] || '').slice(0, 46))}</td>
+            <td><select data-map="${i}"><option value="">Not imported</option>${Intelligence.TARGETS.map(x => opt(x.key, x.label, st.mapping[i] === x.key)).join('')}</select></td></tr>`).join('')}
+        </tbody></table></div>` : ''}
+      </div></section>
+      <div class="table-wrap"><table class="grid imp"><thead><tr><th>Name</th><th>Email</th><th>Organization</th><th>Result</th></tr></thead><tbody>
+        ${order.map(i => { const r = a[i], v = r.values;
+          const open = r.open && r.match && r.cmp && r.cmp.length;
+          return `<tr class="${!r.decided ? 'flagrow' : r.decision === 'skip' ? 'imp-out' : ''} ${open ? 'has-cmp' : ''}">
+          <td><b>${esc(v.contact_name || '(no name)')}</b>${v.title ? `<span class="sub">${esc(v.title)}</span>` : ''}</td>
+          <td>${r.badEmail ? `<s class="muted">${esc(r.badEmail)}</s>` : esc(v.email || '')}</td>
+          <td>${esc(v.organization || '') || '<span class="muted">Individual</span>'}</td>
+          <td>${result(r, i)}</td></tr>${open ? compare(r, i) : ''}`; }).join('')}
       </tbody></table></div>`;
     }
 
@@ -4716,7 +4898,8 @@ Views.import = { title:'Import',
       <p>Paste rows from a sheet, or the replies clients sent back. Rows are checked against the master list; replies are matched to the person and given an outcome. Nothing is written until you confirm.</p></div><div class="page-actions">${demoTag}</div></div>
     <div style="max-width:860px">
       <section class="card" id="im-drop"><div class="card-head"><h2>Paste rows, replies or a screenshot</h2><span class="sub">Rows need their header row</span></div><div class="card-body">
-        <label class="f"><span>Paste here</span><textarea id="im-text" rows="13" placeholder="Rows copied from Excel, with the header row&#10;&#10;or the text of client replies, one after another&#10;&#10;or a screenshot: press Ctrl+V here, or drop the image on this box">${esc(st.text)}</textarea></label>
+        <label class="f" for="im-text"><span>Paste here</span></label><div class="im-box"><textarea id="im-text" rows="13" placeholder="Rows copied from Excel, with the header row&#10;&#10;or the text of client replies, one after another&#10;&#10;or a screenshot: press Ctrl+V here, or drop the image on this box">${esc(st.text)}</textarea>
+        ${(st.shots || []).length ? `<div class="im-shots">${st.shots.map((s, i) => `<figure><img src="${s.url}" alt="Screenshot ${i + 1}" title="Read when you press Read it" data-shotview="${i}"><button class="x" type="button" data-shotrm="${i}" aria-label="Remove screenshot ${i + 1}">×</button></figure>`).join('')}</div>` : ''}</div>
         <p class="muted small" id="im-ocr" role="status" ${st.ocrMsg ? '' : 'hidden'} style="margin-top:8px">${esc(st.ocrMsg || '')}</p>
         <div class="page-actions" style="margin-top:10px"><button class="btn btn-primary" type="button" id="im-read">Read it</button>
           <label class="btn" for="im-img">Add a screenshot</label><input type="file" id="im-img" accept="image/*" class="sr-only">
@@ -4728,15 +4911,80 @@ Views.import = { title:'Import',
     const st = UI.import;
     root.querySelector('#im-again')?.addEventListener('click', () => { UI.import = null; render(); });
     root.querySelector('#im-back')?.addEventListener('click', () => { st.step = 1; render(); });
-    root.querySelector('#im-back2')?.addEventListener('click', () => { st.step = 2; render(); });
+    /* Rows: read the columns (with or without a header row), check every row
+       against the book, and only a possible duplicate waits for a choice. */
+    /* A row next to the contact it matched, field by field: the same, new
+       (fills a blank), different, or only on file. New lines are ticked to be
+       written; a different value is written only if someone ticks Replace. */
+    const compareRow = r => { const c = r.match, v = r.values; if (!c) return [];
+      const low = s => String(s || '').trim().toLowerCase(), digits = s => String(s || '').replace(/\D/g, '');
+      const line = (key, label, mine, theirs, o = {}) => { const m = String(mine || '').trim(), t = String(theirs || '').trim();
+        if (!m && !t) return null;
+        const same = o.same || ((x, y) => low(x) === low(y));
+        const how = !m ? 'kept' : !t ? 'new' : same(m, t) ? 'same' : 'diff';
+        return { key, label, mine: m, theirs: t, how, pickable: how === 'new' ? o.add !== false : how === 'diff' && !!o.replace }; };
+      const org = Repo.contacts.organization(c.id), tps = Repo.contacts.touchpoints(c.id);
+      const last = tps.slice().sort((x, y) => String(y.touched_at).localeCompare(String(x.touched_at)))[0];
+      const touch = (d, code) => [d ? fmtDate(String(d).slice(0, 10)) : '', code ? outLabel(code) : ''].filter(Boolean).join(' · ');
+      const out = [
+        line('name', 'Name', v.contact_name, c.full_name, { add:false, same: (x, y) => sameName(x, y) }),
+        line('email', 'Email', v.email, c.email),
+        line('linkedin_url', 'LinkedIn', v.linkedin_url, c.linkedin_url, { replace:true, same: (x, y) => Intelligence.linkedinKey(x) === Intelligence.linkedinKey(y) }),
+        line('phone', 'Phone', v.phone, c.phone, { replace:true, same: (x, y) => digits(x).slice(-10) === digits(y).slice(-10) }),
+        line('title', 'Title', v.title, c.title, { replace:true }),
+        line('organization', 'Organization', v.organization, org ? org.name : c.employer, { add: c.organization_id == null,
+          same: (x, y) => Intelligence.orgKey(x) === Intelligence.orgKey(y) }),
+        line('city', 'City', v.city, c.city, { replace:true }),
+        line('state', 'State', v.state, c.state, { replace:true }) ].filter(Boolean);
+      if (v.notes){ const has = String(c.notes || '').includes(v.notes);
+        out.push({ key:'notes', label:'Note', mine: v.notes, theirs: String(c.notes || '').slice(0, 160), how: has ? 'same' : 'add', pickable: !has }); }
+      if (v.touched_at || v.outcome_code){ const has = !!v.touched_at && tps.some(t => String(t.touched_at).slice(0, 10) === v.touched_at);
+        out.push({ key:'outreach', label:'Outreach', mine: touch(v.touched_at, v.outcome_code), theirs: last ? 'Last: ' + touch(last.touched_at, last.outcome_code) : '', how: has ? 'same' : 'add', pickable: !has }); }
+      return out; };
+    const sameName = (x, y) => { const a = String(x || '').trim().toLowerCase(), b = String(y || '').trim().toLowerCase();
+      if (!a || !b) return true;
+      if (!/\s/.test(a) || !/\s/.test(b)) return a.split(/\s+/)[0] === b.split(/\s+/)[0];   // a first name only
+      return a === b || Intelligence.jaro(a, b) >= 0.9 || (a.split(/\s+/).pop() === b.split(/\s+/).pop() && a[0] === b[0]); };
+    const analyzeNow = () => { st.analysis = Intelligence.analyze(st.parsed, st.mapping);
+      st.analysis.forEach(r => {
+        const errs = r.flags.filter(f => f.level === 'err').map(f => f.code);
+        // A name but no usable email: asked, not dropped. A typo like "x" is kept out of the email.
+        if (r.status === 'error' && errs.length && errs.every(c => c === 'email' || c === 'email_format') && r.values.contact_name){
+          if (errs.includes('email_format')){ r.badEmail = r.values.email; r.values.email = ''; }
+          r.status = 'no_email'; r.decided = false;
+          // without an email the name is all there is: the same full name anywhere in the book is offered
+          if (!r.match){ const name = r.values.contact_name.trim().toLowerCase();
+            r.match = Repo.contacts.all().find(c => String(c.full_name || '').trim().toLowerCase() === name) || null; }
+        } else {
+          r.decided = r.status !== 'needs_review';
+          // The same email under another name: shown side by side, never merged unasked
+          if (r.status === 'existing_contact' && r.match && !sameName(r.values.contact_name, r.match.full_name)){ r.nameDiffers = true; r.decided = false; }
+        }
+        r.cmp = compareRow(r);
+        r.picks = r.cmp.filter(x => x.pickable && x.how !== 'diff').map(x => x.key);
+        r.open = !r.decided && !!r.match;
+      }); };
+    const read = text => { st.text = text; const p = Intelligence.readRows(text);
+      if (!p.rows.length){ Toast.show('No rows found in what was pasted.', { kind:'warn' }); return; }
+      st.parsed = { headers: p.headers, rows: p.rows }; st.mapping = p.mapping; st.showCols = false;
+      st.kind = st.kind || 'new'; analyzeNow(); st.step = 'check'; render(); };
     root.querySelector('#im-seg')?.addEventListener('change', e => { st.defaults.segment = e.target.value; });
-    root.querySelector('#im-ch')?.addEventListener('change', e => { st.defaults.channel = e.target.value; });
-    root.querySelector('#im-cancel')?.addEventListener('click', async () => {
-      if (await Modal.confirm({ title:'Cancel this batch', message:'Nothing has been written. Cancelling clears the file and returns to the start.', okLabel:'Cancel batch', danger:true })){
-        UI.import = null; render(); Toast.show('Batch cancelled, nothing was written'); } });
-    const read = text => { st.text = text; const p = Intelligence.parseCSV(text);
-      if (!p.rows.length){ Toast.show('No data rows found. A header row plus at least one record is needed.', { kind:'warn' }); return; }
-      st.parsed = p; st.mapping = p.headers.map(h => Intelligence.autoMap(h)); st.step = 2; render(); };
+    root.querySelector('#im-kind')?.addEventListener('change', e => { st.kind = e.target.value;
+      if (st.kind === 'event' && !st.event_id){ const ev = Repo.events.all()[0]; st.event_id = ev ? ev.id : null; }
+      st.defaults.segment = st.kind === 'benefit' ? 'RET_BENEFIT' : st.kind === 'referral' ? 'AFFILIATE'
+        : (st.defaults.segment === 'RET_BENEFIT' || st.defaults.segment === 'AFFILIATE' ? 'ORG_NONPROFIT' : st.defaults.segment);
+      render(); });
+    root.querySelector('#im-event')?.addEventListener('change', e => { st.event_id = Number(e.target.value); });
+    root.querySelector('#im-cols')?.addEventListener('click', () => { st.showCols = !st.showCols; render(); });
+    root.querySelectorAll('[data-map]').forEach(sel => sel.addEventListener('change', () => { st.mapping[Number(sel.dataset.map)] = sel.value; analyzeNow(); render(); }));
+    root.querySelectorAll('[data-decide]').forEach(sel => sel.addEventListener('change', () => {
+      const r = st.analysis[Number(sel.dataset.decide)]; if (!sel.value) return; r.decision = sel.value; r.decided = true; render(); }));
+    root.querySelectorAll('[data-cmp]').forEach(b => b.addEventListener('click', () => { const r = st.analysis[Number(b.dataset.cmp)]; r.open = !r.open; render(); }));
+    root.querySelectorAll('[data-pick]').forEach(cb => cb.addEventListener('change', () => { const r = st.analysis[Number(cb.dataset.pick)];
+      r.picks = (r.picks || []).filter(k => k !== cb.value).concat(cb.checked ? [cb.value] : []); render(); }));
+    root.querySelector('#im-commit')?.addEventListener('click', () => {
+      st.result = commitBatch(st.analysis, { ...st.defaults, kind: st.kind || 'new', event_id: st.event_id || null }); st.result.at = Date.now(); window.scrollTo(0, 0); render();
+      Toast.show(`Imported ${st.result.contacts} new and added to ${st.result.merged} already on file`, { kind:'ok', action:'Undo', onAction: () => { Store.undo(); UI.import = null; render(); } }); });
     /* One box takes both: rows go to column mapping, anything else is read as replies. */
     const readReplies = text => { st.text = text; const list = Replies.read(text);
       if (!list.length){ Toast.show('No reply found. Paste the email text, including the From line if you can.', { kind:'warn' }); return; }
@@ -4744,27 +4992,33 @@ Views.import = { title:'Import',
     const readAny = text => {
       if (!String(text || '').trim()){ Toast.show('Paste rows, replies or a screenshot first.', { kind:'warn' }); return; }
       return Replies.looksLikeRows(text) ? read(text) : readReplies(text); };
-    root.querySelector('#im-read')?.addEventListener('click', () => readAny(root.querySelector('#im-text').value));
+    root.querySelector('#im-read')?.addEventListener('click', () => (st.shots || []).length ? readShots() : readAny(root.querySelector('#im-text').value));
     root.querySelector('#im-example')?.addEventListener('click', () => { root.querySelector('#im-text').value = DEMO_BATCH_CSV; read(DEMO_BATCH_CSV); });
     root.querySelector('#im-demo-replies')?.addEventListener('click', () => { const text = Replies.demo();
       if (!text){ Toast.show('Not enough emails on file to make the demo replies.', { kind:'warn' }); return; }
       root.querySelector('#im-text').value = text; readReplies(text); });
     root.querySelector('#im-text')?.addEventListener('input', e => { st.text = e.target.value; });
 
-    /* Screenshots: pasted, dropped, or chosen. The text read from the image goes
-       into the box so it can be checked; an empty box is read straight away. */
+    /* Screenshots: pasted, dropped, or chosen. Each is shown under the box
+       first; Read it reads the images on this computer, adds their text to
+       whatever was typed, and goes to the check. */
     const ocrMsg = text => { st.ocrMsg = text; const el = root.querySelector('#im-ocr'); if (el){ el.hidden = !text; el.textContent = text; } };
-    const readImage = async file => {
-      const ta = root.querySelector('#im-text'), wasEmpty = !ta.value.trim();
+    const readImage = file => { const box = root.querySelector('#im-text'); if (box) st.text = box.value;
+      (st.shots || (st.shots = [])).push({ file, url: URL.createObjectURL(file) }); st.ocrMsg = ''; render(); };
+    const readShots = async () => { const btn = root.querySelector('#im-read'), box = root.querySelector('#im-text');
+      let text = box.value.trim();
+      btn.disabled = true;
       try {
-        const text = (await Ocr.read(file, ocrMsg)).trim();
-        if (!text){ ocrMsg('No text found in that image. Try a sharper screenshot.'); return; }
-        const box = root.querySelector('#im-text') || ta;
-        box.value = (box.value.trim() ? box.value.trim() + '\n\n' : '') + text; st.text = box.value;
-        ocrMsg('Read from the screenshot. Check the text if a name looks wrong.');
-        if (wasEmpty) readReplies(box.value);
-      } catch (err){ ocrMsg(err.message || 'The screenshot could not be read.'); }
+        for (const s of st.shots){ const t = Ocr.tidy(await Ocr.read(s.file, ocrMsg)).trim(); if (t) text = (text ? text + '\n\n' : '') + t; }
+        if (!text){ ocrMsg('No text found in the screenshot. Try a sharper one.'); btn.disabled = false; return; }
+        text = Ocr.sheetRows(text) || text;   // a screenshot of a sheet becomes rows
+        st.shots.forEach(s => URL.revokeObjectURL(s.url)); st.shots = []; st.ocrMsg = '';
+        box.value = text; readAny(text);
+      } catch (err){ ocrMsg(err.message || 'The screenshot could not be read.'); btn.disabled = false; }
     };
+    root.querySelectorAll('[data-shotrm]').forEach(b => b.addEventListener('click', () => { const i = Number(b.dataset.shotrm);
+      st.text = root.querySelector('#im-text').value; URL.revokeObjectURL(st.shots[i].url); st.shots.splice(i, 1); render(); }));
+    root.querySelectorAll('[data-shotview]').forEach(img => img.addEventListener('click', () => window.open(img.src, '_blank')));
     root.querySelector('#im-img')?.addEventListener('change', e => { const f = e.target.files[0]; if (f) readImage(f); e.target.value = ''; });
     root.querySelector('#im-text')?.addEventListener('paste', e => {
       const item = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/'));
@@ -4782,68 +5036,31 @@ Views.import = { title:'Import',
     /* The replies review */
     root.querySelector('#im-back-r')?.addEventListener('click', () => { st.step = 1; st.replies = null; render(); });
     root.querySelectorAll('[data-rout]').forEach(sel => sel.addEventListener('change', () => {
-      const r = st.replies[Number(sel.dataset.rout)]; r.code = sel.value || null; r.sure = true; render(); }));
+      const r = st.replies[Number(sel.dataset.rout)]; r.code = sel.value || null; r.sure = true; r.confirmed = true; r.editOutcome = false; render(); }));
+    root.querySelectorAll('[data-roedit]').forEach(b => b.addEventListener('click', () => { st.replies[Number(b.dataset.roedit)].editOutcome = true; render(); }));
+    root.querySelectorAll('[data-rcedit]').forEach(b => b.addEventListener('click', () => { st.replies[Number(b.dataset.rcedit)].editContact = true; render(); }));
     root.querySelectorAll('[data-rcontact]').forEach(inp => inp.addEventListener('change', () => {
       const r = st.replies[Number(inp.dataset.rcontact)], v = inp.value.trim().toLowerCase();
       const email = (v.match(/[^\s·]+@[^\s·]+/) || [])[0];
       const c = Repo.contacts.all().find(x => x.email && (x.email.trim().toLowerCase() === email || `${x.full_name} · ${x.email}`.toLowerCase() === v))
         || Repo.contacts.all().find(x => x.full_name && x.full_name.toLowerCase() === v);
-      r.contact_id = c ? c.id : null; r.matchedBy = c ? 'chosen' : null; render(); }));
+      r.contact_id = c ? c.id : null; r.matchedBy = c ? 'chosen' : null; r.editContact = !c; render(); }));
     root.querySelector('#im-save-r')?.addEventListener('click', () => {
       const items = st.replies.filter(r => r.contact_id && r.code && r.code !== 'skip');
       if (!items.length) return;
       st.repliesResult = Replies.save(items); render(); });
     root.querySelector('#im-file')?.addEventListener('change', e => { const file = e.target.files[0]; if (!file) return;
       const rd = new FileReader(); rd.onload = () => read(String(rd.result||'')); rd.onerror = () => Toast.show('That file could not be read.', { kind:'warn' }); rd.readAsText(file); });
-    root.querySelectorAll('[data-map]').forEach(sel => sel.addEventListener('change', () => { st.mapping[Number(sel.dataset.map)] = sel.value; render(); }));
-    root.querySelector('#im-next')?.addEventListener('click', () => { st.analysis = Intelligence.analyze(st.parsed, st.mapping); st.step = 3; render(); });
-    /* Changing one row updates the header in place rather than rebuilding the
-       table, so the scroll position and the row you are looking at stay put. */
-    const refreshHeader = () => {
-      const a = st.analysis;
-      const needing = a.filter(x => !x.decided).length;
-      const plan = { imp: a.filter(x => x.decision === 'import').length, mrg: a.filter(x => x.decision === 'merge').length, skp: a.filter(x => x.decision === 'skip').length };
-      const commit = root.querySelector('#im-commit');
-      if (commit){ commit.disabled = needing > 0; commit.textContent = `Commit ${plan.imp} new, ${plan.mrg} merge, ${plan.skp} skip`; }
-      const banner = root.querySelector('#im-banner');
-      if (banner){
-        banner.className = 'banner ' + (needing ? 'warn' : 'demo');
-        banner.innerHTML = needing
-          ? `<b>${needing} row${needing===1?'':'s'} need${needing===1?'s':''} a decision.</b> Each one already has a suggestion. Accept them all in one click, or change any row's dropdown yourself.<span style="flex:1"></span><button class="btn btn-sm btn-accent" type="button" id="im-accept-all">Accept all ${needing} suggestions</button><button class="btn btn-sm" type="button" id="im-skip-flagged">Skip them all instead</button>`
-          : `<b>Ready to commit.</b> ${plan.imp} imported as new, ${plan.mrg} added to contacts already on file, ${plan.skp} skipped. Skipped rows are simply left out: nothing is deleted and your spreadsheet is untouched.`;
-        bindBanner();
-      }
-    };
-    const bindBanner = () => {
-      root.querySelector('#im-accept-all')?.addEventListener('click', () => {
-        st.analysis.forEach(x => { x.decided = true; });
-        root.querySelectorAll('[data-decide]').forEach(sel => sel.classList.remove('undecided'));
-        root.querySelectorAll('.needs-note').forEach(n => n.remove());
-        refreshHeader();
-        Toast.show('All suggestions accepted. Review any row you want to change before committing.', { kind:'ok' });
-      });
-      root.querySelector('#im-skip-flagged')?.addEventListener('click', () => {
-        st.analysis.forEach(x => { if (!x.decided){ x.decision = 'skip'; x.decided = true; } });
-        render();
-      });
-    };
-    bindBanner();
-    root.querySelectorAll('[data-decide]').forEach(sel => sel.addEventListener('change', () => {
-      const row = st.analysis[Number(sel.dataset.decide)];
-      row.decision = sel.value; row.decided = true;
-      sel.classList.remove('undecided');
-      sel.parentElement.querySelector('.needs-note')?.remove();
-      refreshHeader();
-    }));
-    root.querySelector('#im-commit')?.addEventListener('click', () => { st.result = commitBatch(st.analysis, st.defaults); render();
-      Toast.show(`Committed ${st.result.contacts} contacts and ${st.result.touchpoints} touchpoints`, { kind:'ok', action:'Undo', onAction: () => { Store.undo(); UI.import = null; render(); } }); });
   }
 };
 
 /** process_import_batch: one approved row becomes an organization, a contact, a
     touchpoint and the reminder that touchpoint's outcome schedules. */
 function commitBatch(analysis, defaults){
-  const out = { contacts:0, orgs:0, touchpoints:0, reminders:0, merged:0, skipped:0, extras:0, awaiting_first:0, in_person:0 };
+  const out = { contacts:0, orgs:0, touchpoints:0, reminders:0, merged:0, skipped:0, extras:0, awaiting_first:0, in_person:0, newsletter:0 };
+  /* What the list is (defaults.kind): new people, people met at an event, newsletter
+     sign-ups, or partners (their segment comes in through defaults.segment). */
+  const kind = defaults.kind || 'new', event = kind === 'event' && defaults.event_id ? Repo.events.byId(defaults.event_id) : null;
   Store.commit('Batch committed', st => {
     const now = new Date().toISOString().slice(0,19), today = now.slice(0,10);
     /* Every contact from this run carries the same batch stamp, so the first
@@ -4868,6 +5085,8 @@ function commitBatch(analysis, defaults){
     };
     for (const r of analysis){
       if (r.decision === 'skip' || !r.decided){ out.skipped++; continue; }
+      // On file with nothing ticked to update: nothing to write, unless the list itself says something (an event, a sign-up)
+      if (r.decision === 'merge' && r.picks && !r.picks.length && !event && kind !== 'newsletter'){ out.skipped++; continue; }
       const v = r.values;
       const orgId = findOrg(v.organization, r.orgMatch, v);
       const org = orgId != null ? st.organizations.find(o => o.id === orgId) : null;
@@ -4877,42 +5096,57 @@ function commitBatch(analysis, defaults){
       let contact, madeNew = false;
       if (r.decision === 'merge' && r.match){
         contact = st.contacts.find(c => c.id === r.match.id);
-        if (contact){ // incoming fills blanks only; it never overwrites what is on file
+        if (contact){ // only the lines ticked on the check screen; without ticks, incoming fills blanks only
+          const want = k => r.picks ? r.picks.includes(k) : true;
           for (const [k, val] of [['phone', v.phone], ['linkedin_url', v.linkedin_url], ['title', v.title], ['state', v.state], ['city', v.city]])
-            if (!contact[k] && val) contact[k] = val;
-          if (contact.organization_id == null && orgId != null) contact.organization_id = orgId;
-          if (v.notes) contact.notes = (contact.notes ? contact.notes + '\n' : '') + v.notes;
-          if (contact.linkedin_url && !contact.linkedin_key) contact.linkedin_key = Intelligence.linkedinKey(contact.linkedin_url);
-          out.merged++;
+            if (val && want(k) && (r.picks || !contact[k])) contact[k] = val;
+          if (v.email && want('email') && !contact.email){ contact.email = v.email; contact.email_key = v.email; }
+          if (contact.organization_id == null && orgId != null && want('organization')) contact.organization_id = orgId;
+          if (v.notes && want('notes') && !String(contact.notes || '').includes(v.notes)) contact.notes = (contact.notes ? contact.notes + '\n' : '') + v.notes;
+          if (contact.linkedin_url && want('linkedin_url')) contact.linkedin_key = Intelligence.linkedinKey(contact.linkedin_url);
+          out.merged++; r.savedAs = 'updated'; r.savedId = contact.id;
         }
       } else {
         contact = { id: nextId(st.contacts), organization_id: orgId, segment_code: v.segment_code || (org ? org.segment_code : defaults.segment),
           first_name: v.first_name, last_name: v.last_name, full_name: (v.first_name + ' ' + v.last_name).trim(), title: v.title || null,
-          employer: org ? null : (v.organization || null), is_decision_maker: null,
+          employer: org ? null : (v.organization || null),
           email: v.email || null, email_key: v.email || null, email_status: v.outcome_code === 'BOUNCED' ? 'bounced' : 'unverified',
           phone: v.phone || null, linkedin_url: v.linkedin_url || null, linkedin_key: v.linkedin_url || null,
           linkedin_connected_on: v.linkedin_connected_on || null, city: v.city || (org ? org.city : null), state: v.state || (org ? org.state : null),
           prospect_aum: v.aum && v.aum.amount != null && !org ? v.aum.amount : null,
           source_channel_code: v.source_channel_code || defaults.channel, source_detail: v.source_detail || null,
-          source_event_id: null, referred_by_contact_id: null, sourced_on: v.sourced_on || today,
+          source_event_id: event ? event.id : null, referred_by_contact_id: null, sourced_on: v.sourced_on || today,
           is_university_affiliated: false, do_not_contact: false, dnc_reason: null,
           newsletter_status: 'not_subscribed', follow_up_style: 'standard_check_in', owner_id: st.settings.default_owner_id,
           notes: v.notes || null, legacy_ref: 'Import ' + today, import_batch: batch, created_at: now };
         if (Object.keys(r.extras).length){ contact.extra_fields = { ...r.extras }; out.extras += Object.keys(r.extras).length; }
         applyFlagRules(contact, st.flag_rules);
-        st.contacts.push(contact); out.contacts++; madeNew = true;
+        st.contacts.push(contact); out.contacts++; madeNew = true; r.savedAs = 'added'; r.savedId = contact.id;
       }
       if (!contact){ out.skipped++; continue; }
+      if (kind === 'newsletter' && !contact.do_not_contact && contact.newsletter_status !== 'subscribed'){
+        contact.newsletter_status = 'subscribed'; contact.newsletter_added_on = today; contact.newsletter_added_via = 'import'; out.newsletter++; }
+      // Met at an event: the meeting itself is the first activity, and its rule schedules the follow-up
+      const metAtEvent = !!event && !(v.touched_at || v.outcome_code || v.outcome_raw);
+      if (metAtEvent){
+        if (contact.source_event_id == null) contact.source_event_id = event.id;
+        const tp = { id: nextId(st.touchpoints), contact_id: contact.id, organization_id: contact.organization_id, touch_type:'event', direction:'inbound',
+          touched_at: (event.start_on || today) + 'T12:00:00', event_id: event.id, subject: event.name, notes: v.notes || null,
+          outcome_code:'MET_AT_EVENT', outcome_status:'confirmed', owner_id: st.settings.default_owner_id, created_at: now };
+        st.touchpoints.push(tp); out.touchpoints++;
+        const before = st.reminders.length; Rules.applyOutcome(st, tp, () => {}); out.reminders += Math.max(0, st.reminders.length - before);
+      }
 
       // The outreach the row records, and whatever the outcome triggers.
       // A row with no outreach date and no outcome leaves the contact untouched:
       // it waits in the first-outreach queue instead of being marked No response,
       // unless an in-person rule matched, in which case it gets that reminder.
-      if (madeNew && !(v.touched_at || v.outcome_code || v.outcome_raw)){
+      if (madeNew && !metAtEvent && !(v.touched_at || v.outcome_code || v.outcome_raw)){
         if (contact.is_university_affiliated && !contact.do_not_contact){ addInPersonReminder(st, contact); out.in_person++; }
         else out.awaiting_first++;
       }
-      if (v.touched_at || v.outcome_code || v.outcome_raw){
+      const sameDay = !madeNew && (r.picks && r.cmp && r.cmp.some(x => x.key === 'outreach') && !r.picks.includes('outreach') || v.touched_at && st.touchpoints.some(t => t.contact_id === contact.id && String(t.touched_at).slice(0, 10) === v.touched_at));
+      if ((v.touched_at || v.outcome_code || v.outcome_raw) && !sameDay){
         const code = v.outcome_code || 'NO_RESPONSE';
         const type = OUT.get(code)?.applies?.[0] || 'email';
         const tp = { id: nextId(st.touchpoints), contact_id: contact.id, organization_id: contact.organization_id,
@@ -5302,7 +5536,7 @@ const Live = {
       const before = this.shadow[t] || new Map(), now = new Map();
       for (const row of Store.state[t] || []){
         const json = JSON.stringify(row), was = before.get(row.id); now.set(row.id, json);
-        if (was === undefined){ ups.push({ table: t, op: 'insert', id: row.id, row: Object.fromEntries(Object.entries(row).map(([k, v]) => [k, clean(v)])) }); continue; }
+        if (was === undefined){ ups.push({ table: t, op: 'insert', id: row.id, row: Object.fromEntries(Object.entries(row).map(([k, v]) => [k, clean(v)]).filter(([, v]) => v != null)) }); continue; }
         if (was === json) continue;
         const old = JSON.parse(was), patch = {};
         for (const k of Object.keys(row)) if (JSON.stringify(row[k]) !== JSON.stringify(old[k])) patch[k] = clean(row[k]);
