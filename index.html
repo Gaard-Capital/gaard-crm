@@ -17,32 +17,35 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-15.5">
+<meta name="build-version" content="2026-10-15.7">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Montserrat:wght@300;400;500&family=Poppins:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Poppins:wght@400;500;600&display=swap">
 <style>
 /* ============================================================
    DESIGN TOKENS
-   Light, calm, rounded. Deep teal carries the brand; slate and
-   amber carry the charts. Semantic colours are reserved for
+   Light, calm, rounded, in gaard.capital's colours: Gaard blue carries
+   the brand on a navy sidebar, with Poppins for text and Montserrat for
+   headings; blue shades and amber carry the charts. Semantic colours are reserved for
    state (overdue, due, won) and never reused as a series.
    ============================================================ */
 :root{
-  --bg:#F1F5F4; --surface:#FFFFFF; --surface-2:#F7FAF9; --surface-3:#EBF1EF;
-  --line:#E2EAE7; --line-strong:#CBD8D4;
-  --ink:#112019; --ink-2:#47574F; --ink-3:#76867E; --ink-4:#9AA8A1;
-  --accent:#0E7C6B; --accent-strong:#0A6153; --accent-ink:#FFFFFF; --accent-soft:#E2F1ED; --accent-line:#BFE0D8;
+  --bg:#F3F6FB; --surface:#FFFFFF; --surface-2:#F7F9FD; --surface-3:#EBF1F9;
+  --line:#E1E7F0; --line-strong:#C9D3E1;
+  --ink:#0C0C0C; --ink-2:#3F4752; --ink-3:#6B7480; --ink-4:#98A1AD;
+  --accent:#1C6DBD; --accent-strong:#165A9C; --accent-ink:#FFFFFF; --accent-soft:#E7F0FA; --accent-line:#BCD4EE;
+  --navy:#0F1E33;
   --good:#16794F; --good-soft:#E4F3EA;
   --warn:#B4690E; --warn-soft:#FCF1DF;
   --danger:#B3261E; --danger-soft:#FBEAE8;
-  --mark-1:#0E7C6B; --mark-2:#3D5A6C; --mark-3:#C07C16; --mark-4:#7FA8A0; --mark-5:#C3D2CD;
+  --mark-1:#1C6DBD; --mark-2:#5079FF; --mark-3:#C07C16; --mark-4:#8FB3DE; --mark-5:#C9D3E1;
   --radius:8px; --radius-lg:14px; --radius-pill:999px;
   --shadow:0 1px 2px rgba(17,32,25,.05), 0 1px 3px rgba(17,32,25,.04);
   --shadow-lift:0 2px 6px rgba(17,32,25,.07), 0 8px 20px rgba(17,32,25,.05);
-  --font:'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font:'Poppins', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-head:'Montserrat', var(--font);
   --sidebar-w:232px; --topbar-h:64px;
   color-scheme: light;
 }
@@ -57,6 +60,7 @@ body{
 .topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);z-index:20}
 .main{position:fixed;top:var(--topbar-h);left:var(--sidebar-w);right:0;bottom:0;z-index:10}
 h1,h2,h3,h4{margin:0;font-weight:600;text-wrap:balance;letter-spacing:-.01em}
+h1,h2{font-family:var(--font-head)} h1{font-weight:500;letter-spacing:-.015em}
 h1{font-size:26px;letter-spacing:-.02em} h2{font-size:15px} h3{font-size:13.5px}
 p{margin:0}
 a{color:var(--accent);text-underline-offset:2px}
@@ -67,21 +71,24 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mono{font-family:'IBM Plex Mono', ui-monospace, Menlo, monospace;font-size:.94em}
 
 /* ---------- Sidebar ---------- */
-.sidebar{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column}
-.brand{height:var(--topbar-h);display:flex;align-items:center;padding:0 20px;gap:11px;flex:none}
+.sidebar{background:var(--navy);display:flex;flex-direction:column}
+.brand{height:var(--topbar-h);display:flex;align-items:center;padding:0 22px;gap:8px;flex:none}
+.brand-logo{height:36px;width:auto;display:block}
+.brand .brand-sub{color:rgba(255,255,255,.55);align-self:flex-end;margin-bottom:12px}
 .brand-mark{width:32px;height:32px;background:var(--accent);color:#fff;font-weight:600;font-size:14px;display:grid;place-items:center;border-radius:9px;flex:none}
 .brand-name{font-weight:600;font-size:15px;letter-spacing:-.01em;display:block;line-height:1.15}
 .brand-sub{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em;display:block}
 .nav{padding:6px 12px;display:flex;flex-direction:column;gap:1px;overflow-y:auto}
 .nav-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-4);padding:16px 10px 6px;font-weight:500}
-.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;color:var(--ink-2);text-decoration:none;font-weight:500;font-size:13.5px}
-.nav a:hover{background:var(--surface-3);color:var(--ink)}
-.nav a[aria-current="page"]{background:var(--accent-soft);color:var(--accent-strong);font-weight:600}
-.nav a .cnt{margin-left:auto;font-size:11px;background:var(--surface-3);padding:1px 7px;border-radius:var(--radius-pill);color:var(--ink-2);font-weight:600}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;color:rgba(255,255,255,.78);text-decoration:none;font-weight:500;font-size:13.5px}
+.nav a:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav a[aria-current="page"]{background:var(--accent);color:#fff;font-weight:600}
+.nav a .cnt{margin-left:auto;font-size:11px;background:rgba(255,255,255,.14);padding:1px 7px;border-radius:var(--radius-pill);color:#fff;font-weight:600}
 .nav a .cnt.hot{background:var(--danger);color:#fff}
 .nav svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
-.sidebar-foot{margin-top:auto;padding:16px 20px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-3);line-height:1.55;flex:none}
-.sidebar-foot strong{color:var(--ink-2);font-weight:600;display:block}
+.sidebar-foot{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.12);font-size:11px;color:rgba(255,255,255,.6);line-height:1.55;flex:none}
+.sidebar-foot .linkish{color:#8FBFF0}
+.sidebar-foot strong{color:#fff;font-weight:600;display:block}
 
 /* ---------- Top bar ---------- */
 .topbar{background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 28px}
@@ -615,7 +622,7 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 </head>
 <body>
 <aside class="sidebar">
-  <div class="brand"><div class="brand-mark">G</div><div><span class="brand-name">GAARD Capital</span><span class="brand-sub">CRM</span></div></div>
+  <div class="brand"><img class="brand-logo" src="https://gaard.capital/wp-content/uploads/logo-1.png" alt="Gaard Capital LLC"><span class="brand-sub">CRM</span></div>
   <nav class="nav" id="nav" aria-label="Main"></nav>
   <div class="sidebar-foot" id="sidebar-foot"><strong>Prototype on a database snapshot.</strong>Fictional data. Edits stay in this browser.</div>
 </aside>
@@ -4948,18 +4955,18 @@ Views.settings = { title:'Settings',
       </div></section>
       ${who && who.role === 'admin' ? (() => { const team = (Store.state.team_members || []).slice().sort((a, b) => (b.is_active - a.is_active) || String(a.full_name).localeCompare(String(b.full_name)));
         const status = t => !t.is_active ? '<span class="muted">Removed</span>' : t.auth_user_id ? '<span class="pill st-funded">Joined</span>'
-          : `<span class="pill st-upcoming">Invited${t.invited_at ? ' ' + esc(fmtDate(t.invited_at, { month:'short', day:'numeric' })) : ''}</span>`;
-        return `<section class="card col-12" id="team"><div class="card-head"><h2>Team</h2><span class="sub">Who can sign in</span></div><div class="card-body">
+          : `<span class="pill st-upcoming">Added${t.invited_at ? ' ' + esc(fmtDate(t.invited_at, { month:'short', day:'numeric' })) : ''}, not signed in yet</span>`;
+        return `<section class="card col-12" id="team"><div class="card-head"><h2>Team</h2><span class="sub">Who can sign in with Google</span></div><div class="card-body">
         <div class="filters" style="margin-bottom:14px">
           <label class="sr-only" for="tm-name">Name</label><input id="tm-name" type="text" placeholder="Name" style="min-width:180px">
           <label class="sr-only" for="tm-email">Email</label><input id="tm-email" type="email" placeholder="name@gaard.capital" style="min-width:240px">
           <label class="sr-only" for="tm-role">Role</label><select id="tm-role" style="min-width:120px"><option value="member">Member</option><option value="admin">Admin</option></select>
-          <button class="btn btn-primary btn-sm" type="button" id="tm-invite">Invite</button></div>
+          <button class="btn btn-primary btn-sm" type="button" id="tm-invite">Add</button></div>
         <table class="edit"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
         ${team.map(t => `<tr${t.is_active ? '' : ' class="muted"'}><td><b>${esc(t.full_name || '')}</b></td><td>${esc(t.email || '')}</td>
           <td>${t.is_active && t.id !== who.id ? `<select data-tm-role="${t.id}" style="width:auto" aria-label="Role for ${esc(t.full_name || '')}"><option value="member" ${t.access_role !== 'admin' ? 'selected' : ''}>Member</option><option value="admin" ${t.access_role === 'admin' ? 'selected' : ''}>Admin</option></select>` : (t.access_role === 'admin' ? 'Admin' : 'Member')}</td>
           <td>${status(t)}</td>
-          <td style="white-space:nowrap">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-resend="${t.id}">Resend</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-resend="${t.id}">Invite again</button>` : ''}</td></tr>`).join('')}
+          <td style="white-space:nowrap">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-copy="${t.id}">Copy invite</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-restore="${t.id}">Add back</button>` : ''}</td></tr>`).join('')}
         </tbody></table></div></section>`; })() : ''}
       <section class="card col-12" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
         <div class="card-body">
@@ -4979,28 +4986,34 @@ Views.settings = { title:'Settings',
     root.querySelector('#s-pass')?.addEventListener('click', changePassword);
     root.querySelector('#s-out')?.addEventListener('click', () => Live.signOut());
     root.querySelector('#s-in')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
-    /* Team: Invite puts the person on the list and emails them, through the
-       invite-member Edge Function (it holds the key the browser must not). */
-    const invite = async (email, full_name, access_role, btn) => {
-      const label = btn.textContent; btn.disabled = true; btn.textContent = 'Sending...';
-      try {
-        const redirect_to = location.protocol === 'file:' ? 'https://project-qp4en.vercel.app/' : location.origin + location.pathname;
-        const { data, error } = await (await Live.sb()).functions.invoke('invite-member', { body: { email, full_name, access_role, redirect_to } });
-        let msg = data && data.error;
-        if (error && !msg){ try { msg = (await error.context.json()).error; } catch (e) { msg = error.message; } }
-        if (msg) Toast.show(msg, { kind:'warn', ms:10000 });
-        else Toast.show(data && data.status === 'joined' ? email + ' already has an account and can sign in.' : 'Invitation sent to ' + email, { kind:'ok' });
-        await Live.refreshTable('team_members');
-      } catch (e){ Toast.show('Not sent: ' + e.message, { kind:'warn' }); }
-      finally { if (btn.isConnected){ btn.disabled = false; btn.textContent = label; } }
-    };
-    root.querySelector('#tm-invite')?.addEventListener('click', e => {
-      const email = root.querySelector('#tm-email').value.trim(), name = root.querySelector('#tm-name').value.trim();
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return Toast.show('Type the email address to invite.', { kind:'warn' });
-      invite(email, name, root.querySelector('#tm-role').value, e.currentTarget);
+    /* Team: Add puts the person on the list (team_members); nothing is emailed.
+       They sign in with Google using that address, and the database links the
+       account to their row. Copy invite gives Jon a message to send them. */
+    const SITE = 'https://project-qp4en.vercel.app/';
+    const inviteText = t => `Hi ${String(t.full_name || '').split(' ')[0] || 'there'},
+
+You now have access to the Gaard Capital CRM. Open ${SITE} and click "Sign in with Google" using ${t.email}.
+
+The first time, it asks you to set up a 6-digit code with an authenticator app (on an iPhone, the Camera can scan the QR code). After that, sign in the same way any time.`;
+    const copyInvite = async t => { try { await navigator.clipboard.writeText(inviteText(t)); Toast.show('Invite message copied. Paste it into an email or a text to ' + t.email, { kind:'ok', ms:7000 }); }
+      catch (e) { Modal.open({ title:'Invite message', body:`<textarea rows="9" style="width:100%" readonly>${esc(inviteText(t))}</textarea>`, foot:'<button class="btn btn-primary" type="button" data-cancel>Done</button>' }).querySelector('[data-cancel]').onclick = () => Modal.close(); } };
+    root.querySelector('#tm-invite')?.addEventListener('click', () => {
+      const email = root.querySelector('#tm-email').value.trim().toLowerCase(), name = root.querySelector('#tm-name').value.trim(), role = root.querySelector('#tm-role').value;
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return Toast.show('Type the email address to add.', { kind:'warn' });
+      const had = Store.state.team_members.find(x => String(x.email || '').toLowerCase() === email);
+      if (had && had.is_active) return Toast.show(email + ' is already on the team.', { kind:'warn' });
+      const now = new Date().toISOString().slice(0,19);
+      Store.commit('Added to the team', st => {
+        const x = st.team_members.find(y => String(y.email || '').toLowerCase() === email);
+        if (x) Object.assign(x, { is_active: true, access_role: role, invited_at: now, invited_by: Repo.settings().default_owner_id, ...(name ? { full_name: name } : {}) });
+        else st.team_members.push({ id: Math.max(0, ...st.team_members.map(y => y.id)) + 1, full_name: name || email.split('@')[0], email, access_role: role,
+          is_active: true, invited_at: now, invited_by: Repo.settings().default_owner_id, created_at: now });
+      });
+      const t = Store.state.team_members.find(y => String(y.email || '').toLowerCase() === email); if (t) copyInvite(t);
     });
-    root.querySelectorAll('[data-tm-resend]').forEach(b => b.addEventListener('click', () => {
-      const t = Store.state.team_members.find(x => x.id === Number(b.dataset.tmResend)); if (t) invite(t.email, t.full_name, t.access_role || 'member', b); }));
+    root.querySelectorAll('[data-tm-copy]').forEach(b => b.addEventListener('click', () => { const t = Store.state.team_members.find(x => x.id === Number(b.dataset.tmCopy)); if (t) copyInvite(t); }));
+    root.querySelectorAll('[data-tm-restore]').forEach(b => b.addEventListener('click', () => Store.commit('Added back to the team', st => {
+      const x = st.team_members.find(y => y.id === Number(b.dataset.tmRestore)); if (x) x.is_active = true; })));
     root.querySelectorAll('[data-tm-role]').forEach(s => s.addEventListener('change', () => Store.commit('Role changed', st => {
       const t = st.team_members.find(x => x.id === Number(s.dataset.tmRole)); if (t) t.access_role = s.value; })));
     root.querySelectorAll('[data-tm-remove]').forEach(b => b.addEventListener('click', async () => {
@@ -5373,12 +5386,12 @@ const Gate = {
     const note = (this.msg ? `<p class="gate-err" role="alert">${esc(this.msg)}</p>` : '') + (this.ok ? `<p class="gate-ok" role="status">${esc(this.ok)}</p>` : '');
     const field = (id, label, type, extra = '') => `<label class="f"><span>${label}</span><input id="${id}" type="${type}" ${extra} required></label>`;
     const views = {
-      signin: `<h1>Sign in</h1><p>Use the email Jon added to the team list.</p>
+      signin: `<h1>Sign in</h1><p>Use the Google account with the email Jon added to the team.</p>
         <button class="btn gate-google" type="button" id="g-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.2 5.6c4.2-3.9 7.1-9.6 7.1-17z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C.9 16.6 0 20.2 0 24s.9 7.4 2.6 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2.2 1.5-5 2.4-8.7 2.4-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Sign in with Google</button>
         <div class="gate-or"><span>or with email</span></div>
         <form id="g-form">${field('g-email', 'Email', 'email', 'autocomplete="username"')}${field('g-pass', 'Password', 'password', 'autocomplete="current-password"')}
         ${note}<button class="btn btn-primary" type="submit">Sign in</button></form>
-        ${links(link('g-to-signup', 'Create an account'), link('g-to-forgot', 'Forgot your password?'), link('g-demo', 'Use the demo data instead'))}`,
+        ${links(link('g-to-forgot', 'Forgot your password?'), link('g-demo', 'Use the demo data instead'))}`,
       signup: `<h1>Create your account</h1><p>Use the email that is on the Gaard team list. Anyone else can sign up but will see nothing.</p>
         <form id="g-form">${field('g-email', 'Email', 'email', 'autocomplete="username"')}${field('g-pass', 'Password (at least 8 characters)', 'password', 'autocomplete="new-password" minlength="8"')}
         ${note}<button class="btn btn-primary" type="submit">Create account</button></form>${links(link('g-to-signin', 'I already have an account'))}`,
@@ -5517,7 +5530,9 @@ function renderSideFoot(){
   let mode = null; try { mode = localStorage.getItem(MODE_KEY); } catch (e) { /* private window */ }
   const recovering = /type=recovery/.test(location.hash);
   const back = new URLSearchParams(location.hash.replace(/^#/, '') + '&' + location.search.replace(/^\?/, ''));
-  const oauthError = back.get('error_description') || back.get('error');
+  // Supabase encodes the message twice, so it is decoded once more here
+  let oauthError = back.get('error_description') || back.get('error');
+  try { if (oauthError) oauthError = decodeURIComponent(oauthError); } catch (e) { /* already plain */ }
   if (oauthError) history.replaceState(null, '', location.pathname);
   try {
     if (mode === 'demo' && !recovering) return openDemo();
