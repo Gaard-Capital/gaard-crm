@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-15.4">
+<meta name="build-version" content="2026-10-15.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -599,6 +599,11 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 .user-menu a:hover,.user-menu button:hover,.user-menu a:focus-visible,.user-menu button:focus-visible{background:var(--surface-2)}
 .user-menu .danger{color:var(--danger)}
 .gate-card .gate-err{color:var(--danger);font-size:12.5px;margin:0}
+.gate-google{width:100%;justify-content:center;gap:10px;min-height:44px;border-radius:3px;font-family:'Poppins',var(--font);font-weight:500;background:#fff;border:1px solid #d0d4da}
+.gate-google:hover{background:#f6f8fb}
+.gate-google svg{width:18px;height:18px}
+.gate-or{display:flex;align-items:center;gap:10px;color:#8a9099;font-size:12px;margin:14px 0}
+.gate-or::before,.gate-or::after{content:'';flex:1;height:1px;background:#e3e6ea}
 .gate-card .gate-ok{color:var(--good);font-size:12.5px;margin:0}
 .gate-qr{display:grid;place-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:10px;margin:4px 0 10px}
 .gate-qr img{width:180px;height:180px}
@@ -4941,6 +4946,21 @@ Views.settings = { title:'Settings',
         : `<p class="muted">You are looking at the demo data. Nothing here is the live database.</p>
           <div class="page-actions" style="margin-top:12px"><button class="btn btn-sm btn-primary" type="button" id="s-in">Sign in to the live database</button></div>`}
       </div></section>
+      ${who && who.role === 'admin' ? (() => { const team = (Store.state.team_members || []).slice().sort((a, b) => (b.is_active - a.is_active) || String(a.full_name).localeCompare(String(b.full_name)));
+        const status = t => !t.is_active ? '<span class="muted">Removed</span>' : t.auth_user_id ? '<span class="pill st-funded">Joined</span>'
+          : `<span class="pill st-upcoming">Invited${t.invited_at ? ' ' + esc(fmtDate(t.invited_at, { month:'short', day:'numeric' })) : ''}</span>`;
+        return `<section class="card col-12" id="team"><div class="card-head"><h2>Team</h2><span class="sub">Who can sign in</span></div><div class="card-body">
+        <div class="filters" style="margin-bottom:14px">
+          <label class="sr-only" for="tm-name">Name</label><input id="tm-name" type="text" placeholder="Name" style="min-width:180px">
+          <label class="sr-only" for="tm-email">Email</label><input id="tm-email" type="email" placeholder="name@gaard.capital" style="min-width:240px">
+          <label class="sr-only" for="tm-role">Role</label><select id="tm-role" style="min-width:120px"><option value="member">Member</option><option value="admin">Admin</option></select>
+          <button class="btn btn-primary btn-sm" type="button" id="tm-invite">Invite</button></div>
+        <table class="edit"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
+        ${team.map(t => `<tr${t.is_active ? '' : ' class="muted"'}><td><b>${esc(t.full_name || '')}</b></td><td>${esc(t.email || '')}</td>
+          <td>${t.is_active && t.id !== who.id ? `<select data-tm-role="${t.id}" style="width:auto" aria-label="Role for ${esc(t.full_name || '')}"><option value="member" ${t.access_role !== 'admin' ? 'selected' : ''}>Member</option><option value="admin" ${t.access_role === 'admin' ? 'selected' : ''}>Admin</option></select>` : (t.access_role === 'admin' ? 'Admin' : 'Member')}</td>
+          <td>${status(t)}</td>
+          <td style="white-space:nowrap">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-resend="${t.id}">Resend</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-resend="${t.id}">Invite again</button>` : ''}</td></tr>`).join('')}
+        </tbody></table></div></section>`; })() : ''}
       <section class="card col-12" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
         <div class="card-body">
         <table class="edit"><thead><tr><th>Domain</th><th>Rule</th><th>Reason</th><th>On</th><th></th></tr></thead><tbody>
@@ -4959,6 +4979,35 @@ Views.settings = { title:'Settings',
     root.querySelector('#s-pass')?.addEventListener('click', changePassword);
     root.querySelector('#s-out')?.addEventListener('click', () => Live.signOut());
     root.querySelector('#s-in')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
+    /* Team: Invite puts the person on the list and emails them, through the
+       invite-member Edge Function (it holds the key the browser must not). */
+    const invite = async (email, full_name, access_role, btn) => {
+      const label = btn.textContent; btn.disabled = true; btn.textContent = 'Sending...';
+      try {
+        const redirect_to = location.protocol === 'file:' ? 'https://project-qp4en.vercel.app/' : location.origin + location.pathname;
+        const { data, error } = await (await Live.sb()).functions.invoke('invite-member', { body: { email, full_name, access_role, redirect_to } });
+        let msg = data && data.error;
+        if (error && !msg){ try { msg = (await error.context.json()).error; } catch (e) { msg = error.message; } }
+        if (msg) Toast.show(msg, { kind:'warn', ms:10000 });
+        else Toast.show(data && data.status === 'joined' ? email + ' already has an account and can sign in.' : 'Invitation sent to ' + email, { kind:'ok' });
+        await Live.refreshTable('team_members');
+      } catch (e){ Toast.show('Not sent: ' + e.message, { kind:'warn' }); }
+      finally { if (btn.isConnected){ btn.disabled = false; btn.textContent = label; } }
+    };
+    root.querySelector('#tm-invite')?.addEventListener('click', e => {
+      const email = root.querySelector('#tm-email').value.trim(), name = root.querySelector('#tm-name').value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return Toast.show('Type the email address to invite.', { kind:'warn' });
+      invite(email, name, root.querySelector('#tm-role').value, e.currentTarget);
+    });
+    root.querySelectorAll('[data-tm-resend]').forEach(b => b.addEventListener('click', () => {
+      const t = Store.state.team_members.find(x => x.id === Number(b.dataset.tmResend)); if (t) invite(t.email, t.full_name, t.access_role || 'member', b); }));
+    root.querySelectorAll('[data-tm-role]').forEach(s => s.addEventListener('change', () => Store.commit('Role changed', st => {
+      const t = st.team_members.find(x => x.id === Number(s.dataset.tmRole)); if (t) t.access_role = s.value; })));
+    root.querySelectorAll('[data-tm-remove]').forEach(b => b.addEventListener('click', async () => {
+      const t = Store.state.team_members.find(x => x.id === Number(b.dataset.tmRemove)); if (!t) return;
+      if (await Modal.confirm({ title:'Remove ' + (t.full_name || t.email), message:'They can no longer see anything in the CRM. Their past activity stays, with their name on it. You can invite them again later.', okLabel:'Remove', danger:true }))
+        Store.commit('Removed from the team', st => { const x = st.team_members.find(y => y.id === t.id); if (x) x.is_active = false; });
+    }));
     root.querySelector('#fr-add').addEventListener('click', async () => {
       const out = await Modal.form({ title:'Add a domain', okLabel:'Add', fields:[
         { key:'pattern', label:'Email ending', placeholder:'utah.edu, or .edu for every school' },
@@ -5281,6 +5330,9 @@ const Live = {
       if (error){ if (this.OPTIONAL.includes(table)){ this.missing.add(table); return []; } throw new Error(`Reading ${table}: ${error.message}`); }
       out.push(...data); if (data.length < 1000) break; }
     return out; },
+  /** Read one table again (after an Edge Function changed it) without touching the rest. */
+  async refreshTable(t){ const rows = await this.fetchAll(t); Store.state[t] = rows;
+    if (this.shadow) this.shadow[t] = new Map(rows.map(r => [r.id, JSON.stringify(r)])); Store.version++; render(); },
   async load(onStatus){
     const tables = {}; let done = 0;
     await Promise.all(this.TABLES.map(async t => { tables[t] = await this.fetchAll(t);
@@ -5322,6 +5374,8 @@ const Gate = {
     const field = (id, label, type, extra = '') => `<label class="f"><span>${label}</span><input id="${id}" type="${type}" ${extra} required></label>`;
     const views = {
       signin: `<h1>Sign in</h1><p>Use the email Jon added to the team list.</p>
+        <button class="btn gate-google" type="button" id="g-google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.2 5.6c4.2-3.9 7.1-9.6 7.1-17z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C.9 16.6 0 20.2 0 24s.9 7.4 2.6 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2.2 1.5-5 2.4-8.7 2.4-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Sign in with Google</button>
+        <div class="gate-or"><span>or with email</span></div>
         <form id="g-form">${field('g-email', 'Email', 'email', 'autocomplete="username"')}${field('g-pass', 'Password', 'password', 'autocomplete="current-password"')}
         ${note}<button class="btn btn-primary" type="submit">Sign in</button></form>
         ${links(link('g-to-signup', 'Create an account'), link('g-to-forgot', 'Forgot your password?'), link('g-demo', 'Use the demo data instead'))}`,
@@ -5359,6 +5413,12 @@ const Gate = {
     $('g-to-signin')?.addEventListener('click', () => this.show('signin'));
     $('g-to-forgot')?.addEventListener('click', () => this.show('forgot'));
     $('g-demo')?.addEventListener('click', openDemo);
+    $('g-google')?.addEventListener('click', async () => {
+      if (location.protocol === 'file:') return this.show('signin', 'Google sign-in works on the website or on localhost, not from a file opened directly.');
+      const sb = await Live.sb();
+      const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: location.origin + location.pathname } });
+      if (error) this.show('signin', error.message);
+    });
     $('g-out')?.addEventListener('click', () => Live.signOut());
     const form = $('g-form'); if (!form) return;
     (form.querySelector('input') || {}).focus?.();
@@ -5456,6 +5516,9 @@ function renderSideFoot(){
   window.GaardCRM = { Store, Repo, Metrics, Intelligence, Rules, REFERENCE, DB_SNAPSHOT, Live };
   let mode = null; try { mode = localStorage.getItem(MODE_KEY); } catch (e) { /* private window */ }
   const recovering = /type=recovery/.test(location.hash);
+  const back = new URLSearchParams(location.hash.replace(/^#/, '') + '&' + location.search.replace(/^\?/, ''));
+  const oauthError = back.get('error_description') || back.get('error');
+  if (oauthError) history.replaceState(null, '', location.pathname);
   try {
     if (mode === 'demo' && !recovering) return openDemo();
     Gate.show('loading');
@@ -5464,7 +5527,7 @@ function renderSideFoot(){
     const { data: { session } } = await sb.auth.getSession();
     if (recovering) return;
     if (session) return afterSignIn();
-    Gate.show('signin');
+    Gate.show('signin', oauthError ? (/team list|not on/i.test(oauthError) ? oauthError : 'Google sign-in did not finish: ' + oauthError) : '');
   } catch (err){
     console.error(err);
     Gate.show('error', err.message);
