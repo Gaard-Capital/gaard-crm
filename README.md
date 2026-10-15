@@ -82,9 +82,13 @@ freely and reset from Settings.
 
 ## Connecting a real database
 
-The database lives in its own repository, `gaard-crm-db`: the Postgres schema,
-the migrations and the seed data. Connecting it is a change to section 3 only.
-Every read already goes through that one layer, so the screens do not change.
+Everything database-side is under `db/`: the base schema (`db/base/`, or all of it in one file,
+`db/gaard_crm_install.sql`), the numbered changes made since (`db/001_...` onward, run by hand in the
+SQL Editor, in order), two self-rolling-back test files (`db/tests/`, 66 checks), the docs
+(`db/docs/`: database write-up, workbook import playbook, dashboard connection guide) and mock data
+only (`db/mock/`). `db/README.md` has the order of operations for a fresh project.
+
+Never commit client data, uploaded CSVs, the secret key or the database password.
 
 ## What is not connected yet
 
