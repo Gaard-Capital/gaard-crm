@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-16.5">
+<meta name="build-version" content="2026-10-16.11">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -98,14 +98,14 @@ button,input,select,textarea{font:inherit;color:inherit}
 .kv dd.ed textarea{height:auto}
 .rec-sub{font-size:13px;font-weight:600;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .rec-sub .muted{font-weight:400;font-size:12px}
-.save-state{font-size:12px;color:var(--ink-3);white-space:nowrap;margin-left:auto}
+.save-state{font-size:12px;color:var(--ink-3);white-space:nowrap}
 .save-state:empty{display:none}
 .save-state + .user{margin-left:0}
 
 /* ---------- Top bar ---------- */
 .topbar{background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 28px}
 .topbar .crumb{font-weight:600;font-size:15px;white-space:nowrap;letter-spacing:-.01em}
-.search{position:relative;flex:1;max-width:460px;margin-left:auto}
+.search{position:relative;flex:1;max-width:460px;margin-left:0;margin-right:auto}
 .topbar .search input[type=search]{width:100%;height:38px;background:var(--surface-3);border:1px solid transparent;border-radius:var(--radius-pill);color:var(--ink);padding:0 14px 0 38px}
 .topbar .search input[type=search]:focus{background:var(--surface);border-color:var(--accent-line)}
 .topbar .search input::placeholder{color:var(--ink-3)}
@@ -198,6 +198,54 @@ label.f>span{display:flex;justify-content:space-between}
 .kpi.good .kpi-icon{background:var(--good-soft);color:var(--good)}
 .kpi-icon svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .dash-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+/* Events: a dashboard that fits the screen; long lists scroll inside their box */
+.ev-page{display:flex;flex-direction:column;gap:12px;height:calc(100vh - var(--topbar-h) - 80px);min-height:680px}
+.ev-page .page-head{margin-bottom:0}
+.ev-page .fbar-row{margin-bottom:0}
+.ev-seg{display:inline-flex;gap:4px}
+.ev-seg .btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.ev-tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;flex:none}
+.ev-tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:12px 16px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.ev-tile .lbl{font-size:12px;color:var(--ink-3);font-weight:500}
+.ev-tile .val{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.15;color:var(--ink)}
+.ev-tile.good .val{color:var(--good)}
+.ev-tile .sub{font-size:11.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-mid{display:grid;grid-template-columns:5fr 3fr 4fr;gap:12px;flex:0 0 256px;min-height:0}
+.ev-bottom{display:grid;grid-template-columns:7fr 5fr;gap:12px;flex:1 1 auto;min-height:240px}
+.ev-box{display:flex;flex-direction:column;min-height:0;margin:0;overflow:hidden}
+.ev-box .card-head{flex:none;padding-top:12px;padding-bottom:10px}
+.ev-box .legend{margin:0 0 0 auto}
+.ev-box .card-head h2{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev-box .card-head .sub{flex:none;white-space:nowrap}
+.ev-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:4px 16px 10px}
+.ev-scroll table.grid{box-shadow:none}
+#ev-list{padding:0}
+table.ev-list thead th{position:sticky;top:0;z-index:1}
+table.ev-list tr.is-sel td{background:var(--accent-soft)}
+table.ev-list td .sub{display:block;font-size:11.5px;color:var(--ink-3);margin-top:2px}
+.ev-fmtwrap{display:flex;gap:14px;align-items:center;padding-top:6px}
+.ev-donut{width:118px;height:118px;flex:none}
+.ev-donut .big{font-size:21px;font-weight:600;fill:var(--ink)} .ev-donut .small{font-size:10px;fill:var(--ink-3)}
+.ev-fmt{display:flex;gap:9px;margin-bottom:10px;font-size:12px;line-height:1.45}
+.ev-fmt i{width:10px;height:10px;border-radius:3px;margin-top:4px;flex:none}
+.ev-fmt span{display:block;color:var(--ink-3)}
+table.ev-vs{box-shadow:none;font-size:12.5px}
+table.grid.ev-vs td,table.grid.ev-vs th{padding-top:9px;padding-bottom:9px}
+table.ev-list{table-layout:fixed;min-width:0}
+table.ev-list th:first-child{width:auto} table.ev-list th:nth-child(2){width:112px} table.ev-list th.num{width:62px} table.ev-list th:nth-child(6),table.ev-list th:nth-child(7){width:70px}
+table.grid.ev-list td{white-space:normal !important;overflow:visible;text-overflow:clip;max-width:none;vertical-align:top}
+table.ev-list td b{display:block}
+.ev-vsbox{overflow:visible} .ev-vsbox .card-head{gap:8px;justify-content:flex-start}
+.ev-vsbox .info-panel{left:auto;right:-8px;width:min(380px, calc(100vw - 32px))}
+.ev-vsbox .info-card p{font-size:12.5px;line-height:1.55;margin:0 0 8px}
+.ev-people{list-style:none;margin:0;padding:4px 16px 12px;overflow:auto;flex:1 1 auto;min-height:0}
+.ev-people li{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.ev-people li > a{grid-column:1}
+.ev-people li > .muted{grid-column:1;font-size:12px}
+.ev-people .ev-out{grid-column:2;grid-row:1 / span 2;align-self:center}
+.ev-people .ev-chips{grid-column:1 / span 2;display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.ev-people .ev-chips .tag{text-decoration:none}
+@media (max-width:1180px){ .ev-tiles{grid-template-columns:repeat(3,minmax(0,1fr))} .ev-mid{grid-template-columns:1fr 1fr;flex-basis:auto} .ev-mid > :first-child{grid-column:span 2} .ev-page{height:auto} }
 .col-3{grid-column:span 3} .col-4{grid-column:span 4} .col-5{grid-column:span 5} .col-6{grid-column:span 6}
 .col-7{grid-column:span 7} .col-8{grid-column:span 8} .col-12{grid-column:span 12}
 
@@ -694,7 +742,6 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
   <nav class="nav" id="nav" aria-label="Main"></nav>
 </aside>
 <header class="topbar">
-  <div class="crumb" id="crumb">Dashboard</div>
   <div class="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
     <label for="global-search" class="sr-only">Search contacts, organizations, and emails</label>
@@ -3184,8 +3231,14 @@ Views.kpis = { title:'KPIs',
             <td class="num">${fmtUSD(x.event.cost_usd)}</td><td class="num">${fmtInt(x.people_met)}</td><td class="num">${fmtInt(x.calls)}</td>
             <td class="num">${x.cost_per_call != null ? fmtUSD(x.cost_per_call) : '-'}</td></tr>`).join('')
             : `<tr><td colspan="5">${emptyState('No event results in this period')}</td></tr>`}</tbody></table></div>
-          <a class="btn btn-sm" style="margin-top:12px" href="${href('events')}">All events and RFPs</a></section>
+          <a class="btn btn-sm" style="margin-top:12px" href="${href('events')}">All events</a></section>
       </div>
+      ${(() => { const camps = Metrics.campaigns(f); return camps.length ? `<section style="margin-top:16px"><h3 style="margin-bottom:12px">Campaigns <span class="muted" style="font-weight:400;font-size:12px">Cold email and cold call pushes</span></h3>
+        <div class="table-wrap auto" style="box-shadow:none;border:1px solid var(--line)"><table class="grid"><thead><tr><th>Campaign</th><th>Channel</th><th class="num">Touches</th><th class="num">People</th><th class="num">Connects</th><th class="num">Connect rate</th><th class="num">Calls</th><th class="num">Funded</th></tr></thead><tbody>
+        ${camps.map(r => `<tr class="row-link" data-href="${href('touchpoints',{campaign:r.campaign.id})}"><td>${esc(r.campaign.name)}<span class="sub">${fmtDate(r.campaign.start_on)}</span></td>
+          <td>${esc(chName(r.campaign.channel_code))}</td><td class="num">${fmtInt(r.touches)}</td><td class="num">${fmtInt(r.people)}</td>
+          <td class="num">${fmtInt(r.connects)}</td><td class="num">${fmtPct(r.connect_rate)}</td><td class="num">${fmtInt(r.calls)}</td><td class="num">${fmtInt(r.funded)}</td></tr>`).join('')}
+        </tbody></table></div></section>` : ''; })()}
       <p class="muted small" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
         <b>How these are counted.</b> A lead is one contact that has been reached out to or has an opportunity. Response rate is leads with a reply that the outcome table counts as a response, divided by leads. A call is booked when an outcome opens an opportunity. Each lead is counted once under the channel it came in through, and people met at an event are counted once per event. Funded AUM is the sum on opportunities at the funded stage; onboarding is counted separately.</p>
       </div></details>`;
@@ -4583,87 +4636,129 @@ Views.organization = { title:'Organization',
 
 /* ===== Events, campaigns and RFPs ==================================== */
 Views.events = { title:'Events',
-  /* The question this page answers: is standing at an event worth more than
-     sending the emails. Everything here is counted from the same touchpoints,
-     so the two are measured the same way. */
-  render(){
-    const f = UI.filters, rows = Metrics.events(f);
-    const past = rows.filter(r => !r.upcoming), upcoming = rows.filter(r => r.upcoming);
-    const inPerson = past.filter(r => r.event.format === 'in_person'), virtual = past.filter(r => r.event.format === 'virtual');
-    const agg = list => ({ n:list.length, cost:sum(list, r => r.event.cost_usd), met:sum(list, r => r.people_met), calls:sum(list, r => r.calls),
-      funded:sum(list, r => r.funded), aum:sum(list, r => r.funded_aum) });
-    const a1 = agg(inPerson), a2 = agg(virtual), all = agg(past);
-    const cmp = (label, a) => `<tr><td>${esc(label)}</td><td class="num">${a.n}</td><td class="num">${fmtUSD(a.cost)}</td><td class="num">${fmtInt(a.met)}</td><td class="num">${fmtInt(a.calls)}</td><td class="num">${fmtInt(a.funded)}</td><td class="num">${fmtUSD(a.aum)||'-'}</td><td class="num">${a.met ? fmtUSD(a.cost/a.met) : '-'}</td><td class="num">${a.calls ? fmtUSD(a.cost/a.calls) : '-'}</td></tr>`;
-    const camps = Metrics.campaigns(f);
+  /* One screen, read like a dashboard: the totals across the top, then where
+     the people came from, in person against virtual, events against cold
+     email, and at the bottom every event beside the people met at it. Search a
+     name to see every event that person was met at. Everything is counted from
+     the same touchpoints as the rest of the application. */
+  render(params){
+    const st = UI.events || (UI.events = { q:'', format:'All' });
+    const f = UI.filters, fmt = st.format;
+    const all = Metrics.events(f).filter(r => fmt === 'All' || r.event.format === fmt);
+    const past = all.filter(r => !r.upcoming);
+    const tot = { n: past.length, cost: sum(past, r => r.event.cost_usd), met: sum(past, r => r.people_met), calls: sum(past, r => r.calls),
+      funded: sum(past, r => r.funded), aum: sum(past, r => r.funded_aum) };
+    const inP = past.filter(r => r.event.format === 'in_person'), virt = past.filter(r => r.event.format !== 'in_person');
+    const metIn = sum(inP, r => r.people_met), metV = sum(virt, r => r.people_met);
+    const byCh = Metrics.byChannel(f), email = byCh.find(x => x.key === 'COLD_EMAIL') || {}, evch = byCh.find(x => x.key === 'EVENT') || {};
 
-    /* Events against email, side by side. */
-    const fee = Repo.settings().assumed_fee_rate;
-    const byCh = Metrics.byChannel(f);
-    const email = byCh.find(x => x.key === 'COLD_EMAIL') || {}, evch = byCh.find(x => x.key === 'EVENT') || {};
-    const spend = all.cost;
-    const side = (label, a, b2) => `<tr><td>${esc(label)}</td><td class="num">${a}</td><td class="num">${b2}</td></tr>`;
-    const rev = aum => fmtUSD((aum || 0) * fee);
-    const better = (evch.lead_to_call_rate || 0) >= (email.lead_to_call_rate || 0);
-    const verdict = `Events turn <b>${fmtPct(evch.lead_to_call_rate || 0)}</b> of their leads into a booked call. Cold email turns <b>${fmtPct(email.lead_to_call_rate || 0)}</b> of its own into one, from <b>${fmtInt(email.leads || 0)}</b> leads against <b>${fmtInt(evch.leads || 0)}</b>.
-      ${better ? 'Per lead, the room converts better.' : 'Per lead, the email list converts better.'}
-      Events cost <b>${spend && all.calls ? fmtUSD(spend / all.calls) : 'nothing recorded'}</b> a call and <b>${spend && all.funded ? fmtUSD(spend / all.funded) : 'nothing recorded'}</b> a funded client.
-      Email records no spend at all, so the honest comparison is money against time: ${fmtInt(email.attempts || 0)} emails sent by hand.`;
+    /* Who was met where: touches logged at the event, and people whose record says they came from it. */
+    const peopleAt = id => uniq([...Repo.events.people(id), ...Repo.events.sourced(id).map(c => c.id)]);
+    const eventsOf = new Map();
+    for (const r of all) for (const cid of peopleAt(r.event.id)) { if (!eventsOf.has(cid)) eventsOf.set(cid, []); eventsOf.get(cid).push(r.event.id); }
+    const q = st.q.trim().toLowerCase();
+    const personHits = q ? [...eventsOf.keys()].map(id => Repo.contacts.byId(id)).filter(c => c && [c.full_name, c.email, orgNameOf(c)].some(v => String(v || '').toLowerCase().includes(q))) : [];
+    const hitEvents = new Set(personHits.flatMap(c => eventsOf.get(c.id)));
+    const rows = q ? all.filter(r => r.event.name.toLowerCase().includes(q) || hitEvents.has(r.event.id)) : all;
+    const selId = Number(params && params.ev) || (rows.find(r => !r.upcoming) || rows[0] || {}).event?.id;
+    const sel = all.find(r => r.event.id === selId) || null;
 
-    return `<div class="page-head"><div><h1>Events</h1><p>What each event cost and what came out of it, measured against the cold email that costs nothing but time.</p></div><div class="page-actions">${demoTag}<a class="btn" href="${href('rfps')}">RFP tracker</a></div></div>
-    ${filterBar({ compact:true })}
+    const tile = (label, value, sub, tone) => `<div class="ev-tile ${tone || ''}"><span class="lbl">${esc(label)}</span><span class="val">${value}</span><span class="sub">${sub || '&nbsp;'}</span></div>`;
+    const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+    const donut = (() => { const total = metIn + metV, r = 46, c = 2 * Math.PI * r, a = total ? metIn / total : 0;
+      return `<svg viewBox="0 0 120 120" class="ev-donut" role="img" aria-label="People met in person against virtual">
+        <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--mark-4)" stroke-width="16"/>
+        <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--navy)" stroke-width="16" stroke-dasharray="${(a * c).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 60 60)"/>
+        <text x="60" y="58" text-anchor="middle" class="big">${total ? pct(metIn, total) + '%' : '-'}</text><text x="60" y="76" text-anchor="middle" class="small">met in person</text></svg>`; })();
+    const fmtLine = (label, list, met, color) => { const cost = sum(list, r => r.event.cost_usd), calls = sum(list, r => r.calls);
+      return `<div class="ev-fmt"><i style="background:${color}"></i><div><b>${esc(label)}</b><span>${fmtInt(list.length)} event${list.length === 1 ? '' : 's'} · ${fmtInt(met)} met · ${fmtInt(calls)} call${calls === 1 ? '' : 's'}</span>
+        <span>${calls && cost ? fmtUSD(cost / calls) + ' a call' : cost ? fmtUSD(cost) + ' spent, no calls yet' : 'No cost recorded'}</span></div></div>`; };
+    const vs = (label, a, b, note) => `<tr><td>${esc(label)}</td><td class="num"><b>${a}</b></td><td class="num">${b}</td></tr>`;
 
-    <div class="dash-grid" style="margin-bottom:14px">
-      <section class="card col-6"><div class="card-head"><h2>Events against email</h2><span class="sub">Same filters, same counting</span></div>
-        <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>&nbsp;</th><th class="num">Events</th><th class="num">Cold email</th></tr></thead><tbody>
-        ${side('Leads it brought in', fmtInt(evch.leads || 0), fmtInt(email.leads || 0))}
-        ${side('Replied', fmtInt(evch.responded || 0), fmtInt(email.responded || 0))}
-        ${side('Calls booked', fmtInt(evch.calls || 0), fmtInt(email.calls || 0))}
-        ${side('Lead to call', fmtPct(evch.lead_to_call_rate || 0), fmtPct(email.lead_to_call_rate || 0))}
-        ${side('Funded clients', fmtInt(evch.funded || 0), fmtInt(email.funded || 0))}
-        ${side('Funded AUM', fmtUSD(evch.funded_aum) || '-', fmtUSD(email.funded_aum) || '-')}
-        ${side('Est. annual revenue', rev(evch.funded_aum), rev(email.funded_aum))}
-        ${side('Money spent', fmtUSD(spend) || '$0', '<span class="muted">none recorded</span>')}
-        ${side('Cost per call', spend && all.calls ? fmtUSD(spend / all.calls) : '-', '<span class="muted">time only</span>')}
-        ${side('Cost per funded client', spend && all.funded ? fmtUSD(spend / all.funded) : '-', '<span class="muted">time only</span>')}
-        ${side('Return on the spend', spend ? ((evch.funded_aum || 0) * fee / spend).toFixed(2) + 'x a year' : '-', '<span class="muted">-</span>')}
-        </tbody></table></div>
-        <div class="card-foot" style="color:var(--ink-2);line-height:1.55">${verdict}</div></section>
+    /* The people met at the chosen event, or the people matching the search. */
+    const personLine = (c, extra) => { const o = orgNameOf(c);
+      return `<li><a href="${href('contacts/' + c.id)}"><b>${esc(c.full_name)}</b></a><span class="muted">${esc([c.title, o].filter(Boolean).join(', '))}</span>${extra || ''}</li>`; };
+    const panel = q && personHits.length
+      ? `<div class="card-head"><h2>Found ${fmtInt(personHits.length)} ${personHits.length === 1 ? 'person' : 'people'}</h2><span class="sub">and the events they were met at</span></div>
+         <ul class="ev-people" id="ev-people">${personHits.slice(0, 60).map(c => personLine(c, `<span class="ev-chips">${eventsOf.get(c.id).map(id => { const e = Repo.events.byId(id);
+           return `<a class="tag" href="${href('events', { ev: id })}" data-ev="${id}">${esc(e.name)}${e.start_on ? ' · ' + esc(fmtDate(e.start_on, { month:'short', year:'numeric' })) : ''}</a>`; }).join('')}</span>`)).join('')}</ul>`
+      : sel ? (() => { const ids = peopleAt(sel.event.id), list = ids.map(id => Repo.contacts.byId(id)).filter(Boolean).sort((a, b) => a.full_name.localeCompare(b.full_name));
+          const atEvent = id => Store.state.touchpoints.filter(t => t.event_id === sel.event.id && t.contact_id === id).sort((a, b) => String(b.touched_at).localeCompare(String(a.touched_at)))[0];
+          return `<div class="card-head"><h2>Met at ${esc(sel.event.name)}</h2><span class="sub">${fmtInt(list.length)} ${list.length === 1 ? 'person' : 'people'}</span></div>
+            ${list.length ? `<ul class="ev-people" id="ev-people">${list.map(c => { const t = atEvent(c.id);
+              return personLine(c, `<span class="ev-out">${t && t.outcome_code ? outcomePill(t.outcome_code) : c.source_event_id === sel.event.id ? '<span class="tag">Added from this event</span>' : ''}</span>`); }).join('')}</ul>`
+              : `<div class="card-body">${emptyState(sel.upcoming ? 'Not held yet' : 'Nobody logged at this event', sel.upcoming ? 'People met here will show once they are logged.' : 'Log a Met at event activity on a contact, or import the list with "People met at an event".')}</div>`}`; })()
+      : `<div class="card-body">${emptyState(q ? 'Nobody found' : 'No events in this filter')}</div>`;
 
-      <section class="card col-6"><div class="card-head"><h2>People met per event</h2></div><div class="card-body">
-        ${hbar({ rows: past, value: r => r.people_met, label: r => r.event.name.replace(/\s*20\d\d$/,'').slice(0,26), format: fmtInt,
-          colorFn: r => r.event.format === 'virtual' ? 'var(--accent)' : 'var(--mark-1)', goFn: r => href('touchpoints',{event:r.event.id}),
-          tipFn: r => `<b>${esc(r.event.name)}</b>${fmtInt(r.people_met)} met, ${fmtInt(r.calls)} calls, ${fmtInt(r.funded)} funded<br>Cost ${fmtUSD(r.event.cost_usd)}` })}
-        ${legend([{name:'In person',color:'var(--mark-1)'},{name:'Virtual',color:'var(--accent)'}])}</div></section>
+    return `<div class="ev-page">
+    <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}</div></div>
+    ${filterBar({ compact:true,
+      // The format is one pick like the other filters: All formats, In person or Virtual
+      extra: (() => { const FM = [['All','All formats'], ['in_person','In person'], ['virtual','Virtual']], cur = FM.find(([v]) => v === fmt) || FM[0];
+        return `<div class="multi pick"><button class="btn" type="button" id="ev-fmt-btn" aria-haspopup="true" aria-expanded="${!!(UI.openPick === 'evfmt')}" title="Format">${cur[1]}<span class="caret">${(UI.openPick === 'evfmt') ? '&#9652;' : '&#9662;'}</span></button>
+          ${(UI.openPick === 'evfmt') ? `<div class="multi-menu" role="menu" aria-label="Format">${FM.map(([v, l]) => `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${v === fmt}" data-evfmt="${v}">${l}</button>`).join('')}</div>` : ''}</div>`; })(),
+      search: `<label class="sr-only" for="ev-q">Find a person or an event</label><input type="search" id="ev-q" placeholder="Find a person or an event" value="${esc(st.q)}">` })}
+
+    <div class="ev-tiles">
+      ${tile('Events held', fmtInt(tot.n), all.length - past.length ? fmtInt(all.length - past.length) + ' coming up' : 'none coming up')}
+      ${tile('People met', fmtInt(tot.met), tot.n ? fmtInt(Math.round(tot.met / tot.n)) + ' an event' : '')}
+      ${tile('Calls booked', fmtInt(tot.calls), tot.met ? pct(tot.calls, tot.met) + '% of people met' : '')}
+      ${tile('Funded clients', fmtInt(tot.funded), fmtUSD(tot.aum) ? fmtUSD(tot.aum) + ' AUM' : 'no AUM yet', tot.funded ? 'good' : '')}
+      ${tile('Money spent', fmtUSD(tot.cost) || '$0', tot.met && tot.cost ? fmtUSD(tot.cost / tot.met) + ' a person' : '')}
+      ${tile('Cost per call', tot.calls && tot.cost ? fmtUSD(tot.cost / tot.calls) : '-', tot.funded && tot.cost ? fmtUSD(tot.cost / tot.funded) + ' a funded client' : 'no funded client yet')}
     </div>
 
-    <section class="card" style="margin-bottom:14px"><div class="card-head"><h2>In person against virtual</h2><span class="sub">Past events</span></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Format</th><th class="num">Events</th><th class="num">Cost</th><th class="num">People met</th><th class="num">Calls booked</th><th class="num">Funded</th><th class="num">Funded AUM</th><th class="num">Cost per person</th><th class="num">Cost per call</th></tr></thead>
-      <tbody>${cmp('In person', a1)}${cmp('Virtual', a2)}</tbody>
-      <tfoot>${cmp('All past events', all)}</tfoot></table></div></section>
+    <div class="ev-mid">
+      <section class="card ev-box"><div class="card-head"><h2>People met per event</h2>${legend([{ name:'In person', color:'var(--navy)' }, { name:'Virtual', color:'var(--mark-4)' }])}</div>
+        <div class="ev-scroll" id="ev-bars">${hbar({ rows: past, value: r => r.people_met, label: r => r.event.name.replace(/\s*20\d\d$/, '').slice(0, 24), format: fmtInt, height: 24, gap: 6,
+          colorFn: r => r.event.format === 'virtual' ? 'var(--mark-4)' : 'var(--navy)', goFn: r => r.event.id,
+          tipFn: r => `<b>${esc(r.event.name)}</b>${fmtInt(r.people_met)} met, ${fmtInt(r.calls)} calls, ${fmtInt(r.funded)} funded<br>Cost ${fmtUSD(r.event.cost_usd) || '$0'}` }).replace(/data-go="/g, 'data-ev="')}</div></section>
+      <section class="card ev-box"><div class="card-head"><h2>In person against virtual</h2></div>
+        <div class="card-body ev-fmtwrap">${donut}<div>${fmtLine('In person', inP, metIn, 'var(--navy)')}${fmtLine('Virtual', virt, metV, 'var(--mark-4)')}</div></div></section>
+      <section class="card ev-box ev-vsbox"><div class="card-head"><h2>Events against cold email</h2>
+          <div class="info-pop"><button class="info-btn" type="button" aria-label="What this compares" aria-describedby="ev-vs-info">i</button>
+            <div class="info-panel" role="tooltip" id="ev-vs-info"><div class="info-card"><h3>What this compares</h3>
+              <p>The people who came in through an event against the people who came in through cold email, counted the same way and under the same filters.</p>
+              <p><b>Lead to call</b> is the share of those people who booked a call. ${(evch.lead_to_call_rate || 0) >= (email.lead_to_call_rate || 0) ? '<b>Here events do better</b>: per lead, the room turns more people into a call.' : '<b>Here cold email does better</b>: per lead, the email list turns more people into a call.'}</p>
+              <p class="foot-note">Events cost money (the Money spent and Cost per call boxes above). Cold email records no spend, only time: ${fmtInt(email.attempts || 0)} emails sent by hand.</p></div></div></div></div>
+        <div class="ev-scroll" style="padding:0"><table class="grid ev-vs"><thead><tr><th></th><th class="num">Events</th><th class="num">Cold email</th></tr></thead><tbody>
+          ${vs('Leads', fmtInt(evch.leads || 0), fmtInt(email.leads || 0))}
+          ${vs('Lead to call', fmtPct(evch.lead_to_call_rate || 0), fmtPct(email.lead_to_call_rate || 0))}
+          ${vs('Funded clients', fmtInt(evch.funded || 0), fmtInt(email.funded || 0))}
+          ${vs('Funded AUM', fmtUSD(evch.funded_aum) || '-', fmtUSD(email.funded_aum) || '-')}
+        </tbody></table></div></section>
+    </div>
 
-    ${upcoming.length ? `<section class="card" style="margin-bottom:14px"><div class="card-head"><h2>Coming up</h2><span class="sub">${upcoming.length}</span></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Event</th><th>Format</th><th>Date</th><th>Where</th><th class="num">Cost</th><th class="num">Expected attendees</th></tr></thead>
-      <tbody>${upcoming.map(r => `<tr><td>${esc(r.event.name)}<span class="sub">${esc(r.event.notes||'')}</span></td><td>${esc(r.event.format === 'in_person' ? 'In person' : 'Virtual')}</td>
-        <td>${fmtDate(r.event.start_on)} <span class="muted">${relDays(r.event.start_on)}</span></td><td>${esc([r.event.city,r.event.state].filter(Boolean).join(', '))}</td>
-        <td class="num">${fmtUSD(r.event.cost_usd)}</td><td class="num">${r.event.attendees_est ? fmtInt(r.event.attendees_est) : '-'}</td></tr>`).join('')}</tbody></table></div></section>` : ''}
-
-    <section class="card" style="margin-bottom:14px"><div class="card-head"><h2>Every event</h2><span class="sub">Return uses the fee rate in Settings</span></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0 0 6px 6px"><table class="grid"><thead><tr><th>Event</th><th>Type</th><th>Format</th><th>Date</th><th>State</th><th class="num">Cost</th><th class="num">People met</th><th class="num">Meetings at event</th><th class="num">New contacts</th><th class="num">Calls</th><th class="num">Funded</th><th class="num">Funded AUM</th><th class="num">Per person</th><th class="num">Per call</th></tr></thead><tbody>
-      ${rows.map(r => `<tr class="row-link" data-href="${href('touchpoints',{event:r.event.id})}"><td>${esc(r.event.name)}${r.event.hosted_by_us ? ' <span class="tag">Hosted</span>' : ''}<span class="sub">${esc(r.event.host_org||'')}</span></td>
-        <td>${esc(r.event.event_type||'')}</td><td>${esc(r.event.format === 'in_person' ? 'In person' : 'Virtual')}</td><td>${fmtDate(r.event.start_on)}</td><td>${esc(r.event.state||'')}</td>
-        <td class="num">${fmtUSD(r.event.cost_usd)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.people_met)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.meetings_at_event)}</td>
-        <td class="num">${r.upcoming ? '' : fmtInt(r.new_contacts)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.calls)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.funded)}</td>
-        <td class="num">${r.upcoming ? '' : (fmtUSD(r.funded_aum)||'-')}</td><td class="num">${r.cost_per_person != null ? fmtUSD(r.cost_per_person) : '-'}</td><td class="num">${r.cost_per_call != null ? fmtUSD(r.cost_per_call) : '-'}</td></tr>`).join('')}
-      </tbody></table></div></section>
-
-    <section class="card"><div class="card-head"><h2>Campaigns</h2><span class="sub">Cold email and cold call pushes</span></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Campaign</th><th>Channel</th><th class="num">Touches</th><th class="num">People</th><th class="num">Connects</th><th class="num">Connect rate</th><th class="num">Calls</th><th class="num">Funded</th></tr></thead><tbody>
-      ${camps.map(r => `<tr class="row-link" data-href="${href('touchpoints',{campaign:r.campaign.id})}"><td>${esc(r.campaign.name)}<span class="sub">${fmtDate(r.campaign.start_on)}</span></td>
-        <td>${esc(chName(r.campaign.channel_code))}</td><td class="num">${fmtInt(r.touches)}</td><td class="num">${fmtInt(r.people)}</td>
-        <td class="num">${fmtInt(r.connects)}</td><td class="num">${fmtPct(r.connect_rate)}</td><td class="num">${fmtInt(r.calls)}</td><td class="num">${fmtInt(r.funded)}</td></tr>`).join('')}
-      </tbody></table></div></section>`;
+    <div class="ev-bottom">
+      <section class="card ev-box"><div class="card-head"><h2>${q ? 'Events matching "' + esc(st.q.trim()) + '"' : 'Every event'}</h2><span class="sub">${fmtInt(rows.length)}</span></div>
+        <div class="ev-scroll" id="ev-list"><table class="grid ev-list"><thead><tr><th>Event</th><th>Date</th><th class="num">Met</th><th class="num">Calls</th><th class="num">Funded</th><th class="num">Cost</th><th class="num">Per call</th></tr></thead><tbody>
+        ${rows.map(r => `<tr class="row-link ${sel && sel.event.id === r.event.id ? 'is-sel' : ''}" data-ev="${r.event.id}">
+          <td><b>${esc(r.event.name)}</b><span class="sub">${esc([r.event.format === 'in_person' ? 'In person' : 'Virtual', r.event.event_type, [r.event.city, r.event.state].filter(Boolean).join(', ')].filter(Boolean).join(' · '))}${r.event.hosted_by_us ? ' · hosted by us' : ''}</span></td>
+          <td>${fmtDate(r.event.start_on)}${r.upcoming ? ' <span class="pill st-upcoming">Coming up</span>' : ''}</td>
+          <td class="num">${r.upcoming ? '' : fmtInt(r.people_met)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.calls)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.funded)}</td>
+          <td class="num">${fmtUSD(r.event.cost_usd) || '-'}</td><td class="num">${r.cost_per_call != null ? fmtUSD(r.cost_per_call) : '-'}</td></tr>`).join('') || `<tr><td colspan="7">${emptyState(q ? 'No event matches' : 'No events in this filter')}</td></tr>`}
+        </tbody></table></div></section>
+      <section class="card ev-box ev-panel">${panel}</section>
+    </div>
+    </div>`;
   },
-  mount(root){ bindRowNav(root); bindGo(root); bindTips(root); bindFilters(root, render); }
+  mount(root){
+    const st = UI.events;
+    bindRowNav(root); bindGo(root); bindTips(root); bindFilters(root, render);
+    root.querySelector('#ev-fmt-btn')?.addEventListener('click', e => { e.stopPropagation(); UI.openPick = UI.openPick === 'evfmt' ? null : 'evfmt'; UI.openState = false; render(); });
+    root.querySelectorAll('[data-evfmt]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); st.format = b.dataset.evfmt; UI.openPick = null; render(); }));
+    root.querySelector('#ev-q')?.addEventListener('input', debounce(e => { st.q = e.target.value; render(); }, 220));
+    /* Choosing an event redraws the page where it is: the address changes
+       without a page change, so nothing jumps back to the top. An event chosen
+       from a search result also clears the search, to show that event's people. */
+    const pick = (id, clearSearch) => { if (clearSearch) st.q = '';
+      Router.current.params = { ...Router.current.params, ev: String(id) };
+      history.replaceState(null, '', href('events', { ev: id })); render(); };
+    root.querySelectorAll('[data-ev]').forEach(el => {
+      el.addEventListener('click', e => { if (e.target.closest('a') && !e.target.closest('[data-ev]')) return; e.preventDefault(); e.stopPropagation(); pick(el.dataset.ev, !!el.closest('.ev-chips')); });
+      el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); pick(el.dataset.ev, !!el.closest('.ev-chips')); } });
+    });
+  }
 };
 
 /* ===== RFPs ========================================================== */
@@ -4675,7 +4770,7 @@ Views.rfps = { title:'RFPs',
     const decided = won.length + lost.length;
     const open = rfps.filter(r => r.rfp.status !== 'won' && r.rfp.status !== 'lost');
     const pot = sum(open, r => r.rfp.est_mandate_aum);
-    return `<div class="page-head"><div><h1>RFPs</h1><p>Every request for proposal on file, what it is worth and where it stands. A finalist presentation opens an opportunity like any other outcome.</p></div><div class="page-actions">${demoTag}<a class="btn" href="${href('events')}">Events</a></div></div>
+    return `<div class="page-head"><div><h1>RFPs</h1><p>Every request for proposal on file, what it is worth and where it stands. A finalist presentation opens an opportunity like any other outcome.</p></div><div class="page-actions">${demoTag}</div></div>
     <div class="kpis">
       <div class="kpi"><div class="kpi-head"><span class="lbl"><span class="kpi-icon">${ICONS.box}</span>On file</span><span class="row"><span class="val">${fmtInt(rfps.length)}</span></span></div><div class="kpi-body">${fmtInt(open.length)} still open</div></div>
       <div class="kpi"><div class="kpi-head"><span class="lbl"><span class="kpi-icon">${ICONS.dollar}</span>Open mandate value</span><span class="row"><span class="val">${fmtUSD(pot)||'-'}</span></span></div><div class="kpi-body">Estimated, as stated in the RFP</div></div>
@@ -5532,7 +5627,7 @@ function render(){
   const y = main.scrollTop;
   /* Tables scroll inside their own container, so the page offset alone is not
      enough: remember each one and put it back after the rebuild. */
-  const innerScroll = [...main.querySelectorAll('.table-wrap')].map(el => ({ top: el.scrollTop, left: el.scrollLeft }));
+  const innerScroll = [...main.querySelectorAll('.table-wrap, .ev-scroll')].map(el => ({ top: el.scrollTop, left: el.scrollLeft }));
   /* Remember which field had focus and where the caret was, otherwise typing in a
      search box loses focus on the first keystroke and the rest goes nowhere. */
   const act = document.activeElement;
@@ -5549,10 +5644,10 @@ function render(){
   renderNav();
   const crumb = name === 'contact' ? (Repo.contacts.byId(Number(params.id))?.full_name || 'Contact')
     : name === 'organization' ? (Repo.organizations.byId(Number(params.id))?.name || 'Organization') : view.title;
-  document.getElementById('crumb').textContent = crumb;
+  // the page's own heading names it; the top bar holds only search and the account
   document.title = (name === 'dashboard' ? '' : crumb + ' | ') + 'GAARD Capital CRM';
   main.scrollTop = y;
-  const wraps = main.querySelectorAll('.table-wrap');
+  const wraps = main.querySelectorAll('.table-wrap, .ev-scroll');
   innerScroll.forEach((pos, i) => { if (wraps[i]){ wraps[i].scrollTop = pos.top; wraps[i].scrollLeft = pos.left; } });
   if (focus){
     const el = main.querySelector('#' + CSS.escape(focus.id));
