@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-16.11">
+<meta name="build-version" content="2026-10-16.12">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -484,6 +484,44 @@ table.cmp label.pick input{width:auto;margin:0}
 .cmp-legend{display:flex;gap:18px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--line);background:var(--surface-2);font-size:12px;color:var(--ink-3)}
 .cmp-legend i{display:inline-block;width:3px;height:12px;margin-right:7px;vertical-align:-1px}
 .im-up{display:inline-flex;align-items:center;gap:7px}
+/* Import, step one: steps, a drop zone, the paste box, and a side panel */
+.imp-steps{list-style:none;display:flex;align-items:center;gap:10px;margin:0 0 16px;padding:0;font-size:13px;color:var(--ink-3);font-weight:500}
+.imp-steps li{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.imp-steps li span{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;border:1.5px solid var(--line-strong);background:var(--surface);color:var(--ink-3)}
+.imp-steps li.on{color:var(--ink)} .imp-steps li.on span{background:var(--accent);border-color:var(--accent);color:#fff}
+.imp-steps li.done{color:var(--ink-2)} .imp-steps li.done span{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+.imp-steps li.sep{flex:0 1 56px;height:1.5px;background:var(--line-strong);min-width:20px}
+.imp-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+.imp-add{padding:20px;margin:0}
+.imp-dropzone{display:flex;flex-direction:column;align-items:center;gap:8px;padding:26px 16px;border:1.5px dashed var(--accent-line);border-radius:var(--radius-lg);background:var(--accent-soft);cursor:pointer;text-align:center;transition:background .15s,border-color .15s}
+.imp-dropzone:hover,#im-drop.dragging .imp-dropzone{background:#DCE9F7;border-color:var(--accent)}
+#im-drop.dragging{outline:none}
+.imp-dz-icon svg{width:38px;height:38px;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.imp-dz-title{font-size:15px;font-weight:600;color:var(--ink)} .imp-dz-title u{color:var(--accent);text-underline-offset:3px}
+.imp-dz-types{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.ft{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:5px;background:var(--surface);border:1px solid var(--line)}
+.ft-csv{color:#1E7A4C} .ft-xls{color:#1D6F42} .ft-doc{color:#2B579A} .ft-img{color:var(--ink-3)}
+.imp-or{display:flex;align-items:center;gap:12px;margin:16px 0 12px;font-size:12px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.imp-or::before,.imp-or::after{content:'';flex:1;height:1px;background:var(--line)}
+.imp-add .im-box textarea{min-height:200px}
+.imp-actions{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.imp-actions .spacer{flex:1}
+.imp-go{display:inline-flex;align-items:center;gap:8px;padding-left:20px;padding-right:16px}
+.imp-go svg,.imp-sample > svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.imp-side{display:flex;flex-direction:column;gap:16px}
+.imp-side .card{margin:0}
+.imp-kinds{display:flex;flex-direction:column;gap:14px}
+.imp-kinds > div{display:flex;gap:12px}
+.imp-kinds p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+.imp-kinds b{display:block;color:var(--ink);font-size:13px;margin-bottom:2px}
+.imp-side .ic{flex:none;width:34px;height:34px;border-radius:9px;background:var(--accent-soft);display:grid;place-items:center}
+.imp-side .ic svg{width:18px;height:18px;fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.imp-samples{display:flex;flex-direction:column;gap:8px}
+.imp-sample{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);cursor:pointer;text-align:left;font:inherit;color:var(--ink-3);transition:border-color .15s,background .15s}
+.imp-sample:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+.imp-sample > span:not(.ic){flex:1;font-size:12px} .imp-sample b{display:block;color:var(--ink);font-size:13px}
+.imp-sample > svg{color:var(--accent)}
+@media (max-width:1100px){ .imp-layout{grid-template-columns:1fr} }
 .im-up svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .im-sheets{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--ink-2)}
 .im-sheets select{width:auto;min-width:240px}
@@ -4914,6 +4952,9 @@ Views.reviews = { title:'Reviews',
 /* ===== Import ======================================================== */
 /* The screenshots a check screen was read from, to compare with what was read. */
 const readShotsStrip = st => (st.readShots || []).length ? `<div class="imp-shots">${st.readShots.map((s, i) => `<div><span>Read from screenshot${st.readShots.length > 1 ? ' ' + (i + 1) : ''}</span><img src="${s.url}" alt="Screenshot ${i + 1}" data-zoom></div>`).join('')}</div>` : '';
+/* Where the person is in an import: add the data, check it, imported. */
+const impSteps = n => `<ol class="imp-steps" aria-label="Import steps">${['Add data', 'Check', 'Imported'].map((l, i) =>
+  `<li class="${i + 1 < n ? 'done' : i + 1 === n ? 'on' : ''}" ${i + 1 === n ? 'aria-current="step"' : ''}><span>${i + 1 < n ? '✓' : i + 1}</span>${l}</li>`).join('<li class="sep" aria-hidden="true"></li>')}</ol>`;
 const STATUS_LABEL = { existing_contact:'Already on file', new_contact_existing_org:'New person, organization we know', needs_review:'Needs review', new_contact:'New contact', error:'Cannot import' };
 const STATUS_PILL = { existing_contact:'g-definite', new_contact_existing_org:'g-probable', needs_review:'g-probable', new_contact:'g-new', error:'g-definite' };
 Views.import = { title:'Import',
@@ -4921,6 +4962,7 @@ Views.import = { title:'Import',
     const st = UI.import || (UI.import = { step:1, text:'', parsed:null, mapping:[], analysis:null, result:null, defaults:{ segment:'ORG_NONPROFIT', channel:'COLD_EMAIL' } });
     if (st.repliesResult){ const r = st.repliesResult;
       return `<div class="page-head"><div><h1>Replies saved</h1><p>${fmtDateTime(new Date())}. Each reply updated its contact's outcome, and the follow-ups were rescheduled by the outcome rules.</p></div></div>
+      ${impSteps(4)}
       <section class="card" style="max-width:860px"><div class="card-body">
         <div class="summary-nums">${Object.entries(r.counts).map(([code, n]) => `<div><b>${n}</b>${esc(outLabel(code))}</div>`).join('')}</div>
         ${r.moved.length ? `<div class="banner demo" style="margin:16px 0 0"><b>Pipeline</b>&nbsp;${r.moved.map(esc).join(' ')}</div>` : ''}
@@ -4947,6 +4989,7 @@ Views.import = { title:'Import',
       return `<div class="page-head"><div><h1>Check the replies</h1></div>
         <div class="page-actions"><button class="btn" type="button" id="im-back-r">Back</button>
           <button class="btn btn-primary" type="button" id="im-save-r" ${n.ok && !n.ask ? '' : 'disabled'}>${n.ask ? `Choose for ${n.ask} repl${n.ask === 1 ? 'y' : 'ies'} first` : `Save ${n.ok}`}</button></div></div>
+      ${impSteps(2)}
       <section class="card imp-head"><div class="card-body">
         <div class="imp-summary"><b>${list.length} repl${list.length === 1 ? 'y' : 'ies'} read</b>
           <span class="pill g-new">${n.ok} ready</span>
@@ -5024,6 +5067,7 @@ Views.import = { title:'Import',
       if (done) return `<div class="page-head"><div><h1>Imported</h1><p>${fmtDateTime(new Date(done.at))}. ${done.contacts} added, ${done.merged} updated. Undo is in the message at the bottom, or on the contact's page.</p></div>
         <div class="page-actions"><button class="btn btn-done" type="button" disabled>✓ ${[done.contacts ? done.contacts + ' added' : '', done.merged ? done.merged + ' updated' : ''].filter(Boolean).join(' · ') || 'Saved'}</button>
           <button class="btn btn-primary" type="button" id="im-again">Import more</button></div></div>
+      ${impSteps(4)}
       <div class="table-wrap"><table class="grid imp"><thead><tr><th>Name</th><th>Email</th><th>Organization</th><th>Result</th></tr></thead><tbody>
         ${order.slice().sort((x, y) => !!a[y].savedId - !!a[x].savedId || 0).map(i => { const r = a[i], v = r.values;
           return `<tr class="${r.savedId ? 'imp-saved' : 'imp-out'}"><td><b>${esc(v.contact_name || '(no name)')}</b></td><td>${esc(v.email || '')}</td>
@@ -5032,6 +5076,7 @@ Views.import = { title:'Import',
       return `<div class="page-head"><div><h1>Check the list</h1></div>
         <div class="page-actions"><button class="btn" type="button" id="im-back">Back</button>
           <button class="btn btn-primary" type="button" id="im-commit" ${ready && !n.ask ? '' : 'disabled'}>${n.ask ? `Choose for ${n.ask} row${n.ask === 1 ? '' : 's'} first` : !ready ? 'Nothing new to import' : `Import ${[n.add ? n.add + ' new' : '', n.merge ? 'update ' + n.merge : ''].filter(Boolean).join(' · ')}`}</button></div></div>
+      ${impSteps(2)}
       <section class="card imp-head"><div class="card-body">
         <div class="imp-summary"><b>${a.length} ${a.length === 1 ? 'person' : 'people'} read</b>
           <span class="pill g-new">${n.add} new</span>
@@ -5075,19 +5120,38 @@ Views.import = { title:'Import',
             <dt>Client replies</dt><dd>Matched to the contact by email address. The outcome is suggested from the wording; you confirm each one.</dd>
             <dt>Screenshots</dt><dd>Read on this computer. The image is never uploaded.</dd>
           </dl><p class="foot-note">Nothing is written until you commit. Skipped rows are left out, and Cancel discards the batch.</p></div></div></div></div>
-      <p>Paste rows from a sheet, or the replies clients sent back. Rows are checked against the master list; replies are matched to the person and given an outcome. Nothing is written until you confirm.</p></div><div class="page-actions">${demoTag}</div></div>
-    <div>
-      <section class="card" id="im-drop"><div class="card-head"><h2>Paste rows, replies or a screenshot</h2></div><div class="card-body">
+      </div><div class="page-actions">${demoTag}</div></div>
+    ${impSteps(1)}
+    <div class="imp-layout">
+      <section class="card imp-add" id="im-drop">
+        <label class="imp-dropzone" for="im-file">
+          <span class="imp-dz-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5"/><path d="M12 12v8"/><path d="M8.5 15.5 12 12l3.5 3.5"/></svg></span>
+          <span class="imp-dz-title">Drop a file here, or <u>browse</u></span>
+          <span class="imp-dz-types"><span class="ft ft-csv">CSV</span><span class="ft ft-xls">XLSX</span><span class="ft ft-doc">DOCX</span><span class="ft ft-img">PNG · JPG</span></span>
+        </label>
+        <input type="file" id="im-file" multiple accept=".csv,.tsv,.txt,.xlsx,.xls,.docx,image/*,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="sr-only">
+        <div class="imp-or"><span>or paste</span></div>
         ${st.sheets && st.sheets.list.length > 1 ? `<div class="im-sheets"><span>${esc(st.sheets.file)} has ${st.sheets.list.length} sheets. Showing</span>
           <select id="im-sheet" aria-label="Sheet to read">${st.sheets.list.map((s, i) => `<option value="${i}" ${i === st.sheets.at ? 'selected' : ''}>${esc(s.name)} (${s.rows} row${s.rows === 1 ? '' : 's'})</option>`).join('')}</select></div>` : ''}
-        <label class="sr-only" for="im-text">Paste here</label><div class="im-box"><textarea id="im-text" rows="16" wrap="${String(st.text || '').includes(String.fromCharCode(9)) ? 'off' : 'soft'}" placeholder="Paste rows copied from a sheet, with or without the header row&#10;&#10;or the text of client replies, one after another&#10;&#10;or a screenshot: press Ctrl+V here, or drop it on this box&#10;&#10;or upload a file: csv, Excel, Word or a picture">${esc(st.text)}</textarea>
-        ${(st.shots || []).length ? `<div class="im-shots">${st.shots.map((s, i) => `<figure><img src="${s.url}" alt="Screenshot ${i + 1}" title="Read when you press Read it" data-shotview="${i}"><button class="x" type="button" data-shotrm="${i}" aria-label="Remove screenshot ${i + 1}">×</button></figure>`).join('')}</div>` : ''}</div>
+        <label class="sr-only" for="im-text">Paste rows, replies or a screenshot</label><div class="im-box"><textarea id="im-text" rows="9" wrap="${String(st.text || '').includes(String.fromCharCode(9)) ? 'off' : 'soft'}" placeholder="Rows copied from a sheet, the text of client replies, or a screenshot (Ctrl+V)">${esc(st.text)}</textarea>
+        ${(st.shots || []).length ? `<div class="im-shots">${st.shots.map((s, i) => `<figure><img src="${s.url}" alt="Screenshot ${i + 1}" title="Read when you press Continue" data-shotview="${i}"><button class="x" type="button" data-shotrm="${i}" aria-label="Remove screenshot ${i + 1}">×</button></figure>`).join('')}</div>` : ''}</div>
         <p class="muted small" id="im-ocr" role="status" ${st.ocrMsg ? '' : 'hidden'} style="margin-top:8px">${esc(st.ocrMsg || '')}</p>
-        <div class="page-actions" style="margin-top:12px"><button class="btn btn-primary" type="button" id="im-read">Read it</button>
-          <label class="btn im-up" for="im-file"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>Upload</label>
-          <input type="file" id="im-file" multiple accept=".csv,.tsv,.txt,.xlsx,.xls,.docx,image/*,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="sr-only">
-          ${String(st.text || '').trim() || (st.shots || []).length || st.sheets ? '<button class="btn" type="button" id="im-clear">Clear</button>' : ''}</div>
-        <p class="muted small" style="margin-top:12px">Try it: <button class="linkish" type="button" id="im-example">load the demo batch</button>, 31 messy rows from a sourcing sheet, or <button class="linkish" type="button" id="im-demo-replies">load demo replies</button>, six answers to emails already on file, one of each kind.</p></div></section>
+        <div class="imp-actions">
+          ${String(st.text || '').trim() || (st.shots || []).length || st.sheets ? '<button class="btn" type="button" id="im-clear">Clear</button>' : ''}
+          <span class="spacer"></span>
+          <button class="btn btn-primary imp-go" type="button" id="im-read">Continue <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+      </section>
+      <aside class="imp-side">
+        <section class="card"><div class="card-head"><h2>What you can import</h2></div><div class="card-body imp-kinds">
+          <div><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 9v11"/></svg></span><p><b>Contact lists</b>Rows from a sheet, with or without the header row. Each person is checked against the contacts on file before anything is saved.</p></div>
+          <div><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span><p><b>Client replies</b>The text of the emails clients sent back. Each is matched to the sender and given an outcome, which schedules the next follow-up.</p></div>
+          <div><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><p><b>Screenshots</b>Of a sheet or of an email. The text is read on this computer; the picture is never uploaded.</p></div>
+        </div></section>
+        <section class="card"><div class="card-head"><h2>Try a sample</h2></div><div class="card-body imp-samples">
+          <button class="imp-sample" type="button" id="im-example"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 9v11"/></svg></span><span><b>Sourcing sheet</b>31 messy rows</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <button class="imp-sample" type="button" id="im-demo-replies"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span><span><b>Client replies</b>6 answers, one of each kind</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div></section>
+      </aside>
     </div>`;
   },
   mount(root){
@@ -5188,7 +5252,7 @@ Views.import = { title:'Import',
     root.querySelector('#im-text')?.addEventListener('input', e => { st.text = e.target.value; if (!st.text.trim() && st.sheets){ st.sheets = null; render(); } });
 
     /* Screenshots: pasted, dropped, or chosen. Each is shown under the box
-       first; Read it reads the images on this computer, adds their text to
+       first; Continue reads the images on this computer, adds their text to
        whatever was typed, and goes to the check. */
     const ocrMsg = text => { st.ocrMsg = text; const el = root.querySelector('#im-ocr'); if (el){ el.hidden = !text; el.textContent = text; } };
     const readImage = file => { const box = root.querySelector('#im-text'); if (box) st.text = box.value;
@@ -5221,16 +5285,16 @@ Views.import = { title:'Import',
             ocrMsg('Opening ' + name + '…');
             const list = await Files.sheets(f);
             if (!list.length){ ocrMsg(name + ' has no rows.'); continue; }
-            st.sheets = { file: name, list, at: 0 }; st.text = list[0].text; st.ocrMsg = `Loaded ${name}${list.length > 1 ? ', sheet ' + list[0].name : ''}. Check it, then press Read it.`; render(); continue; }
+            st.sheets = { file: name, list, at: 0 }; st.text = list[0].text; st.ocrMsg = `Loaded ${name}${list.length > 1 ? ', sheet ' + list[0].name : ''}. Check it, then press Continue.`; render(); continue; }
           if (ext === 'docx'){ ocrMsg('Opening ' + name + '…'); st.sheets = null;
-            putText(await Files.docx(f), 'Loaded ' + name + '. Check it, then press Read it.'); continue; }
+            putText(await Files.docx(f), 'Loaded ' + name + '. Check it, then press Continue.'); continue; }
           st.sheets = null;
-          putText(await f.text(), 'Loaded ' + name + '. Check it, then press Read it.');
+          putText(await f.text(), 'Loaded ' + name + '. Check it, then press Continue.');
         } catch (err){ ocrMsg(name + ' could not be read: ' + (err.message || err)); }
       }
     };
     root.querySelector('#im-sheet')?.addEventListener('change', e => { st.sheets.at = Number(e.target.value);
-      const s = st.sheets.list[st.sheets.at]; st.text = s.text; st.ocrMsg = 'Showing the sheet ' + s.name + '. Check it, then press Read it.'; render(); });
+      const s = st.sheets.list[st.sheets.at]; st.text = s.text; st.ocrMsg = 'Showing the sheet ' + s.name + '. Check it, then press Continue.'; render(); });
     root.querySelector('#im-text')?.addEventListener('paste', e => {
       const item = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/'));
       if (item){ e.preventDefault(); readImage(item.getAsFile()); } });
