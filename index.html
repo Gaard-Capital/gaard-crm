@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-16.3">
+<meta name="build-version" content="2026-10-16.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -89,6 +89,15 @@ button,input,select,textarea{font:inherit;color:inherit}
 .nav a .cnt{margin-left:auto;font-size:11px;background:rgba(255,255,255,.14);padding:1px 7px;border-radius:var(--radius-pill);color:#fff;font-weight:600}
 .nav a .cnt.hot{background:var(--danger);color:#fff}
 .nav svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.rec-fields dd.ed,.kv dd.ed{cursor:pointer;border-radius:6px;margin:-3px -6px;padding:3px 6px;position:relative}
+.kv dd.ed:hover{background:var(--accent-soft)}
+.kv dd.ed:hover::after{content:'';position:absolute;right:6px;top:50%;width:13px;height:13px;margin-top:-6.5px;opacity:.55;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C6DBD' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 20h4L19 9l-4-4L4 16v4z'/%3E%3C/svg%3E")}
+.kv dd.ed.editing{background:transparent;cursor:default}
+.kv dd.ed.editing::after{display:none}
+.kv dd.ed input,.kv dd.ed select,.kv dd.ed textarea{height:32px;font-size:13px}
+.kv dd.ed textarea{height:auto}
+.rec-sub{font-size:13px;font-weight:600;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.rec-sub .muted{font-weight:400;font-size:12px}
 .save-state{font-size:12px;color:var(--ink-3);white-space:nowrap;margin-left:auto}
 .save-state:empty{display:none}
 .save-state + .user{margin-left:0}
@@ -4014,6 +4023,19 @@ Views.contacts = { title:'Contacts',
    Only columns that are really stored can be edited. The counted ones, touches
    and the correspondence summary, are results rather than data, so they are
    left alone: changing them would mean lying about what happened. */
+/** A US number as 801-555-0123 (a leading 1 is dropped); anything else, such as an extension or a foreign number, is kept as typed. */
+function fmtPhone(raw){
+  const s = String(raw ?? '').trim(), d = s.replace(/\D/g, '');
+  const ten = d.length === 11 && d[0] === '1' ? d.slice(1) : d;
+  return ten.length === 10 && !/[a-z]/i.test(s) ? `${ten.slice(0, 3)}-${ten.slice(3, 6)}-${ten.slice(6)}` : s;
+}
+/** The same shape while typing: digits only, dashes added as they come. */
+function phoneAsTyped(raw){
+  const s = String(raw ?? ''); if (/[a-z+]/i.test(s)) return s;
+  let d = s.replace(/\D/g, ''); if (d.length === 11 && d[0] === '1') d = d.slice(1);
+  if (d.length > 10) return s;
+  return d.length > 6 ? `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}` : d.length > 3 ? `${d.slice(0, 3)}-${d.slice(3)}` : d;
+}
 function saveCell(id, field, raw){
   const c = Repo.contacts.byId(id); if (!c) return;
   const v = String(raw ?? '').trim();
@@ -4021,6 +4043,10 @@ function saveCell(id, field, raw){
   const num = v ? Number(v.replace(/[^0-9.]/g,'')) || null : null;
   switch (field){
     case 'title':   return Repo.contacts.update(id, { title: v || null }, 'Title updated');
+    case 'phone':   return Repo.contacts.update(id, { phone: fmtPhone(v) || null }, 'Phone updated');
+    case 'city':    return Repo.contacts.update(id, { city: v || null }, 'City updated');
+    case 'last_name': return Repo.contacts.update(id, { last_name: v }, 'Last name updated');
+    case 'linkedin': return Repo.contacts.update(id, { linkedin_url: v || null, linkedin_key: v ? Intelligence.linkedinKey(v) : null }, 'LinkedIn updated');
     case 'sourced': return Repo.contacts.update(id, { sourced_on: day || null }, 'Date updated');
     case 'first_name': return Repo.contacts.update(id, { first_name: v }, 'First name updated');
     case 'notes':   return Repo.contacts.update(id, { notes: v || null }, 'Notes updated');
@@ -4080,6 +4106,8 @@ Views.contact = { title:'Contact',
     const tps = Repo.contacts.touchpoints(c.id), rems = Repo.contacts.reminders(c.id).filter(r => r.status === 'open' || r.status === 'snoozed');
     const colleagues = org ? Repo.organizations.contacts(org.id).filter(x => x.id !== c.id) : [];
     const next = rems[0], ev = c.source_event_id != null ? Repo.events.byId(c.source_event_id) : null;
+    const aumOf = opp ? (opp.stage === 'funded' ? opp.funded_aum : opp.expected_aum) ?? c.prospect_aum : c.prospect_aum;
+    const edField = (label, field, html, hint) => `<dt>${esc(label)}</dt><dd class="ed" data-edit="${field}" title="${esc(hint ? hint + '. Click to change' : 'Click to change')}">${html || '<span class="muted">None</span>'}</dd>`;
     const referrer = c.referred_by_contact_id != null ? Repo.contacts.byId(c.referred_by_contact_id) : null;
     /* The sheet's own "how we met" note is usually the event name again, and the
        event is already shown as a link. Print it only when it adds something. */
@@ -4111,17 +4139,24 @@ Views.contact = { title:'Contact',
     ${c.is_university_affiliated ? `<div class="banner demo"><b>No cold email (in person only).</b> This address is on the "Don't cold email" list in Settings (universities, and organizations Gaard reaches through people). The mail merge leaves them out; reach out personally.</div>` : ''}
     <div class="rec-grid">
       <div class="rec-main">
-        <section class="card"><div class="card-head"><h2>Contact</h2></div><div class="card-body"><dl class="kv two">
-          <dt>Email</dt><dd>${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '<span class="muted">None</span>'}</dd>
-          <dt>Phone</dt><dd>${esc(c.phone||'') || '<span class="muted">None</span>'}</dd>
-          <dt>LinkedIn</dt><dd>${!blankish(c.linkedin_url) ? `<a href="${esc(/^https?:/i.test(c.linkedin_url) ? c.linkedin_url : 'https://' + c.linkedin_url)}" target="_blank" rel="noopener">${esc(c.linkedin_url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '<span class="muted">None</span>'}${c.linkedin_connected_on ? `<span class="sub">Connected ${fmtDate(c.linkedin_connected_on)}</span>` : ''}</dd>
-          <dt>Segment</dt><dd>${segPill(c.segment_code)}${sameWord(segGroup(c.segment_code), segName(c.segment_code)) ? '' : ` <span class="muted">${esc(segGroup(c.segment_code))}</span>`}</dd>
-          <dt>How we met</dt><dd>${esc(chName(c.source_channel_code))}${detail ? ` <span class="muted">${esc(detail)}</span>` : ''}${ev ? `<span class="sub">At <a href="${href('events')}">${esc(ev.name)}</a></span>` : ''}${referrer ? `<span class="sub">Referred by <a href="${href('contacts/'+referrer.id)}">${esc(referrer.full_name)}</a></span>` : ''}</dd>
-          <dt>Sourced</dt><dd>${fmtDate(c.sourced_on)||'<span class="muted">Unknown</span>'}</dd>
-          <dt>Prospect AUM</dt><dd>${fmtUSD(c.prospect_aum)||'<span class="muted">Not recorded</span>'}</dd>
-          <dt>Newsletter</dt><dd>${esc(NEWSLETTER_LABEL[c.newsletter_status] || c.newsletter_status || 'Not recorded')}${via ? `<span class="sub">${esc(via)}</span>` : ''}</dd>
+        <section class="card"><div class="card-head"><h2>Contact</h2></div><div class="card-body"><dl class="kv two rec-fields">
+          <dt>Date added</dt><dd title="The day this person was added">${fmtDate(c.sourced_on || dayOf(c.created_at)) || '<span class="muted">Unknown</span>'}</dd>
+          ${edField('First name', 'first_name', esc(c.first_name || ''))}
+          ${edField('Last name', 'last_name', esc(c.last_name || ''))}
+          ${edField('Title', 'title', esc(c.title || ''))}
+          ${edField('Organization', 'org', org ? `<a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : c.employer ? esc(c.employer) + ' <span class="muted">(employer)</span>' : '<span class="muted">Individual</span>')}
+          <dt>Website</dt><dd>${org && !blankish(org.website) ? `<a href="${esc(/^https?:/i.test(org.website) ? org.website : 'https://' + org.website)}" target="_blank" rel="noopener">${esc(org.website.replace(/^https?:\/\/(www\.)?/, ''))}</a> <span class="muted">(organization)</span>` : '<span class="muted">None</span>'}</dd>
+          ${edField('AUM', 'aum', fmtUSD(aumOf) || '<span class="muted">Not recorded</span>', opp ? (opp.stage === 'funded' ? 'Funded AUM on the opportunity' : 'Expected AUM on the opportunity') : 'Prospect AUM')}
+          ${edField('State', 'state', esc(c.state || ''))}
+          ${edField('City', 'city', esc(c.city || ''))}
+          <dt>Email</dt><dd class="ed" data-edit="email" title="Click beside the address to change it">${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '<span class="muted">None</span>'}</dd>
+          ${edField('Phone', 'phone', esc(c.phone || ''))}
+          <dt>LinkedIn</dt><dd class="ed" data-edit="linkedin" title="Click to change">${!blankish(c.linkedin_url) ? `<a href="${esc(/^https?:/i.test(c.linkedin_url) ? c.linkedin_url : 'https://' + c.linkedin_url)}" target="_blank" rel="noopener">${esc(c.linkedin_url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '<span class="muted">None</span>'}${c.linkedin_connected_on ? `<span class="sub">Connected ${fmtDate(c.linkedin_connected_on)}</span>` : ''}</dd>
+          <dt>Segment</dt><dd class="ed" data-edit="segment" title="Click to change">${segPill(c.segment_code)}${sameWord(segGroup(c.segment_code), segName(c.segment_code)) ? '' : ` <span class="muted">${esc(segGroup(c.segment_code))}</span>`}</dd>
+          <dt>How we met</dt><dd class="ed" data-edit="channel" title="Click to change">${esc(chName(c.source_channel_code))}${detail ? ` <span class="muted">${esc(detail)}</span>` : ''}${ev ? `<span class="sub">At <a href="${href('events')}">${esc(ev.name)}</a></span>` : ''}${referrer ? `<span class="sub">Referred by <a href="${href('contacts/'+referrer.id)}">${esc(referrer.full_name)}</a></span>` : ''}</dd>
+          <dt>Newsletter</dt><dd class="ed" data-edit="newsletter" title="Click to change">${esc(NEWSLETTER_LABEL[c.newsletter_status] || c.newsletter_status || 'Not recorded')}${via ? `<span class="sub">${esc(via)}</span>` : ''}</dd>
           ${c.legacy_ref ? `<dt>From the sheet</dt><dd>${esc(c.legacy_ref)}</dd>` : ''}</dl>
-          <dl class="kv" style="grid-template-columns:120px minmax(0,1fr);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><dt>Notes</dt><dd style="white-space:pre-wrap">${esc(c.notes||'') || '<span class="muted">None</span>'}</dd></dl></div></section>
+          <dl class="kv" style="grid-template-columns:120px minmax(0,1fr);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><dt>Notes</dt><dd class="ed" data-edit="notes" title="Click to change" style="white-space:pre-wrap">${esc(c.notes||'') || '<span class="muted">None</span>'}</dd></dl></div></section>
         ${opp ? `<section class="card"><div class="card-head"><h2>Opportunity</h2>${stagePill(opp.stage)}</div><div class="card-body">
           <div class="aum-cols" style="margin-bottom:10px">
             <div class="aum-cell"><div class="l">Expected AUM</div><div class="v">${fmtUSD(opp.expected_aum)||'-'}</div></div>
@@ -4156,6 +4191,36 @@ Views.contact = { title:'Contact',
     root.querySelectorAll('[data-done]').forEach(b => b.addEventListener('click', () => Repo.reminders.complete(Number(b.dataset.done))));
     root.querySelectorAll('[data-snooze]').forEach(b => b.addEventListener('click', () => Repo.reminders.snooze(Number(b.dataset.snooze), Number(b.dataset.days))));
     root.querySelectorAll('[data-confirm]').forEach(b => b.addEventListener('click', () => Repo.touchpoints.confirmOutcome(Number(b.dataset.confirm))));
+    root.querySelectorAll('dd.ed[data-edit]').forEach(dd => dd.addEventListener('click', e => {
+      if (e.target.closest('a') || dd.classList.contains('editing')) return;
+      const field = dd.dataset.edit, before = dd.innerHTML, opt = (v, l, on) => `<option value="${esc(v)}" ${on ? 'selected' : ''}>${esc(l)}</option>`;
+      const opp = Repo.contacts.opportunity(c.id), aum = opp ? (opp.stage === 'funded' ? opp.funded_aum : opp.expected_aum) ?? c.prospect_aum : c.prospect_aum;
+      const html = field === 'segment' ? `<select>${SEGMENTS.map(x => opt(x.code, segName(x.code), c.segment_code === x.code)).join('')}</select>`
+        : field === 'channel' ? `<select>${opt('', 'Not recorded', !c.source_channel_code)}${CHANNELS.map(x => opt(x.code, x.name, c.source_channel_code === x.code)).join('')}</select>`
+        : field === 'stage' ? `<select>${STAGES.map(x => opt(x.code, x.label, opp && opp.stage === x.code)).join('')}</select>`
+        : field === 'newsletter' ? `<select>${['subscribed','not_subscribed','unsubscribed'].map(x => opt(x, NEWSLETTER_LABEL[x], c.newsletter_status === x)).join('')}</select>`
+        : field === 'notes' ? `<textarea rows="4">${esc(c.notes || '')}</textarea>`
+        : field === 'aum' ? `<input type="number" step="1000" min="0" value="${aum ?? ''}">`
+        : field === 'org' ? `<input type="text" list="rec-orgs" value="${esc(org ? org.name : c.employer || '')}"><datalist id="rec-orgs">${Repo.organizations.all().map(o => `<option value="${esc(o.name)}"></option>`).join('')}</datalist>`
+        : field === 'state' ? `<input type="text" maxlength="2" value="${esc(c.state || '')}">`
+        : field === 'email' ? `<input type="email" value="${esc(c.email || '')}">`
+        : field === 'linkedin' ? `<input type="url" value="${esc(c.linkedin_url || '')}">`
+        : `<input type="text" value="${esc(c[field] || '')}">`;
+      dd.classList.add('editing'); dd.innerHTML = html;
+      const el = dd.querySelector('select, input, textarea'); let live = true;
+      if (field === 'phone'){ el.type = 'tel'; el.placeholder = '801-555-0123'; el.value = phoneAsTyped(el.value); el.defaultValue = el.value;
+        el.addEventListener('input', () => { el.value = phoneAsTyped(el.value); }); }
+      const close = () => { live = false; dd.classList.remove('editing'); dd.innerHTML = before; };
+      const save = () => { if (!live) return; live = false; saveCell(c.id, field, el.value); };
+      el.focus(); if (el.select && el.tagName !== 'SELECT') el.select();
+      if (el.tagName === 'SELECT') el.addEventListener('change', save);
+      el.addEventListener('keydown', ev => { ev.stopPropagation();
+        if (ev.key === 'Escape'){ ev.preventDefault(); close(); }
+        else if (ev.key === 'Enter' && el.tagName !== 'TEXTAREA'){ ev.preventDefault(); save(); }
+        else if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)){ ev.preventDefault(); save(); } });
+      el.addEventListener('blur', () => { if (!live) return; const was = field === 'notes' ? (c.notes || '') : el.defaultValue ?? '';
+        if (el.tagName !== 'SELECT' && el.value !== was) save(); else close(); });
+    }));
     root.querySelector('#c-edit').addEventListener('click', async () => {
       const out = await Modal.form({ title:'Edit ' + c.full_name, wide:true, okLabel:'Save', fields:[
         { key:'first_name', label:'First name', value:c.first_name }, { key:'last_name', label:'Last name', value:c.last_name },
@@ -4171,7 +4236,7 @@ Views.contact = { title:'Contact',
         { key:'prospect_aum', label:'Prospect AUM ($)', type:'number', step:'1000', value:c.prospect_aum ?? '' },
         { key:'notes', label:'Notes', type:'textarea', rows:3, span:true, value:c.notes||'' } ]});
       if (!out) return;
-      const patch = { ...out, do_not_contact: out.do_not_contact === 'true', is_university_affiliated: out.is_university_affiliated === 'true',
+      const patch = { ...out, phone: fmtPhone(out.phone) || null, do_not_contact: out.do_not_contact === 'true', is_university_affiliated: out.is_university_affiliated === 'true',
         prospect_aum: out.prospect_aum === '' ? null : Number(out.prospect_aum) };
       if (patch.email && patch.email !== c.email && c.email_status === 'bounced') patch.email_status = 'unverified';
       Repo.contacts.update(c.id, patch);
