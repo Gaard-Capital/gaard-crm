@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-16.12">
+<meta name="build-version" content="2026-10-16.14">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -3083,19 +3083,6 @@ Views.dashboard = { title:'Dashboard',
           <span>${held ? fmtInt(held) + ' more cannot be emailed, and the email screen says why. ' : ''}Nothing sends until you say so.</span></div></section>`;
     })()}
 
-    <section class="card" style="margin-top:16px"><div class="card-head"><h2>What happened in this period</h2><span class="sub">By lane. The full detail is on the KPIs page</span></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr>
-        <th>Lane</th><th class="num">Emails sent</th><th class="num">Replies</th><th class="num">Next steps</th><th class="num">Onboarding</th><th class="num">Clients</th><th class="num">AUM funded</th>
-        <th class="num">Email to reply</th><th class="num">Reply to next</th></tr></thead>
-      <tbody>${lanes.filter(x => x.touches || x.clients).map(x => `<tr class="row-link" data-href="${href('kpis')}"><td>${esc(x.label)}</td>
-        <td class="num">${fmtInt(x.emails)}</td><td class="num">${fmtInt(x.replies)}</td><td class="num">${fmtInt(x.next_steps)}</td>
-        <td class="num">${fmtInt(x.onboarding)}</td><td class="num">${fmtInt(x.clients)}</td><td class="num">${fmtUSD(x.funded_aum)||'-'}</td>
-        <td class="num">${x.emails ? fmtPct(x.email_replies/x.emails) : '-'}</td><td class="num">${x.email_replies ? fmtPct(x.next_steps/x.email_replies) : '-'}</td></tr>`).join('')
-        || `<tr><td colspan="9">${emptyState('Nothing happened in this period')}</td></tr>`}</tbody>
-      <tfoot><tr><td>Total</td><td class="num">${fmtInt(laneTotal('emails'))}</td><td class="num">${fmtInt(laneTotal('replies'))}</td>
-        <td class="num">${fmtInt(laneTotal('next_steps'))}</td><td class="num">${fmtInt(laneTotal('onboarding'))}</td><td class="num">${fmtInt(laneTotal('clients'))}</td>
-        <td class="num">${fmtUSD(laneTotal('funded_aum'))||'-'}</td>
-        <td class="num">${fn.emails ? fmtPct(fn.email_to_reply) : '-'}</td><td class="num">${fn.replies ? fmtPct(fn.reply_to_next) : '-'}</td></tr></tfoot></table></div></section>
 `;
   },
   mount(root){ bindGo(root); bindRowNav(root); bindFilters(root, render); }
@@ -3443,12 +3430,11 @@ Views.mailmerge = { title:'Emails to send',
 /* ===== Workflow ====================================================== */
 Views.workflow = { title:'Workflow',
   render(){
-    const f = UI.filters, w = Metrics.workflow(f);
+    const w = Metrics.workflow(Metrics.empty());   // the whole system: no filters on this page
     const step = (n, title, desc, stat, goTo, mod='') => `<div class="flow-step ${mod}" data-go="${goTo}"><span class="n">Step ${n}</span><span class="t">${esc(title)}</span><span class="d">${esc(desc)}</span>${stat ? `<span class="stat">${stat}</span>` : ''}</div>`;
     const arrow = '<span class="flow-arrow" aria-hidden="true">&#9654;</span>';
     return `<div class="page-head"><div><h1>How the system fits together</h1><p>The process from a name on a list to a funded client, with the live count at each step. Every box is a screen in this prototype and a table in the database.</p></div><div class="page-actions">${demoTag}</div></div>
-    ${filterBar({ compact:true })}
-    <section class="card" style="margin-bottom:14px"><div class="card-head"><h2>Prospect to funded client</h2><span class="sub">Counts follow the filters above</span></div><div class="card-body">
+    <section class="card" style="margin-bottom:14px"><div class="card-head"><h2>Prospect to funded client</h2><span class="sub">Counts across everything on file</span></div><div class="card-body">
       <div class="flow">
         ${step(1,'Paste in new prospects','Rows from the sourcing sheets land in a staging table. Nothing joins the master list until it is reviewed.', `<span>Contacts on file</span><b>${fmtInt(w.contacts)}</b>`, href('import'))}
         ${arrow}
@@ -3493,7 +3479,7 @@ Views.workflow = { title:'Workflow',
       </dl></div></section>
     </div>`;
   },
-  mount(root){ bindGo(root); bindFilters(root, render); }
+  mount(root){ bindGo(root); }
 };
 
 /* ---- shared dialogs ---- */
@@ -5611,20 +5597,17 @@ const NAV = [
   ['kpis','KPIs','<svg viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>'],
   ['reminders','Follow-ups','<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
   ['contacts','Contacts','<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 0 1 6 5"/></svg>'],
-  ['newsletter','Newsletter','<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M7 9h10M7 13h7"/></svg>'],
-  ['partners','Partners','<svg viewBox="0 0 24 24"><path d="M7 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M17 19a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M9.5 9.5l5 5"/></svg>'],
-  ['reviews','Reviews','<svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 4 5-8 4 5"/><path d="M3 21h18"/></svg>'],
   ['events','Events','<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'],
   ['rfps','RFPs','<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>'],
   ['import','Import','<svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>'],
-  ['workflow','Workflow','<svg viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="5"/><rect x="15" y="4" width="6" height="5"/><rect x="9" y="15" width="6" height="5"/><path d="M6 9v3h12V9M12 12v3"/></svg>'],
 ];
 /* Which sidebar entry owns each screen, and the tabs that screen sits in. */
 const NAV_OF = { contact:'contacts', organization:'contacts', organizations:'contacts', touchpoints:'contacts',
-  mailmerge:'reminders', templates:'reminders', pipeline:'kpis' };
+  mailmerge:'reminders', templates:'reminders', reviews:'reminders', pipeline:'kpis',
+  partners:'contacts', newsletter:'contacts' };
 const TABS = [
-  ['reminders', [['reminders','One at a time'], ['mailmerge','Send as a batch'], ['templates','Email templates']]],
-  ['contacts',  [['contacts','People'], ['organizations','Organizations']]],
+  ['reminders', [['reminders','One at a time'], ['mailmerge','Send as a batch'], ['templates','Email templates'], ['reviews','Client reviews']]],
+  ['contacts',  [['contacts','People'], ['organizations','Organizations'], ['partners','Partners'], ['newsletter','Newsletter']]],
   ['kpis',      [['kpis','KPIs'], ['pipeline','Pipeline']]],
 ];
 function tabStrip(name){
@@ -5661,6 +5644,7 @@ function renderNav(){
     <div class="user-menu" id="user-menu" role="menu" ${wasOpen ? '' : 'hidden'}>
       <div class="who"><b>${esc(who || 'Gaard team')}</b>${Store.live ? esc(Live.email || '') : 'Demo data'}</div>
       <a role="menuitem" href="${href('settings')}">Settings</a>
+      <a role="menuitem" href="${href('workflow')}">How it works</a>
       ${Store.live ? `<button role="menuitem" type="button" class="danger" data-um="out">Sign out</button>`
         : `<button role="menuitem" type="button" data-um="in">Sign in to the live database</button>`}
     </div></div>`;
