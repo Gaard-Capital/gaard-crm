@@ -17,9 +17,12 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-15.16">
+<meta name="build-version" content="2026-10-16.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
+<link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
+<link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-192x192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-180x180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Poppins:wght@400;500;600&display=swap">
@@ -86,9 +89,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .nav a .cnt{margin-left:auto;font-size:11px;background:rgba(255,255,255,.14);padding:1px 7px;border-radius:var(--radius-pill);color:#fff;font-weight:600}
 .nav a .cnt.hot{background:var(--danger);color:#fff}
 .nav svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
-.sidebar-foot{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.12);font-size:11px;color:rgba(255,255,255,.6);line-height:1.55;flex:none}
-.sidebar-foot .linkish{color:#8FBFF0}
-.sidebar-foot strong{color:#fff;font-weight:600;display:block}
+.save-state{font-size:12px;color:var(--ink-3);white-space:nowrap;margin-left:auto}
+.save-state:empty{display:none}
+.save-state + .user{margin-left:0}
 
 /* ---------- Top bar ---------- */
 .topbar{background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 28px}
@@ -423,12 +426,25 @@ table.cmp label.pick.diff.on{border-color:var(--warn);background:var(--warn-soft
 table.cmp label.pick input{width:auto;margin:0}
 .cmp-legend{display:flex;gap:18px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--line);background:var(--surface-2);font-size:12px;color:var(--ink-3)}
 .cmp-legend i{display:inline-block;width:3px;height:12px;margin-right:7px;vertical-align:-1px}
+.im-up{display:inline-flex;align-items:center;gap:7px}
+.im-up svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.im-sheets{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--ink-2)}
+.im-sheets select{width:auto;min-width:240px}
+.im-box textarea{min-height:340px}
 .im-box{border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface)}
 .im-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .im-box textarea{border:0;box-shadow:none !important;background:transparent}
 .im-shots{display:flex;gap:10px;flex-wrap:wrap;padding:0 11px 11px}
 .im-shots figure{position:relative;margin:0;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);overflow:hidden}
-.im-shots img{display:block;height:84px;max-width:260px;object-fit:contain;background:#fff;cursor:zoom-in}
+.im-shots img{display:block;height:140px;max-width:460px;object-fit:contain;background:#fff;cursor:zoom-in}
+.imp-shots{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.imp-shots span{display:block;font-size:12px;color:var(--ink-3);margin-bottom:6px}
+.imp-shots img{display:block;max-height:220px;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:zoom-in}
+.zoom-back{position:fixed;inset:0;z-index:200;background:rgba(15,30,51,.82);display:grid;place-items:center;padding:56px 24px 24px;cursor:zoom-out}
+.zoom-back img{max-width:100%;max-height:calc(100vh - 80px);border-radius:8px;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.4);cursor:default}
+.zoom-back .zoom-x{position:fixed;top:14px;right:18px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:var(--ink);font-size:22px;line-height:40px;padding:0;cursor:pointer;box-shadow:var(--shadow)}
+table.edit.fr col.fr-domain{width:150px} table.edit.fr col.fr-rule{width:290px} table.edit.fr col.fr-on{width:60px} table.edit.fr col.fr-del{width:110px}
+table.edit.fr{table-layout:fixed;width:100%}
 .im-shots .x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(15,30,51,.75);color:#fff;font-size:14px;line-height:22px;padding:0;cursor:pointer}
 .replies td{vertical-align:top}
 .replies .reply-text{white-space:pre-wrap;font-size:12px;line-height:1.5;color:var(--ink-2);max-height:7.5em;overflow:hidden;margin-top:4px}
@@ -667,7 +683,6 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 <aside class="sidebar">
   <div class="brand"><img class="brand-logo" src="https://gaard.capital/wp-content/uploads/logo-1.png" alt="Gaard Capital LLC"><span class="brand-sub">CRM</span></div>
   <nav class="nav" id="nav" aria-label="Main"></nav>
-  <div class="sidebar-foot" id="sidebar-foot"><strong>Prototype on a database snapshot.</strong>Fictional data. Edits stay in this browser.</div>
 </aside>
 <header class="topbar">
   <div class="crumb" id="crumb">Dashboard</div>
@@ -677,6 +692,7 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
     <input type="search" id="global-search" placeholder="Search name, organization, or email" autocomplete="off" aria-controls="search-results" aria-expanded="false">
     <div class="search-results" id="search-results" role="listbox" hidden></div>
   </div>
+  <span class="save-state" id="save-state" role="status" aria-live="polite"></span>
   <div class="user" id="topbar-user"></div>
 </header>
 <main class="main" id="main" tabindex="-1"></main>
@@ -4736,6 +4752,8 @@ Views.reviews = { title:'Reviews',
 };
 
 /* ===== Import ======================================================== */
+/* The screenshots a check screen was read from, to compare with what was read. */
+const readShotsStrip = st => (st.readShots || []).length ? `<div class="imp-shots">${st.readShots.map((s, i) => `<div><span>Read from screenshot${st.readShots.length > 1 ? ' ' + (i + 1) : ''}</span><img src="${s.url}" alt="Screenshot ${i + 1}" data-zoom></div>`).join('')}</div>` : '';
 const STATUS_LABEL = { existing_contact:'Already on file', new_contact_existing_org:'New person, organization we know', needs_review:'Needs review', new_contact:'New contact', error:'Cannot import' };
 const STATUS_PILL = { existing_contact:'g-definite', new_contact_existing_org:'g-probable', needs_review:'g-probable', new_contact:'g-new', error:'g-definite' };
 Views.import = { title:'Import',
@@ -4774,6 +4792,7 @@ Views.import = { title:'Import',
           <span class="pill g-new">${n.ok} ready</span>
           ${n.ask ? `<span class="pill warnflag">${n.ask} need${n.ask === 1 ? 's' : ''} you</span>` : ''}
           ${n.skip ? `<span class="muted">${n.skip} left out</span>` : ''}</div>
+        ${readShotsStrip(st)}
       </div></section>
       <datalist id="im-people">${people.map(c => `<option value="${esc(label(c))}"></option>`).join('')}</datalist>
       <div class="table-wrap"><table class="grid imp replies"><thead><tr><th>Reply</th><th>From</th><th>Outcome</th></tr></thead><tbody>
@@ -4871,6 +4890,7 @@ Views.import = { title:'Import',
           ${st.parsed.headers.map((h, i) => `<tr><td><b>${esc(h)}</b></td><td class="muted">${esc(String((st.parsed.rows[0] || { cells: [] }).cells[i] || '').slice(0, 46))}</td>
             <td><select data-map="${i}"><option value="">Not imported</option>${Intelligence.TARGETS.map(x => opt(x.key, x.label, st.mapping[i] === x.key)).join('')}</select></td></tr>`).join('')}
         </tbody></table></div>` : ''}
+        ${readShotsStrip(st)}
       </div></section>
       <div class="table-wrap"><table class="grid imp"><thead><tr><th>Name</th><th>Email</th><th>Organization</th><th>Result</th></tr></thead><tbody>
         ${order.map(i => { const r = a[i], v = r.values;
@@ -4896,20 +4916,27 @@ Views.import = { title:'Import',
             <dt>Screenshots</dt><dd>Read on this computer. The image is never uploaded.</dd>
           </dl><p class="foot-note">Nothing is written until you commit. Skipped rows are left out, and Cancel discards the batch.</p></div></div></div></div>
       <p>Paste rows from a sheet, or the replies clients sent back. Rows are checked against the master list; replies are matched to the person and given an outcome. Nothing is written until you confirm.</p></div><div class="page-actions">${demoTag}</div></div>
-    <div style="max-width:860px">
-      <section class="card" id="im-drop"><div class="card-head"><h2>Paste rows, replies or a screenshot</h2><span class="sub">Rows need their header row</span></div><div class="card-body">
-        <label class="f" for="im-text"><span>Paste here</span></label><div class="im-box"><textarea id="im-text" rows="13" placeholder="Rows copied from Excel, with the header row&#10;&#10;or the text of client replies, one after another&#10;&#10;or a screenshot: press Ctrl+V here, or drop the image on this box">${esc(st.text)}</textarea>
+    <div>
+      <section class="card" id="im-drop"><div class="card-head"><h2>Paste rows, replies or a screenshot</h2></div><div class="card-body">
+        ${st.sheets && st.sheets.list.length > 1 ? `<div class="im-sheets"><span>${esc(st.sheets.file)} has ${st.sheets.list.length} sheets. Showing</span>
+          <select id="im-sheet" aria-label="Sheet to read">${st.sheets.list.map((s, i) => `<option value="${i}" ${i === st.sheets.at ? 'selected' : ''}>${esc(s.name)} (${s.rows} row${s.rows === 1 ? '' : 's'})</option>`).join('')}</select></div>` : ''}
+        <label class="sr-only" for="im-text">Paste here</label><div class="im-box"><textarea id="im-text" rows="16" wrap="${String(st.text || '').includes(String.fromCharCode(9)) ? 'off' : 'soft'}" placeholder="Paste rows copied from a sheet, with or without the header row&#10;&#10;or the text of client replies, one after another&#10;&#10;or a screenshot: press Ctrl+V here, or drop it on this box&#10;&#10;or upload a file: csv, Excel, Word or a picture">${esc(st.text)}</textarea>
         ${(st.shots || []).length ? `<div class="im-shots">${st.shots.map((s, i) => `<figure><img src="${s.url}" alt="Screenshot ${i + 1}" title="Read when you press Read it" data-shotview="${i}"><button class="x" type="button" data-shotrm="${i}" aria-label="Remove screenshot ${i + 1}">×</button></figure>`).join('')}</div>` : ''}</div>
         <p class="muted small" id="im-ocr" role="status" ${st.ocrMsg ? '' : 'hidden'} style="margin-top:8px">${esc(st.ocrMsg || '')}</p>
-        <div class="page-actions" style="margin-top:10px"><button class="btn btn-primary" type="button" id="im-read">Read it</button>
-          <label class="btn" for="im-img">Add a screenshot</label><input type="file" id="im-img" accept="image/*" class="sr-only">
-          <label class="btn" for="im-file">Upload .csv</label><input type="file" id="im-file" accept=".csv,text/csv,.tsv,.txt" class="sr-only"></div>
+        <div class="page-actions" style="margin-top:12px"><button class="btn btn-primary" type="button" id="im-read">Read it</button>
+          <label class="btn im-up" for="im-file"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>Upload</label>
+          <input type="file" id="im-file" multiple accept=".csv,.tsv,.txt,.xlsx,.xls,.docx,image/*,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="sr-only">
+          ${String(st.text || '').trim() || (st.shots || []).length || st.sheets ? '<button class="btn" type="button" id="im-clear">Clear</button>' : ''}</div>
         <p class="muted small" style="margin-top:12px">Try it: <button class="linkish" type="button" id="im-example">load the demo batch</button>, 31 messy rows from a sourcing sheet, or <button class="linkish" type="button" id="im-demo-replies">load demo replies</button>, six answers to emails already on file, one of each kind.</p></div></section>
     </div>`;
   },
   mount(root){
     const st = UI.import;
     root.querySelector('#im-again')?.addEventListener('click', () => { UI.import = null; render(); });
+    // Clear: the box, the screenshots, the sheet choice and the last check, for a new batch
+    root.querySelector('#im-clear')?.addEventListener('click', () => {
+      [...(st.shots || []), ...(st.readShots || [])].forEach(s => URL.revokeObjectURL(s.url));
+      UI.import = null; render(); document.getElementById('im-text')?.focus(); });
     root.querySelector('#im-back')?.addEventListener('click', () => { st.step = 1; render(); });
     /* Rows: read the columns (with or without a header row), check every row
        against the book, and only a possible duplicate waits for a choice. */
@@ -4989,7 +5016,8 @@ Views.import = { title:'Import',
     const readReplies = text => { st.text = text; const list = Replies.read(text);
       if (!list.length){ Toast.show('No reply found. Paste the email text, including the From line if you can.', { kind:'warn' }); return; }
       st.replies = list; st.ocrMsg = ''; st.step = 'replies'; render(); };
-    const readAny = text => {
+    const readAny = (text, fromShots) => {
+      if (!fromShots && (st.readShots || []).length){ st.readShots.forEach(s => URL.revokeObjectURL(s.url)); st.readShots = []; }
       if (!String(text || '').trim()){ Toast.show('Paste rows, replies or a screenshot first.', { kind:'warn' }); return; }
       return Replies.looksLikeRows(text) ? read(text) : readReplies(text); };
     root.querySelector('#im-read')?.addEventListener('click', () => (st.shots || []).length ? readShots() : readAny(root.querySelector('#im-text').value));
@@ -4997,7 +5025,7 @@ Views.import = { title:'Import',
     root.querySelector('#im-demo-replies')?.addEventListener('click', () => { const text = Replies.demo();
       if (!text){ Toast.show('Not enough emails on file to make the demo replies.', { kind:'warn' }); return; }
       root.querySelector('#im-text').value = text; readReplies(text); });
-    root.querySelector('#im-text')?.addEventListener('input', e => { st.text = e.target.value; });
+    root.querySelector('#im-text')?.addEventListener('input', e => { st.text = e.target.value; if (!st.text.trim() && st.sheets){ st.sheets = null; render(); } });
 
     /* Screenshots: pasted, dropped, or chosen. Each is shown under the box
        first; Read it reads the images on this computer, adds their text to
@@ -5012,14 +5040,37 @@ Views.import = { title:'Import',
         for (const s of st.shots){ const t = Ocr.tidy(await Ocr.read(s.file, ocrMsg)).trim(); if (t) text = (text ? text + '\n\n' : '') + t; }
         if (!text){ ocrMsg('No text found in the screenshot. Try a sharper one.'); btn.disabled = false; return; }
         text = Ocr.sheetRows(text) || text;   // a screenshot of a sheet becomes rows
-        st.shots.forEach(s => URL.revokeObjectURL(s.url)); st.shots = []; st.ocrMsg = '';
-        box.value = text; readAny(text);
+        (st.readShots || []).forEach(s => URL.revokeObjectURL(s.url)); st.readShots = st.shots; st.shots = []; st.ocrMsg = '';
+        box.value = text; readAny(text, true);
       } catch (err){ ocrMsg(err.message || 'The screenshot could not be read.'); btn.disabled = false; }
     };
     root.querySelectorAll('[data-shotrm]').forEach(b => b.addEventListener('click', () => { const i = Number(b.dataset.shotrm);
       st.text = root.querySelector('#im-text').value; URL.revokeObjectURL(st.shots[i].url); st.shots.splice(i, 1); render(); }));
-    root.querySelectorAll('[data-shotview]').forEach(img => img.addEventListener('click', () => window.open(img.src, '_blank')));
-    root.querySelector('#im-img')?.addEventListener('change', e => { const f = e.target.files[0]; if (f) readImage(f); e.target.value = ''; });
+    root.querySelectorAll('[data-shotview], [data-zoom]').forEach(img => img.addEventListener('click', () => zoomImage(img.src, img.alt)));
+    /* A file goes into the box, to be checked and then read: a picture as a
+       screenshot, a sheet or csv as rows (a workbook with several sheets
+       offers a choice), a Word file as its text, tables as rows. */
+    const putText = (text, note) => { const box = root.querySelector('#im-text'); if (!box) return;
+      box.value = text; st.text = text; ocrMsg(note); };
+    const takeFiles = async files => {
+      for (const f of [...files]){
+        const name = f.name || 'file', ext = (name.split('.').pop() || '').toLowerCase();
+        try {
+          if (f.type.startsWith('image/')){ readImage(f); continue; }
+          if (ext === 'xlsx' || ext === 'xls'){
+            ocrMsg('Opening ' + name + '…');
+            const list = await Files.sheets(f);
+            if (!list.length){ ocrMsg(name + ' has no rows.'); continue; }
+            st.sheets = { file: name, list, at: 0 }; st.text = list[0].text; st.ocrMsg = `Loaded ${name}${list.length > 1 ? ', sheet ' + list[0].name : ''}. Check it, then press Read it.`; render(); continue; }
+          if (ext === 'docx'){ ocrMsg('Opening ' + name + '…'); st.sheets = null;
+            putText(await Files.docx(f), 'Loaded ' + name + '. Check it, then press Read it.'); continue; }
+          st.sheets = null;
+          putText(await f.text(), 'Loaded ' + name + '. Check it, then press Read it.');
+        } catch (err){ ocrMsg(name + ' could not be read: ' + (err.message || err)); }
+      }
+    };
+    root.querySelector('#im-sheet')?.addEventListener('change', e => { st.sheets.at = Number(e.target.value);
+      const s = st.sheets.list[st.sheets.at]; st.text = s.text; st.ocrMsg = 'Showing the sheet ' + s.name + '. Check it, then press Read it.'; render(); });
     root.querySelector('#im-text')?.addEventListener('paste', e => {
       const item = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/'));
       if (item){ e.preventDefault(); readImage(item.getAsFile()); } });
@@ -5028,9 +5079,7 @@ Views.import = { title:'Import',
       drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragging'); });
       drop.addEventListener('dragleave', () => drop.classList.remove('dragging'));
       drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('dragging');
-        const f = e.dataTransfer.files[0]; if (!f) return;
-        if (f.type.startsWith('image/')) return readImage(f);
-        const rd = new FileReader(); rd.onload = () => readAny(String(rd.result || '')); rd.readAsText(f); });
+        if (e.dataTransfer.files.length) takeFiles(e.dataTransfer.files); });
     }
 
     /* The replies review */
@@ -5049,10 +5098,21 @@ Views.import = { title:'Import',
       const items = st.replies.filter(r => r.contact_id && r.code && r.code !== 'skip');
       if (!items.length) return;
       st.repliesResult = Replies.save(items); render(); });
-    root.querySelector('#im-file')?.addEventListener('change', e => { const file = e.target.files[0]; if (!file) return;
-      const rd = new FileReader(); rd.onload = () => read(String(rd.result||'')); rd.onerror = () => Toast.show('That file could not be read.', { kind:'warn' }); rd.readAsText(file); });
+    root.querySelector('#im-file')?.addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) takeFiles(files); });
   }
 };
+
+/** An image shown large over the page. */
+function zoomImage(src, alt){
+  const back = document.createElement('div'); back.className = 'zoom-back'; back.setAttribute('role', 'dialog'); back.setAttribute('aria-modal', 'true'); back.setAttribute('aria-label', alt || 'Screenshot');
+  back.innerHTML = `<button class="zoom-x" type="button" aria-label="Close">×</button><img alt="${esc(alt || 'Screenshot')}">`;
+  back.querySelector('img').src = src;
+  const close = () => { back.remove(); document.removeEventListener('keydown', key); window.removeEventListener('hashchange', close); };
+  const key = e => { if (e.key === 'Escape') close(); };
+  back.addEventListener('click', e => { if (e.target === back || e.target.classList.contains('zoom-x')) close(); });
+  document.addEventListener('keydown', key); window.addEventListener('hashchange', close);
+  document.body.appendChild(back); back.querySelector('.zoom-x').focus();
+}
 
 /** process_import_batch: one approved row becomes an organization, a contact, a
     touchpoint and the reminder that touchpoint's outcome schedules. */
@@ -5204,9 +5264,10 @@ Views.settings = { title:'Settings',
         </tbody></table></div></section>`; })() : ''}
       <section class="card col-12" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
         <div class="card-body">
-        <table class="edit"><thead><tr><th>Domain</th><th>Rule</th><th>Reason</th><th>On</th><th></th></tr></thead><tbody>
+        <table class="edit fr"><colgroup><col class="fr-domain"><col class="fr-rule"><col><col class="fr-on"><col class="fr-del"></colgroup>
+        <thead><tr><th>Domain</th><th>Rule</th><th>Reason</th><th>On</th><th></th></tr></thead><tbody>
         ${Repo.flagRules.all().map(r => `<tr><td class="mono"><b>${esc(r.pattern)}</b></td>
-          <td><select data-fr-flag="${r.id}" style="width:auto" aria-label="Rule for ${esc(r.pattern)}">
+          <td><select data-fr-flag="${r.id}" aria-label="Rule for ${esc(r.pattern)}">
             <option value="university" ${r.flag === 'university' ? 'selected' : ''}>No cold email (in person only)</option>
             <option value="do_not_contact" ${r.flag !== 'university' ? 'selected' : ''}>Do not contact</option></select></td>
           <td><input data-fr-reason="${r.id}" type="text" value="${esc(r.reason || '')}" aria-label="Reason for ${esc(r.pattern)}"></td>
@@ -5333,7 +5394,6 @@ const NAV = [
   ['rfps','RFPs','<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>'],
   ['import','Import','<svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>'],
   ['workflow','Workflow','<svg viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="5"/><rect x="15" y="4" width="6" height="5"/><rect x="9" y="15" width="6" height="5"/><path d="M6 9v3h12V9M12 12v3"/></svg>'],
-  ['settings','Settings','<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'],
 ];
 /* Which sidebar entry owns each screen, and the tabs that screen sits in. */
 const NAV_OF = { contact:'contacts', organization:'contacts', organizations:'contacts', touchpoints:'contacts',
@@ -5375,11 +5435,9 @@ function renderNav(){
   box.innerHTML = `<div class="user-wrap"><button class="user-btn" type="button" id="user-btn" aria-haspopup="menu" aria-expanded="${wasOpen}" aria-controls="user-menu">
       <span><b>${esc(who)}</b><br><span class="muted" style="font-size:11.5px">${esc(Repo.settings().firm_name)}</span></span><span class="avatar" aria-hidden="true">${esc(initials)}</span></button>
     <div class="user-menu" id="user-menu" role="menu" ${wasOpen ? '' : 'hidden'}>
-      <div class="who"><b>${esc(who || 'Gaard team')}</b>${Store.live ? esc(Live.email || '') + '<br>Live database' : 'Demo data'}</div>
+      <div class="who"><b>${esc(who || 'Gaard team')}</b>${Store.live ? esc(Live.email || '') : 'Demo data'}</div>
       <a role="menuitem" href="${href('settings')}">Settings</a>
-      ${Store.live ? `<button role="menuitem" type="button" data-um="reload">Reload from the database</button>
-        <button role="menuitem" type="button" data-um="pass">Change password</button>
-        <button role="menuitem" type="button" class="danger" data-um="out">Sign out</button>`
+      ${Store.live ? `<button role="menuitem" type="button" class="danger" data-um="out">Sign out</button>`
         : `<button role="menuitem" type="button" data-um="in">Sign in to the live database</button>`}
     </div></div>`;
   const btn = box.querySelector('#user-btn'), menu = box.querySelector('#user-menu');
@@ -5387,9 +5445,7 @@ function renderNav(){
   btn.addEventListener('click', e => { e.stopPropagation(); setOpen(menu.hidden); });
   menu.addEventListener('click', e => e.stopPropagation());
   menu.querySelector('a')?.addEventListener('click', () => setOpen(false));
-  menu.querySelector('[data-um="reload"]')?.addEventListener('click', () => { setOpen(false); Live.reload(); });
   menu.querySelector('[data-um="out"]')?.addEventListener('click', () => Live.signOut());
-  menu.querySelector('[data-um="pass"]')?.addEventListener('click', () => { setOpen(false); changePassword(); });
   menu.querySelector('[data-um="in"]')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
 }
 async function changePassword(){
@@ -5418,10 +5474,8 @@ function render(){
   const focus = act && main.contains(act) && act.id
     ? { id: act.id, start: act.selectionStart, end: act.selectionEnd } : null;
   try {
-    const liveNote = '';   // the save state shows at the foot of the sidebar instead
-    main.innerHTML = tabStrip(name) + liveNote + view.render(params) + `<div class="foot"><span>${Store.live
-      ? 'Live data read from Supabase at ' + esc(fmtDateTime(new Date(Repo.settings().loaded_at))) + '. No email connection yet.'
-      : 'Fictional demonstration data from the database snapshot. No real client records, no email connection, no live database.'}</span><span>${esc(Repo.settings().firm_name)} CRM &middot; ${fmtInt(Repo.contacts.all().length)} contacts</span></div>`;
+    const liveNote = '';   // the save state shows in the top bar instead
+    main.innerHTML = tabStrip(name) + liveNote + view.render(params);
     view.mount(main, params);
   } catch (err){
     console.error(err);
@@ -5511,6 +5565,37 @@ const SUPABASE_URL = 'https://fgweqsoflzvxkbxgozor.supabase.co';
    row level security, the team list and the second factor, never this key. */
 const SUPABASE_KEY = 'sb_publishable_epTAy8_dmaWwrDkRIB4SyA_GgtGrLaq';
 const MODE_KEY = 'gaard_mode';
+/* Opening Excel and Word files in the browser. The readers are fetched from
+   jsdelivr the first time someone uploads one, never on page load. */
+const Files = {
+  /** Every sheet with rows, as tab-separated text. */
+  async sheets(file){
+    if (!window.XLSX) await loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+    const wb = window.XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: false });
+    return wb.SheetNames.map(name => {
+      const text = window.XLSX.utils.sheet_to_csv(wb.Sheets[name], { FS: '\t', blankrows: false })
+        .split('\n').map(l => l.replace(/\t+$/, '')).filter(l => l.trim()).join('\n');
+      return { name, text, rows: text ? text.split('\n').length : 0 };
+    }).filter(s => s.rows);
+  },
+  /** The text of a Word file: paragraphs as lines, table rows as tab-separated rows. */
+  async docx(file){
+    if (!window.JSZip) await loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+    const zip = await window.JSZip.loadAsync(await file.arrayBuffer());
+    const xml = await zip.file('word/document.xml')?.async('string');
+    if (!xml) throw new Error('not a Word document');
+    const doc = new DOMParser().parseFromString(xml, 'application/xml'), W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+    const text = el => [...el.getElementsByTagNameNS(W, 't')].map(t => t.textContent).join('');
+    const out = [], body = doc.getElementsByTagNameNS(W, 'body')[0];
+    for (const el of body ? [...body.children] : []){
+      if (el.localName === 'p') out.push(text(el));
+      else if (el.localName === 'tbl') for (const tr of el.getElementsByTagNameNS(W, 'tr'))
+        out.push([...tr.getElementsByTagNameNS(W, 'tc')].map(tc => text(tc).replace(/\t/g, ' ').trim()).join('\t'));
+    }
+    return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  },
+};
+
 const loadScript = src => new Promise((resolve, reject) => {
   const s = document.createElement('script'); s.src = src; s.onload = resolve;
   s.onerror = () => reject(new Error('Could not reach ' + new URL(src).host + '. Check the internet connection.'));
@@ -5745,16 +5830,16 @@ function openDemo(){
   try { localStorage.setItem(MODE_KEY, 'demo'); } catch (e) { /* private window */ }
   Gate.hide(); Store.init(); route(); renderSideFoot();
 }
+/* "Saving…" while a change is on its way to the database, "Saved" for a few
+   seconds after; nothing otherwise. A refused save shows its own message. */
+let saveStateTimer = null;
 function renderSideFoot(){
-  const el = document.getElementById('sidebar-foot'); if (!el) return;
-  el.innerHTML = Store.live
-    ? `<strong>Live database.</strong>${esc(Live.member?.name || Live.email)}<br>${Live.saving ? 'Saving&hellip;'
-        : Live.lastSaved ? 'All changes saved ' + esc(Live.lastSaved.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }))
-        : 'Changes save as you make them'}<br><button class="linkish" type="button" id="sf-reload">Reload</button> &middot; <button class="linkish" type="button" id="sf-out">Sign out</button>`
-    : `<strong>Demo data.</strong>Fictional, kept in this browser.<br><button class="linkish" type="button" id="sf-in">Sign in to the live database</button>`;
-  el.querySelector('#sf-reload')?.addEventListener('click', () => Live.reload());
-  el.querySelector('#sf-out')?.addEventListener('click', () => Live.signOut());
-  el.querySelector('#sf-in')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
+  const el = document.getElementById('save-state'); if (!el) return;
+  clearTimeout(saveStateTimer);
+  if (!Store.live){ el.textContent = ''; return; }
+  if (Live.saving){ el.textContent = 'Saving…'; return; }
+  if (Live.lastSaved && Date.now() - Live.lastSaved < 4000){ el.textContent = 'All changes saved'; saveStateTimer = setTimeout(() => { el.textContent = ''; }, 4000); return; }
+  el.textContent = '';
 }
 
 /* Start: demo if that was the last choice, otherwise the sign-in screen
