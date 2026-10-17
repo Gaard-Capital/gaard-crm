@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-16.14">
+<meta name="build-version" content="2026-10-17.4">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -297,6 +297,14 @@ table.grid.sheet.ss td{padding:3px 9px;height:24px;border-right:1px solid var(--
 table.grid.sheet.ss td:last-child,table.grid.sheet.ss th:last-child{border-right:none}
 table.grid.sheet.ss td.rn{color:var(--ink-4);text-align:right;font-size:10.5px;background:var(--surface-3);padding:4px 7px}
 table.grid.sheet.ss th.rn{text-align:right}
+#contacts-sheet td.rn input,#contacts-sheet th.rn input{margin:0;width:14px;height:14px;cursor:pointer;vertical-align:middle}
+#contacts-sheet td.rn input{display:none}
+#contacts-sheet tr:hover td.rn input,#contacts-sheet td.rn input:checked,#contacts-sheet.selmode td.rn input{display:inline-block}
+#contacts-sheet tr:hover td.rn .n,#contacts-sheet tr.is-sel td.rn .n,#contacts-sheet.selmode td.rn .n{display:none}
+#contacts-sheet th.rn{text-align:center} #contacts-sheet td.rn{text-align:center}
+#contacts-sheet tr.is-sel td{background:var(--accent-soft)}
+.selbar{display:inline-flex;align-items:center;gap:8px;padding:4px 6px 4px 12px;border-radius:var(--radius-pill);background:var(--accent-soft);border:1px solid var(--accent-line);font-size:13px}
+.selbar b{color:var(--accent-strong);margin-right:2px}
 table.grid.sheet.ss td.pin1,table.grid.sheet.ss th.pin1{position:sticky;left:0;z-index:3}
 table.grid.sheet.ss td.pin2,table.grid.sheet.ss th.pin2{position:sticky;left:42px;z-index:3;background:var(--surface)}
 table.grid.sheet.ss td.pin3,table.grid.sheet.ss th.pin3{position:sticky;left:120px;z-index:3;background:var(--surface);box-shadow:1px 0 0 var(--line-strong)}
@@ -375,6 +383,14 @@ tr.mm-blocked:hover td{background:transparent}
 
 /* ---------- Split record view ---------- */
 .split{display:grid;grid-template-columns:minmax(360px,5fr) minmax(430px,7fr);gap:16px;align-items:start}
+.mm-split{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.mm-split table.grid td{white-space:normal;overflow:visible;text-overflow:clip;max-width:none;vertical-align:top}
+.mm-split table.grid td .sub{white-space:normal}
+.mm-split [data-pick]{width:15px;height:15px;cursor:pointer}
+.mm-split tr.is-sel td{background:var(--accent-soft)}
+.mm-split table.grid{min-width:0 !important;table-layout:fixed;width:100%}
+.mm-split table.grid th:first-child{width:40px}
+.mm-split .pill{white-space:normal;max-width:none;height:auto;min-height:23px;line-height:1.35;padding-top:3px;padding-bottom:3px;text-align:left}
 .kv{display:grid;grid-template-columns:142px 1fr;gap:9px 14px;font-size:13px}
 .kv dt{color:var(--ink-3)} .kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .kv dd .sub{display:block;margin-top:3px;font-size:11.5px;color:var(--ink-3)}
@@ -2724,7 +2740,7 @@ const go = (name, params) => { location.hash = href(name, params); };
 
 const UI = {
   filters: Metrics.empty(),
-  contacts: { sort:'added', dir:'asc', page:0, pageSize:150, q:'', expanded:new Set(), nextEdit:null,
+  contacts: { sel:new Set(), sort:'added', dir:'desc', page:0, pageSize:150, q:'', expanded:new Set(), nextEdit:null,
     zoom: (() => { try { return Number(localStorage.getItem('gaard_sheet_zoom')) || 100; } catch (e) { return 100; } })() },
   reviews: { q:'' },
   partners: { sort:'name', dir:'asc', page:0, pageSize:150, q:'',
@@ -2772,6 +2788,35 @@ function bindSort(root, st, rerender){ root.querySelectorAll('th[data-sort]').fo
 function pager(st, total, cls2=''){ const pages = Math.max(1, Math.ceil(total/st.pageSize)); st.page = clamp(st.page, 0, pages-1); const a = st.page*st.pageSize;
   return `<div class="pager ${cls2}"><span>Showing ${total ? a+1 : 0} to ${Math.min(total, a+st.pageSize)} of ${fmtInt(total)}</span><span class="spacer"></span><button class="btn btn-sm" type="button" data-page="prev" ${st.page===0?'disabled':''}>Previous</button><span>Page ${st.page+1} of ${pages}</span><button class="btn btn-sm" type="button" data-page="next" ${st.page>=pages-1?'disabled':''}>Next</button></div>`; }
 function bindPager(root, st, rerender){ root.querySelectorAll('[data-page]').forEach(b => b.addEventListener('click', () => { st.page += b.dataset.page === 'next' ? 1 : -1; rerender(); })); }
+/** Tick boxes in a list behave like a sheet's: press one and drag across the
+    rows to set them all the same way, or Shift-click to set the range from the
+    last one pressed. apply(map of id -> checked) saves the change once. */
+function bindDragTick(root, selector, idOf, apply){
+  const boxes = [...root.querySelectorAll(selector)];
+  if (!boxes.length) return;
+  /* While dragging, the rows between the box pressed and the row under the
+     mouse take the new state; every other row goes back to how it was. So
+     dragging down to row 5 and back up to row 3 leaves rows 4 and 5 as they
+     were before. */
+  let drag = null;
+  const show = (cb, on) => { cb.checked = on; cb.closest('tr')?.classList.toggle('is-sel', on); };
+  const spread = to => { const a = Math.min(drag.from, to), b = Math.max(drag.from, to);
+    boxes.forEach((cb, k) => show(cb, k >= a && k <= b ? drag.on : drag.was[k])); };
+  const finish = () => { if (!drag) return; const was = drag.was; drag = null; document.removeEventListener('mouseup', finish);
+    const changes = new Map(); boxes.forEach((cb, k) => { if (cb.checked !== was[k]) changes.set(idOf(cb), cb.checked); });
+    if (changes.size) apply(changes); };
+  boxes.forEach((cb, i) => {
+    cb.addEventListener('click', e => { if (e.detail) e.preventDefault(); e.stopPropagation(); });   // a mouse click is handled on press; the keyboard still toggles
+    cb.addEventListener('mousedown', e => {
+      if (e.button !== 0) return; e.preventDefault(); e.stopPropagation();
+      const from = e.shiftKey && root._lastTick != null ? root._lastTick : i;
+      drag = { from, on: !cb.checked, was: boxes.map(x => x.checked) };
+      spread(i); root._lastTick = i;
+      document.addEventListener('mouseup', finish);
+    });
+    cb.closest('tr')?.addEventListener('mouseenter', () => { if (drag){ spread(i); root._lastTick = i; } });
+  });
+}
 function bindRowNav(root){ const rows = [...root.querySelectorAll('tr.row-link')];
   rows.forEach((tr,i) => { tr.tabIndex = 0;
     tr.addEventListener('keydown', e => { if (e.key==='ArrowDown'){ e.preventDefault(); (rows[i+1]||rows[0]).focus(); } else if (e.key==='ArrowUp'){ e.preventDefault(); (rows[i-1]||rows[rows.length-1]).focus(); } else if (e.key==='Enter') tr.click(); });
@@ -3291,6 +3336,12 @@ Views.mailmerge = { title:'Emails to send',
       const ft = templates.find(t => t.first); if (ft){ st.templateId = ft.id; st.selected = null; }
       st.pickedFor = 'first';
     } else if (st.source !== 'first' && st.pickedFor === 'first'){ st.pickedFor = null; }
+    // People picked in Contacts who were never written to get the cold introduction first
+    if (st.source === 'picked' && st.pickedFor !== 'picked'){
+      const ids = st.picked || [];
+      if (ids.length && ids.every(id => !Repo.contacts.latestTouch().get(id))){ const ft = templates.find(t => t.first); if (ft){ st.templateId = ft.id; st.selected = null; } }
+      st.pickedFor = 'picked';
+    }
     const tpl = Repo.templates.byId(st.templateId) || templates[0];
     if (!tpl) return `<div class="page-head"><h1>Emails to send</h1></div>${emptyState('No letters yet','Add one in Settings.')}`;
     if (st.templateId !== tpl.id) st.templateId = tpl.id;
@@ -3298,15 +3349,18 @@ Views.mailmerge = { title:'Emails to send',
     /* Who is in scope. Default is everyone due; the source can be widened, and
        'first' reaches the people who have just been imported and have had no
        outreach at all, which is the cold batch Jon sends on a Monday. */
-    const f = UI.filters;
+    const f = Metrics.empty();   // who gets a letter is chosen by the buttons above, never by filters set on another page
     const inScope = new Set(Metrics.leads(f).map(l => l.contact_id));
     const fresh = Repo.contacts.neverContacted().filter(c => !c.do_not_contact && contactInFilters(c, f));
     let candidates;
-    if (st.source === 'first') candidates = fresh.map(c => ({ reminder:null, contact:c, first:true }));
+    const picked = (st.picked || []).map(id => Repo.contacts.byId(id)).filter(Boolean);
+    if (st.source === 'picked') candidates = picked.map(c => ({ reminder: Repo.contacts.nextReminder(c.id), contact: c, first: !Repo.contacts.latestTouch().get(c.id) }));
+    else if (st.source === 'first') candidates = fresh.map(c => ({ reminder:null, contact:c, first:true }));
     else if (st.source === 'due') candidates = Merge.due().filter(x => inScope.has(x.contact.id));
     else if (st.source === 'overdue') candidates = Merge.due().filter(x => inScope.has(x.contact.id) && Repo.reminders.bucket(x.reminder) === 'overdue');
     else candidates = Metrics.leads(f).filter(l => !l.contact.do_not_contact).map(l => ({ reminder: Repo.contacts.nextReminder(l.contact_id), contact: l.contact }));
-    if (tpl.segment) candidates = candidates.filter(x => x.contact.segment_code === tpl.segment);
+    // A letter written for one segment narrows the lists; people picked by hand are kept, whatever their segment
+    if (tpl.segment && st.source !== 'picked') candidates = candidates.filter(x => x.contact.segment_code === tpl.segment);
 
     const rows = candidates.map(x => ({ ...x, blocked: Merge.blocked(x.contact), gaps: Merge.gaps(tpl, x.contact) }));
     const sendable = rows.filter(r => !r.blocked);
@@ -3329,26 +3383,26 @@ Views.mailmerge = { title:'Emails to send',
         <select id="mm-tpl" style="min-width:300px">${templates.map(t => `<option value="${t.id}" ${t.id===tpl.id?'selected':''}>${esc(t.name)}${t.segment ? ' (' + esc(segName(t.segment)) + ')' : ''}</option>`).join('')}</select>
         <a class="btn btn-sm" href="${href('templates')}">Edit the wording</a>
         <span class="spacer"></span>
-        <span class="muted small">${tpl.segment ? 'Written for ' + esc(segName(tpl.segment)) + ', so only those people are listed below.' : 'This one suits anybody.'}</span>
+        <span class="muted small">${tpl.segment ? 'Written for ' + esc(segName(tpl.segment)) + ', so only those people are listed below.' : ''}</span>
       </div></div></section>
 
     <section class="card" style="margin-bottom:16px"><div class="card-body">
       <div class="stephead"><span class="stepnum">2</span><h2>Who gets it?</h2>
         <span class="sub">${fmtInt(chosen.length)} of ${fmtInt(sendable.length)} ticked</span></div>
       <div class="filters" style="margin:0 0 10px">
-        <div class="btn-group">${srcBtn('first','First outreach', fresh.length)}${srcBtn('due','Due today', dueAll.length)}${srcBtn('overdue','Only the late ones', dueAll.filter(x => Repo.reminders.bucket(x.reminder)==='overdue').length)}${srcBtn('all','Everyone already contacted', Metrics.leads(f).length)}</div>
+        <div class="btn-group">${picked.length ? srcBtn('picked','Picked in Contacts', picked.length) : ''}${srcBtn('first','First outreach', fresh.length)}${srcBtn('due','Due today', dueAll.length)}${srcBtn('overdue','Only the late ones', dueAll.filter(x => Repo.reminders.bucket(x.reminder)==='overdue').length)}${srcBtn('all','Everyone already contacted', Metrics.leads(f).length)}</div>
         <button class="btn btn-sm" type="button" id="mm-all">Tick all</button>
         <button class="btn btn-sm" type="button" id="mm-none">Untick all</button></div>
       ${st.source === 'first' ? `<p class="muted small" style="margin:0 0 10px">These people have been imported but never written to. Sending records their first outreach date and starts the follow-up clock. Importing a name on its own never marks anybody as No response.</p>` : ''}
-      ${filterBar({ compact:true })}</div></section>
+</div></section>
 
-    <div class="split">
+    <div class="split mm-split">
       <section class="card"><div class="card-head"><h2>${fmtInt(sendable.length)} ${sendable.length === 1 ? 'person' : 'people'}</h2>
         <span class="sub">Click a name to read their copy</span></div>
         <div class="table-wrap auto" style="box-shadow:none;border:none;border-radius:0;max-height:520px">
         <table class="grid sheet" style="min-width:0"><thead><tr><th style="width:36px"></th><th>Name</th><th>Why now</th><th>Last correspondence</th></tr></thead><tbody>
         ${rows.length ? rows.map(r => { const c = r.contact; const on = st.selected.has(c.id);
-          return `<tr class="${r.blocked ? 'mm-blocked' : ''} ${preview && preview.contact.id === c.id ? 'is-open' : ''}" data-preview="${c.id}">
+          return `<tr class="${r.blocked ? 'mm-blocked' : ''} ${on && !r.blocked ? 'is-sel' : ''} ${preview && preview.contact.id === c.id ? 'is-open' : ''}" data-preview="${c.id}">
             <td>${r.blocked ? '<span class="muted" title="' + esc(r.blocked) + '">&#183;</span>' : `<input type="checkbox" data-pick="${c.id}" ${on?'checked':''} aria-label="Include ${esc(c.full_name)}">`}</td>
             <td><span class="name">${esc(c.full_name)}</span><span class="sub">${esc(orgNameOf(c) || 'Individual')}</span></td>
             <td>${r.blocked ? `<span class="muted">${esc(r.blocked)}</span>`
@@ -3391,6 +3445,7 @@ Views.mailmerge = { title:'Emails to send',
     root.querySelectorAll('[data-source]').forEach(b => b.addEventListener('click', () => { st.source = b.dataset.source; st.selected = null; render(); }));
     root.querySelectorAll('[data-pick]').forEach(cb => cb.addEventListener('change', e => { e.stopPropagation();
       const id = Number(cb.dataset.pick); if (cb.checked) st.selected.add(id); else st.selected.delete(id); render(); }));
+    bindDragTick(root, '[data-pick]', cb => Number(cb.dataset.pick), changes => { changes.forEach((on, id) => on ? st.selected.add(id) : st.selected.delete(id)); render(); });
     root.querySelectorAll('[data-preview]').forEach(tr => tr.addEventListener('click', e => {
       if (e.target.closest('input')) return; st.previewId = Number(tr.dataset.preview); render(); }));
     root.querySelector('#mm-all')?.addEventListener('click', () => { st.selected = null; render(); });
@@ -3422,6 +3477,8 @@ Views.mailmerge = { title:'Emails to send',
       if (!ok) return;
       Merge.send(rows, tpl.name);
       st.selected = new Set();
+      // the people picked in Contacts have had their email: the pick is done with
+      if (st.source === 'picked'){ UI.contacts.sel.clear(); st.picked = []; st.source = 'due'; st.appliedSource = 'due'; st.selected = null; history.replaceState(null, '', href('mailmerge')); Router.current.params = {}; }
       render();
     });
   }
@@ -3864,7 +3921,7 @@ Views.contacts = { title:'Contacts',
     const latest = Repo.contacts.latestTouch();
     const getters = {
       full_name: c => (c.full_name||'').toLowerCase(), org: c => orgNameOf(c).toLowerCase(),
-      added: c => c.sourced_on || dayOf(c.created_at) || '',
+      added: c => (c.sourced_on || dayOf(c.created_at) || '') + ' ' + String(c.created_at || ''),   // the day added, then the moment, so the newest of a day comes first
       first_out: c => leadBy.get(c.id)?.first_outreach_on || '',
       last: c => latest.get(c.id)?.touched_at || '',
       stage: c => { const l = leadBy.get(c.id); return l && l.stage ? STAGES.findIndex(x => x.code === l.stage) : -1; },
@@ -3916,8 +3973,8 @@ Views.contacts = { title:'Contacts',
       const shortDate = v => v ? fmtDate(v, { month:'numeric', day:'numeric', year:'2-digit' }) : '<span class="muted">-</span>';
       const link = u => !blankish(u) ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//,''))}</a>` : '';
       const cell = (v, field) => `<td class="${field ? 'ed' : ''}" ${field ? `data-edit="${field}" data-id="${c.id}"` : ''} title="${esc(String(v ?? '').replace(/<[^>]*>/g,''))}">${v || '<span class="muted">-</span>'}</td>`;
-      return `<tr class="row-link ${open ? 'is-open' : ''}" data-href="${href('contacts/'+c.id)}">
-        <td class="rn pin1">${nth}</td>
+      return `<tr class="row-link ${open ? 'is-open' : ''} ${st.sel.has(c.id) ? 'is-sel' : ''}" data-href="${href('contacts/'+c.id)}">
+        <td class="rn pin1"><span class="n">${nth}</span><input type="checkbox" data-sel="${c.id}" ${st.sel.has(c.id) ? 'checked' : ''} aria-label="Select ${esc(c.full_name)}"></td>
         <td class="pin2" title="The day this person was added">${shortDate(c.sourced_on || dayOf(c.created_at))}</td>
         <td class="pin3" title="Open the full record for ${esc(c.full_name)}"><span class="name">${esc(c.full_name)}</span></td>
         ${cell(esc(c.first_name || ''), 'first_name')}
@@ -3952,6 +4009,7 @@ Views.contacts = { title:'Contacts',
     ${filterBar({ compact:true, extra: news ? '' : flagPick,
       search: `<label class="sr-only" for="c-q">Search</label><input type="search" id="c-q" placeholder="Search name, email, organization, LinkedIn" value="${esc(st.q)}">` })}
     <div class="filters">
+      ${st.sel.size ? `<span class="selbar"><b>${fmtInt(st.sel.size)} selected</b><button class="btn btn-sm btn-primary" type="button" id="c-merge">Mail merge</button><button class="btn btn-sm" type="button" id="c-selclear">Clear selection</button></span>` : ''}
       ${!news && params.org ? `<a class="btn btn-sm" href="${href('contacts')}">Show everyone</a>` : ''}
       ${st.expanded.size ? `<button class="btn btn-sm" type="button" id="c-collapse">Collapse ${st.expanded.size} open</button>` : ''}
       <span class="spacer"></span>
@@ -3961,10 +4019,10 @@ Views.contacts = { title:'Contacts',
       <div class="multi"><button class="btn btn-sm" type="button" id="c-cols" aria-haspopup="true" aria-expanded="${!!UI.openCols}">Columns<span class="caret">${UI.openCols ? '&#9652;' : '&#9662;'}</span></button>${UI.openCols ? `<div class="multi-menu cols-menu" role="group" aria-label="Columns">${cols.filter(x => !x.fixed).map(x => `<label><input type="checkbox" data-col="${esc(x.label)}" ${x.shown ? 'checked' : ''} ${news && x.label === 'Newsletter' ? 'disabled' : ''}><span>${esc(x.label)}</span></label>`).join('')}<div class="multi-foot"><button class="btn btn-sm" type="button" id="c-cols-default">Default</button><span class="spacer"></span><button class="btn btn-sm" type="button" id="c-cols-done">Done</button></div></div>` : ''}</div>
       <span class="count">${fmtInt(total)} shown</span></div>
     <style>${cols.map((x, i) => x.shown ? '' : `#contacts-sheet tr > :nth-child(${i + 2}){display:none}`).join('')}</style>
-    <div class="table-wrap sheet-wrap"><table class="grid sheet ss" id="contacts-sheet" style="zoom:${st.zoom/100};min-width:${42 + cols.reduce((s, x) => s + (x.shown ? x.w : 0), 0)}px">
+    <div class="table-wrap sheet-wrap"><table class="grid sheet ss ${st.sel.size ? 'selmode' : ''}" id="contacts-sheet" style="zoom:${st.zoom/100};min-width:${42 + cols.reduce((s, x) => s + (x.shown ? x.w : 0), 0)}px">
       <colgroup><col style="width:42px">${cols.map(x => x.shown ? `<col style="width:${x.w}px">` : '').join('')}</colgroup>
       <thead><tr>
-      <th class="rn pin1" scope="col"><span class="sr-only">Row</span></th>
+      <th class="rn pin1" scope="col"><input type="checkbox" id="c-selpage" ${page.length && page.every(c => st.sel.has(c.id)) ? 'checked' : ''} aria-label="Select every row on this page" title="Select every row on this page"></th>
       ${thSort('Date','added',st,'pin2')}${thSort('Contact Name','full_name',st,'pin3')}<th>First Name</th><th>Email</th>${thSort('Organization','org',st)}<th>Website</th><th>LinkedIn</th>${thSort('AUM','aum',st,'num')}<th>Notes</th>
       <th>Initial Outcome</th>${thSort('Status','stage',st)}${thSort('Next Reach out Date','next',st)}<th>Newsletter</th><th>Active/Dorm</th>
       <th>Title</th><th>Segment</th><th>State</th>${thSort('First reached','first_out',st)}${thSort('Last touch','last',st)}${thSort('Touches','touches',st,'num')}<th>Channel</th><th>Flags</th></tr></thead>
@@ -3978,6 +4036,18 @@ Views.contacts = { title:'Contacts',
     root.querySelector('#new-contact').addEventListener('click', () => openAddContact(params.org ? Number(params.org) : null));
     root.querySelectorAll('[data-flag-go]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); UI.openPick = null; st.page = 0;
       location.hash = href('contacts', b.dataset.flagGo ? { flag: b.dataset.flagGo } : {}); }));
+    /* Ticked rows stay ticked across pages and filters until cleared; Mail merge
+       takes exactly those people to the batch screen under Follow-ups. */
+    const sel = UI.contacts.sel;
+    root.querySelectorAll('[data-sel]').forEach(cb => cb.addEventListener('change', () => { const id = Number(cb.dataset.sel); if (cb.checked) sel.add(id); else sel.delete(id); render(); }));
+    bindDragTick(root, '[data-sel]', cb => Number(cb.dataset.sel), changes => { changes.forEach((on, id) => on ? sel.add(id) : sel.delete(id)); render(); });
+    root.querySelector('#c-selpage')?.addEventListener('change', e => {
+      const ids = [...root.querySelectorAll('[data-sel]')].map(cb => Number(cb.dataset.sel));
+      ids.forEach(id => e.target.checked ? sel.add(id) : sel.delete(id)); render(); });
+    root.querySelector('#c-selclear')?.addEventListener('click', () => { sel.clear(); render(); });
+    root.querySelector('#c-merge')?.addEventListener('click', () => {
+      UI.merge.picked = [...sel]; UI.merge.source = 'picked'; UI.merge.appliedSource = 'picked'; UI.merge.selected = null; UI.merge.previewId = null; UI.merge.pickedFor = null;
+      go('mailmerge', { source:'picked' }); });
     root.querySelector('#c-cols')?.addEventListener('click', e => { e.stopPropagation(); UI.openCols = !UI.openCols; UI.openPick = null; UI.openState = false; render(); });
     const saveCols = labels => { try { localStorage.setItem(SHEET_COLS_KEY, JSON.stringify(labels)); } catch (e) { /* private window */ } render(); };
     root.querySelectorAll('[data-col]').forEach(cb => cb.addEventListener('change', () =>
