@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-17.4">
+<meta name="build-version" content="2026-10-18.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -96,6 +96,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .kv dd.ed.editing::after{display:none}
 .kv dd.ed input,.kv dd.ed select,.kv dd.ed textarea{height:32px;font-size:13px}
 .kv dd.ed textarea{height:auto}
+.rec-notes{grid-template-columns:120px minmax(0,1fr);margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.rec-side .aum-cols{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rec-side .aum-cell{padding:10px 12px} .rec-side .aum-cell .v{font-size:19px} .rec-side .aum-cell .l{font-size:11.5px}
+.rec-added{margin-top:2px}
 .rec-sub{font-size:13px;font-weight:600;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .rec-sub .muted{font-weight:400;font-size:12px}
 .save-state{font-size:12px;color:var(--ink-3);white-space:nowrap}
@@ -446,9 +450,13 @@ table.map select{height:32px;font-size:12.5px;width:auto;min-width:184px}
 table.review{min-width:1264px;table-layout:fixed}
 table.review td{max-width:none;white-space:normal;vertical-align:top}
 table.review td.checks{font-size:12px}
-table.fups{min-width:1290px;table-layout:fixed}
+table.fups{min-width:0;width:100%;table-layout:fixed}
+table.fups td.why{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+table.fups .fu-actions{display:flex;flex-wrap:nowrap;gap:6px;align-items:center;justify-content:flex-start}
+table.fups .fu-actions select{width:84px;min-width:0;height:30px;padding:0 24px 0 12px;border-radius:var(--radius-pill);background-position:right 10px center}
+.fu-bar{align-items:center;gap:12px} .fu-search{flex:0 1 360px;min-width:220px;margin-left:auto}
 table.fups td{max-width:none;white-space:normal;vertical-align:middle}
-table.fups td .actions{flex-wrap:wrap;gap:5px}
+table.fups td .actions{gap:6px}
 .flagrow{background:var(--warn-soft)} .flagrow.err{background:var(--danger-soft)}
 select.undecided{border-color:var(--warn);box-shadow:0 0 0 2px var(--warn-soft)}
 .banner .btn{margin-left:6px}
@@ -768,6 +776,61 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 .user-btn{display:flex;align-items:center;gap:9px;background:none;border:0;padding:4px 4px 4px 8px;border-radius:var(--radius-pill);font:inherit;color:inherit;cursor:pointer;text-align:right}
 .user-btn:hover,.user-btn[aria-expanded="true"]{background:var(--surface-3)}
 .user-wrap{position:relative}
+.bell-wrap{position:relative}
+.bell-btn{position:relative;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer;color:var(--ink-2)}
+.bell-btn:hover,.bell-btn[aria-expanded="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+.bell-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bell-btn .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+.bell-menu{position:absolute;right:0;top:calc(100% + 8px);width:340px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:6px;z-index:70;white-space:normal}
+.bell-menu .who{padding:8px 12px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:13px;color:var(--ink)}
+.bell-menu a{display:flex;gap:10px;align-items:baseline;padding:9px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:13px;line-height:1.45}
+.bell-menu a:hover{background:var(--accent-soft)}
+.bell-menu .dot{width:7px;height:7px;border-radius:50%;background:var(--danger);flex:none;transform:translateY(-1px)}
+/* Dashboard: one screen */
+.dash-page{display:flex;flex-direction:column;gap:14px;height:calc(100vh - var(--topbar-h) - 80px);min-height:640px}
+.dash-page .page-head{margin-bottom:0}
+.dash-period{width:auto;height:38px;border-radius:var(--radius-pill);padding-left:14px}
+.dash-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;flex:none}
+.dash-tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:3px;text-align:left;cursor:pointer;font:inherit;color:inherit;transition:box-shadow .14s,transform .14s}
+.dash-tile:hover{box-shadow:var(--shadow-lift);transform:translateY(-1px)}
+.dash-tile .lbl{font-size:12px;color:var(--ink-3);font-weight:500}
+.dash-tile .val{font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.dash-tile.alert .val{color:var(--danger)} .dash-tile.good .val{color:var(--good)}
+.dash-tile .sub{font-size:11.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-tile .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dash-charts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;flex:1 1 auto;min-height:250px}
+.dash-chart{flex:1 1 auto;min-height:0;padding:10px 16px 14px;display:flex;align-items:center}
+.dash-chart svg{width:100%;max-height:100%}
+.dash-bottom{display:grid;grid-template-columns:7fr 5fr;gap:14px;flex:0 0 210px;min-height:0}
+.dash-steps{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 24px}
+.dash-step{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
+.dash-step b{font-size:26px;font-weight:600;letter-spacing:-.02em}
+.dash-step span{font-size:12.5px;color:var(--ink-2)}
+.dash-step em{font-style:normal;font-size:12px;color:var(--accent);font-weight:600}
+.dash-steps > i{color:var(--ink-4);font-style:normal;font-size:18px}
+.dash-box[data-go]{cursor:pointer}
+.dash-mid{display:grid;grid-template-columns:7fr 5fr;gap:14px;flex:1 1 auto;min-height:0}
+.dash-box{display:flex;flex-direction:column;min-height:0;margin:0;overflow:hidden}
+.dash-box .card-head{flex:none}
+.dash-todo,.dash-soon{list-style:none;margin:0;padding:0 16px;overflow:auto;flex:1 1 auto;min-height:0}
+.dash-todo li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.dash-todo li:hover{background:var(--surface-2)}
+.dash-todo .who{display:flex;flex-direction:column;min-width:0} .dash-todo .who b{font-size:13.5px}
+.dash-todo .who span{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-todo .act{display:flex;gap:6px}
+.dash-foot{flex:none;display:flex;gap:8px}
+.dash-soon li{display:flex;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px}
+.dash-soon li:hover{background:var(--surface-2)}
+.dash-soon .d{flex:none;width:44px;height:44px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;line-height:1.1}
+.dash-soon .d b{font-size:17px}
+.dash-soon .tag{margin-right:8px}
+.dash-funnel{flex:none;margin:0;cursor:pointer}
+.dash-funnel .card-body{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 18px;font-size:13px}
+.dash-funnel .t{font-weight:600;color:var(--ink);margin-right:6px}
+.dash-funnel i{color:var(--ink-4);font-style:normal}
+.dash-funnel b{font-size:15px}
+.dash-funnel .more{margin-left:auto;color:var(--accent);font-weight:500}
+@media (max-width:1180px){ .dash-page{height:auto} .dash-tiles{grid-template-columns:repeat(3,minmax(0,1fr))} .dash-mid{grid-template-columns:1fr} }
 .user-menu{position:absolute;right:0;top:calc(100% + 8px);width:240px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:6px;z-index:70;white-space:normal}
 .user-menu[hidden]{display:none}
 .user-menu .who{padding:9px 10px 10px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:12px;color:var(--ink-3)}
@@ -2749,7 +2812,7 @@ const UI = {
     zoom: (() => { try { return Number(localStorage.getItem('gaard_sheet_zoom')) || 100; } catch (e) { return 100; } })() },
   touches: { sort:'touched_at', dir:'desc', page:0, pageSize:150, q:'',
     zoom: (() => { try { return Number(localStorage.getItem('gaard_sheet_zoom')) || 100; } catch (e) { return 100; } })() },
-  rem: { page:0, pageSize:50 },
+  rem: { page:0, pageSize:50, q:'' },
   pipeline: { view:'board' },
   import: null,
   merge: { templateId:null, source:'due', selected:null, previewId:null, appliedSource:null, pickedFor:null },
@@ -3031,106 +3094,80 @@ const deltaChip = (now, prev, { invert = false, pct = false } = {}) => {
   return `<span class="delta ${good ? '' : 'down'}">${arrow} ${Math.abs(rounded).toFixed(rounded % 1 ? 1 : 0)}${pct ? ' pts' : '%'}</span>`;
 };
 Views.dashboard = { title:'Dashboard',
-  /* The work first, then the numbers that say whether the work is landing.
-     Both read from the same filters, so the period control at the top governs
-     the whole page. */
+  /* A picture of where things stand, on one screen, the way a Salesforce or
+     Power BI dashboard reads: five numbers with the change against the period
+     before, then charts. The work itself is on Follow-ups and the detailed
+     tables are on KPIs; notices sit under the bell. */
   render(){
-    const f = UI.filters, s = Metrics.summary(f), r = Metrics.range(f);
-    const back = Metrics.shiftBack(f);
+    const st = UI.dash || (UI.dash = { period:'ytd' });
+    const f = { ...Metrics.empty(), period: st.period }, r = Metrics.range(f), back = Metrics.shiftBack(f);
+    const rems = Metrics.reminders(Metrics.empty());
+    const toContact = rems.filter(x => ['overdue', 'today'].includes(Repo.reminders.bucket(x))).length;
+    const overdue = rems.filter(x => Repo.reminders.bucket(x) === 'overdue').length;
+    const closedIn = g => Metrics.funnel().filter(x => Metrics.happenedIn(x.funded_on, g));
+    const closed = closedIn(f), closedPrev = back ? closedIn(back) : null;
+    const aum = sum(closed, x => x.funded_aum || 0), aumPrev = closedPrev ? sum(closedPrev, x => x.funded_aum || 0) : null;
+    const open = Metrics.funnel().filter(x => x.stage && !STG.get(x.stage)?.closed);
+    const potential = sum(open, x => x.expected_aum || 0);
     const fn = Metrics.stageFunnel(f), fnPrev = back ? Metrics.stageFunnel(back) : null;
-    const lanes = Metrics.lanes(f), laneTotal = k => sum(lanes, x => x[k] || 0);
-    const openOpps = Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, f) && x.stage && !STG.get(x.stage)?.closed);
-    const potential = sum(openOpps, x => x.expected_aum || 0);
-    const closedNow = Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, f) && Metrics.happenedIn(x.funded_on, f));
-    const closedPrev = back ? Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, back) && Metrics.happenedIn(x.funded_on, back)) : [];
-    const aumNow = sum(closedNow, x => x.funded_aum || 0), aumPrev = sum(closedPrev, x => x.funded_aum || 0);
 
-    const headline = (label, value, note) => `<section class="card col-4"><div class="card-body">
-      <div class="muted small" style="text-transform:uppercase;letter-spacing:.07em;font-weight:600">${esc(label)}</div>
-      <div style="font-size:34px;font-weight:600;letter-spacing:-.025em;margin:6px 0 2px">${value}</div>
-      <div class="muted small">${note}</div></div></section>`;
+    const tile = (label, value, sub, go, chip, tone) => `<button class="dash-tile ${tone || ''}" type="button" data-go="${go}"><span class="lbl">${esc(label)}</span><span class="row"><span class="val">${value}</span>${chip || ''}</span><span class="sub">${sub}</span></button>`;
 
-    /* One step of the funnel: how many got here, and what share of the step
-       before that is, with last period beside it so a slip is visible. */
-    const step = (label, count, rate, prevRate, note) => `<div class="fstep">
-      <div class="fstep-n">${fmtInt(count)}</div>
-      <div class="fstep-l">${esc(label)}</div>
-      ${rate == null ? '' : `<div class="fstep-r">${fmtPct(rate)} <span class="muted">of ${esc(note)}</span>
-        ${prevRate == null ? '' : deltaChip(rate, prevRate, { pct:true })}</div>`}</div>`;
+    /* Pipeline by stage: how many open opportunities sit at each stage. */
+    const stages = STAGES.filter(s => !s.closed).map(s => { const at = open.filter(x => x.stage === s.code); return { s, n: at.length, aum: sum(at, x => x.expected_aum || 0) }; });
+    /* Funded AUM by month, the last twelve months, in millions. */
+    const months = [...Array(12)].map((_, i) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 11 + i); return d.toISOString().slice(0, 7); });
+    const byMonth = months.map(m => ({ m, v: sum(Metrics.funnel().filter(x => String(x.funded_on || '').slice(0, 7) === m), x => x.funded_aum || 0) / 1e6 }));
+    /* Where the people came from in the period, by channel. */
+    const channels = Metrics.byChannel(f).filter(c => c.leads).sort((a, b) => b.leads - a.leads).slice(0, 7);
+    /* The next fourteen days. */
+    const iso = d => d.toISOString().slice(0, 10), from = iso(Rules.startOfDay(new Date())), to = iso(Rules.addDays(new Date(), 14));
+    const inWindow = d => d && d >= from && d <= to;
+    const soon = [
+      ...Repo.events.all().filter(e => inWindow(e.start_on)).map(e => ({ on: e.start_on, kind: 'Event', name: e.name, go: href('events', { ev: e.id }) })),
+      ...Repo.rfps.all().filter(x => inWindow(x.due_on) && !['submitted', 'won', 'lost', 'declined', 'cancelled'].includes(x.status)).map(x => ({ on: x.due_on, kind: 'RFP due', name: x.title, go: href('rfps') })),
+      ...Repo.reviews.all().filter(x => inWindow(x.next_review_on)).map(x => ({ on: x.next_review_on, kind: 'Client review', name: x.name, go: href('reviews') })),
+    ].sort((a, b) => a.on.localeCompare(b.on));
+    const steps = [['Emails sent', fn.emails], ['Replied', fn.replies], ['Next steps', fn.next], ['Onboarding', fn.onb], ['Funded', fn.clients]];
 
-    return `
-    <div class="page-head"><div><h1>Welcome back, ${esc((Repo.teamName(Repo.settings().default_owner_id) || 'there').split(' ')[0])}</h1>
-      <p>What is waiting on you, and whether the outreach is landing. ${esc(r.label)}${r.from ? `, ${fmtDate(r.from)} to ${fmtDate(r.to)}` : ''}.</p></div>
-      <div class="page-actions">${demoTag}<a class="btn" href="${href('kpis')}">All the numbers</a></div></div>
-    ${s.reminders_due ? `<div class="cta"><div style="flex:1;min-width:280px">
-        <h2>${fmtInt(s.reminders_due)} ${s.reminders_due === 1 ? 'person is' : 'people are'} waiting to hear from you</h2>
-        <p>${s.reminders_overdue ? fmtInt(s.reminders_overdue) + ' of them should have been contacted already. ' : ''}Their emails are ready below.</p></div>
-      <a class="btn btn-xl btn-primary" href="${href('mailmerge')}">Write their emails</a></div>` : ''}
-    ${s.review_queue ? `<div class="banner warn" data-go="${href('touchpoints',{review:'1'})}" style="cursor:pointer"><b>${s.review_queue} replies are waiting for confirmation.</b> The assistant suggested an outcome for each one. Confirming it runs the follow-up rule.</div>` : ''}
-    ${(() => { const stuck = Metrics.stranded(); return stuck.length ? `<div class="banner danger" data-go="${href('reminders',{bucket:'fixing'})}" style="cursor:pointer"><b>${stuck.length} pieces of outreach went nowhere and are on nobody's list.</b> Bounced addresses, wrong numbers, people who have moved on. Open them and put them back on.</div>` : ''; })()}
-    ${filterBar()}
+    return `<div class="dash-page">
+    <div class="page-head"><div><h1>Welcome back, ${esc((Repo.teamName(Repo.settings().default_owner_id) || 'there').split(' ')[0])}</h1></div>
+      <div class="page-actions">${demoTag}<label class="sr-only" for="dash-period">Period</label>
+        <select id="dash-period" class="dash-period">${Metrics.PERIODS.filter(p => p.key !== 'custom').map(p => `<option value="${p.key}" ${p.key === st.period ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div></div>
 
-    <div class="dash-grid" style="margin-bottom:16px">
-      ${headline('New AUM funded', fmtUSD(aumNow) || '$0', back ? `Previous ${esc(r.prev_label)}: ${fmtUSD(aumPrev) || '$0'}` : 'In this period')}
-      ${headline('Clients closed', fmtInt(closedNow.length), back ? `Previous ${esc(r.prev_label)}: ${fmtInt(closedPrev.length)}` : 'In this period')}
-      ${headline('Active pipeline potential', fmtUSD(potential) || '$0', `Across ${fmtInt(openOpps.length)} open opportunit${openOpps.length === 1 ? 'y' : 'ies'}, as it stands today`)}
+    <div class="dash-tiles">
+      ${tile('To contact', fmtInt(toContact), overdue ? `${fmtInt(overdue)} overdue · open Follow-ups` : 'open Follow-ups', href('reminders'), '', overdue ? 'alert' : '')}
+      ${tile('New AUM funded', fmtUSD(aum) || '$0', back ? `vs ${fmtUSD(aumPrev) || '$0'} ${esc(r.prev_label)}` : esc(r.label), href('pipeline'), back ? deltaChip(aum, aumPrev) : '')}
+      ${tile('New clients', fmtInt(closed.length), back ? `vs ${fmtInt(closedPrev.length)} ${esc(r.prev_label)}` : esc(r.label), href('pipeline'), back ? deltaChip(closed.length, closedPrev.length) : '')}
+      ${tile('Pipeline', fmtUSD(potential) || '$0', `${fmtInt(open.length)} open opportunit${open.length === 1 ? 'y' : 'ies'}`, href('pipeline'))}
+      ${tile('Response rate', fmtPct(fn.email_to_reply || 0), `of ${fmtInt(fn.emails)} emails sent`, href('kpis'), fnPrev ? deltaChip(fn.email_to_reply || 0, fnPrev.email_to_reply || 0, { pct:true }) : '')}
     </div>
 
-    <section class="card" style="margin-bottom:16px"><div class="card-head"><h2>Where the outreach is winning and losing</h2>
-      <span class="sub">Each step as a share of the one before it${back ? ', against the previous ' + esc(r.prev_label) : ''}</span></div>
-      <div class="card-body">
-        <div class="funnel">
-          ${step('Emails sent', fn.emails, null, null, '')}
-          ${step('Replied', fn.replies, fn.email_to_reply, fnPrev && fnPrev.email_to_reply, 'emails')}
-          ${step('Next steps', fn.next, fn.reply_to_next, fnPrev && fnPrev.reply_to_next, 'replies')}
-          ${step('Onboarding', fn.onb, fn.next_to_onboarding, fnPrev && fnPrev.next_to_onboarding, 'next steps')}
-          ${step('Funded', fn.clients, fn.onboarding_to_funded, fnPrev && fnPrev.onboarding_to_funded, 'onboarding')}
-        </div>
-        <p class="muted small" style="margin-top:12px">Replied counts answers to emails, so it shares a denominator with the step above it. Next steps, onboarding and funded count every lead that reached that stage in the period, however it was reached, so a call or an event can carry one through.</p>
-        <div class="funnel-end">
-          <span><b>${fmtPct(fn.email_to_next)}</b> of every email reaches next steps${fnPrev ? ' ' + deltaChip(fn.email_to_next, fnPrev.email_to_next, { pct:true }) : ''}</span>
-          <span><b>${fmtPct(fn.email_to_onboarding)}</b> reaches onboarding${fnPrev ? ' ' + deltaChip(fn.email_to_onboarding, fnPrev.email_to_onboarding, { pct:true }) : ''}</span>
-          <span><b>${fmtPct(fn.email_to_funded)}</b> ends up funded${fnPrev ? ' ' + deltaChip(fn.email_to_funded, fnPrev.email_to_funded, { pct:true }) : ''}</span>
-          <span class="muted">${fmtInt(fn.emails)} emails in, ${fmtInt(fn.next)} at next steps, ${fmtInt(fn.onb)} onboarding, ${fmtInt(fn.clients)} funded</span>
-        </div>
-      </div></section>
+    <div class="dash-charts">
+      <section class="card dash-box" data-go="${href('pipeline')}"><div class="card-head"><h2>Pipeline by stage</h2><span class="sub">open today</span></div>
+        <div class="dash-chart">${hbar({ rows: stages, value: x => x.n, label: x => x.s.label, format: fmtInt, width: 380, height: 30, gap: 8,
+          colorFn: () => 'var(--accent)', tipFn: x => `<b>${esc(x.s.label)}</b>${fmtInt(x.n)} open, ${fmtUSD(x.aum) || '$0'} expected` })}</div></section>
+      <section class="card dash-box" data-go="${href('kpis')}"><div class="card-head"><h2>AUM funded by month</h2><span class="sub">last 12 months, $M</span></div>
+        <div class="dash-chart">${columns({ rows: byMonth, width: 380, height: 200, format: v => '$' + v.toFixed(1) + 'M', labelOf: x => new Date(x.m + '-15').toLocaleDateString('en-US', { month:'short' }),
+          series: [{ name:'AUM funded', color:'var(--accent)', value: x => Math.round(x.v * 10) / 10 }] })}</div></section>
+      <section class="card dash-box" data-go="${href('kpis')}"><div class="card-head"><h2>New leads by channel</h2><span class="sub">${esc(r.label.toLowerCase())}</span></div>
+        <div class="dash-chart">${hbar({ rows: channels, value: x => x.leads, label: x => x.label, format: fmtInt, width: 380, height: 28, gap: 6,
+          colorFn: () => 'var(--navy)', tipFn: x => `<b>${esc(x.label)}</b>${fmtInt(x.leads)} leads` })}</div></section>
+    </div>
 
-    ${(() => {
-      /* Who is waiting, in the order the sheet reads: the date, the name, the
-         day of the week it falls on, then the rest. */
-      const due = Merge.due();
-      const over = due.filter(x => Repo.reminders.bucket(x.reminder) === 'overdue');
-      const sendable = due.filter(x => !Merge.blocked(x.contact));
-      const held = due.length - sendable.length;
-      const show = sendable.slice(0, 8);
-      const head = `<div class="card-head"><h2>Emails to send</h2><span class="sub">${due.length ? fmtInt(sendable.length) + ' ready' + (over.length ? ', ' + fmtInt(over.length) + ' overdue' : '') : 'nothing due'}</span></div>`;
-      if (!sendable.length) return `<section class="card emailblock" id="email-today">${head}
-        <div class="card-body" style="padding:18px">${emptyState('Nobody is waiting on an email', 'Every follow-up on the calendar is scheduled for a later date.')}</div>
-        <div class="card-foot"><a class="btn btn-xl" href="${href('mailmerge')}">Open mail merge</a>
-          <span>You can still write to anyone in the current filter.</span></div></section>`;
-      return `<section class="card emailblock" id="email-today">${head}
-        <div class="table-wrap auto" style="box-shadow:none;border:none;border-radius:0">
-        <table class="grid"><thead><tr><th>Date</th><th>Name</th><th>Day</th><th>Organization</th><th>Why</th><th>Last correspondence</th></tr></thead><tbody>
-        ${show.map(x => { const c = x.contact, b = Repo.reminders.bucket(x.reminder);
-          const last = Repo.contacts.latestTouch().get(c.id);
-          return `<tr class="row-link" data-href="${href('contacts/'+c.id)}">
-            <td class="nowrap"><span class="pill st-${b}">${fmtShort(x.reminder.due_on)}</span></td>
-            <td><span class="name">${esc(c.full_name)}</span></td>
-            <td class="nowrap">${esc(fmtDate(x.reminder.due_on, { weekday:'long' }))}</td>
-            <td>${esc(orgNameOf(c) || 'Individual')}</td>
-            <td>${esc(RT.get(x.reminder.reminder_type) || 'Follow up')}${b === 'overdue' ? ` <span class="muted">${daysBetween(x.reminder.due_on, NOW())} days late</span>` : ''}</td>
-            <td>${last ? `${outcomePill(last.outcome_code)} <span class="muted">${fmtDate(last.touched_at, { month:'short', day:'numeric' })}, ${esc(TT.get(last.touch_type)?.name || last.touch_type)}</span>` : '<span class="muted">Never contacted</span>'}</td></tr>`; }).join('')}
-        ${sendable.length > show.length ? `<tr><td colspan="6"><span class="muted">and ${fmtInt(sendable.length - show.length)} more</span></td></tr>` : ''}
-        </tbody></table></div>
-        <div class="card-foot"><a class="btn btn-xl btn-primary" href="${href('mailmerge')}">Write these ${fmtInt(sendable.length)} emails</a>
-          <a class="btn btn-xl" href="${href('reminders')}">Work them one at a time</a>
-          <span style="flex:1"></span>
-          <span>${held ? fmtInt(held) + ' more cannot be emailed, and the email screen says why. ' : ''}Nothing sends until you say so.</span></div></section>`;
-    })()}
-
-`;
+    <div class="dash-bottom">
+      <section class="card dash-box" data-go="${href('kpis')}"><div class="card-head"><h2>From email to client</h2><span class="sub">${esc(r.label.toLowerCase())}</span></div>
+        <div class="dash-steps">${steps.map(([l, n], i) => `<div class="dash-step"><b>${fmtInt(n)}</b><span>${esc(l)}</span>${i ? `<em>${steps[i - 1][1] ? fmtPct(n / steps[i - 1][1]) : '-'}</em>` : '<em>&nbsp;</em>'}</div>`).join('<i aria-hidden="true">→</i>')}</div></section>
+      <section class="card dash-box"><div class="card-head"><h2>Coming up</h2><span class="sub">next 14 days</span></div>
+        ${soon.length ? `<ul class="dash-soon" id="dash-soon">${soon.map(x => `<li data-go="${x.go}"><span class="d"><b>${esc(fmtDate(x.on, { day:'numeric' }))}</b>${esc(fmtDate(x.on, { month:'short' }))}</span><span><span class="tag">${esc(x.kind)}</span><b>${esc(x.name)}</b></span></li>`).join('')}</ul>`
+          : `<div class="card-body">${emptyState('Nothing in the next two weeks', 'Events, RFP deadlines and client reviews show here.')}</div>`}</section>
+    </div>
+    </div>`;
   },
-  mount(root){ bindGo(root); bindRowNav(root); bindFilters(root, render); }
+  mount(root){
+    bindGo(root); bindTips(root);
+    root.querySelector('#dash-period')?.addEventListener('change', e => { UI.dash.period = e.target.value; render(); });
+  }
 };
 
 Views.kpis = { title:'KPIs',
@@ -3660,7 +3697,6 @@ async function openEditOpportunity(id){
   const o = Repo.opportunities.byId(id); if (!o) return;
   const out = await Modal.form({ title:'Opportunity: ' + Repo.opportunities.label(o), wide:true, okLabel:'Save', fields:[
     { key:'stage', label:'Stage', type:'select', value:o.stage, options: STAGES.map(s => ({ value:s.code, label:s.label })) },
-    { key:'owner_id', label:'Owner', type:'select', value:String(o.owner_id||''), options: Repo.team().map(t => ({ value:String(t.id), label:t.full_name })) },
     { key:'expected_aum', label:'Expected AUM ($)', type:'number', step:'1000', value:o.expected_aum ?? '' },
     { key:'funded_aum', label:'Funded AUM ($)', type:'number', step:'1000', value:o.funded_aum ?? '' },
     { key:'first_call_on', label:'First call', type:'date', value:o.first_call_on || '' },
@@ -3671,7 +3707,7 @@ async function openEditOpportunity(id){
   ]});
   if (!out) return;
   const num = v => v === '' ? null : Number(v);
-  Repo.opportunities.update(o.id, { stage: out.stage, owner_id: Number(out.owner_id) || o.owner_id, expected_aum: num(out.expected_aum),
+  Repo.opportunities.update(o.id, { stage: out.stage, expected_aum: num(out.expected_aum),
     funded_aum: num(out.funded_aum), first_call_on: out.first_call_on || null, onboarding_started_on: out.onboarding_started_on || null,
     funded_on: out.funded_on || null, lost_reason: out.lost_reason || null, notes: out.notes || null,
     closed_on: (out.stage === 'funded' || out.stage === 'lost') ? (out.funded_on || o.closed_on || new Date().toISOString().slice(0,10)) : null });
@@ -3724,8 +3760,12 @@ Views.pipeline = { title:'Pipeline',
 /* ===== Reminders ===================================================== */
 Views.reminders = { title:'Follow-ups',
   render(params){
-    const f = UI.filters, bucket = params.bucket || 'all', st = UI.rem;
-    const list = Metrics.reminders(f);
+    const bucket = params.bucket || 'all', st = UI.rem;
+    /* Everyone's follow-ups, whatever filters were set on another page; the
+       search box narrows by name, organization or email. */
+    const q = String(st.q || '').trim().toLowerCase();
+    const list = Metrics.reminders(Metrics.empty()).filter(r => { if (!q) return true; const c = Repo.contacts.byId(r.contact_id);
+      return c && [c.full_name, c.email, orgNameOf(c)].some(v => String(v || '').toLowerCase().includes(q)); });
     const buckets = { overdue: list.filter(r => Repo.reminders.bucket(r) === 'overdue'), today: list.filter(r => Repo.reminders.bucket(r) === 'today'), upcoming: list.filter(r => Repo.reminders.bucket(r) === 'upcoming'),
       fixing: list.filter(r => Metrics.FIX_REMINDERS.includes(r.reminder_type)) };
     const stranded = Metrics.stranded();
@@ -3734,23 +3774,19 @@ Views.reminders = { title:'Follow-ups',
     const total = all.length, shown = all.slice(st.page*st.pageSize, (st.page+1)*st.pageSize);
     const tab = (k,l,n) => `<a class="btn" href="${href('reminders',{bucket:k})}" aria-pressed="${bucket===k}">${l} <span class="muted">${n != null ? n : (k==='all'?list.length:buckets[k].length)}</span></a>`;
     const row = r => { const c = Repo.contacts.byId(r.contact_id); if (!c) return '';
-      const org = c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null;
-      const opp = Repo.contacts.opportunity(c.id), b = Repo.reminders.bucket(r);
+      const org = c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null, b = Repo.reminders.bucket(r);
+      const why = String(r.details || '').split('\n')[0].replace(/^Last outcome:\s*/i, '');
       return `<tr class="row-link" data-href="${href('contacts/'+c.id)}">
-        <td><span class="pill st-${b}">${b==='overdue'?'Overdue':b==='today'?'Due today':'Upcoming'}</span></td>
-        <td>${fmtDate(r.due_on,{month:'short',day:'numeric'})}<span class="sub">${b==='overdue' ? daysBetween(r.due_on, NOW()) + ' days late' : relDays(r.due_on)}</span></td>
-        <td><span class="name">${esc(c.full_name)}</span><span class="sub">${esc(c.title||'')}</span></td>
-        <td>${org ? `<a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : '<span class="muted">Individual</span>'}</td>
+        <td><span class="pill st-${b}">${fmtDate(r.due_on,{month:'short',day:'numeric'})}</span><span class="sub">${b==='overdue' ? daysBetween(r.due_on, NOW()) + ' days late' : b === 'today' ? 'Due today' : relDays(r.due_on)}</span></td>
+        <td><span class="name">${esc(c.full_name)}</span><span class="sub">${org ? esc(org.name) : esc(c.employer || 'Individual')}</span></td>
         <td><span class="tag">${esc(RT.get(r.reminder_type) || r.reminder_type)}</span></td>
-        <td>${esc(String(r.details||'').split('\n')[0].slice(0,110))}</td>
-        <td>${opp ? stagePill(opp.stage) : ''}</td><td>${esc(Repo.teamName(r.assigned_to))}</td>
-        <td><div class="actions"><button class="btn btn-sm btn-primary" type="button" data-log="${c.id}">Log touch</button>
+        <td class="why" title="${esc(why)}">${esc(why)}</td>
+        <td><div class="actions fu-actions"><button class="btn btn-sm btn-primary" type="button" data-log="${c.id}">Log activity</button>
           <button class="btn btn-sm" type="button" data-done="${r.id}">Done</button>
-          <select class="btn btn-sm" data-snooze="${r.id}" aria-label="Move" style="width:auto;height:24px;padding:0 20px 0 8px"><option value="">Move</option><option value="1">1 day</option><option value="7">1 week</option><option value="30">1 month</option><option value="90">1 quarter</option></select></div></td></tr>`; };
-    return `<div class="page-head"><div><h1>Follow-ups</h1><p>The shared notification list. Marking one done marks it done for everyone, and the next one is scheduled by the outcome rule that created it.</p></div>
-      <div class="page-actions">${demoTag}<a class="btn" href="${href('settings',{section:'outcomes'})}">Outcome rules</a></div></div>
-    ${filterBar({ compact:true })}
-    <div class="filters"><div class="btn-group">${tab('all','All open')}${tab('overdue','Overdue')}${tab('today','Due today')}${tab('upcoming','Upcoming')}${tab('fixing','Went nowhere', buckets.fixing.length + stranded.length)}</div><span class="spacer"></span><span class="count">${fmtInt(total)} shown</span></div>
+          <select class="btn btn-sm" data-snooze="${r.id}" aria-label="Move"><option value="">Move</option><option value="1">1 day</option><option value="7">1 week</option><option value="30">1 month</option><option value="90">1 quarter</option></select></div></td></tr>`; };
+    return `<div class="page-head"><div><h1>Follow-ups</h1></div><div class="page-actions">${demoTag}</div></div>
+    <div class="filters fu-bar"><div class="btn-group">${tab('all','All open')}${tab('overdue','Overdue')}${tab('today','Due today')}${tab('upcoming','Upcoming')}${tab('fixing','Went nowhere', buckets.fixing.length + stranded.length)}</div>
+      <div class="fbar-search fu-search"><label class="sr-only" for="fu-q">Search</label><input type="search" id="fu-q" placeholder="Search name, organization or email" value="${esc(st.q || '')}"></div></div>
     ${bucket === 'fixing' ? `<div class="banner demo"><b>Bounced addresses, wrong numbers, people who have moved on, and out of office replies.</b>
       Every one of those schedules its own follow-up the moment it is logged. The ones underneath lost theirs, or never had one.</div>` : ''}
     ${bucket === 'fixing' && stranded.length ? `<section class="card" style="margin-bottom:14px"><div class="card-head"><h2>Not on anybody's list</h2>
@@ -3765,12 +3801,12 @@ Views.reminders = { title:'Follow-ups',
           <td>${c.email ? esc(c.email) : '<span class="muted">None</span>'}${c.email_status === 'bounced' ? ' <span class="pill warnflag">Bounced</span>' : c.email_status === 'wrong_person' ? ' <span class="pill warnflag">Wrong person</span>' : ''}</td>
           <td><div class="actions"><button class="btn btn-sm" type="button" data-chase="${c.id}">Put on the list</button></div></td></tr>`; }).join('')}
       </tbody></table></div></section>` : ''}
-    ${buckets.overdue.length ? `<div class="banner danger"><b>${buckets.overdue.length} overdue.</b> The oldest is ${daysBetween(buckets.overdue[0].due_on, NOW())} days past due.</div>` : ''}
-    <div class="table-wrap"><table class="grid fups"><colgroup><col style="width:92px"><col style="width:92px"><col style="width:160px"><col style="width:175px"><col style="width:150px"><col style="width:260px"><col style="width:105px"><col style="width:90px"><col style="width:200px"></colgroup>
-      <thead><tr><th>Status</th><th>Due</th><th>Contact</th><th>Organization</th><th>Type</th><th>Why</th><th>Stage</th><th>Owner</th><th class="num">Actions</th></tr></thead>
-      <tbody>${shown.length ? shown.map(row).join('') : `<tr><td colspan="9">${emptyState('Nothing in this bucket','Reminders are created automatically when a touchpoint outcome is saved.')}</td></tr>`}</tbody></table>${pager(st,total)}</div>`;
+    <div class="table-wrap"><table class="grid fups"><colgroup><col style="width:118px"><col style="width:230px"><col style="width:176px"><col><col style="width:282px"></colgroup>
+      <thead><tr><th>Due</th><th>Contact</th><th>Type</th><th>Why</th><th>Actions</th></tr></thead>
+      <tbody>${shown.length ? shown.map(row).join('') : `<tr><td colspan="5">${emptyState(q ? 'Nobody matches "' + esc(st.q.trim()) + '"' : 'Nothing in this bucket','Reminders are created automatically when a touchpoint outcome is saved.')}</td></tr>`}</tbody></table>${pager(st,total)}</div>`;
   },
-  mount(root){ bindRowNav(root); bindFilters(root, render); bindPager(root, UI.rem, render);
+  mount(root){ bindRowNav(root); bindPager(root, UI.rem, render);
+    root.querySelector('#fu-q')?.addEventListener('input', debounce(e => { UI.rem.q = e.target.value; UI.rem.page = 0; render(); }, 220));
     const stuck = Metrics.stranded();
     root.querySelector('#chase-all')?.addEventListener('click', () => Repo.reminders.chase(stuck));
     root.querySelectorAll('[data-chase]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
@@ -3982,7 +4018,7 @@ Views.contacts = { title:'Contacts',
         ${cell(orgNameOf(c) ? esc(orgNameOf(c)) : '<span class="muted">Individual</span>', 'org')}
         ${cell(link(orgRec && orgRec.website) || '&nbsp;')}
         ${cell(link(c.linkedin_url) || '&nbsp;')}
-        <td class="num ed" data-edit="aum" data-id="${c.id}">${aum != null ? fmtUSD(aum) : '<span class="muted">-</span>'}</td>
+        <td class="num ed" data-edit="aum" data-id="${c.id}" ${aum == null && orgRec && orgRec.reported_aum != null ? 'title="Reported by the organization"' : ''}>${aum != null ? fmtUSD(aum) : orgRec && orgRec.reported_aum != null ? `<span class="muted">${fmtUSD(orgRec.reported_aum)}</span>` : '<span class="muted">-</span>'}</td>
         ${cell(esc(c.notes || ''), 'notes')}
         <td title="${esc(firstTouch ? outLabel(firstTouch.outcome_code) + ', ' + fmtDate(firstTouch.touched_at) : '')}">${firstTouch ? outcomePill(firstTouch.outcome_code) : '<span class="muted">-</span>'}</td>
         <td class="${l.stage ? 'ed' : ''}" ${l.stage ? `data-edit="stage" data-id="${c.id}"` : 'title="A status appears once an outcome opens an opportunity"'}>${l.stage ? stagePill(l.stage) : '<span class="muted">-</span>'}</td>
@@ -4253,7 +4289,7 @@ Views.contact = { title:'Contact',
     const tps = Repo.contacts.touchpoints(c.id), rems = Repo.contacts.reminders(c.id).filter(r => r.status === 'open' || r.status === 'snoozed');
     const colleagues = org ? Repo.organizations.contacts(org.id).filter(x => x.id !== c.id) : [];
     const next = rems[0], ev = c.source_event_id != null ? Repo.events.byId(c.source_event_id) : null;
-    const aumOf = opp ? (opp.stage === 'funded' ? opp.funded_aum : opp.expected_aum) ?? c.prospect_aum : c.prospect_aum;
+    const aumOf = (opp ? (opp.stage === 'funded' ? opp.funded_aum : opp.expected_aum) ?? c.prospect_aum : c.prospect_aum) ?? null;
     const edField = (label, field, html, hint) => `<dt>${esc(label)}</dt><dd class="ed" data-edit="${field}" title="${esc(hint ? hint + '. Click to change' : 'Click to change')}">${html || '<span class="muted">None</span>'}</dd>`;
     const referrer = c.referred_by_contact_id != null ? Repo.contacts.byId(c.referred_by_contact_id) : null;
     /* The sheet's own "how we met" note is usually the event name again, and the
@@ -4277,7 +4313,11 @@ Views.contact = { title:'Contact',
         ${t.response_excerpt ? `<div class="body" style="border-left:2px solid var(--accent);padding-left:8px;margin-top:6px"><b>Their reply:</b> ${esc(t.response_excerpt)}</div>` : ''}
         ${t.outcome_status === 'needs_review' ? `<div class="chips" style="margin-top:6px"><div class="chip"><span class="k">Suggested:</span><b>${esc(outLabel(t.ai_suggested_outcome))}</b><span class="muted">${t.ai_confidence != null ? fmtPct(t.ai_confidence,0) : ''}</span><button class="btn btn-sm btn-accent" type="button" data-confirm="${t.id}">Confirm</button></div></div>` : ''}
         <div class="meta">${esc(Repo.teamName(t.owner_id))}${t.outcome_raw ? ' &middot; original wording: ' + esc(t.outcome_raw) : ''}${emails.length ? ' &middot; ' + emails.length + ' email' + (emails.length>1?'s':'') + ' on file' : ''}</div></div></div>`; };
-    return `<div class="page-head"><div><a href="${href('contacts')}" class="small">All contacts</a><h1 style="margin-top:2px">${esc(c.full_name)}</h1>
+    return `<div class="page-head"><div><a href="${href('contacts')}" class="small">All contacts</a><div class="title-row" style="margin-top:2px"><h1>${esc(c.full_name)}</h1>
+        <div class="info-pop"><button class="info-btn" type="button" aria-label="When this person was added" aria-describedby="c-added">i</button>
+          <div class="info-panel" role="tooltip" id="c-added"><div class="info-card"><dl>
+            <dt>Added</dt><dd>${fmtDate(c.sourced_on || dayOf(c.created_at)) || 'Unknown'}</dd>
+          </dl></div></div></div></div>
       <p class="keep">${esc(c.title||'')}${org ? ` at <a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : ' <span class="muted">Individual investor</span>'}${c.state ? ' &middot; ' + esc([c.city,c.state].filter(Boolean).join(', ')) : ''}</p></div>
       <div class="page-actions"><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}</div></div>
     ${c.do_not_contact ? `<div class="banner danger"><b>Do not contact.</b> ${esc(c.dnc_reason || 'Asked not to be contacted')}${c.dnc_on ? ' (' + fmtDate(c.dnc_on) + ')' : ''}. The database refuses outreach to this contact.</div>` : ''}
@@ -4286,43 +4326,41 @@ Views.contact = { title:'Contact',
     ${c.is_university_affiliated ? `<div class="banner demo"><b>No cold email (in person only).</b> This address is on the "Don't cold email" list in Settings (universities, and organizations Gaard reaches through people). The mail merge leaves them out; reach out personally.</div>` : ''}
     <div class="rec-grid">
       <div class="rec-main">
-        <section class="card"><div class="card-head"><h2>Contact</h2></div><div class="card-body"><dl class="kv two rec-fields">
-          <dt>Date added</dt><dd title="The day this person was added">${fmtDate(c.sourced_on || dayOf(c.created_at)) || '<span class="muted">Unknown</span>'}</dd>
+        <section class="card"><div class="card-head"><h2>Contact</h2></div><div class="card-body">
+          <dl class="kv two rec-fields">
           ${edField('First name', 'first_name', esc(c.first_name || ''))}
           ${edField('Last name', 'last_name', esc(c.last_name || ''))}
           ${edField('Title', 'title', esc(c.title || ''))}
-          ${edField('Organization', 'org', org ? `<a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : c.employer ? esc(c.employer) + ' <span class="muted">(employer)</span>' : '<span class="muted">Individual</span>')}
-          <dt>Website</dt><dd>${org && !blankish(org.website) ? `<a href="${esc(/^https?:/i.test(org.website) ? org.website : 'https://' + org.website)}" target="_blank" rel="noopener">${esc(org.website.replace(/^https?:\/\/(www\.)?/, ''))}</a> <span class="muted">(organization)</span>` : '<span class="muted">None</span>'}</dd>
-          ${edField('AUM', 'aum', fmtUSD(aumOf) || '<span class="muted">Not recorded</span>', opp ? (opp.stage === 'funded' ? 'Funded AUM on the opportunity' : 'Expected AUM on the opportunity') : 'Prospect AUM')}
-          ${edField('State', 'state', esc(c.state || ''))}
-          ${edField('City', 'city', esc(c.city || ''))}
-          <dt>Email</dt><dd class="ed" data-edit="email" title="Click beside the address to change it">${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '<span class="muted">None</span>'}</dd>
           ${edField('Phone', 'phone', esc(c.phone || ''))}
-          <dt>LinkedIn</dt><dd class="ed" data-edit="linkedin" title="Click to change">${!blankish(c.linkedin_url) ? `<a href="${esc(/^https?:/i.test(c.linkedin_url) ? c.linkedin_url : 'https://' + c.linkedin_url)}" target="_blank" rel="noopener">${esc(c.linkedin_url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '<span class="muted">None</span>'}${c.linkedin_connected_on ? `<span class="sub">Connected ${fmtDate(c.linkedin_connected_on)}</span>` : ''}</dd>
-          <dt>Segment</dt><dd class="ed" data-edit="segment" title="Click to change">${segPill(c.segment_code)}${sameWord(segGroup(c.segment_code), segName(c.segment_code)) ? '' : ` <span class="muted">${esc(segGroup(c.segment_code))}</span>`}</dd>
+          <dt>Email</dt><dd class="ed" data-edit="email" title="Click beside the address to change it">${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '<span class="muted">None</span>'}</dd>
+          <dt>LinkedIn</dt><dd class="ed" data-edit="linkedin" title="Click to change">${!blankish(c.linkedin_url) ? `<a href="${esc(/^https?:/i.test(c.linkedin_url) ? c.linkedin_url : 'https://' + c.linkedin_url)}" target="_blank" rel="noopener">${esc(c.linkedin_url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '<span class="muted">None</span>'}</dd>
           <dt>How we met</dt><dd class="ed" data-edit="channel" title="Click to change">${esc(chName(c.source_channel_code))}${detail ? ` <span class="muted">${esc(detail)}</span>` : ''}${ev ? `<span class="sub">At <a href="${href('events')}">${esc(ev.name)}</a></span>` : ''}${referrer ? `<span class="sub">Referred by <a href="${href('contacts/'+referrer.id)}">${esc(referrer.full_name)}</a></span>` : ''}</dd>
           <dt>Newsletter</dt><dd class="ed" data-edit="newsletter" title="Click to change">${esc(NEWSLETTER_LABEL[c.newsletter_status] || c.newsletter_status || 'Not recorded')}${via ? `<span class="sub">${esc(via)}</span>` : ''}</dd>
-          ${c.legacy_ref ? `<dt>From the sheet</dt><dd>${esc(c.legacy_ref)}</dd>` : ''}</dl>
-          <dl class="kv" style="grid-template-columns:120px minmax(0,1fr);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><dt>Notes</dt><dd class="ed" data-edit="notes" title="Click to change" style="white-space:pre-wrap">${esc(c.notes||'') || '<span class="muted">None</span>'}</dd></dl></div></section>
-        ${opp ? `<section class="card"><div class="card-head"><h2>Opportunity</h2>${stagePill(opp.stage)}</div><div class="card-body">
-          <div class="aum-cols" style="margin-bottom:10px">
-            <div class="aum-cell"><div class="l">Expected AUM</div><div class="v">${fmtUSD(opp.expected_aum)||'-'}</div></div>
-            <div class="aum-cell"><div class="l">Funded AUM</div><div class="v">${fmtUSD(opp.funded_aum)||'-'}</div></div>
-            <div class="aum-cell"><div class="l">Est. annual revenue</div><div class="v">${fmtUSD((opp.funded_aum||opp.expected_aum||0)*Repo.settings().assumed_fee_rate)||'-'}</div></div></div>
-          <div class="stage-line">${[['Opened', opp.opened_on], ['First call', opp.first_call_on], ['Next steps', opp.hot_on], ['Onboarding', opp.onboarding_started_on], ['Funded', opp.funded_on]].filter(([, d]) => d).map(([l, d]) => `<span>${l} <b>${esc(fmtDate(d))}</b></span>`).join('')}</div>
-          <dl class="kv" style="margin-top:10px">${opp.lost_reason ? `<dt>Lost reason</dt><dd>${esc(opp.lost_reason)}</dd>` : ''}<dt>What booked the call</dt><dd>${esc(chName(opp.converting_channel_code)) || '<span class="muted">Not recorded</span>'}</dd>${opp.owner_id !== c.owner_id ? `<dt>Opportunity owner</dt><dd>${esc(Repo.teamName(opp.owner_id))}</dd>` : ''}</dl></div></section>` : ''}
+          </dl>
+          <h3 class="rec-sub">Organization</h3>
+          <dl class="kv two rec-fields">
+          ${edField('Organization', 'org', org ? `<a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>${colleagues.length ? `<span class="sub">Also there: ${colleagues.slice(0, 3).map(x => `<a href="${href('contacts/'+x.id)}">${esc(x.full_name)}</a>`).join(', ')}${colleagues.length > 3 ? ' and ' + (colleagues.length - 3) + ' more' : ''}</span>` : ''}` : c.employer ? esc(c.employer) + ' <span class="muted">(employer)</span>' : '<span class="muted">Individual</span>')}
+          <dt>Website</dt><dd>${org && !blankish(org.website) ? `<a href="${esc(/^https?:/i.test(org.website) ? org.website : 'https://' + org.website)}" target="_blank" rel="noopener">${esc(org.website.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '<span class="muted">None</span>'}</dd>
+          ${edField('City', 'city', esc(c.city || (org && org.city) || ''))}
+          ${edField('State', 'state', esc(c.state || (org && org.state) || ''))}
+          ${edField('AUM', 'aum', aumOf != null ? fmtUSD(aumOf) : org && org.reported_aum != null ? fmtUSD(org.reported_aum) + ' <span class="muted">(reported by the organization)</span>' : '<span class="muted">Not recorded</span>',
+            opp ? (opp.stage === 'funded' ? 'Funded AUM on the opportunity' : 'Expected AUM on the opportunity') : aumOf != null ? 'Prospect AUM' : 'The organization\'s reported AUM until one is recorded for this person')}
+          <dt>Segment</dt><dd class="ed" data-edit="segment" title="Click to change">${segPill(c.segment_code)}${sameWord(segGroup(c.segment_code), segName(c.segment_code)) ? '' : ` <span class="muted">${esc(segGroup(c.segment_code))}</span>`}</dd>
+          </dl>
+          <dl class="kv rec-notes"><dt>Notes</dt><dd class="ed" data-edit="notes" title="Click to change" style="white-space:pre-wrap">${esc(c.notes||'') || '<span class="muted">None</span>'}</dd></dl></div></section>
       </div>
       <aside class="rec-side">
         <section class="card"><div class="card-head"><h2>Next follow-up</h2>${next ? `<span class="pill st-${Repo.reminders.bucket(next)}">${Repo.reminders.bucket(next)==='overdue'?'Overdue':Repo.reminders.bucket(next)==='today'?'Due today':'Upcoming'}</span>` : ''}</div><div class="card-body">
           ${next ? `<p><b>${fmtDate(next.due_on,{weekday:'short',month:'short',day:'numeric'})}</b> <span class="muted">(${relDays(next.due_on)})</span> <span class="tag">${esc(RT.get(next.reminder_type)||next.reminder_type)}</span></p>
             ${next.details ? `<p class="muted small" style="white-space:pre-wrap;margin-top:6px">${esc(next.details)}</p>` : ''}`
             : `<p class="muted">${c.do_not_contact ? 'None: this contact is on the do-not-contact list.' : 'Nothing scheduled. Choose a follow-up date when you log an activity.'}</p>`}</div></section>
-        ${org ? `<section class="card"><div class="card-head"><h2>${esc(org.name)}</h2><span class="sub">${esc(org.org_type||'')}</span></div><div class="card-body"><dl class="kv">
-          ${org.segment_code !== c.segment_code ? `<dt>Segment</dt><dd>${segPill(org.segment_code)}</dd>` : ''}
-          <dt>Website</dt><dd>${esc(org.website||'')||'<span class="muted">None</span>'}</dd>
-          <dt>Reported AUM</dt><dd>${fmtUSD(org.reported_aum)||'<span class="muted">Not recorded</span>'}</dd>
-          <dt>Other contacts</dt><dd>${colleagues.length ? colleagues.map(x => `<a href="${href('contacts/'+x.id)}">${esc(x.full_name)}</a> <span class="muted">${esc(x.title||'')}</span>`).join('<br>') : '<span class="muted">None</span>'}</dd></dl>
-          <a class="btn btn-sm" style="margin-top:10px" href="${href('organizations/'+org.id)}">Open organization</a></div></section>` : ''}
+        ${opp ? `<section class="card"><div class="card-head"><h2>Opportunity</h2>${stagePill(opp.stage)}</div><div class="card-body">
+          <div class="aum-cols" style="margin-bottom:10px">
+            <div class="aum-cell"><div class="l">Expected AUM</div><div class="v">${fmtUSD(opp.expected_aum)||'-'}</div></div>
+            <div class="aum-cell"><div class="l">Funded AUM</div><div class="v">${fmtUSD(opp.funded_aum)||'-'}</div></div>
+            <div class="aum-cell"><div class="l">Est. annual revenue</div><div class="v">${fmtUSD((opp.funded_aum||opp.expected_aum||0)*Repo.settings().assumed_fee_rate)||'-'}</div></div></div>
+          <div class="stage-line">${[['Opened', opp.opened_on], ['First call', opp.first_call_on], ['Next steps', opp.hot_on], ['Onboarding', opp.onboarding_started_on], ['Funded', opp.funded_on]].filter(([, d]) => d).map(([l, d]) => `<span>${l} <b>${esc(fmtDate(d))}</b></span>`).join('')}</div>
+          <dl class="kv" style="margin-top:10px">${opp.lost_reason ? `<dt>Lost reason</dt><dd>${esc(opp.lost_reason)}</dd>` : ''}<dt>What booked the call</dt><dd>${esc(chName(opp.converting_channel_code)) || '<span class="muted">Not recorded</span>'}</dd></dl></div></section>` : ''}
       </aside>
     </div>
     <section class="card"><div class="card-head"><h2>Activity</h2><span class="sub" style="margin-left:auto;margin-right:12px">${tps.length} on file, newest first</span><button class="btn btn-sm btn-primary" type="button" id="c-log">Log activity</button></div>
@@ -5709,7 +5747,23 @@ function renderNav(){
   const who = Repo.teamName(Repo.settings().default_owner_id) || '';
   const initials = who.split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0].toUpperCase()).join('') || 'GC';
   const box = document.getElementById('topbar-user'), wasOpen = box.querySelector('.user-menu') && !box.querySelector('.user-menu').hidden;
-  box.innerHTML = `<div class="user-wrap"><button class="user-btn" type="button" id="user-btn" aria-haspopup="menu" aria-expanded="${wasOpen}" aria-controls="user-menu">
+  const bellOpen = box.querySelector('.bell-menu') && !box.querySelector('.bell-menu').hidden;
+  const S = Metrics.summary(Metrics.empty()), stuck = Metrics.stranded().length;
+  const late = Metrics.reminders(Metrics.empty()).filter(x => Repo.reminders.bucket(x) === 'overdue').length;
+  const in7 = Rules.addDays(new Date(), 7).toISOString().slice(0, 10), todayIso = new Date().toISOString().slice(0, 10);
+  const rfpSoon = Repo.rfps.all().filter(x => x.due_on && x.due_on >= todayIso && x.due_on <= in7 && !['submitted', 'won', 'lost', 'declined', 'cancelled'].includes(x.status)).length;
+  const plural = (n, one, many) => fmtInt(n) + ' ' + (n === 1 ? one : many);
+  const notes = [
+    S.review_queue ? { text: plural(S.review_queue, 'reply is', 'replies are') + ' waiting for you to confirm the outcome', go: href('touchpoints', { review:'1' }) } : null,
+    stuck ? { text: plural(stuck, 'piece', 'pieces') + ' of outreach went nowhere and ' + (stuck === 1 ? 'is' : 'are') + ' on nobody\'s list', go: href('reminders', { bucket:'fixing' }) } : null,
+    late ? { text: plural(late, 'follow-up is', 'follow-ups are') + ' overdue', go: href('reminders', { bucket:'overdue' }) } : null,
+    rfpSoon ? { text: plural(rfpSoon, 'RFP is', 'RFPs are') + ' due in the next 7 days', go: href('rfps') } : null,
+  ].filter(Boolean);
+  const bell = `<div class="bell-wrap"><button class="bell-btn" type="button" id="bell-btn" aria-haspopup="menu" aria-expanded="${bellOpen}" aria-controls="bell-menu" aria-label="Notifications: ${notes.length}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>${notes.length ? `<span class="badge">${notes.length}</span>` : ''}</button>
+    <div class="bell-menu" id="bell-menu" role="menu" ${bellOpen ? '' : 'hidden'}><div class="who"><b>Needs attention</b></div>
+      ${notes.length ? notes.map(n => `<a role="menuitem" href="${n.go}"><span class="dot" aria-hidden="true"></span>${esc(n.text)}</a>`).join('') : '<p class="muted small" style="padding:8px 12px">Nothing needs you right now.</p>'}</div></div>`;
+  box.innerHTML = bell + `<div class="user-wrap"><button class="user-btn" type="button" id="user-btn" aria-haspopup="menu" aria-expanded="${wasOpen}" aria-controls="user-menu">
       <span><b>${esc(who)}</b><br><span class="muted" style="font-size:11.5px">${esc(Repo.settings().firm_name)}</span></span><span class="avatar" aria-hidden="true">${esc(initials)}</span></button>
     <div class="user-menu" id="user-menu" role="menu" ${wasOpen ? '' : 'hidden'}>
       <div class="who"><b>${esc(who || 'Gaard team')}</b>${Store.live ? esc(Live.email || '') : 'Demo data'}</div>
@@ -5724,6 +5778,9 @@ function renderNav(){
   menu.addEventListener('click', e => e.stopPropagation());
   menu.querySelector('a')?.addEventListener('click', () => setOpen(false));
   menu.querySelector('[data-um="out"]')?.addEventListener('click', () => Live.signOut());
+  const bBtn = box.querySelector('#bell-btn'), bMenu = box.querySelector('#bell-menu');
+  bBtn.addEventListener('click', e => { e.stopPropagation(); const open = bMenu.hidden; bMenu.hidden = !open; bBtn.setAttribute('aria-expanded', String(open)); menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); });
+  bMenu.addEventListener('click', e => { e.stopPropagation(); if (e.target.closest('a')){ bMenu.hidden = true; bBtn.setAttribute('aria-expanded', 'false'); } });
   menu.querySelector('[data-um="in"]')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
 }
 async function changePassword(){
@@ -5736,7 +5793,8 @@ async function changePassword(){
   Toast.show(error ? 'Not changed: ' + error.message : 'Password changed', { kind: error ? 'warn' : 'ok' });
 }
 /* The account menu closes on a click elsewhere or Escape. */
-document.addEventListener('click', () => { const m = document.getElementById('user-menu'); if (m && !m.hidden){ m.hidden = true; document.getElementById('user-btn')?.setAttribute('aria-expanded', 'false'); } });
+document.addEventListener('click', () => { const m = document.getElementById('user-menu'); if (m && !m.hidden){ m.hidden = true; document.getElementById('user-btn')?.setAttribute('aria-expanded', 'false'); }
+  const b = document.getElementById('bell-menu'); if (b && !b.hidden){ b.hidden = true; document.getElementById('bell-btn')?.setAttribute('aria-expanded', 'false'); } });
 document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const m = document.getElementById('user-menu');
   if (m && !m.hidden){ m.hidden = true; const b = document.getElementById('user-btn'); b?.setAttribute('aria-expanded', 'false'); b?.focus(); } });
 function render(){
