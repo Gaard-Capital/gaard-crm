@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-21.5">
+<meta name="build-version" content="2026-10-21.8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -390,6 +390,24 @@ tr.mm-blocked:hover td{background:transparent}
 .mm-split{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .mm-state{font-size:12px;font-weight:700;white-space:nowrap}
 .mm-state.sent{color:var(--good)} .mm-state.sending{color:var(--accent)}
+.tpl-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;align-items:start}
+.tpl-list{margin:0} .tpl-list ul{list-style:none;margin:0;padding:6px;max-height:calc(100vh - 260px);overflow:auto}
+.tpl-list li{padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.tpl-list li:hover{background:var(--surface-2)} .tpl-list li.on{background:var(--accent-soft)}
+.tpl-list li b{font-size:13.5px} .tpl-list li span{font-size:12px;color:var(--ink-3)}
+.tpl-edit{margin:0} .tpl-edit .card-head{gap:8px;justify-content:flex-start} .tpl-edit .card-head .spacer{flex:1}
+.tpl-name{font-weight:600;font-size:15px;max-width:420px}
+.tpl-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap} .tpl-row select{width:auto;min-width:200px}
+#tpl-body{min-height:340px;line-height:1.6}
+.tpl-fields{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}
+.tpl-fields .tag{cursor:pointer;border:1px solid var(--line);font:inherit;font-size:11.5px}
+.tpl-fields .tag:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+@media (max-width:1000px){ .tpl-layout{grid-template-columns:1fr} }
+.mm-subj{font-weight:600}
+.mm-head{align-items:center} .mm-head dt{align-self:center}
+textarea.mm-body{display:block;width:100%;max-width:none;max-height:none;overflow:auto;height:auto;min-height:300px;max-height:none;resize:vertical;font:inherit;font-size:13px;line-height:1.6;color:var(--ink);background:var(--surface)}
+textarea.mm-body:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.mm-edited{margin-top:6px}
 .mm-manual{margin-top:12px;font-size:13px} .mm-manual summary{cursor:pointer;color:var(--ink-3)}
 .mm-split table.grid td{white-space:normal;overflow:visible;text-overflow:clip;max-width:none;vertical-align:top}
 .mm-split table.grid td .sub{white-space:normal}
@@ -3519,6 +3537,7 @@ Views.mailmerge = { title:'Emails to send',
     const preview = chosen.find(r => r.contact.id === st.previewId) || chosen[0] || sendable[0] || null;
     if (preview) st.previewId = preview.contact.id;
 
+    const letterFor = c => (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) };
     const srcBtn = (k, l, n) => `<button class="btn btn-sm" type="button" data-source="${k}" aria-pressed="${st.source===k}">${l} <span class="muted">${n}</span></button>`;
     const dueAll = Merge.due().filter(x => inScope.has(x.contact.id));
 
@@ -3530,7 +3549,7 @@ Views.mailmerge = { title:'Emails to send',
       <div class="filters" style="margin:0">
         <label class="sr-only" for="mm-tpl">Letter</label>
         <select id="mm-tpl" style="min-width:300px">${templates.map(t => `<option value="${t.id}" ${t.id===tpl.id?'selected':''}>${esc(t.name)}${t.segment ? ' (' + esc(segName(t.segment)) + ')' : ''}</option>`).join('')}</select>
-        <a class="btn btn-sm" href="${href('templates')}">Edit the wording</a>
+        <a class="btn btn-sm" href="${href('templates', { t: tpl.id })}">Edit the template</a>
         <span class="spacer"></span>
         <span class="muted small">${tpl.segment ? 'Written for ' + esc(segName(tpl.segment)) + ', so only those people are listed below.' : ''}</span>
       </div></div></section>
@@ -3541,7 +3560,6 @@ Views.mailmerge = { title:'Emails to send',
       <div class="filters" style="margin:0 0 10px">
         <div class="btn-group">${picked.length ? srcBtn('picked','Picked in Contacts', picked.length) : ''}${srcBtn('first','First outreach', fresh.length)}${srcBtn('due','Due today', dueAll.length)}${srcBtn('overdue','Only the late ones', dueAll.filter(x => Repo.reminders.bucket(x.reminder)==='overdue').length)}${srcBtn('all','Everyone already contacted', Metrics.leads(f).length)}</div>
 </div>
-      ${st.source === 'first' ? `<p class="muted small" style="margin:0 0 10px">These people have been imported but never written to. Sending records their first outreach date and starts the follow-up clock. Importing a name on its own never marks anybody as No response.</p>` : ''}
 </div></section>
 
     <div class="split mm-split">
@@ -3557,7 +3575,7 @@ Views.mailmerge = { title:'Emails to send',
                 : log === 'sent' ? '<span class="mm-state sent">Sent!</span>'
                 : now ? '<span class="mm-state sending">Sending…</span>'
                 : `<input type="checkbox" data-pick="${c.id}" ${on || queued ? 'checked' : ''} ${st.sending ? 'disabled' : ''} aria-label="Include ${esc(c.full_name)}">`; })()}</td>
-            <td><span class="name">${esc(c.full_name)}</span>${(st.sendLog || {})[c.id] && st.sendLog[c.id] !== 'sent' ? ` <span class="pill warnflag" title="${esc(st.sendLog[c.id])}">Not sent</span>` : ''}<span class="sub">${esc(orgNameOf(c) || 'Individual')}</span></td>
+            <td><span class="name">${esc(c.full_name)}</span>${(st.edits || {})[c.id] ? ' <span class="tag">Edited</span>' : ''}${(st.sendLog || {})[c.id] && st.sendLog[c.id] !== 'sent' ? ` <span class="pill warnflag" title="${esc(st.sendLog[c.id])}">Not sent</span>` : ''}<span class="sub">${esc(orgNameOf(c) || 'Individual')}</span></td>
             <td>${r.blocked ? `<span class="muted">${esc(r.blocked)}</span>`
               : r.reminder ? `<span class="pill st-${Repo.reminders.bucket(r.reminder)}">${fmtShort(r.reminder.due_on)}</span> <span class="muted">${esc(RT.get(r.reminder.reminder_type) || '')}</span>`
               : r.first ? `<span class="pill g-new">Never contacted</span> <span class="muted">${esc(c.import_batch || (c.sourced_on ? 'Sourced ' + fmtDate(c.sourced_on) : 'On the list'))}</span>`
@@ -3576,10 +3594,11 @@ Views.mailmerge = { title:'Emails to send',
       <section class="card"><div class="card-head"><h2>What ${preview ? esc(preview.contact.full_name) : 'they'} will read</h2>
         <span class="sub">${esc(tpl.name)}</span></div>
         <div class="card-body">
-        ${preview ? `<dl class="kv" style="grid-template-columns:70px 1fr;margin-bottom:12px">
+        ${preview ? `<dl class="kv mm-head" style="grid-template-columns:70px 1fr;margin-bottom:12px">
             <dt>To</dt><dd>${esc(preview.contact.email || 'no address')}</dd>
-            <dt>Subject</dt><dd><b>${esc(Merge.fill(tpl.subject, preview.contact))}</b></dd></dl>
-          <div class="mergebody">${esc(Merge.fill(tpl.body, preview.contact))}</div>
+            <dt>Subject</dt><dd><label class="sr-only" for="mm-subj">Subject</label><input id="mm-subj" type="text" class="mm-subj" value="${esc(letterFor(preview.contact).subject)}"></dd></dl>
+          <label class="sr-only" for="mm-body">Letter</label><textarea id="mm-body" class="mergebody mm-body" rows="16">${esc(letterFor(preview.contact).body)}</textarea>
+          <p class="muted small mm-edited">${(st.edits || {})[preview.contact.id] ? `Changed for ${esc(preview.contact.full_name)} only; the template stays as it is. <button class="linkish" type="button" id="mm-undo">Undo my changes</button>` : 'Type in the letter to change it for this person only.'}</p>
 
           <div class="stephead" style="margin:20px 0 12px"><span class="stepnum">3</span><h2>Send them</h2></div>
           ${(() => { const why = Gmail.blocker(), busy = !!st.sending;
@@ -3599,7 +3618,15 @@ Views.mailmerge = { title:'Emails to send',
   mount(root){
     const st = UI.merge;
     bindFilters(root, render);
-    root.querySelector('#mm-tpl')?.addEventListener('change', e => { st.templateId = e.target.value; st.selected = null; render(); });
+    root.querySelector('#mm-tpl')?.addEventListener('change', e => { st.templateId = e.target.value; st.selected = null; st.edits = {}; render(); });
+    /* Typing in the letter keeps the change for this person only. */
+    const keep = () => { const c = Repo.contacts.byId(st.previewId); if (!c) return;
+      st.edits = st.edits || {}; st.edits[c.id] = { subject: root.querySelector('#mm-subj').value, body: root.querySelector('#mm-body').value }; };
+    root.querySelector('#mm-subj')?.addEventListener('input', keep);
+    root.querySelector('#mm-body')?.addEventListener('input', keep);
+    root.querySelector('#mm-subj')?.addEventListener('change', render);
+    root.querySelector('#mm-body')?.addEventListener('change', render);
+    root.querySelector('#mm-undo')?.addEventListener('click', () => { delete st.edits[st.previewId]; render(); });
     root.querySelectorAll('[data-source]').forEach(b => b.addEventListener('click', () => { st.source = b.dataset.source; st.selected = null; render(); }));
     root.querySelectorAll('[data-pick]').forEach(cb => cb.addEventListener('change', e => { e.stopPropagation();
       const id = Number(cb.dataset.pick); if (cb.checked) st.selected.add(id); else st.selected.delete(id); render(); }));
@@ -3613,7 +3640,7 @@ Views.mailmerge = { title:'Emails to send',
     const build = () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];   // the letter on screen
       const picked = [...root.querySelectorAll('[data-pick]')].filter(cb => cb.checked).map(cb => Repo.contacts.byId(Number(cb.dataset.pick))).filter(Boolean);
-      return picked.map(c => ({ contact: c, subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) }));
+      return picked.map(c => (st.edits || {})[c.id] ? { contact: c, ...st.edits[c.id] } : { contact: c, subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) });
     };
     const copy = async (text, label) => {
       try { await navigator.clipboard.writeText(text); Toast.show(label, { kind:'ok' }); }
@@ -3621,7 +3648,8 @@ Views.mailmerge = { title:'Emails to send',
     };
     root.querySelector('#mm-copy-one')?.addEventListener('click', () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0]; const c = Repo.contacts.byId(st.previewId); if (!c) return;
-      copy(`To: ${c.email}\nSubject: ${Merge.fill(tpl.subject, c)}\n\n${Merge.fill(tpl.body, c)}`, 'Message copied');
+      const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) };
+      copy(`To: ${c.email}\nSubject: ${L.subject}\n\n${L.body}`, 'Message copied');
     });
     root.querySelector('#mm-copy-all')?.addEventListener('click', () => {
       const all = build().map(r => `To: ${r.contact.email}\nSubject: ${r.subject}\n\n${r.body}`).join('\n\n' + '-'.repeat(60) + '\n\n');
@@ -3632,7 +3660,8 @@ Views.mailmerge = { title:'Emails to send',
     root.querySelector('#mm-gtest')?.addEventListener('click', async () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0], c = Repo.contacts.byId(st.previewId); if (!tpl || !c) return;
       try { await Gmail.authorize();
-        await Gmail.send({ to: Gmail.email, subject: '[Test] ' + Merge.fill(tpl.subject, c), text: Merge.fill(tpl.body, c) });
+        const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) };
+        await Gmail.send({ to: Gmail.email, subject: '[Test] ' + L.subject, text: L.body });
         Toast.show('Test sent to ' + Gmail.email + ', filled in as for ' + c.full_name, { kind:'ok' }); render();
       } catch (err){ Toast.show('Test not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
     });
@@ -5726,7 +5755,7 @@ Views.settings = { title:'Settings',
             <div class="info-pop"><button class="info-btn" type="button" aria-label="About the booking link" aria-describedby="s-book-info">i</button>
               <div class="info-panel" role="tooltip" id="s-book-info"><div class="info-card"><p>Your Google Calendar booking page (Calendar → Create → Appointment schedule → Copy link). Letters that use {{booking_link}} put it in for whoever sends them.</p></div></div></div>
             <input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
-          <div class="page-actions" style="margin-top:14px"><button class="btn btn-sm" type="button" id="s-pass">Change password</button><button class="btn btn-sm" type="button" id="s-out">Sign out</button></div>`
+          <div class="page-actions" style="margin-top:14px"><button class="btn btn-sm" type="button" id="s-mfa">Use a new authenticator app</button><button class="btn btn-sm" type="button" id="s-pass">Change password</button><button class="btn btn-sm" type="button" id="s-out">Sign out</button></div>`
         : `<p class="muted">You are looking at the demo data. Nothing here is the live database.</p>
           <div class="page-actions" style="margin-top:12px"><button class="btn btn-sm btn-primary" type="button" id="s-in">Sign in to the live database</button></div>`}
       </div></section>
@@ -5743,7 +5772,7 @@ Views.settings = { title:'Settings',
         ${team.map(t => `<tr${t.is_active ? '' : ' class="muted"'}><td><b>${esc(t.full_name || '')}</b></td><td>${esc(t.email || '')}</td>
           <td>${t.is_active && t.id !== who.id ? `<select data-tm-role="${t.id}" style="width:auto" aria-label="Role for ${esc(t.full_name || '')}"><option value="member" ${t.access_role !== 'admin' ? 'selected' : ''}>Member</option><option value="admin" ${t.access_role === 'admin' ? 'selected' : ''}>Admin</option></select>` : (t.access_role === 'admin' ? 'Admin' : 'Member')}</td>
           <td>${status(t)}</td>
-          <td style="white-space:nowrap">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-copy="${t.id}">Copy invite</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-restore="${t.id}">Add back</button>` : ''}</td></tr>`).join('')}
+          <td style="white-space:nowrap">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-copy="${t.id}">Copy invite</button> ` : ''}${t.is_active && t.auth_user_id && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-mfa="${t.id}" title="For someone who lost their phone: they set up a new authenticator app at their next sign-in">Reset 2-step</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-restore="${t.id}">Add back</button>` : ''}</td></tr>`).join('')}
         </tbody></table></div></section>`; })() : ''}
       <section class="card col-12" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
         <div class="card-body">
@@ -5762,6 +5791,7 @@ Views.settings = { title:'Settings',
   },
   mount(root){
     root.querySelector('#s-pass')?.addEventListener('click', changePassword);
+    root.querySelector('#s-mfa')?.addEventListener('click', changeAuthenticator);
     /* The booking link lives on the person's own team row. Only admins may write team rows,
        so the live database takes it through set_my_booking_url() (db/009), for the caller only. */
     root.querySelector('#s-book-save')?.addEventListener('click', async () => {
@@ -5809,6 +5839,12 @@ The first time, it asks you to set up a 6-digit code with an authenticator app (
       const x = st.team_members.find(y => y.id === Number(b.dataset.tmRestore)); if (x) x.is_active = true; })));
     root.querySelectorAll('[data-tm-role]').forEach(s => s.addEventListener('change', () => Store.commit('Role changed', st => {
       const t = st.team_members.find(x => x.id === Number(s.dataset.tmRole)); if (t) t.access_role = s.value; })));
+    root.querySelectorAll('[data-tm-mfa]').forEach(b => b.addEventListener('click', async () => {
+      const t = Store.state.team_members.find(x => x.id === Number(b.dataset.tmMfa)); if (!t) return;
+      if (!await Modal.confirm({ title:'Reset 2-step for ' + (t.full_name || t.email), message:'Their authenticator app stops working. At their next sign-in they scan a new code with a new app. Use this when someone lost or replaced their phone.', okLabel:'Reset' })) return;
+      const { error } = await (await Live.sb()).rpc('admin_reset_two_step', { p_member_id: t.id });
+      Toast.show(error ? (/function|does not exist|schema cache/i.test(error.message) ? 'Not reset: the database needs db/011_reset_two_step.sql run first.' : 'Not reset: ' + error.message)
+        : (t.full_name || t.email) + ' will set up a new authenticator app at their next sign-in.', { kind: error ? 'warn' : 'ok', ms: 9000 }); }));
     root.querySelectorAll('[data-tm-remove]').forEach(b => b.addEventListener('click', async () => {
       const t = Store.state.team_members.find(x => x.id === Number(b.dataset.tmRemove)); if (!t) return;
       if (await Modal.confirm({ title:'Remove ' + (t.full_name || t.email), message:'They can no longer see anything in the CRM. Their past activity stays, with their name on it. You can invite them again later.', okLabel:'Remove', danger:true }))
@@ -5839,39 +5875,54 @@ The first time, it asks you to set up a 6-digit code with an authenticator app (
    The letters the mail merge fills, kept under Follow-ups next to the merge
    that uses them. Changes save when you leave a box. */
 Views.templates = { title:'Email templates',
-  render(){
+  /* The letters the mail merge sends: written once, with merge fields such as
+     {{first_name}} filled in for each person. Shared by the whole team. A list on
+     the left, the chosen letter on the right, so nothing needs scrolling. */
+  render(params){
+    const st = UI.tpl || (UI.tpl = { sel: null });
+    const list = Repo.templates.all();
+    if (params && params.t && String(params.t) !== String(st.fromLink)){ st.sel = params.t; st.fromLink = params.t; }
+    const t = list.find(x => String(x.id) === String(st.sel)) || list[0];
+    const aud = x => x.segment ? segName(x.segment) : 'Everyone';
     return `<div class="page-head"><div><h1>Email templates</h1></div></div>
-    <section class="card"><div class="card-body">
-        <p class="muted small" style="margin-bottom:12px">Merge fields: ${MERGE_FIELDS.map(([k,d]) => `<span class="tag" title="${esc(d)}">${esc(k)}</span>`).join(' ')}</p>
-        ${Repo.templates.all().map((t,i) => `<div class="tplcard">
-          <div class="tplcard-head">
-            <input data-tpl="${i}" data-k="name" type="text" value="${esc(t.name)}" aria-label="Template name" style="font-weight:600;max-width:320px">
-            <label class="f" style="flex-direction:row;align-items:center;gap:8px"><span class="muted small">Audience</span>
-              <select data-tpl="${i}" data-k="segment" style="width:auto"><option value="">Everyone</option>${SEGMENTS.map(x => `<option value="${x.code}" ${t.segment===x.code?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
-            <span class="spacer" style="flex:1"></span>
-            <a class="btn btn-sm" href="${href('mailmerge')}">Use it</a>
-            <button class="btn btn-sm" type="button" data-tpl-del="${i}">Remove</button></div>
-          <label class="f" style="margin-top:10px"><span>Subject</span><input data-tpl="${i}" data-k="subject" type="text" value="${esc(t.subject)}"></label>
-          <label class="f" style="margin-top:8px"><span>Body</span><textarea data-tpl="${i}" data-k="body" rows="9">${esc(t.body)}</textarea></label>
-        </div>`).join('')}
-        <button class="btn btn-sm" type="button" id="tpl-add">Add a template</button></div></section>`;
+    <div class="tpl-layout">
+      <section class="card tpl-list"><div class="card-head"><h2>${fmtInt(list.length)} letter${list.length === 1 ? '' : 's'}</h2><button class="btn btn-sm" type="button" id="tpl-add">New template</button></div>
+        <ul>${list.map(x => `<li class="${t && x.id === t.id ? 'on' : ''}" data-tsel="${esc(x.id)}" tabindex="0"><b>${esc(x.name || 'Untitled')}</b><span>${esc(aud(x))}${x.first ? ' · first outreach' : ''}</span></li>`).join('')}</ul></section>
+      ${t ? `<section class="card tpl-edit"><div class="card-head"><input id="tpl-name" type="text" value="${esc(t.name)}" aria-label="Template name" class="tpl-name">
+          <span class="spacer"></span><button class="btn btn-sm btn-primary" type="button" id="tpl-use">Use it</button><button class="btn btn-sm" type="button" id="tpl-del">Remove</button></div>
+        <div class="card-body">
+          <div class="tpl-row"><label class="f"><span>Audience</span><select id="tpl-seg"><option value="">Everyone</option>${SEGMENTS.map(x => `<option value="${x.code}" ${t.segment === x.code ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
+            <label class="f" style="flex:1"><span>Subject</span><input id="tpl-subj" type="text" value="${esc(t.subject)}"></label></div>
+          <label class="f" style="margin-top:12px"><span>Letter</span><textarea id="tpl-body" rows="16">${esc(t.body)}</textarea></label>
+          <div class="tpl-fields"><span class="muted small">Click to put in:</span>${MERGE_FIELDS.map(([k, d]) => `<button class="tag" type="button" data-field="${esc(k)}" title="${esc(d)}">${esc(k)}</button>`).join('')}</div>
+        </div></section>` : `<section class="card"><div class="card-body">${emptyState('No letters yet', 'Press New template to write the first one.')}</div></section>`}
+    </div>`;
   },
   mount(root){
-    const saveTemplates = () => {
-      const list = [...root.querySelectorAll('[data-tpl]')].reduce((acc, el) => {
-        const i = Number(el.dataset.tpl);
-        (acc[i] = acc[i] || { ...(Repo.templates.all()[i] || {}), id: (Repo.templates.all()[i] || {}).id || uid('t') })[el.dataset.k] = el.value;
-        return acc; }, []);
-      Repo.templates.save(list.filter(Boolean));
-    };
-    root.querySelectorAll('[data-tpl]').forEach(el => el.addEventListener('change', saveTemplates));
-    root.querySelector('#tpl-add')?.addEventListener('click', () => Repo.templates.save([...Repo.templates.all(),
-      { id: uid('t'), name:'New template', segment:'', subject:'', body:'Hi {{first_name}},\n\n\n{{sender_name}}\n{{firm_name}}' }]));
-    root.querySelectorAll('[data-tpl-del]').forEach(b => b.addEventListener('click', async () => {
-      const list = Repo.templates.all(); const t = list[Number(b.dataset.tplDel)];
-      if (await Modal.confirm({ title:'Remove this template', message:`"${t.name}" will be removed from the mail merge.`, okLabel:'Remove', danger:true }))
-        Repo.templates.save(list.filter((_,i) => i !== Number(b.dataset.tplDel)));
-    }));
+    const st = UI.tpl, list = Repo.templates.all(), t = list.find(x => String(x.id) === String(st.sel)) || list[0];
+    const pick = id => { st.sel = id; render(); };
+    root.querySelectorAll('[data-tsel]').forEach(li => { li.addEventListener('click', () => pick(li.dataset.tsel));
+      li.addEventListener('keydown', e => { if (e.key === 'Enter') pick(li.dataset.tsel); }); });
+    root.querySelector('#tpl-add')?.addEventListener('click', () => { const id = uid('t');
+      Repo.templates.save([...Repo.templates.all(), { id, name:'New template', segment:'', subject:'', body:'Hi {{first_name}},\n\n\n{{sender_name}}\n{{firm_name}}' }]);
+      pick((Repo.templates.all().slice(-1)[0] || {}).id); });   // the database may give it a new id
+    if (!t) return;
+    /* Every change is saved when the field is left (one save, one Undo). */
+    const save = () => Repo.templates.save(Repo.templates.all().map(x => x.id !== t.id ? x : { ...x,
+      name: root.querySelector('#tpl-name').value, segment: root.querySelector('#tpl-seg').value,
+      subject: root.querySelector('#tpl-subj').value, body: root.querySelector('#tpl-body').value }));
+    ['#tpl-name', '#tpl-seg', '#tpl-subj', '#tpl-body'].forEach(s => root.querySelector(s)?.addEventListener('change', save));
+    // a merge field goes where the cursor was in the letter
+    const body = root.querySelector('#tpl-body'); let at = null;
+    body.addEventListener('blur', () => { at = [body.selectionStart, body.selectionEnd]; });
+    root.querySelectorAll('[data-field]').forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
+    root.querySelectorAll('[data-field]').forEach(b => b.addEventListener('click', () => {
+      const [s, e] = document.activeElement === body ? [body.selectionStart, body.selectionEnd] : (at || [body.value.length, body.value.length]);
+      body.value = body.value.slice(0, s) + b.dataset.field + body.value.slice(e); save(); }));
+    root.querySelector('#tpl-use')?.addEventListener('click', () => { UI.merge.templateId = t.id; UI.merge.selected = null; UI.merge.edits = {}; go('mailmerge'); });
+    root.querySelector('#tpl-del')?.addEventListener('click', async () => {
+      if (await Modal.confirm({ title:'Remove this template', message:`"${t.name}" will be removed for the whole team.`, okLabel:'Remove', danger:true })){
+        st.sel = null; Repo.templates.save(Repo.templates.all().filter(x => x.id !== t.id)); } });
   }
 };
 
@@ -5962,6 +6013,30 @@ function renderNav(){
   bBtn.addEventListener('click', e => { e.stopPropagation(); const open = bMenu.hidden; bMenu.hidden = !open; bBtn.setAttribute('aria-expanded', String(open)); menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); });
   bMenu.addEventListener('click', e => { e.stopPropagation(); if (e.target.closest('a')){ bMenu.hidden = true; bBtn.setAttribute('aria-expanded', 'false'); } });
   menu.querySelector('[data-um="in"]')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
+}
+/* Moving to a new authenticator app (a new phone, or a better app), with no
+   admin needed. The new app is set up and checked first; only then is the old
+   one removed, so the account is never without its second step. */
+async function changeAuthenticator(){
+  const sb = await Live.sb();
+  const { data: en, error } = await sb.auth.mfa.enroll({ factorType:'totp', friendlyName:'Gaard CRM ' + new Date().toISOString().slice(0, 16) });
+  if (error) return Toast.show('Could not start: ' + error.message, { kind:'warn', ms: 9000 });
+  const m = Modal.open({ title:'Use a new authenticator app', body: `
+    <p>Open Google Authenticator, Microsoft Authenticator or your iPhone's Passwords app, add an account, and scan this code.</p>
+    <div style="display:flex;gap:18px;align-items:center;margin:14px 0;flex-wrap:wrap"><img src="${en.totp.qr_code}" alt="Code to scan" width="168" height="168" style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px">
+      <p class="muted small" style="flex:1;min-width:180px">Cannot scan? Type this key into the app instead:<br><code style="word-break:break-all">${esc(en.totp.secret)}</code></p></div>
+    <label class="f"><span>The 6-digit code the new app shows</span><input id="mfa-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
+    <p class="muted small" id="mfa-msg" style="margin-top:8px">Your old app keeps working until this one is confirmed.</p>`,
+    foot: `<button class="btn" type="button" data-cancel>Cancel</button><button class="btn btn-primary" type="button" data-ok>Confirm</button>` });
+  const msg = t => { m.querySelector('#mfa-msg').textContent = t; };
+  m.querySelector('[data-cancel]').onclick = async () => { Modal.close(); await sb.auth.mfa.unenroll({ factorId: en.id }); };
+  m.querySelector('[data-ok]').onclick = async () => {
+    const { error: e1 } = await sb.auth.mfa.challengeAndVerify({ factorId: en.id, code: m.querySelector('#mfa-code').value.trim() });
+    if (e1) return msg('That code did not work. The code changes every 30 seconds, so try the one showing now.');
+    const { data: f } = await sb.auth.mfa.listFactors();
+    for (const x of (f && f.totp) || []) if (x.id !== en.id) await sb.auth.mfa.unenroll({ factorId: x.id });
+    Modal.close(); Toast.show('Your new authenticator app is set up. The old one no longer works.', { kind:'ok', ms: 8000 });
+  };
 }
 async function changePassword(){
   const out = await Modal.form({ title:'Change your password', okLabel:'Save password', fields:[
