@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-18.9">
+<meta name="build-version" content="2026-10-21.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -388,6 +388,8 @@ tr.mm-blocked:hover td{background:transparent}
 /* ---------- Split record view ---------- */
 .split{display:grid;grid-template-columns:minmax(360px,5fr) minmax(430px,7fr);gap:16px;align-items:start}
 .mm-split{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.mm-state{font-size:12px;font-weight:700;white-space:nowrap}
+.mm-state.sent{color:var(--good)} .mm-state.sending{color:var(--accent)}
 .mm-manual{margin-top:12px;font-size:13px} .mm-manual summary{cursor:pointer;color:var(--ink-3)}
 .mm-split table.grid td{white-space:normal;overflow:visible;text-overflow:clip;max-width:none;vertical-align:top}
 .mm-split table.grid td .sub{white-space:normal}
@@ -509,6 +511,9 @@ table.cmp label.pick input{width:auto;margin:0}
 .cmp-legend{display:flex;gap:18px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--line);background:var(--surface-2);font-size:12px;color:var(--ink-3)}
 .cmp-legend i{display:inline-block;width:3px;height:12px;margin-right:7px;vertical-align:-1px}
 .im-up{display:inline-flex;align-items:center;gap:7px}
+.s-book-row{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:nowrap}
+.s-book-row label{font-size:13px;color:var(--ink-2);font-weight:500;white-space:nowrap}
+.s-book-row input{flex:1 1 auto;min-width:0;width:auto}
 .saved-people{list-style:none;margin:16px 0 0;padding:0;border-top:1px solid var(--line)}
 .saved-people li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
 /* Import, step one: steps, a drop zone, the paste box, and a side panel */
@@ -1173,6 +1178,7 @@ const MERGE_FIELDS = [
   ['{{last_outcome}}', 'The last recorded outcome'], ['{{last_touch_type}}', 'What the last touch was'],
   ['{{days_since}}', 'Days since the last touch'],
   ['{{sender_name}}', 'Whoever is sending'], ['{{firm_name}}', 'GAARD Capital'],
+  ['{{booking_link}}', 'Your booking page (Google Calendar), set in Settings'],
 ];
 
 const SEGMENTS = REFERENCE.segments;
@@ -1492,7 +1498,7 @@ const Repo = {
     /** update reminders set status='done', completed_at=now() where id=$1 */
     complete: id => Store.commit('Reminder marked done', st => { const r = st.reminders.find(x => x.id === id); if (r){ r.status = 'done'; r.completed_at = new Date().toISOString().slice(0,19); r.completed_by = st.settings.default_owner_id; } }),
     snooze: (id, days) => Store.commit(`Reminder moved out ${days} day${days===1?'':'s'}`, st => { const r = st.reminders.find(x => x.id === id);
-      if (r){ const base = new Date(r.due_on) < new Date() ? new Date() : new Date(r.due_on + 'T12:00:00'); r.due_on = dayOf(Rules.addDays(base, days).toISOString()); r.status = 'open'; r.snoozed_until = null; } }),
+      if (r){ const base = new Date(r.due_on) < new Date() ? new Date() : new Date(r.due_on + 'T12:00:00'); r.due_on = dayOf(Rules.addDays(base, days).toISOString()); r.status = 'open'; r.snoozed_until = null; syncFollowUp(st, r.contact_id, r.due_on); } }),
     dismiss: id => Store.commit('Reminder dismissed', st => { const r = st.reminders.find(x => x.id === id); if (r){ r.status = 'dismissed'; r.completed_at = new Date().toISOString().slice(0,19); } }),
     /** Put a stranded contact back on the list, using the rule its own outcome
         carries, counted from today rather than from the day it went wrong. */
@@ -2412,7 +2418,7 @@ const Replies = (() => {
     ['REFERRED_INTERNALLY', /(reach out|speak|talk) (to|with) (my colleague|our (cfo|treasurer|director|controller))|better person (to|for)|copying (my colleague|our)/i],
     ['HAS_ADVISOR',         /(happy|satisfied|pleased) with (our|the) (current|existing)|already (have|has|work with|working with) (an? )?(advisor|adviser|manager|firm)/i],
     ['NOT_INTERESTED',      /not interested|no,? thank(s| you)|we('?re| are) (all )?set|not a (good )?fit|pass on (this|it)|(must|will) decline|not something we/i],
-    ['NOT_NOW',             /not (right )?now|not at this time|not the right time|maybe (later|next)|(next|later this|early next) (year|quarter|month|spring|summer|fall)|(reach out|check back|circle back|follow up|touch base)( with (me|us))?( again)? (in|after|next|later)|after (the|our) (board|budget|fiscal)|revisit/i],
+    ['NOT_NOW',             /not (right )?now|not at this time|not at (this|the) (moment|point)|not the right time|maybe (later|next)|(next|later this|early next) (year|quarter|month|spring|summer|fall)|(reach out|check back|circle back|follow up|touch base)( with (me|us))?( again)? (in|after|next|later)|after (the|our) (board|budget|fiscal)|revisit/i],
     ['INTERESTED',          /interested|let'?s (talk|chat|connect|set up|schedule|meet)|happy to (chat|talk|meet|connect|hop on)|(set up|schedule) a (call|time|meeting)|would (love|like) to (learn|hear|talk|chat|meet)|tell me more|more (information|info|details)|what times? works?|(are you|you'?re) (free|available)|sounds (good|great|interesting)/i],
   ];
   const own = e => OWN_DOMAINS.some(d => String(e || '').toLowerCase().endsWith('@' + d));
@@ -2486,13 +2492,45 @@ const Replies = (() => {
       if (hits.length === 1) return { contact: hits[0], how: 'name' }; }
     return { contact: null, how: null };
   }
+  /* A screenshot of a whole Gmail conversation holds our letter and their answer.
+     Gmail shows the oldest message first, each one headed by the sender and a
+     time ("8:26 AM (44 minutes ago)"). The text is cut at those headers, and the
+     newest message that is not one of our own letters is the reply. */
+  const isHead = l => l.length < 180 && /\b\d{1,2}:\d{2}\s?(AM|PM)\b/i.test(l);
+  function threadParts(text){
+    const parts = []; let cur = null;
+    for (const l of String(text || '').split('\n')){
+      if (isHead(l)){ cur = { head: l, lines: [] }; parts.push(cur); continue; }
+      if (cur) cur.lines.push(l);
+    }
+    return parts.map(p => { const lines = p.lines.slice();
+      // the "to me" line and the odd icon characters under a header
+      while (lines.length && (!lines[0].trim() || /^\W{0,4}(to\s*me|tome|to\s+\S+(\s\S+)?)\W{0,6}$/i.test(lines[0].trim()) || /^[\W\d_]{0,6}$/.test(lines[0].trim()))) lines.shift();
+      let body = lines.join('\n');
+      const cut = body.search(/^\s*(on .{3,160}wrote:|-{2,}\s*original message)/im); if (cut > 0) body = body.slice(0, cut);
+      return { head: p.head, body: body.replace(/\n\s*[•.oe]{2,4}\s*$/i, '').trim() }; }).filter(p => p.body);
+  }
+  /** Words shared with one of our letters: the letter we sent this person, or any template. */
+  const words = s => new Set(String(s || '').toLowerCase().match(/[a-z]{4,}/g) || []);
+  function isOurs(body, contactId){
+    const w = words(body); if (w.size < 8) return false;
+    const ours = [...(contactId ? Store.state.touchpoints.filter(t => t.contact_id === contactId && t.direction !== 'inbound').map(t => t.notes) : []),
+      ...Repo.templates.all().map(t => t.body)];
+    return ours.some(t => { const o = words(t); let hit = 0; w.forEach(x => { if (o.has(x)) hit++; }); return hit / w.size > 0.6; });
+  }
   function read(text){
     const out = [];
     for (const block of split(text)){
       const p = parse(block);
       if (own(p.fromEmail) || (!p.body && !p.subject)) continue;   // our own email, quoted back
-      const cls = classify((p.subject || '') + '\n' + p.body);
+      let cls = classify((p.subject || '') + '\n' + p.body);
       const m = findContact(block, p, cls.code);
+      const parts = threadParts(block);
+      if (parts.length > 1){
+        const theirs = parts.filter(x => !isOurs(x.body, m.contact && m.contact.id));
+        const reply = theirs[theirs.length - 1];
+        if (reply){ p.body = reply.body; cls = classify(reply.body); }
+      }
       out.push({ ...p, code: cls.code, sure: cls.sure, contact_id: m.contact ? m.contact.id : null, matchedBy: m.how,
         ooo_return_on: cls.code === 'OUT_OF_OFFICE' ? returnDate(p.body) : null });
     }
@@ -2999,6 +3037,8 @@ const Views = {};
    merge produces the text and logs the touchpoints, and a real send goes
    through the mailbox integration in layer 2.
    ===================================================================== */
+/** The signed-in person's booking page, or ''. */
+const myBookingLink = () => ((Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {}).booking_url || '';
 const Merge = {
   /** Fill one template for one contact. */
   fill(text, c){
@@ -3016,8 +3056,10 @@ const Merge = {
       days_since: last ? String(Math.max(0, daysBetween(last.touched_at, NOW()))) : '0',
       sender_name: Repo.teamName(Repo.settings().default_owner_id) || 'the team',
       firm_name: Repo.settings().firm_name,
+      booking_link: myBookingLink(),
     };
-    return String(text || '').replace(/\{\{\s*(\w+)\s*\}\}/g, (m, k) => ctx[k] != null ? ctx[k] : m);
+    // {{first_name}}, and Jon's own style {{First Name}} or {{Booking link}}, all work
+    return String(text || '').replace(/\{\{\s*([\w ]+?)\s*\}\}/g, (m, k) => { const v = ctx[k.toLowerCase().replace(/\s+/g, '_')]; return v != null && v !== '' ? v : m; });
   },
   /** Any merge field the template uses that has nothing to fill it. */
   gaps(tpl, c){
@@ -3025,6 +3067,7 @@ const Merge = {
     const check = (field, value) => { if ((tpl.subject + tpl.body).includes('{{' + field + '}}') && !value) out.push(field); };
     const org = c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null;
     check('first_name', c.first_name); check('organization', org || c.employer); check('title', c.title);
+    if (/\{\{\s*booking[ _]link\s*\}\}/i.test(tpl.subject + tpl.body) && !myBookingLink()) out.push('your booking link (add it in Settings)');
     return out;
   },
   /** Who can be written to at all. The database refuses outreach to anyone on the
@@ -3490,14 +3533,19 @@ Views.mailmerge = { title:'Emails to send',
 </div></section>
 
     <div class="split mm-split">
-      <section class="card"><div class="card-head"><h2>${fmtInt(sendable.length)} ${sendable.length === 1 ? 'person' : 'people'}</h2>
-        <span class="sub">Click a name to read their copy</span></div>
+      <section class="card"><div class="card-head"><div class="title-row"><h2>${fmtInt(sendable.length)} ${sendable.length === 1 ? 'person' : 'people'}</h2>
+          <div class="info-pop"><button class="info-btn" type="button" aria-label="How this list works" aria-describedby="mm-list-info">i</button>
+            <div class="info-panel" role="tooltip" id="mm-list-info"><div class="info-card"><p>Click a name to read the letter they will get.</p></div></div></div></div></div>
         <div class="table-wrap auto" style="box-shadow:none;border:none;border-radius:0;max-height:520px">
-        <table class="grid sheet" style="min-width:0"><thead><tr><th style="width:36px"></th><th>Name</th><th>Why now</th><th>Last correspondence</th></tr></thead><tbody>
+        <table class="grid sheet" style="min-width:0"><thead><tr><th style="width:72px"></th><th>Name</th><th>Why now</th><th>Last correspondence</th></tr></thead><tbody>
         ${rows.length ? rows.map(r => { const c = r.contact; const on = st.selected.has(c.id);
           return `<tr class="${r.blocked ? 'mm-blocked' : ''} ${on && !r.blocked ? 'is-sel' : ''} ${preview && preview.contact.id === c.id ? 'is-open' : ''}" data-preview="${c.id}">
-            <td>${r.blocked ? '<span class="muted" title="' + esc(r.blocked) + '">&#183;</span>' : `<input type="checkbox" data-pick="${c.id}" ${on?'checked':''} aria-label="Include ${esc(c.full_name)}">`}</td>
-            <td><span class="name">${esc(c.full_name)}</span>${(st.sendLog || {})[c.id] ? (st.sendLog[c.id] === 'sent' ? ' <span class="pill g-new">Sent</span>' : ` <span class="pill warnflag" title="${esc(st.sendLog[c.id])}">Not sent</span>`) : ''}<span class="sub">${esc(orgNameOf(c) || 'Individual')}</span></td>
+            <td>${(() => { const log = (st.sendLog || {})[c.id], now = st.sending && st.sending.current === c.id, queued = st.sending && st.sending.queue.includes(c.id);
+              return r.blocked ? '<span class="muted" title="' + esc(r.blocked) + '">&#183;</span>'
+                : log === 'sent' ? '<span class="mm-state sent">Sent!</span>'
+                : now ? '<span class="mm-state sending">Sending…</span>'
+                : `<input type="checkbox" data-pick="${c.id}" ${on || queued ? 'checked' : ''} ${st.sending ? 'disabled' : ''} aria-label="Include ${esc(c.full_name)}">`; })()}</td>
+            <td><span class="name">${esc(c.full_name)}</span>${(st.sendLog || {})[c.id] && st.sendLog[c.id] !== 'sent' ? ` <span class="pill warnflag" title="${esc(st.sendLog[c.id])}">Not sent</span>` : ''}<span class="sub">${esc(orgNameOf(c) || 'Individual')}</span></td>
             <td>${r.blocked ? `<span class="muted">${esc(r.blocked)}</span>`
               : r.reminder ? `<span class="pill st-${Repo.reminders.bucket(r.reminder)}">${fmtShort(r.reminder.due_on)}</span> <span class="muted">${esc(RT.get(r.reminder.reminder_type) || '')}</span>`
               : r.first ? `<span class="pill g-new">Never contacted</span> <span class="muted">${esc(c.import_batch || (c.sourced_on ? 'Sourced ' + fmtDate(c.sourced_on) : 'On the list'))}</span>`
@@ -3550,7 +3598,7 @@ Views.mailmerge = { title:'Emails to send',
     root.querySelector('#mm-none')?.addEventListener('click', () => { st.selected = new Set(); render(); });
 
     const build = () => {
-      const tpl = Repo.templates.byId(st.templateId);
+      const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];   // the letter on screen
       const picked = [...root.querySelectorAll('[data-pick]')].filter(cb => cb.checked).map(cb => Repo.contacts.byId(Number(cb.dataset.pick))).filter(Boolean);
       return picked.map(c => ({ contact: c, subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) }));
     };
@@ -3559,7 +3607,7 @@ Views.mailmerge = { title:'Emails to send',
       catch (e) { Toast.show('Could not reach the clipboard. Select the text and copy it instead.', { kind:'warn' }); }
     };
     root.querySelector('#mm-copy-one')?.addEventListener('click', () => {
-      const tpl = Repo.templates.byId(st.templateId); const c = Repo.contacts.byId(st.previewId); if (!c) return;
+      const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0]; const c = Repo.contacts.byId(st.previewId); if (!c) return;
       copy(`To: ${c.email}\nSubject: ${Merge.fill(tpl.subject, c)}\n\n${Merge.fill(tpl.body, c)}`, 'Message copied');
     });
     root.querySelector('#mm-copy-all')?.addEventListener('click', () => {
@@ -3569,7 +3617,7 @@ Views.mailmerge = { title:'Emails to send',
     /* Send from Gmail: permission first, then one letter at a time with a short pause, each
        person marked Sent or Not sent as it goes; the ones that went are logged as No response. */
     root.querySelector('#mm-gtest')?.addEventListener('click', async () => {
-      const tpl = Repo.templates.byId(st.templateId), c = Repo.contacts.byId(st.previewId); if (!tpl || !c) return;
+      const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0], c = Repo.contacts.byId(st.previewId); if (!tpl || !c) return;
       try { await Gmail.authorize();
         await Gmail.send({ to: Gmail.email, subject: '[Test] ' + Merge.fill(tpl.subject, c), text: Merge.fill(tpl.body, c) });
         Toast.show('Test sent to ' + Gmail.email + ', filled in as for ' + c.full_name, { kind:'ok' }); render();
@@ -3577,7 +3625,7 @@ Views.mailmerge = { title:'Emails to send',
     });
     root.querySelector('#mm-gsend')?.addEventListener('click', async () => {
       const rows = build(); if (!rows.length) return;
-      const tpl = Repo.templates.byId(st.templateId);
+      const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];
       if (!Store.live) return Toast.show('This is the demo data: the addresses are made up. Use "Send a test to myself" to try it.', { kind:'warn', ms: 8000 });
       try { await Gmail.authorize(); } catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
       const other = Live.email && Gmail.email && Live.email.toLowerCase() !== Gmail.email.toLowerCase();
@@ -3585,12 +3633,13 @@ Views.mailmerge = { title:'Emails to send',
         message: `They go out from ${Gmail.email}, one at a time${other ? ' (not the account you signed in to the CRM with, ' + Live.email + ')' : ''}. Each person is marked No response and their next follow-up is set.`,
         okLabel: `Send ${rows.length}` });
       if (!ok) return;
-      st.sendLog = st.sendLog || {}; st.sending = { done: 0, total: rows.length }; render();
+      st.sendLog = st.sendLog || {}; st.sending = { done: 0, total: rows.length, queue: rows.map(r => r.contact.id), current: null }; render();
       const sent = [];
       for (const r of rows){
+        st.sending.current = r.contact.id; render();
         try { await Gmail.send({ to: r.contact.email, subject: r.subject, text: r.body }); st.sendLog[r.contact.id] = 'sent'; sent.push(r); }
         catch (err){ st.sendLog[r.contact.id] = err.message; }
-        st.sending.done++; render();
+        st.sending.done++; st.sending.queue = st.sending.queue.filter(id => id !== r.contact.id); st.sending.current = null; render();
         await new Promise(res => setTimeout(res, 1200));   // a steady pace, as a person sending would
       }
       st.sending = null;
@@ -3601,7 +3650,7 @@ Views.mailmerge = { title:'Emails to send',
     });
     root.querySelector('#mm-send')?.addEventListener('click', async () => {
       const rows = build(); if (!rows.length) return;
-      const tpl = Repo.templates.byId(st.templateId);
+      const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];
       const ok = await Modal.confirm({ title: `Mark ${rows.length} as sent`,
         message: `Have you sent these from your own email already? This only writes them down: one email against each of the ${rows.length} people, marked No response until they reply, with the next follow-up date set for each. You can undo it straight afterwards.`,
         okLabel: `Yes, mark ${rows.length} as sent` });
@@ -4176,7 +4225,7 @@ Views.contacts = { title:'Contacts',
       ids.forEach(id => e.target.checked ? sel.add(id) : sel.delete(id)); render(); });
     root.querySelector('#c-selclear')?.addEventListener('click', () => { sel.clear(); render(); });
     root.querySelector('#c-merge')?.addEventListener('click', () => {
-      UI.merge.picked = [...sel]; UI.merge.source = 'picked'; UI.merge.appliedSource = 'picked'; UI.merge.selected = null; UI.merge.previewId = null; UI.merge.pickedFor = null;
+      UI.merge.picked = [...sel]; UI.merge.source = 'picked'; UI.merge.appliedSource = 'picked'; UI.merge.selected = null; UI.merge.previewId = null; UI.merge.pickedFor = null; UI.merge.sendLog = {};
       go('mailmerge', { source:'picked' }); });
     root.querySelector('#c-cols')?.addEventListener('click', e => { e.stopPropagation(); UI.openCols = !UI.openCols; UI.openPick = null; UI.openState = false; render(); });
     const saveCols = labels => { try { localStorage.setItem(SHEET_COLS_KEY, JSON.stringify(labels)); } catch (e) { /* private window */ } render(); };
@@ -4300,6 +4349,13 @@ Views.contacts = { title:'Contacts',
    Only columns that are really stored can be edited. The counted ones, touches
    and the correspondence summary, are results rather than data, so they are
    left alone: changing them would mean lying about what happened. */
+/** The latest activity's "Next follow-up" follows the follow-up when someone moves it by hand.
+    The activity's own date stays: it is when it happened. */
+function syncFollowUp(st, contactId, day){
+  if (contactId == null) return;
+  const t = st.touchpoints.filter(x => x.contact_id === contactId).sort((a, b) => String(b.touched_at).localeCompare(String(a.touched_at)))[0];
+  if (t) t.follow_up_on = day;
+}
 /** A US number as 801-555-0123 (a leading 1 is dropped); anything else, such as an extension or a foreign number, is kept as typed. */
 function fmtPhone(raw){
   const s = String(raw ?? '').trim(), d = s.replace(/\D/g, '');
@@ -4360,7 +4416,7 @@ function saveCell(id, field, raw){
       const r = Repo.contacts.nextReminder(id);
       if (!day) return r ? Repo.reminders.dismiss(r.id) : undefined;
       if (r) return Store.commit('Next reach-out moved to ' + fmtDate(day),
-        st => { const x = st.reminders.find(y => y.id === r.id); if (x){ x.due_on = day; x.status = 'open'; x.snoozed_until = null; } });
+        st => { const x = st.reminders.find(y => y.id === r.id); if (x){ x.due_on = day; x.status = 'open'; x.snoozed_until = null; syncFollowUp(st, x.contact_id, day); } });
       return Repo.reminders.create({ contact_id: id, organization_id: c.organization_id, due_on: day, reminder_type:'follow_up',
         title: 'Follow up: ' + c.full_name, details: 'Set by hand from the contacts sheet.' });
     }
@@ -4446,7 +4502,7 @@ Views.contact = { title:'Contact',
       <aside class="rec-side">
         <section class="card"><div class="card-head"><h2>Next follow-up</h2>${next ? `<span class="pill st-${Repo.reminders.bucket(next)}">${Repo.reminders.bucket(next)==='overdue'?'Overdue':Repo.reminders.bucket(next)==='today'?'Due today':'Upcoming'}</span>` : ''}</div><div class="card-body">
           ${next ? `<p><b>${fmtDate(next.due_on,{weekday:'short',month:'short',day:'numeric'})}</b> <span class="muted">(${relDays(next.due_on)})</span> <span class="tag">${esc(RT.get(next.reminder_type)||next.reminder_type)}</span></p>
-            ${next.details ? `<p class="muted small" style="white-space:pre-wrap;margin-top:6px">${esc(next.details)}</p>` : ''}`
+            ${next.details ? `<p class="muted small" style="margin-top:6px">${esc(String(next.details).split('\n')[0])}</p>` : ''}`
             : `<p class="muted">${c.do_not_contact ? 'None: this contact is on the do-not-contact list.' : 'Nothing scheduled. Choose a follow-up date when you log an activity.'}</p>`}</div></section>
         ${opp ? `<section class="card"><div class="card-head"><h2>Opportunity</h2>${stagePill(opp.stage)}</div><div class="card-body">
           <div class="aum-cols" style="margin-bottom:10px">
@@ -5653,6 +5709,10 @@ Views.settings = { title:'Settings',
       <section class="card col-6"><div class="card-head"><h2>Account</h2></div><div class="card-body">
         ${who ? `<dl class="kv"><dt>Name</dt><dd>${esc(who.name || '')}</dd><dt>Email</dt><dd>${esc(Live.email || '')}</dd>
           <dt>Role</dt><dd>${who.role === 'admin' ? 'Admin' : 'Member'}</dd></dl>
+          <div class="s-book-row"><label for="s-book">Your Google booking link:</label>
+            <div class="info-pop"><button class="info-btn" type="button" aria-label="About the booking link" aria-describedby="s-book-info">i</button>
+              <div class="info-panel" role="tooltip" id="s-book-info"><div class="info-card"><p>Your Google Calendar booking page (Calendar → Create → Appointment schedule → Copy link). Letters that use {{booking_link}} put it in for whoever sends them.</p></div></div></div>
+            <input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
           <div class="page-actions" style="margin-top:14px"><button class="btn btn-sm" type="button" id="s-pass">Change password</button><button class="btn btn-sm" type="button" id="s-out">Sign out</button></div>`
         : `<p class="muted">You are looking at the demo data. Nothing here is the live database.</p>
           <div class="page-actions" style="margin-top:12px"><button class="btn btn-sm btn-primary" type="button" id="s-in">Sign in to the live database</button></div>`}
@@ -5689,6 +5749,21 @@ Views.settings = { title:'Settings',
   },
   mount(root){
     root.querySelector('#s-pass')?.addEventListener('click', changePassword);
+    /* The booking link lives on the person's own team row. Only admins may write team rows,
+       so the live database takes it through set_my_booking_url() (db/009), for the caller only. */
+    root.querySelector('#s-book-save')?.addEventListener('click', async () => {
+      const v = root.querySelector('#s-book').value.trim();
+      if (v && !/^https:\/\/\S+$/i.test(v)) return Toast.show('That does not look like a link. It should start with https://', { kind:'warn' });
+      const id = Repo.settings().default_owner_id;
+      if (Store.live){
+        const { error } = await (await Live.sb()).rpc('set_my_booking_url', { p_url: v });
+        if (error) return Toast.show(/function|does not exist|schema cache/i.test(error.message) ? 'Not saved: the database needs db/009_booking_link.sql run first.' : 'Not saved: ' + error.message, { kind:'warn', ms: 9000 });
+        const row = (Store.state.team_members || []).find(t => t.id === id);
+        if (row){ row.booking_url = v || null; if (Live.shadow && Live.shadow.team_members) Live.shadow.team_members.set(row.id, JSON.stringify(row)); }
+        Store.version++; render(); return Toast.show(v ? 'Booking link saved' : 'Booking link removed', { kind:'ok' });
+      }
+      Store.commit(v ? 'Booking link saved' : 'Booking link removed', st => { const row = st.team_members.find(t => t.id === id); if (row) row.booking_url = v || null; });
+    });
     root.querySelector('#s-out')?.addEventListener('click', () => Live.signOut());
     root.querySelector('#s-in')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
     /* Team: Add puts the person on the list (team_members); nothing is emailed.
