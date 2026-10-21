@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-21.3">
+<meta name="build-version" content="2026-10-21.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -393,7 +393,7 @@ tr.mm-blocked:hover td{background:transparent}
 .mm-manual{margin-top:12px;font-size:13px} .mm-manual summary{cursor:pointer;color:var(--ink-3)}
 .mm-split table.grid td{white-space:normal;overflow:visible;text-overflow:clip;max-width:none;vertical-align:top}
 .mm-split table.grid td .sub{white-space:normal}
-.mm-split [data-pick]{width:15px;height:15px;cursor:pointer}
+.mm-split [data-pick],#mm-selall{width:15px;height:15px;cursor:pointer;margin:0}
 .mm-split tr.is-sel td{background:var(--accent-soft)}
 .mm-split table.grid{min-width:0 !important;table-layout:fixed;width:100%}
 .mm-split table.grid th:first-child{width:40px}
@@ -1108,6 +1108,8 @@ I am with {{firm_name}}, an outsourced investment office working with organizati
 
 I do not know yet whether that is useful to you, which is the honest reason for this note rather than a longer one. If a short call would be worth your time, tell me what suits you and I will work around it.
 
+If it is easier, pick a time here: {{booking_link}}
+
 {{sender_name}}
 {{firm_name}}`,
   },
@@ -1118,6 +1120,8 @@ I do not know yet whether that is useful to you, which is the honest reason for 
 I reached out {{days_since}} days ago about investment oversight for {{organization}} and have not heard back, which usually just means the timing was wrong.
 
 If it is still not the right moment, say so and I will check back later in the year. If there is someone else there who handles this, a pointer in their direction would be a help.
+
+If it is easier, pick a time here: {{booking_link}}
 
 {{sender_name}}
 {{firm_name}}` },
@@ -1131,6 +1135,8 @@ Most groups we meet are doing a reasonable job with the time they have, but the 
 
 Would a short call be worth your time? I am happy to send a sample committee report first so you can judge the work before we talk.
 
+If it is easier, pick a time here: {{booking_link}}
+
 {{sender_name}}
 {{firm_name}}` },
   { id:'t_401k', name:'401(k) fiduciary support', segment:'RET_401K',
@@ -1142,6 +1148,8 @@ Plan sponsors carry a real duty to monitor the investment lineup, and most commi
 We serve as the plan's investment adviser: we write the investment policy statement, benchmark the lineup and the fees, document the committee's decisions, and report each quarter.
 
 Would it make sense to talk before your next plan year review? I can send a sample committee report first.
+
+If it is easier, pick a time here: {{booking_link}}
 
 {{sender_name}}
 {{firm_name}}` },
@@ -1155,6 +1163,8 @@ If you have not had an independent review of your allocation, your fees and your
 
 Is there a good time in the next two weeks for a short call?
 
+If it is easier, pick a time here: {{booking_link}}
+
 {{sender_name}}
 {{firm_name}}` },
   { id:'t_event', name:'Event follow-up', segment:'',
@@ -1166,6 +1176,8 @@ Good to meet you. As promised, here is a short overview of how we work with orga
 If it is useful, I can send a sample quarterly report so you can see the output before we talk.
 
 Would a 20-minute call in the next couple of weeks suit?
+
+If it is easier, pick a time here: {{booking_link}}
 
 {{sender_name}}
 {{firm_name}}` },
@@ -3059,7 +3071,9 @@ const Merge = {
       booking_link: myBookingLink(),
     };
     // {{first_name}}, and Jon's own style {{First Name}} or {{Booking link}}, all work
-    return String(text || '').replace(/\{\{\s*([\w ]+?)\s*\}\}/g, (m, k) => { const v = ctx[k.toLowerCase().replace(/\s+/g, '_')]; return v != null && v !== '' ? v : m; });
+    let s = String(text || '');
+    if (!ctx.booking_link) s = s.split('\n').filter(l => !/\{\{\s*booking[ _]link\s*\}\}/i.test(l)).join('\n').replace(/\n{3,}/g, '\n\n');
+    return s.replace(/\{\{\s*([\w ]+?)\s*\}\}/g, (m, k) => { const v = ctx[k.toLowerCase().replace(/\s+/g, '_')]; return v != null && v !== '' ? v : m; });
   },
   /** Any merge field the template uses that has nothing to fill it. */
   gaps(tpl, c){
@@ -3067,7 +3081,6 @@ const Merge = {
     const check = (field, value) => { if ((tpl.subject + tpl.body).includes('{{' + field + '}}') && !value) out.push(field); };
     const org = c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null;
     check('first_name', c.first_name); check('organization', org || c.employer); check('title', c.title);
-    if (/\{\{\s*booking[ _]link\s*\}\}/i.test(tpl.subject + tpl.body) && !myBookingLink()) out.push('your booking link (add it in Settings)');
     return out;
   },
   /** Who can be written to at all. The database refuses outreach to anyone on the
@@ -3527,8 +3540,7 @@ Views.mailmerge = { title:'Emails to send',
         <span class="sub">${fmtInt(chosen.length)} of ${fmtInt(sendable.length)} ticked</span></div>
       <div class="filters" style="margin:0 0 10px">
         <div class="btn-group">${picked.length ? srcBtn('picked','Picked in Contacts', picked.length) : ''}${srcBtn('first','First outreach', fresh.length)}${srcBtn('due','Due today', dueAll.length)}${srcBtn('overdue','Only the late ones', dueAll.filter(x => Repo.reminders.bucket(x.reminder)==='overdue').length)}${srcBtn('all','Everyone already contacted', Metrics.leads(f).length)}</div>
-        <button class="btn btn-sm" type="button" id="mm-all">Tick all</button>
-        <button class="btn btn-sm" type="button" id="mm-none">Untick all</button></div>
+</div>
       ${st.source === 'first' ? `<p class="muted small" style="margin:0 0 10px">These people have been imported but never written to. Sending records their first outreach date and starts the follow-up clock. Importing a name on its own never marks anybody as No response.</p>` : ''}
 </div></section>
 
@@ -3537,7 +3549,7 @@ Views.mailmerge = { title:'Emails to send',
           <div class="info-pop"><button class="info-btn" type="button" aria-label="How this list works" aria-describedby="mm-list-info">i</button>
             <div class="info-panel" role="tooltip" id="mm-list-info"><div class="info-card"><p>Click a name to read the letter they will get.</p></div></div></div></div></div>
         <div class="table-wrap auto" style="box-shadow:none;border:none;border-radius:0;max-height:520px">
-        <table class="grid sheet" style="min-width:0"><thead><tr><th style="width:72px"></th><th>Name</th><th>Why now</th><th>Last correspondence</th></tr></thead><tbody>
+        <table class="grid sheet" style="min-width:0"><thead><tr><th style="width:72px">${sendable.length ? `<input type="checkbox" id="mm-selall" ${chosen.length === sendable.length ? 'checked' : ''} ${st.sending ? 'disabled' : ''} aria-label="Tick or untick everyone" title="Tick or untick everyone">` : ''}</th><th>Name</th><th>Why now</th><th>Last correspondence</th></tr></thead><tbody>
         ${rows.length ? rows.map(r => { const c = r.contact; const on = st.selected.has(c.id);
           return `<tr class="${r.blocked ? 'mm-blocked' : ''} ${on && !r.blocked ? 'is-sel' : ''} ${preview && preview.contact.id === c.id ? 'is-open' : ''}" data-preview="${c.id}">
             <td>${(() => { const log = (st.sendLog || {})[c.id], now = st.sending && st.sending.current === c.id, queued = st.sending && st.sending.queue.includes(c.id);
@@ -3594,8 +3606,9 @@ Views.mailmerge = { title:'Emails to send',
     bindDragTick(root, '[data-pick]', cb => Number(cb.dataset.pick), changes => { changes.forEach((on, id) => on ? st.selected.add(id) : st.selected.delete(id)); render(); });
     root.querySelectorAll('[data-preview]').forEach(tr => tr.addEventListener('click', e => {
       if (e.target.closest('input')) return; st.previewId = Number(tr.dataset.preview); render(); }));
-    root.querySelector('#mm-all')?.addEventListener('click', () => { st.selected = null; render(); });
-    root.querySelector('#mm-none')?.addEventListener('click', () => { st.selected = new Set(); render(); });
+    const all = root.querySelector('#mm-selall');
+    if (all){ const n = root.querySelectorAll('[data-pick]:checked').length; all.indeterminate = n > 0 && !all.checked;
+      all.addEventListener('change', () => { st.selected = all.checked ? null : new Set(); render(); }); }
 
     const build = () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];   // the letter on screen
