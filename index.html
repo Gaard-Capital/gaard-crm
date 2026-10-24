@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-21.8">
+<meta name="build-version" content="2026-10-23.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -369,6 +369,18 @@ tr.mm-blocked:hover td{background:transparent}
 .pill.st-overdue{background:var(--danger-soft);color:var(--danger)}
 .pill.st-today{background:var(--warn-soft);color:var(--warn)}
 .pill.st-upcoming{background:var(--surface-3);color:var(--ink-2)}
+/* Settings > Data health (db/013) */
+.dh-sum{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.dh-sum .pill{font-size:12px}
+.dh-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px}
+.dh-row .pill{flex:none;min-width:58px;text-align:center;margin-top:1px}
+.dh-row .dh-main{flex:1;min-width:0}
+.dh-row details{overflow-x:auto}
+.dh-row .dh-n{flex:none;min-width:70px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.dh-row .dh-n small{color:var(--ink-3)}
+.dh-row details{margin-top:4px;font-size:12.5px} .dh-row summary{cursor:pointer;color:var(--ink-3)} .dh-row summary:hover{color:var(--ink)}
+.dh-row table{font-size:12px;margin-top:6px;border-collapse:collapse} .dh-row td,.dh-row th{padding:2px 8px 2px 0;text-align:left;vertical-align:top;color:var(--ink-2)}
+.dh-row th{color:var(--ink-3);font-weight:500}
 .pill.o-positive{background:var(--good-soft);color:var(--good)}
 .pill.o-neutral{background:var(--accent-soft);color:var(--accent-strong)}
 .pill.o-negative{background:var(--danger-soft);color:var(--danger)}
@@ -5742,6 +5754,55 @@ function commitBatch(analysis, defaults){
    sheet's own column order and deliberately messy. */
 const DEMO_BATCH_CSV = "Date,Source,Contact,First Name,Email,Org,Website,LinkedIn,Added on LinkedIn,Notes,Date Outreached,Outcome,Next Steps,Phone,AUM,State,Segment\n9/18/26,Jackson Hole retreat attendee list,Sofia Havili,Sofia,  SOFIA.HAVILI@PLATTEVDCOALITION.EXAMPLE ,Platte Valley Dance Coalition,https://www.plattevdcoalition.example,,,,,,,,,WY,\n9/18/26,Jackson Hole retreat attendee list,Mark Jimenez,Mark,  MJIMENEZ@FRIENDSOQUIRRHPARKS.EXAMPLE ,Friends of Oquirrh Parks,https://www.friendsoquirrhparks.example,,,,,,,,,UT,\n9/18/26,Jackson Hole retreat attendee list,Olivia Hawkins,Olivia,  OLIVIA@BEARRSEPARTNERS.EXAMPLE ,Bear River Science Education Partners,https://www.bearrsepartners.example,,,,,,,,,UT,\n9/18/26,Jackson Hole retreat attendee list,Leilani Lewis,Leilani,  LEILANI.LEWIS@FRIENDSTIMPANOGOSPARKS.EXAMPLE ,Friends of Timpanogos Parks,https://www.friendstimpanogosparks.example,,,,,,,,,UT,\n9/18/26,Jackson Hole retreat attendee list,Victoria Rogers,Victoria,vrogers@friendsmvparks.example,Friends of Morgan Valley Parks,,,,,,,,,,,\n2026-09-18,Retreat dinner,Kenneth Pena,Kenneth,,Davis County Community Foundation,,http://linkedin.com/in/KENNETH-PENA-B0091189/?trk=retreat,,,,,,,,,\n2026-09-18,Retreat dinner,Timothy Tsosie,Timothy,,Summit County Growers Association,,http://linkedin.com/in/TIMOTHY-TSOSIE-0539F24B/?trk=retreat,,,,,,,,,\n9/19/26,Met at Jackson Hole Philanthropy Retreat,Angela Martinez,Angela,angela.martinez@boxefbnetwork.example,BOX ELDER FOOD BANK NETWORK,,,,New board treasurer; interested in reserve policy.,,,,,,UT,\n9/19/26,Met at Jackson Hole Philanthropy Retreat,Donald Romero,Donald,donald.romero@hebervcaservices.example,\"Heber Valley Clean Air Services, Inc.\",,,,New board treasurer; interested in reserve policy.,,,,,,UT,\n9/19/26,Met at Jackson Hole Philanthropy Retreat,Kyle Moore,Kyle,kyle.moore@daviscseinitiative.example,,https://www.daviscseinitiative.example/about-us,,,New board treasurer; interested in reserve policy.,,,,,,UT,\n9/19/26,Met at Jackson Hole Philanthropy Retreat,Stephen White,Stephen,stephen.white@summitcmcoalition.example,Summit County Mentoring Coalition (Utah),,,,New board treasurer; interested in reserve policy.,,,,,,UT,\n9/19/26,Met at Jackson Hole Philanthropy Retreat,Lawrence Fisher,Lawrence,lawrence.fisher@tooelevaassociation.example,Tooele Valley Arts Association,,,,New board treasurer; interested in reserve policy.,,,,,,UT,\n9/19/26,Retreat attendee list,Michelle Yazzie,Michelle,michelle@greatbasinearlylearningleagues.example,Great Basin Early Learning Leagues,,,,,,,,,,UT,\n9/19/26,Retreat attendee list,Eric Wagner,Eric,eric@musiccouncilofpowderrivers.example,Music Council of Powder Rivers,,,,,,,,,,WY,\n9/19/26,Business card,Peter Rogers,Peter,peter.rogers.board@castlevvcouncil.example,Castle Valley Veterans Council,,,,Card says a different email than we have.,,,,,,,\n9/18/26,Retreat attendee list,Greta Lindqvist,Greta,greta.lindqvist@summitpeakwealth.example,Summit Peak Wealth Partners,,,,,,,,,,ID,Other\n9/18/26,Retreat attendee list,Marcus Bell,Marcus,mbell@beehivestatecu.example,Beehive State Credit Union,,,,,,,,,,UT,Other\n9/19/26,Retreat dinner,Helen Okafor,Helen,helen.okafor@summitridge.edu.example,,,,,Professor; knows the founder from the business school.,,,,,$4.5M,UT,OCIO\n9/19/26,Retreat dinner,Samuel Begay,Samuel,sbegay@canyonlandsstate.edu.example,Canyonlands State University Foundation,,,,,,,,,,ID,Other\n9/18/26,Retreat attendee list,Priya Raman,Priya,priya.raman@tetonwatershedtrust.example,Teton Watershed Trust,tetonwatershedtrust.example,,,,,,,,\"12,000,000\",WY,Nonprofit\n9/19/26,Business card,Priya Raman,Priya,Priya.Raman@TetonWatershedTrust.example,Teton Watershed Trust,,,,,,,,(307) 555-0142,,WY,Nonprofit\n9/19/26,Retreat attendee list,Luis Ortega,Luis,N/A,Star Valley Arts Guild,,https://www.linkedin.com/in/luis-ortega-starvalley,,,,,,,,WY,Nonprofit\n9/19/26,Retreat attendee list,,,,,,,,(blank row from the sheet),,,,,,,\n\"Sep 18, 2026\",Jackson Hole retreat attendee list,Brittany Porter,Brittany,bporter@tetonvalleyyouthorchestra.example,Teton Valley Youth Orchestra,https://tetonvalleyyouthorchestra.example,,Yes,,9/22/26,No response,,,$850k,WY,Nonprofit\n\"Sep 18, 2026\",Jackson Hole retreat attendee list,Bruce Porter,Bruce,bporter@sweetwaterfoodbankalliance.example,Sweetwater Food Bank Alliance,https://sweetwaterfoodbankalliance.example,,No,,9/22/26,\"No thank you, we already have an advisor we are happy with.\",,,$2.1M,WY,Nonprofit\n\"Sep 18, 2026\",Jackson Hole retreat attendee list,Christopher Edwards,Christopher,cedwards@jacksonholewildlifesociety.example,Jackson Hole Wildlife Society,https://jacksonholewildlifesociety.example,,Yes,,9/22/26,OOO until 10/6,,,$6.3M,WY,Nonprofit\n\"Sep 18, 2026\",Jackson Hole retreat attendee list,Isabella Larsen,Isabella,ilarsen@snakeriverwatershedcouncil.example,Snake River Watershed Council,https://snakeriverwatershedcouncil.example,,TRUE,,9/23/26,Interested - call scheduled,Call Thu 10/1 at 2pm,,$3.4M,ID,Nonprofit\n\"Sep 18, 2026\",Jackson Hole retreat attendee list,Rachel Barnes,Rachel,rbarnes@windriverliteracyproject.example,Wind River Literacy Project,https://windriverliteracyproject.example,,TRUE,,9/23/26,left vm,,,$400k,WY,Nonprofit\n\"Sep 18, 2026\",Jackson Hole retreat attendee list,Alice Walker,Alice,awalker@absarokatrailscoalition.example,Absaroka Trails Coalition,https://absarokatrailscoalition.example,,9/19/26,,9/23/26,Thanks for the note. Please check back after our board meeting in November.,,,$1.2M,WY,Nonprofit\n\"Sep 18, 2026\",Jackson Hole retreat attendee list,Janet Tucker,Janet,jtucker@plattevalleyseniorservices.example,Platte Valley Senior Services,https://plattevalleyseniorservices.example,,TRUE,,,,,,,WY,Nonprofit\n9/19/26,Workshop waitlist,Keanu Mahe,Keanu,keanu.mahe@mail.example,,,,,,,,,,40k,UT,Robo";
 
+/* ===== Settings > Data health =========================================
+   The weekly data check (db/013) runs inside the database and writes one row
+   per run; v_data_check_latest is the last run, one row per check. The card
+   shows it and can start a run. Nothing is fixed from here: each finding comes
+   with the rows behind it and, where there is one, the SQL that puts it right. */
+const DataHealth = {
+  PILL: { ok: 'st-funded', warn: 'st-today', fail: 'st-overdue' },
+  WORD: { ok: 'OK', warn: 'Look', fail: 'Fix' },
+  async load(root){
+    const body = root.querySelector('#dh-body'); if (!body || !Store.live) return;
+    const sb = await Live.sb();
+    const { data, error } = await sb.from('v_data_check_latest').select('*').order('sort_order');
+    if (!body.isConnected) return;
+    if (error){
+      body.innerHTML = `<p class="muted">${esc(/does not exist|schema cache|relation/i.test(error.message)
+        ? 'The database needs db/013_data_checks.sql run first.' : 'Could not read the last check: ' + error.message)}</p>`;
+      return;
+    }
+    if (!data.length){
+      body.innerHTML = '<p class="muted">The check has not run yet. Run it once now; from then on it compares each week with the week before.</p>';
+      return;
+    }
+    const run = data[0], st = run.run_status;
+    const when = new Date(run.ran_at).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+    const sample = rows => {
+      if (!Array.isArray(rows) || !rows.length) return '';
+      const cols = [...new Set(rows.flatMap(r => Object.keys(r)))];
+      return `<table><thead><tr>${cols.map(c => `<th>${esc(c.replace(/_/g, ' '))}</th>`).join('')}</tr></thead><tbody>${rows.map(r =>
+        `<tr>${cols.map(c => `<td${c === 'fix' ? ' class="mono"' : ''}>${esc(r[c] == null ? '' : String(r[c]))}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    };
+    body.innerHTML = `<div class="dh-sum"><span class="pill ${this.PILL[st] || 'st-upcoming'}">${esc(st === 'ok' ? 'All clear' : st === 'warn' ? 'Worth a look' : 'Needs fixing')}</span>
+        <span class="muted">${esc(run.summary || '')} · checked ${esc(when)}${run.trigger === 'weekly' ? ' (the Monday run)' : ''}</span></div>
+      ${data.map(c => `<div class="dh-row"><span class="pill ${this.PILL[c.status] || 'st-upcoming'}">${esc(this.WORD[c.status] || c.status)}</span>
+        <div class="dh-main">${esc(c.label)}${c.status !== 'ok' || (c.sample && c.sample.length) ? `<details><summary>${esc(c.note || 'Details')}</summary>${sample(c.sample)}</details>` : ''}</div>
+        <span class="dh-n">${c.count}${c.previous != null ? ` <small>was ${c.previous}</small>` : ''}</span></div>`).join('')}
+      <p class="muted small" style="margin-top:10px">Hard checks must be zero. The others are compared with the previous run: a jump is the signal, a steady number is normal. Fixes are made in the database by hand, and every change is in the audit log.</p>`;
+  },
+  async run(root){
+    const btn = root.querySelector('#dh-run'); if (!btn || !Store.live) return;
+    btn.disabled = true; const was = btn.textContent; btn.textContent = 'Checking…';
+    try {
+      const { data, error } = await (await Live.sb()).rpc('run_data_checks');
+      if (error) return Toast.show(/function|does not exist|schema cache/i.test(error.message) ? 'Not run: the database needs db/013_data_checks.sql run first.' : 'Not run: ' + error.message, { kind:'warn', ms: 9000 });
+      Toast.show('Data check: ' + (data && data.summary ? data.summary : 'done'), { kind: data && data.status === 'ok' ? 'ok' : 'warn', ms: 7000 });
+      await this.load(root);
+    } finally { if (btn.isConnected){ btn.disabled = false; btn.textContent = was; } }
+  },
+};
+
 /* ===== Settings ====================================================== */
 Views.settings = { title:'Settings',
   render(){
@@ -5759,6 +5820,10 @@ Views.settings = { title:'Settings',
         : `<p class="muted">You are looking at the demo data. Nothing here is the live database.</p>
           <div class="page-actions" style="margin-top:12px"><button class="btn btn-sm btn-primary" type="button" id="s-in">Sign in to the live database</button></div>`}
       </div></section>
+      <section class="card col-6" id="data-health"><div class="card-head"><h2>Data health</h2>${who ? '<button class="btn btn-sm" type="button" id="dh-run" style="margin-left:auto">Run the check now</button>' : ''}</div>
+        <div class="card-body" id="dh-body">${who ? '<p class="muted">Reading the last check…</p>'
+          : '<p class="muted">The weekly data check runs inside the live database: every Monday it confirms that each activity, deal and follow-up still sits under the right person and organization, that dates and amounts make sense, and that nothing was lost. Sign in to see the last run.</p>'}</div>
+      </section>
       ${who && who.role === 'admin' ? (() => { const team = (Store.state.team_members || []).slice().sort((a, b) => (b.is_active - a.is_active) || String(a.full_name).localeCompare(String(b.full_name)));
         const status = t => !t.is_active ? '<span class="muted">Removed</span>' : t.auth_user_id ? '<span class="pill st-funded">Joined</span>'
           : `<span class="pill st-upcoming">Added${t.invited_at ? ' ' + esc(fmtDate(t.invited_at, { month:'short', day:'numeric' })) : ''}, not signed in yet</span>`;
@@ -5792,6 +5857,8 @@ Views.settings = { title:'Settings',
   mount(root){
     root.querySelector('#s-pass')?.addEventListener('click', changePassword);
     root.querySelector('#s-mfa')?.addEventListener('click', changeAuthenticator);
+    if (Store.live) DataHealth.load(root);
+    root.querySelector('#dh-run')?.addEventListener('click', () => DataHealth.run(root));
     /* The booking link lives on the person's own team row. Only admins may write team rows,
        so the live database takes it through set_my_booking_url() (db/009), for the caller only. */
     root.querySelector('#s-book-save')?.addEventListener('click', async () => {

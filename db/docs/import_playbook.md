@@ -80,6 +80,34 @@ arguments; `import_gaard_tab()` is the same call with those values read from the
 Every imported row keeps `legacy_ref = '<tab> / row <n>'` on the contact, organization and touch, so a
 row in the old workbook can always be found in the CRM and the other way round.
 
+## The Events sheet and the RFP log (db/012)
+
+Jon tracks events and RFPs separately, so they are two tables with their own importers, run with the
+same two lines as a workbook tab. His two templates are read as they are.
+
+| Sheet | Upload table | Profile | Prepare the sheet first | Where it lands |
+|---|---|---|---|---|
+| **Event ROI Tracker** (Date, Cost, Event Name, Event Type, State, # of Contacts, # of Responses, # of Meetings, Clients Won ($), Notes) | `upload_events` | `Events` | The header is on row 14 and column A is empty: delete rows 1-13 and column A, save as CSV. `3/12/2026` and `$2,500` are fine. | `events`: date, cost, name, type, state, and the four counts as the sheet's own numbers (`people_met_reported`, `responses_reported`, `meetings_reported`, `clients_won_usd`). Same name + same date twice = one event. `v_event_performance` adds cost per contact / response / meeting and won-per-dollar from them. |
+| **RFP Log** (RFP Name / Issuer, RFP Reference Number, Final Submission Date, Approved for Submission (Y/N), Reviewed By, Date Reviewed, Size of AUM, Conditions or Limitations, Notes, Response, Date Responded, Correspondence, WON) | `upload_rfps` | `RFPs` | The header is on row 4 and column A is empty: delete rows 1-3 and column A. In the first column write the issuer after a slash (`Investment advisory RFP / Utah Arts Foundation`, either order); a cell with no slash is taken as the issuer. | `rfps` with the `db/002` columns: the organization matched by name to the ones already there (created if new); title and issuer split from the first column; `reference_number`; Final Submission Date = the day it went out when it has passed (and the row is approved), the deadline when it has not; `approved_for_submission`, `reviewed_by`, `reviewed_on`; Size of AUM; `terms`; Response and Correspondence into `decision_notes`; Date Responded = `decision_on`; WON. **Status** = WON (Y = won; N with a response or a response date = lost), else the Response wording (Shortlisted / Not selected / Awarded ...), else the dates and the approval (reviewed and not approved = declined; approved and not yet due = intent to bid, with a deadline reminder a week ahead). `decision_result` says how a lost one ended. -> `v_rfp_tracker` |
+| People met at an event (optional) | `upload_event_attendees` | `Event attendees` | The usual contact columns plus an **Event** column with the event's name (import the Events sheet first); a **Date** column is the day they were met. | Contact with channel EVENT, tied to the event, plus an in-person touch. Blank outcome = "Met at event". |
+
+```sql
+select * from check_upload_headers('upload_events', 'Events');          -- dry run: where each column goes
+select import_gaard_tab('upload_events', 'Events');
+select * from check_upload_headers('upload_rfps', 'RFPs');
+select import_gaard_tab('upload_rfps', 'RFPs');
+select * from v_event_performance;  select * from v_rfp_tracker;        -- check
+drop table upload_events; drop table upload_rfps;                       -- done
+```
+
+The result says what happened: `events_created`, `rfps_created`, `organizations_created`, `columns_used`,
+`columns_kept_in_notes`, `skipped` (row number and reason: no event name, no organization, a status word
+nobody knows) and, for the RFP log, `responses_to_check` (a Response the importer could not read as a
+status: imported as *submitted* with the text kept, for a person to set). Nothing skipped is guessed at;
+fix the cell and run the sheet again, nothing already imported is duplicated (RFPs match on reference
+number, then organization + title). A header not on the recognized list is kept in the notes as
+`Header: value`; one row in `import_header_aliases` (with `scope = 'event'` or `'rfp'`) maps it to a field.
+
 ## What never goes in the repo
 
 The uploaded tables, the CSVs they came from, and the Supabase error popups (they print whole rows).
