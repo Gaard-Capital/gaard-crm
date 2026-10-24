@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-23.2">
+<meta name="build-version" content="2026-10-24.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -541,6 +541,15 @@ table.cmp label.pick input{width:auto;margin:0}
 .cmp-legend{display:flex;gap:18px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--line);background:var(--surface-2);font-size:12px;color:var(--ink-3)}
 .cmp-legend i{display:inline-block;width:3px;height:12px;margin-right:7px;vertical-align:-1px}
 .im-up{display:inline-flex;align-items:center;gap:7px}
+/* Settings fits one screen: two rows of cards, long lists scroll inside their card */
+.set-page{grid-template-rows:minmax(0,1fr) minmax(0,1fr);height:calc(100vh - var(--topbar-h) - 120px);min-height:600px}
+.set-page > .card{display:flex;flex-direction:column;min-height:0}
+.set-page > .card > .card-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+.tm-add{display:flex;gap:8px;margin-bottom:12px} .tm-add input{flex:1 1 0;min-width:0} .tm-add select{width:auto;flex:none}
+table.edit.tm td{vertical-align:middle}
+.set-page table.edit.fr col.fr-domain{width:92px} .set-page table.edit.fr col.fr-rule{width:156px} .set-page table.edit.fr col.fr-on{width:40px} .set-page table.edit.fr col.fr-del{width:48px}
+table.edit.tm{width:100%;min-width:0} table.edit.tm td.tm-acts{white-space:normal;text-align:right} table.edit.tm td.tm-acts .btn{margin:2px 0 2px 4px}
+@media (max-width:1180px){ .set-page{height:auto;grid-template-rows:none} .set-page > .card > .card-body{max-height:420px} }
 .s-book-row{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:nowrap}
 .s-book-row label{font-size:13px;color:var(--ink-2);font-weight:500;white-space:nowrap}
 .s-book-row input{flex:1 1 auto;min-width:0;width:auto}
@@ -820,6 +829,7 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 .bell-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .bell-btn .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .bell-menu{position:absolute;right:0;top:calc(100% + 8px);width:340px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:6px;z-index:70;white-space:normal}
+.bell-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .bell-menu .who{padding:8px 12px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:13px;color:var(--ink)}
 .bell-menu a{display:flex;gap:10px;align-items:baseline;padding:9px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:13px;line-height:1.45}
 .bell-menu a:hover{background:var(--accent-soft)}
@@ -1525,7 +1535,7 @@ const Repo = {
       st.touchpoints = st.touchpoints.filter(t => t.id !== id); }),
     /** select confirm_outcome($1, $2): accept what the AI suggested */
     confirmOutcome: (id, outcomeCode) => Store.commit('Outcome confirmed', st => {
-      const t = st.touchpoints.find(x => x.id === id); if (!t) return;
+      const t = st.touchpoints.find(x => x.id === id); if (!t || !(outcomeCode || t.ai_suggested_outcome)) return;
       t.outcome_code = outcomeCode || t.ai_suggested_outcome; t.outcome_status = 'confirmed';
       t.confirmed_by = st.settings.default_owner_id; t.confirmed_at = new Date().toISOString().slice(0,19);
       Rules.applyOutcome(st, t, () => {});
@@ -2647,7 +2657,7 @@ const Replies = (() => {
       `From: Mail Delivery Subsystem <mailer-daemon@googlemail.com>\nSubject: Delivery Status Notification (Failure)\n\nAddress not found\n\nYour message wasn't delivered to ${f.email} because the address couldn't be found, or is unable to receive mail.`,
     ].join('\n\n');
   }
-  return { looksLikeRows, read, save, effect, demo, MAIN, MORE };
+  return { looksLikeRows, read, save, effect, demo, classify, MAIN, MORE };
 })();
 
 /* ---- Reading screenshots ----
@@ -3147,6 +3157,10 @@ const Merge = {
           outcome_raw: null, owner_id: st.settings.default_owner_id, created_at: now,
           merge_template: tplName };
         st.touchpoints.push(tp);
+        // sent from Gmail: the message and its conversation, so replies can be found later
+        if (r.gmail) st.email_messages.push({ id: Math.max(0, ...st.email_messages.map(m => m.id)) + 1, contact_id: c.id, touchpoint_id: tp.id, mailbox: r.mailbox,
+          external_id: r.gmail.id, thread_id: r.gmail.threadId, direction: 'outbound', from_email: r.mailbox, to_emails: [c.email], cc_emails: [],
+          subject: r.subject, body_text: r.body, sent_at: now, is_auto_reply: false, created_at: now });
         Rules.applyOutcome(st, tp, () => {});
         sent++;
       }
@@ -3177,7 +3191,7 @@ const Gmail = {
     await this.lib();
     const token = await new Promise((ok, no) => {
       const client = google.accounts.oauth2.initTokenClient({ client_id: GMAIL_CLIENT_ID,
-        scope: 'https://www.googleapis.com/auth/gmail.send openid email', hint: Live.email || undefined,
+        scope: 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly openid email', hint: Live.email || undefined,
         callback: r => r.error ? no(new Error(r.error_description || r.error)) : ok(r),
         error_callback: e => no(new Error(e.type === 'popup_closed' ? 'The Google window was closed before giving permission.' : (e.message || 'Google did not give permission.'))) });
       client.requestAccessToken({ prompt: '' });
@@ -3188,13 +3202,14 @@ const Gmail = {
     return this.token;
   },
   /** One message in the format Gmail takes: headers, a plain and an HTML part, base64url. */
-  raw({ to, subject, text, bcc, replyTo }){
+  raw({ to, subject, text, bcc, replyTo, inReplyTo, references }){
     const b64 = s => btoa(unescape(encodeURIComponent(s)));
     const head = s => /^[\x20-\x7e]*$/.test(s) ? s : '=?UTF-8?B?' + b64(s) + '?=';
     const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + esc(text).replace(/\n/g, '<br>') + '</div>';
     const wrap = s => b64(s).replace(/.{76}/g, m => m + '\r\n');
     const b = 'gaard-' + Math.random().toString(36).slice(2);
     const headers = ['To: ' + to, bcc && 'Bcc: ' + bcc, replyTo && 'Reply-To: ' + replyTo, 'Subject: ' + head(subject),
+      inReplyTo && 'In-Reply-To: ' + inReplyTo, references && 'References: ' + references,
       'MIME-Version: 1.0', 'Content-Type: multipart/alternative; boundary="' + b + '"'].filter(Boolean);
     const body = ['', '--' + b, 'Content-Type: text/plain; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap(text),
       '--' + b, 'Content-Type: text/html; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap(html), '--' + b + '--'];
@@ -3202,11 +3217,127 @@ const Gmail = {
   },
   async send(msg){
     const r = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', { method: 'POST',
-      headers: { Authorization: 'Bearer ' + this.token, 'Content-Type': 'application/json' }, body: JSON.stringify({ raw: this.raw(msg) }) });
+      headers: { Authorization: 'Bearer ' + this.token, 'Content-Type': 'application/json' }, body: JSON.stringify(msg.threadId ? { raw: this.raw(msg), threadId: msg.threadId } : { raw: this.raw(msg) }) });
     if (!r.ok){ const j = await r.json().catch(() => ({})); throw new Error((j.error && j.error.message) || ('Gmail answered ' + r.status)); }
     return r.json();
   },
 };
+
+
+/* Replies to the mail merge, read from the sender's own Gmail. Sending keeps
+   each letter's Gmail message and thread id (email_messages, outbound). Checking
+   opens only those threads, one by one, and takes any new message in them that
+   did not come from the sender: it is stored (email_messages, inbound), its
+   outcome is suggested from the wording (Replies.classify), and the letter's
+   activity waits for a person to confirm it (outcome_status needs_review), which
+   the bell shows. Nothing else in the mailbox is opened. */
+const Inbox = {
+  checking: false, last: null,
+  /** The letters this person sent from Gmail in the last four months, one per thread. */
+  sentThreads(me){
+    const since = Date.now() - 120 * 864e5, seen = new Map();
+    for (const m of Store.state.email_messages || []){
+      if (m.direction !== 'outbound' || !m.thread_id || String(m.mailbox || '').toLowerCase() !== me) continue;
+      if (new Date(m.sent_at).getTime() < since) continue;
+      if (!seen.has(m.thread_id)) seen.set(m.thread_id, m);
+    }
+    return [...seen.values()];
+  },
+  /** The readable text of one Gmail message: the plain part, or the HTML part without its tags. */
+  text(payload){
+    const dec = d => { try { return decodeURIComponent(escape(atob(String(d).replace(/-/g, '+').replace(/_/g, '/')))); } catch (e) { return ''; } };
+    const parts = [], walk = p => { if (!p) return; parts.push(p); (p.parts || []).forEach(walk); };
+    walk(payload);
+    const plain = parts.find(p => p.mimeType === 'text/plain' && p.body && p.body.data);
+    if (plain) return dec(plain.body.data);
+    const html = parts.find(p => p.mimeType === 'text/html' && p.body && p.body.data);
+    if (!html) return '';
+    const div = document.createElement('div'); div.innerHTML = dec(html.body.data).replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n\n');
+    return div.textContent || '';
+  },
+  /** The reply without the earlier letters quoted under it. */
+  clean(t){
+    const cut = t.search(/^\s*(on .{3,200}wrote:|-{2,}\s*original message|from: .+@)/im);
+    return (cut > 0 ? t.slice(0, cut) : t).replace(/^>.*$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
+  },
+  /** Look for new replies. Asks Google for permission when there is none yet (a click is needed for that). */
+  async check({ quiet = false } = {}){
+    if (this.checking) return;
+    if (!Store.live){ if (!quiet) Toast.show('Replies are read from Gmail in the live database only.', { kind:'warn' }); return; }
+    const why = Gmail.blocker(); if (why){ if (!quiet) Toast.show(why, { kind:'warn' }); return; }
+    this.checking = true; renderNav();
+    try {
+      await Gmail.authorize();
+      const me = Gmail.email.toLowerCase(), threads = this.sentThreads(me);
+      const known = new Set((Store.state.email_messages || []).map(m => m.external_id).filter(Boolean));
+      const found = [];
+      for (let i = 0; i < threads.length; i += 5){
+        await Promise.all(threads.slice(i, i + 5).map(async sent => {
+          const r = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/threads/' + encodeURIComponent(sent.thread_id) + '?format=full',
+            { headers: { Authorization: 'Bearer ' + Gmail.token } });
+          if (r.status === 403) throw new Error('Gmail did not allow reading. Press "Check Gmail for replies" and tick the box that lets the CRM read your email.');
+          if (!r.ok) return;
+          const th = await r.json();
+          for (const msg of th.messages || []){
+            if (known.has(msg.id)) continue;
+            const hdr = n => ((msg.payload.headers || []).find(x => x.name.toLowerCase() === n) || {}).value || '';
+            const from = (hdr('from').match(/[^\s<>"]+@[^\s<>"]+/) || [''])[0].toLowerCase();
+            if (!from || from === me) continue;   // our own letters and our own answers
+            const body = this.clean(this.text(msg.payload));
+            found.push({ sent, id: msg.id, thread: th.id, from, subject: hdr('subject'), body, at: new Date(Number(msg.internalDate)).toISOString().slice(0, 19),
+              auto: /auto-replied|auto-generated/i.test(hdr('auto-submitted')) || !!hdr('x-autoreply') });
+          }
+        }));
+      }
+      if (found.length) Store.commit(`${found.length} new repl${found.length === 1 ? 'y' : 'ies'} from Gmail`, st => {
+        let nextMsg = Math.max(0, ...st.email_messages.map(m => m.id));
+        const now = new Date().toISOString().slice(0, 19);
+        for (const f of found.sort((a, b) => a.at.localeCompare(b.at))){
+          const tp = st.touchpoints.find(t => t.id === f.sent.touchpoint_id);
+          const contactId = (tp && tp.contact_id) || f.sent.contact_id;
+          st.email_messages.push({ id: ++nextMsg, contact_id: contactId, touchpoint_id: tp ? tp.id : null, mailbox: me, external_id: f.id, thread_id: f.thread,
+            direction: 'inbound', from_email: f.from, to_emails: [me], cc_emails: [], subject: f.subject, body_text: f.body, sent_at: f.at, is_auto_reply: f.auto, created_at: now });
+          if (!tp) continue;
+          const cls = f.auto ? { code: 'OUT_OF_OFFICE', sure: true } : Replies.classify(f.body);
+          Object.assign(tp, { response_excerpt: f.body.slice(0, 400), responded_at: f.at, ai_suggested_outcome: cls.code || null,
+            ai_confidence: cls.code ? (cls.sure ? 0.9 : 0.6) : null, ai_reason: 'Read from the reply in Gmail', outcome_status: 'needs_review', updated_at: now });
+        }
+      });
+      this.last = new Date();
+      if (!quiet || found.length) Toast.show(found.length ? `${found.length} new repl${found.length === 1 ? 'y' : 'ies'}: see the bell to confirm them` : `No new replies in ${threads.length} letter${threads.length === 1 ? '' : 's'} you sent`, { kind:'ok' });
+    } catch (err){ if (!quiet) Toast.show('Could not check Gmail: ' + err.message, { kind:'warn', ms: 9000 }); }
+    finally { this.checking = false; renderNav(); }
+  },
+  /** Answer a reply in the same Gmail conversation, from the sender's Gmail. */
+  async answer(tpId){
+    const tp = Repo.touchpoints.byId(tpId); if (!tp) return;
+    const c = Repo.contacts.byId(tp.contact_id);
+    const msgs = (Store.state.email_messages || []).filter(m => m.touchpoint_id === tp.id && m.thread_id).sort((a, b) => String(a.sent_at).localeCompare(String(b.sent_at)));
+    const theirs = msgs.filter(m => m.direction === 'inbound').pop();
+    if (!c || !theirs) return Toast.show('There is no Gmail reply to answer here.', { kind:'warn' });
+    const subject = /^re:/i.test(theirs.subject || '') ? theirs.subject : 'Re: ' + (theirs.subject || tp.subject || '');
+    const out = await Modal.form({ title: 'Reply to ' + c.full_name, wide: true, okLabel: 'Send from my Gmail', fields: [
+      { key: 'subject', label: 'Subject', value: subject, span: true },
+      { key: 'body', label: 'Your answer', type: 'textarea', rows: 10, span: true, value: '\n\n' + (Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name } ] });
+    if (!out || !out.body.trim()) return;
+    try {
+      await Gmail.authorize();
+      const meta = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/' + encodeURIComponent(theirs.external_id) + '?format=metadata&metadataHeaders=Message-ID&metadataHeaders=References',
+        { headers: { Authorization: 'Bearer ' + Gmail.token } }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+      const hv = n => (((meta.payload || {}).headers || []).find(x => x.name.toLowerCase() === n) || {}).value || '';
+      const res = await Gmail.send({ to: theirs.from_email, subject: out.subject, text: out.body, threadId: theirs.thread_id,
+        inReplyTo: hv('message-id'), references: [hv('references'), hv('message-id')].filter(Boolean).join(' ') });
+      Store.commit('Reply sent to ' + c.full_name, st => {
+        const now = new Date().toISOString().slice(0, 19);
+        st.email_messages.push({ id: Math.max(0, ...st.email_messages.map(m => m.id)) + 1, contact_id: c.id, touchpoint_id: tp.id, mailbox: Gmail.email.toLowerCase(),
+          external_id: res.id, thread_id: res.threadId || theirs.thread_id, direction: 'outbound', from_email: Gmail.email, to_emails: [theirs.from_email], cc_emails: [],
+          subject: out.subject, body_text: out.body, sent_at: now, is_auto_reply: false, created_at: now });
+      });
+    } catch (err){ Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
+  },
+};
+
+setInterval(() => { if (Store.live && Gmail.token && Date.now() < Gmail.expires - 60000) Inbox.check({ quiet: true }); }, 10 * 60 * 1000);
 
 /* ===== Dashboard =====================================================
    Four headline numbers with their comparison, one chart that answers the
@@ -3503,7 +3634,7 @@ Views.kpis = { title:'KPIs',
 };
 
 /* ===== Mail merge screen ============================================= */
-Views.mailmerge = { title:'Emails to send',
+Views.mailmerge = { title:'Mass Email',
   render(params){
     const st = UI.merge;
     const templates = Repo.templates.all();
@@ -3691,7 +3822,7 @@ Views.mailmerge = { title:'Emails to send',
       const sent = [];
       for (const r of rows){
         st.sending.current = r.contact.id; render();
-        try { await Gmail.send({ to: r.contact.email, subject: r.subject, text: r.body }); st.sendLog[r.contact.id] = 'sent'; sent.push(r); }
+        try { r.gmail = await Gmail.send({ to: r.contact.email, subject: r.subject, text: r.body }); r.mailbox = Gmail.email.toLowerCase(); st.sendLog[r.contact.id] = 'sent'; sent.push(r); }
         catch (err){ st.sendLog[r.contact.id] = err.message; }
         st.sending.done++; st.sending.queue = st.sending.queue.filter(id => id !== r.contact.id); st.sending.current = null; render();
         await new Promise(res => setTimeout(res, 1200));   // a steady pace, as a person sending would
@@ -4105,12 +4236,15 @@ Views.touchpoints = { title:'Correspondence',
     }));
     root.querySelector('#tp-q').addEventListener('input', debounce(e => { st.q = e.target.value; st.page = 0; render(); }, 220));
     root.querySelectorAll('[data-confirm]').forEach(b => b.addEventListener('click', () => Repo.touchpoints.confirmOutcome(Number(b.dataset.confirm))));
-    root.querySelectorAll('[data-edit-outcome]').forEach(b => b.addEventListener('click', async () => {
-      const t = Repo.touchpoints.byId(Number(b.dataset.editOutcome));
-      const out = await Modal.form({ title:'Set the outcome', okLabel:'Confirm outcome', fields:[
-        { key:'outcome_code', label:'Standardized outcome', type:'select', value: t.ai_suggested_outcome || 'NOT_NOW', options: OUTCOMES.map(o => ({ value:o.code, label:o.label })) } ]});
-      if (out) Repo.touchpoints.confirmOutcome(t.id, out.outcome_code); })); }
+    root.querySelectorAll('[data-edit-outcome]').forEach(b => b.addEventListener('click', () => changeOutcome(Number(b.dataset.editOutcome)))); }
 };
+/** A reply's outcome chosen by hand instead of the suggested one; confirming it runs the outcome rules. */
+async function changeOutcome(tpId){
+  const t = Repo.touchpoints.byId(tpId); if (!t) return;
+  const out = await Modal.form({ title:'Set the outcome', okLabel:'Confirm outcome', fields:[
+    { key:'outcome_code', label:'Outcome', type:'select', value: t.ai_suggested_outcome || 'NOT_NOW', options: OUTCOMES.map(o => ({ value:o.code, label:o.label })) } ]});
+  if (out) Repo.touchpoints.confirmOutcome(t.id, out.outcome_code);
+}
 
 /* ===== Contacts ======================================================
    A dense master list, closer to the spreadsheet it replaces: small type, many
@@ -4123,13 +4257,14 @@ Views.touchpoints = { title:'Correspondence',
 const SHEET_COLS = [
   { label:'Date', w:78, fixed:true }, { label:'Contact Name', w:150, fixed:true }, { label:'First Name', w:84 },
   { label:'Email', w:190 }, { label:'Organization', w:176 }, { label:'Website', w:150 }, { label:'LinkedIn', w:150 },
-  { label:'AUM', w:84 }, { label:'Notes', w:180 }, { label:'Initial Outcome', w:300 },
+  { label:'AUM', w:84 }, { label:'Notes', w:180 }, { label:'Correspondence', w:300 },
   { label:'Status', w:96 }, { label:'Next Reach out Date', w:76 }, { label:'Newsletter', w:74 }, { label:'Active/Dorm', w:74 },
   { label:'Title', w:140 }, { label:'Segment', w:120 }, { label:'State', w:44 }, { label:'First reached', w:82 },
   { label:'Last touch', w:82 }, { label:'Touches', w:52 }, { label:'Channel', w:92 }, { label:'Flags', w:150 } ];
 const SHEET_COLS_KEY = 'gaard_sheet_cols';
 function sheetCols(news){
   let saved = null; try { saved = JSON.parse(localStorage.getItem(SHEET_COLS_KEY) || 'null'); } catch (e) { /* private window */ }
+  if (Array.isArray(saved) && saved.includes('Initial Outcome') && !saved.includes('Correspondence')) saved.push('Correspondence');   // the column's old name
   return SHEET_COLS.map(c => ({ ...c, shown: !!(c.fixed || (news && c.label === 'Newsletter') || (Array.isArray(saved) ? saved.includes(c.label) : true)) }));
 }
 
@@ -4217,7 +4352,7 @@ Views.contacts = { title:'Contacts',
         ${cell(link(c.linkedin_url) || '&nbsp;')}
         <td class="num ed" data-edit="aum" data-id="${c.id}" ${aum == null && orgRec && orgRec.reported_aum != null ? 'title="Reported by the organization"' : ''}>${aum != null ? fmtUSD(aum) : orgRec && orgRec.reported_aum != null ? `<span class="muted">${fmtUSD(orgRec.reported_aum)}</span>` : '<span class="muted">-</span>'}</td>
         ${cell(esc(c.notes || ''), 'notes')}
-        <td title="${esc(firstTouch ? outLabel(firstTouch.outcome_code) + ', ' + fmtDate(firstTouch.touched_at) : '')}">${firstTouch ? outcomePill(firstTouch.outcome_code) : '<span class="muted">-</span>'}</td>
+        <td title="${esc(a2 ? (a2.outcome_status === 'needs_review' ? 'Replied, waiting to be confirmed' : outLabel(a2.outcome_code)) + ', ' + fmtDate(a2.touched_at) : '')}">${!a2 ? '<span class="muted">-</span>' : a2.outcome_status === 'needs_review' ? `<span class="pill warnflag">Replied: ${esc(a2.ai_suggested_outcome ? outLabel(a2.ai_suggested_outcome) + '?' : 'confirm')}</span>` : outcomePill(a2.outcome_code)}</td>
         <td class="${l.stage ? 'ed' : ''}" ${l.stage ? `data-edit="stage" data-id="${c.id}"` : 'title="A status appears once an outcome opens an opportunity"'}>${l.stage ? stagePill(l.stage) : '<span class="muted">-</span>'}</td>
         <td class="ed" data-edit="next" data-id="${c.id}">${n ? `<span class="pill st-${Repo.reminders.bucket(n)}">${fmtShort(n.due_on)}</span>` : '<span class="muted">-</span>'}</td>
         <td class="ed" data-edit="newsletter" data-id="${c.id}" title="${esc(NEWSLETTER_LABEL[c.newsletter_status] || '')}">${c.newsletter_status === 'subscribed' ? 'Y' : c.newsletter_status === 'unsubscribed' ? '<span class="muted">Out</span>' : '<span class="muted">N</span>'}</td>
@@ -4257,7 +4392,7 @@ Views.contacts = { title:'Contacts',
       <thead><tr>
       <th class="rn pin1" scope="col"><input type="checkbox" id="c-selpage" ${page.length && page.every(c => st.sel.has(c.id)) ? 'checked' : ''} aria-label="Select every row on this page" title="Select every row on this page"></th>
       ${thSort('Date','added',st,'pin2')}${thSort('Contact Name','full_name',st,'pin3')}<th>First Name</th><th>Email</th>${thSort('Organization','org',st)}<th>Website</th><th>LinkedIn</th>${thSort('AUM','aum',st,'num')}<th>Notes</th>
-      <th>Initial Outcome</th>${thSort('Status','stage',st)}${thSort('Next Reach out Date','next',st)}<th>Newsletter</th><th>Active/Dorm</th>
+      <th>Correspondence</th>${thSort('Status','stage',st)}${thSort('Next Reach out Date','next',st)}<th>Newsletter</th><th>Active/Dorm</th>
       <th>Title</th><th>Segment</th><th>State</th>${thSort('First reached','first_out',st)}${thSort('Last touch','last',st)}${thSort('Touches','touches',st,'num')}<th>Channel</th><th>Flags</th></tr></thead>
       <tbody>${page.length ? page.map((c,i) => row(c, st.page*st.pageSize + i + 1)).join('') : `<tr><td colspan="23">${emptyState('No contacts match', st.q.trim() ? 'Nothing matches "' + st.q.trim() + '".' : 'Try clearing a filter.')}</td></tr>`}</tbody></table></div>${pager(st,total,'below')}
     <datalist id="sheet-orgs">${Repo.organizations.all().map(o => `<option value="${esc(o.name)}"></option>`).join('')}</datalist>`;
@@ -4515,7 +4650,10 @@ Views.contact = { title:'Contact',
           ${t.subject ? `<span>${esc(t.subject)}</span>` : ''}</div>
         <div class="body">${esc(t.notes || (emails[0] && emails[0].body_text) || '')}</div>
         ${t.response_excerpt ? `<div class="body" style="border-left:2px solid var(--accent);padding-left:8px;margin-top:6px"><b>Their reply:</b> ${esc(t.response_excerpt)}</div>` : ''}
-        ${t.outcome_status === 'needs_review' ? `<div class="chips" style="margin-top:6px"><div class="chip"><span class="k">Suggested:</span><b>${esc(outLabel(t.ai_suggested_outcome))}</b><span class="muted">${t.ai_confidence != null ? fmtPct(t.ai_confidence,0) : ''}</span><button class="btn btn-sm btn-accent" type="button" data-confirm="${t.id}">Confirm</button></div></div>` : ''}
+        ${(() => { const thread = emails.filter(m => m.thread_id), answers = thread.filter(m => m.direction === 'outbound').slice(1), canReply = Store.live && thread.some(m => m.direction === 'inbound');
+          return answers.map(m => `<div class="body" style="border-left:2px solid var(--good);padding-left:8px;margin-top:6px"><b>You answered ${esc(fmtDate(m.sent_at, { month:'short', day:'numeric' }))}:</b> ${esc(String(m.body_text || '').slice(0, 400))}</div>`).join('')
+            + (canReply ? `<div style="margin-top:8px"><button class="btn btn-sm" type="button" data-answer="${t.id}">Reply from my Gmail</button></div>` : ''); })()}
+        ${t.outcome_status === 'needs_review' ? `<div class="chips" style="margin-top:6px"><div class="chip">${t.ai_suggested_outcome ? `<span class="k">Suggested:</span><b>${esc(outLabel(t.ai_suggested_outcome))}</b><span class="muted">${t.ai_confidence != null ? fmtPct(t.ai_confidence,0) : ''}</span><button class="btn btn-sm btn-accent" type="button" data-confirm="${t.id}">Confirm</button>` : '<span class="k">They replied: choose the outcome</span>'}<button class="btn btn-sm" type="button" data-edit-outcome="${t.id}">Change</button></div></div>` : ''}
         <div class="meta">${esc(Repo.teamName(t.owner_id))}${t.outcome_raw ? ' &middot; original wording: ' + esc(t.outcome_raw) : ''}${emails.length ? ' &middot; ' + emails.length + ' email' + (emails.length>1?'s':'') + ' on file' : ''}</div></div></div>`; };
     return `<div class="page-head"><div><a href="${href('contacts')}" class="small">All contacts</a><div class="title-row" style="margin-top:2px"><h1>${esc(c.full_name)}</h1>
         <div class="info-pop"><button class="info-btn" type="button" aria-label="When this person was added" aria-describedby="c-added">i</button>
@@ -4574,6 +4712,8 @@ Views.contact = { title:'Contact',
     const c = Repo.contacts.byId(Number(params.id)); if (!c) return;
     const log = () => openLogTouch(c.id);
     root.querySelector('#c-log').addEventListener('click', log);
+    root.querySelectorAll('[data-answer]').forEach(b => b.addEventListener('click', () => Inbox.answer(Number(b.dataset.answer))));
+    root.querySelectorAll('[data-edit-outcome]').forEach(b => b.addEventListener('click', () => changeOutcome(Number(b.dataset.editOutcome))));
     root.querySelectorAll('[data-edit-tp]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
       const t = Repo.touchpoints.byId(Number(b.dataset.editTp)); if (t) openActivity(c.id, t); }));
     root.querySelector('#c-opp')?.addEventListener('click', () => { const o = Repo.contacts.opportunity(c.id); if (o) openEditOpportunity(o.id); });
@@ -5805,12 +5945,57 @@ const DataHealth = {
   },
 };
 
+/* ===== Settings > Your Claude =========================================
+   A person's own Claude reaches the CRM through the claude-connector Edge
+   Function (an MCP server). Its address ends with a random key made here and
+   shown once; the database keeps only the key's SHA-256 (db/015). */
+const ClaudeLink = {
+  url: key => SUPABASE_URL + '/functions/v1/claude-connector/' + key,
+  async load(root){
+    const body = root.querySelector('#cl-body'); if (!body || !Store.live) return;
+    const { data, error } = await (await Live.sb()).rpc('my_connector_key');
+    if (!body.isConnected) return;
+    if (error){ body.innerHTML = `<span class="muted small">${esc(/function|does not exist|schema cache/i.test(error.message) ? 'The database needs db/015_claude_connector.sql run first.' : 'Could not check: ' + error.message)}</span>`; return; }
+    const k = (data || [])[0], when = d => fmtDate(d, { month:'short', day:'numeric' });
+    body.innerHTML = k
+      ? `<span class="pill st-funded">Connected</span><span class="muted small" style="flex:1">${k.last_used_at ? 'last used ' + esc(when(k.last_used_at)) : 'since ' + esc(when(k.created_at))}</span>
+         <button class="btn btn-sm" type="button" id="cl-new">New address</button><button class="btn btn-sm" type="button" id="cl-drop">Disconnect</button>`
+      : `<span class="muted small" style="flex:1">Not connected</span><button class="btn btn-sm" type="button" id="cl-new">Connect my Claude</button>`;
+    body.querySelector('#cl-new')?.addEventListener('click', () => this.connect(root, !!k));
+    body.querySelector('#cl-drop')?.addEventListener('click', async () => {
+      if (!await Modal.confirm({ title:'Disconnect your Claude', message:'Your Claude stops reaching the CRM at once. Replies it already stored stay.', okLabel:'Disconnect' })) return;
+      const { error: e } = await (await Live.sb()).rpc('drop_my_connector_key');
+      Toast.show(e ? 'Not disconnected: ' + e.message : 'Your Claude is disconnected', { kind: e ? 'warn' : 'ok' }); this.load(root); });
+  },
+  async connect(root, replacing){
+    if (replacing && !await Modal.confirm({ title:'Make a new address', message:'The address your Claude uses now stops working. You then add the new one in Claude.', okLabel:'Make a new one' })) return;
+    const key = [...crypto.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2, '0')).join('');
+    const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key)))].map(b => b.toString(16).padStart(2, '0')).join('');
+    const { error } = await (await Live.sb()).rpc('set_my_connector_key', { p_hash: hash });
+    if (error) return Toast.show('Not connected: ' + error.message, { kind:'warn', ms: 9000 });
+    const url = this.url(key);
+    const m = Modal.open({ title:'Connect your Claude', wide: true, body: `
+      <p>Copy this address now: it is shown only once. Anyone who has it can do what your Claude can do, so keep it to yourself.</p>
+      <div style="display:flex;gap:8px;margin:12px 0"><input id="cl-url" readonly value="${esc(url)}" style="flex:1;min-width:0" class="mono"><button class="btn btn-sm btn-primary" type="button" id="cl-copy">Copy</button></div>
+      <ol style="margin:0 0 0 18px;line-height:1.7">
+        <li>In claude.ai open <b>Settings → Connectors</b> and choose <b>Add custom connector</b>.</li>
+        <li>Name it <b>Gaard CRM</b>, paste the address, and press Add. Leave the advanced settings empty.</li>
+        <li>Check that Gmail is connected there too.</li>
+        <li>In a chat, ask for example: <i>"Check my Gmail for replies to my Gaard outreach and record them in Gaard CRM."</i></li>
+      </ol>
+      <p class="muted small" style="margin-top:10px">The replies appear under the bell here after a reload. Confirm or Change each one; the follow-up is scheduled then.</p>`,
+      foot: `<button class="btn btn-primary" type="button" data-ok>Done</button>` });
+    m.querySelector('#cl-copy').onclick = () => { navigator.clipboard.writeText(url); Toast.show('Address copied', { kind:'ok' }); };
+    m.querySelector('[data-ok]').onclick = () => { Modal.close(); this.load(root); };
+  },
+};
+
 /* ===== Settings ====================================================== */
 Views.settings = { title:'Settings',
   render(){
     const who = Store.live ? (Live.member || {}) : null;
     return `<div class="page-head"><div><h1>Settings</h1></div></div>
-    <div class="dash-grid">
+    <div class="dash-grid set-page">
       <section class="card col-6"><div class="card-head"><h2>Account</h2></div><div class="card-body">
         ${who ? `<dl class="kv"><dt>Name</dt><dd>${esc(who.name || '')}</dd><dt>Email</dt><dd>${esc(Live.email || '')}</dd>
           <dt>Role</dt><dd>${who.role === 'admin' ? 'Admin' : 'Member'}</dd></dl>
@@ -5818,6 +6003,10 @@ Views.settings = { title:'Settings',
             <div class="info-pop"><button class="info-btn" type="button" aria-label="About the booking link" aria-describedby="s-book-info">i</button>
               <div class="info-panel" role="tooltip" id="s-book-info"><div class="info-card"><p>Your Google Calendar booking page (Calendar → Create → Appointment schedule → Copy link). Letters that use {{booking_link}} put it in for whoever sends them.</p></div></div></div>
             <input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
+          <div class="s-book-row"><label>Your Claude:</label>
+            <div class="info-pop"><button class="info-btn" type="button" aria-label="About connecting Claude" aria-describedby="cl-info">i</button>
+              <div class="info-panel" role="tooltip" id="cl-info"><div class="info-card"><p>Lets your own Claude (claude.ai, with Gmail connected) find replies in your mailbox and put them in the CRM. Claude can list who has not replied, look people up, and store a reply with the outcome it suggests. It cannot confirm, delete or send anything: each reply waits under the bell for you to Confirm or Change.</p></div></div></div>
+            <div id="cl-body" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0"><span class="muted small">Checking…</span></div></div>
           <div class="page-actions" style="margin-top:14px"><button class="btn btn-sm" type="button" id="s-mfa">Use a new authenticator app</button><button class="btn btn-sm" type="button" id="s-pass">Change password</button><button class="btn btn-sm" type="button" id="s-out">Sign out</button></div>`
         : `<p class="muted">You are looking at the demo data. Nothing here is the live database.</p>
           <div class="page-actions" style="margin-top:12px"><button class="btn btn-sm btn-primary" type="button" id="s-in">Sign in to the live database</button></div>`}
@@ -5828,30 +6017,30 @@ Views.settings = { title:'Settings',
       </section>
       ${who && who.role === 'admin' ? (() => { const team = (Store.state.team_members || []).slice().sort((a, b) => (b.is_active - a.is_active) || String(a.full_name).localeCompare(String(b.full_name)));
         const status = t => !t.is_active ? '<span class="muted">Removed</span>' : t.auth_user_id ? '<span class="pill st-funded">Joined</span>'
-          : `<span class="pill st-upcoming">Added${t.invited_at ? ' ' + esc(fmtDate(t.invited_at, { month:'short', day:'numeric' })) : ''}, not signed in yet</span>`;
-        return `<section class="card col-12" id="team"><div class="card-head"><h2>Team</h2><span class="sub">Who can sign in with Google</span></div><div class="card-body">
-        <div class="filters" style="margin-bottom:14px">
-          <label class="sr-only" for="tm-name">Name</label><input id="tm-name" type="text" placeholder="Name" style="min-width:180px">
-          <label class="sr-only" for="tm-email">Email</label><input id="tm-email" type="email" placeholder="name@gaard.capital" style="min-width:240px">
-          <label class="sr-only" for="tm-role">Role</label><select id="tm-role" style="min-width:120px"><option value="member">Member</option><option value="admin">Admin</option></select>
+          : `<span class="pill st-upcoming" title="Added${t.invited_at ? ' ' + esc(fmtDate(t.invited_at, { month:'short', day:'numeric' })) : ''}, not signed in yet">Not signed in</span>`;
+        return `<section class="card col-6" id="team"><div class="card-head"><h2>Team</h2><span class="sub">Who can sign in with Google</span></div><div class="card-body">
+        <div class="tm-add">
+          <label class="sr-only" for="tm-name">Name</label><input id="tm-name" type="text" placeholder="Name">
+          <label class="sr-only" for="tm-email">Email</label><input id="tm-email" type="email" placeholder="name@gaard.capital">
+          <label class="sr-only" for="tm-role">Role</label><select id="tm-role"><option value="member">Member</option><option value="admin">Admin</option></select>
           <button class="btn btn-primary btn-sm" type="button" id="tm-invite">Add</button></div>
-        <table class="edit"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
-        ${team.map(t => `<tr${t.is_active ? '' : ' class="muted"'}><td><b>${esc(t.full_name || '')}</b></td><td>${esc(t.email || '')}</td>
+        <table class="edit tm"><thead><tr><th>Person</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
+        ${team.map(t => `<tr${t.is_active ? '' : ' class="muted"'}><td><b>${esc(t.full_name || '')}</b><div class="muted small">${esc(t.email || '')}</div></td>
           <td>${t.is_active && t.id !== who.id ? `<select data-tm-role="${t.id}" style="width:auto" aria-label="Role for ${esc(t.full_name || '')}"><option value="member" ${t.access_role !== 'admin' ? 'selected' : ''}>Member</option><option value="admin" ${t.access_role === 'admin' ? 'selected' : ''}>Admin</option></select>` : (t.access_role === 'admin' ? 'Admin' : 'Member')}</td>
           <td>${status(t)}</td>
-          <td style="white-space:nowrap">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-copy="${t.id}">Copy invite</button> ` : ''}${t.is_active && t.auth_user_id && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-mfa="${t.id}" title="For someone who lost their phone: they set up a new authenticator app at their next sign-in">Reset 2-step</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-restore="${t.id}">Add back</button>` : ''}</td></tr>`).join('')}
+          <td class="tm-acts">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-copy="${t.id}">Copy invite</button> ` : ''}${t.is_active && t.auth_user_id && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-mfa="${t.id}" title="For someone who lost their phone: they set up a new authenticator app at their next sign-in">Reset 2-step</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-restore="${t.id}">Add back</button>` : ''}</td></tr>`).join('')}
         </tbody></table></div></section>`; })() : ''}
-      <section class="card col-12" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
+      <section class="card ${who && who.role === 'admin' ? 'col-6' : 'col-12'}" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
         <div class="card-body">
         <table class="edit fr"><colgroup><col class="fr-domain"><col class="fr-rule"><col><col class="fr-on"><col class="fr-del"></colgroup>
         <thead><tr><th>Domain</th><th>Rule</th><th>Reason</th><th>On</th><th></th></tr></thead><tbody>
         ${Repo.flagRules.all().map(r => `<tr><td class="mono"><b>${esc(r.pattern)}</b></td>
           <td><select data-fr-flag="${r.id}" aria-label="Rule for ${esc(r.pattern)}">
-            <option value="university" ${r.flag === 'university' ? 'selected' : ''}>No cold email (in person only)</option>
+            <option value="university" ${r.flag === 'university' ? 'selected' : ''}>In person only</option>
             <option value="do_not_contact" ${r.flag !== 'university' ? 'selected' : ''}>Do not contact</option></select></td>
           <td><input data-fr-reason="${r.id}" type="text" value="${esc(r.reason || '')}" aria-label="Reason for ${esc(r.pattern)}"></td>
           <td><input type="checkbox" data-fr-active="${r.id}" ${r.is_active ? 'checked' : ''} aria-label="${esc(r.pattern)} rule is on"></td>
-          <td><button class="btn btn-sm" type="button" data-fr-del="${r.id}">Remove</button></td></tr>`).join('')
+          <td><button class="btn btn-sm" type="button" data-fr-del="${r.id}" aria-label="Remove ${esc(r.pattern)}" title="Remove">×</button></td></tr>`).join('')
           || '<tr><td colspan="5" class="muted">No domains yet.</td></tr>'}
         </tbody></table></div></section>
     </div>`;
@@ -5859,7 +6048,7 @@ Views.settings = { title:'Settings',
   mount(root){
     root.querySelector('#s-pass')?.addEventListener('click', changePassword);
     root.querySelector('#s-mfa')?.addEventListener('click', changeAuthenticator);
-    if (Store.live) DataHealth.load(root);
+    if (Store.live){ DataHealth.load(root); ClaudeLink.load(root); }
     root.querySelector('#dh-run')?.addEventListener('click', () => DataHealth.run(root));
     /* The booking link lives on the person's own team row. Only admins may write team rows,
        so the live database takes it through set_my_booking_url() (db/009), for the caller only. */
@@ -5998,23 +6187,25 @@ Views.templates = { title:'Email templates',
 /* ======================================================================
    SECTION 8. ROUTER AND BOOT
    ====================================================================== */
-/* Five places, not eleven. Everything else is a tab inside one of them, so
-   nothing was taken away: the sidebar just stopped listing the furniture. */
+/* In the order Jon works: the people and what was sent to them, bringing lists in,
+   writing to many at once, then what is due, events, RFPs and the numbers. */
 const NAV = [
-  ['dashboard','Dashboard','<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="5"/><rect x="13" y="10" width="8" height="11"/><rect x="3" y="13" width="8" height="8"/></svg>'],
-  ['kpis','KPIs','<svg viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>'],
-  ['reminders','Follow-ups','<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
   ['contacts','Contacts','<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 0 1 6 5"/></svg>'],
+  ['import','Import','<svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>'],
+  ['mailmerge','Mass Email','<svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>'],
+  ['reminders','Follow-ups','<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
   ['events','Events','<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'],
   ['rfps','RFPs','<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>'],
-  ['import','Import','<svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>'],
+  ['dashboard','Dashboard','<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="5"/><rect x="13" y="10" width="8" height="11"/><rect x="3" y="13" width="8" height="8"/></svg>'],
+  ['kpis','KPIs','<svg viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>'],
 ];
 /* Which sidebar entry owns each screen, and the tabs that screen sits in. */
 const NAV_OF = { contact:'contacts', organization:'contacts', organizations:'contacts', touchpoints:'contacts',
-  mailmerge:'reminders', templates:'reminders', reviews:'reminders', pipeline:'kpis',
+  templates:'mailmerge', reviews:'reminders', pipeline:'kpis',
   partners:'contacts', newsletter:'contacts' };
 const TABS = [
-  ['reminders', [['reminders','One at a time'], ['mailmerge','Send as a batch'], ['templates','Email templates'], ['reviews','Client reviews']]],
+  ['mailmerge', [['mailmerge','Send as a batch'], ['templates','Email templates']]],
+  ['reminders', [['reminders','One at a time'], ['reviews','Client reviews']]],
   ['contacts',  [['contacts','People'], ['organizations','Organizations'], ['partners','Partners'], ['newsletter','Newsletter']]],
   ['kpis',      [['kpis','KPIs'], ['pipeline','Pipeline']]],
 ];
@@ -6054,14 +6245,17 @@ function renderNav(){
   const rfpSoon = Repo.rfps.all().filter(x => x.due_on && x.due_on >= todayIso && x.due_on <= in7 && !['submitted', 'won', 'lost', 'declined', 'cancelled'].includes(x.status)).length;
   const plural = (n, one, many) => fmtInt(n) + ' ' + (n === 1 ? one : many);
   const notes = [
-    S.review_queue ? { text: plural(S.review_queue, 'reply is', 'replies are') + ' waiting for you to confirm the outcome', go: href('touchpoints', { review:'1' }) } : null,
+    ...Repo.touchpoints.reviewQueue().slice(0, 6).map(t => { const c = Repo.contacts.byId(t.contact_id);
+      return { text: (c ? c.full_name : 'Someone') + ' replied: ' + (t.ai_suggested_outcome ? 'looks like ' + outLabel(t.ai_suggested_outcome) + '. Confirm?' : 'choose the outcome'), go: href('contacts/' + t.contact_id) }; }),
+    S.review_queue > 6 ? { text: plural(S.review_queue - 6, 'more reply', 'more replies') + ' to confirm', go: href('touchpoints', { review:'1' }) } : null,
     stuck ? { text: plural(stuck, 'piece', 'pieces') + ' of outreach went nowhere and ' + (stuck === 1 ? 'is' : 'are') + ' on nobody\'s list', go: href('reminders', { bucket:'fixing' }) } : null,
     late ? { text: plural(late, 'follow-up is', 'follow-ups are') + ' overdue', go: href('reminders', { bucket:'overdue' }) } : null,
     rfpSoon ? { text: plural(rfpSoon, 'RFP is', 'RFPs are') + ' due in the next 7 days', go: href('rfps') } : null,
   ].filter(Boolean);
   const bell = `<div class="bell-wrap"><button class="bell-btn" type="button" id="bell-btn" aria-haspopup="menu" aria-expanded="${bellOpen}" aria-controls="bell-menu" aria-label="Notifications: ${notes.length}">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>${notes.length ? `<span class="badge">${notes.length}</span>` : ''}</button>
-    <div class="bell-menu" id="bell-menu" role="menu" ${bellOpen ? '' : 'hidden'}><div class="who"><b>Needs attention</b></div>
+    <div class="bell-menu" id="bell-menu" role="menu" ${bellOpen ? '' : 'hidden'}><div class="who bell-head"><b>Needs attention</b>${Store.live ? `<button class="linkish small" type="button" id="bell-check" ${Inbox.checking ? 'disabled' : ''}>${Inbox.checking ? 'Checking Gmail…' : 'Check Gmail for replies'}</button>` : ''}</div>
+      ${Inbox.last ? `<p class="muted small" style="padding:0 12px 4px">Last checked ${esc(Inbox.last.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }))}</p>` : ''}
       ${notes.length ? notes.map(n => `<a role="menuitem" href="${n.go}"><span class="dot" aria-hidden="true"></span>${esc(n.text)}</a>`).join('') : '<p class="muted small" style="padding:8px 12px">Nothing needs you right now.</p>'}</div></div>`;
   box.innerHTML = bell + `<div class="user-wrap"><button class="user-btn" type="button" id="user-btn" aria-haspopup="menu" aria-expanded="${wasOpen}" aria-controls="user-menu">
       <span><b>${esc(who)}</b><br><span class="muted" style="font-size:11.5px">${esc(Repo.settings().firm_name)}</span></span><span class="avatar" aria-hidden="true">${esc(initials)}</span></button>
@@ -6081,6 +6275,7 @@ function renderNav(){
   const bBtn = box.querySelector('#bell-btn'), bMenu = box.querySelector('#bell-menu');
   bBtn.addEventListener('click', e => { e.stopPropagation(); const open = bMenu.hidden; bMenu.hidden = !open; bBtn.setAttribute('aria-expanded', String(open)); menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); });
   bMenu.addEventListener('click', e => { e.stopPropagation(); if (e.target.closest('a')){ bMenu.hidden = true; bBtn.setAttribute('aria-expanded', 'false'); } });
+  box.querySelector('#bell-check')?.addEventListener('click', e => { e.stopPropagation(); Inbox.check(); });
   menu.querySelector('[data-um="in"]')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
 }
 /* Moving to a new authenticator app (a new phone, or a better app), with no
