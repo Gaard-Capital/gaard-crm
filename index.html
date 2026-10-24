@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-23.1">
+<meta name="build-version" content="2026-10-23.2">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -5796,7 +5796,9 @@ const DataHealth = {
     btn.disabled = true; const was = btn.textContent; btn.textContent = 'Checking…';
     try {
       const { data, error } = await (await Live.sb()).rpc('run_data_checks');
-      if (error) return Toast.show(/function|does not exist|schema cache/i.test(error.message) ? 'Not run: the database needs db/013_data_checks.sql run first.' : 'Not run: ' + error.message, { kind:'warn', ms: 9000 });
+      if (error) return Toast.show(/function|does not exist|schema cache/i.test(error.message) ? 'Not run: the database needs db/013_data_checks.sql run first.'
+        : /statement timeout/i.test(error.message) ? 'Not run: the check took longer than the API allows (8 seconds). It still runs on its own every Monday; to run it now, use the SQL Editor: select run_data_checks();'
+        : 'Not run: ' + error.message, { kind:'warn', ms: 12000 });
       Toast.show('Data check: ' + (data && data.summary ? data.summary : 'done'), { kind: data && data.status === 'ok' ? 'ok' : 'warn', ms: 7000 });
       await this.load(root);
     } finally { if (btn.isConnected){ btn.disabled = false; btn.textContent = was; } }
