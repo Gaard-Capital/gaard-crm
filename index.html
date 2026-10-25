@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-24.1">
+<meta name="build-version" content="2026-10-25.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -541,15 +541,14 @@ table.cmp label.pick input{width:auto;margin:0}
 .cmp-legend{display:flex;gap:18px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--line);background:var(--surface-2);font-size:12px;color:var(--ink-3)}
 .cmp-legend i{display:inline-block;width:3px;height:12px;margin-right:7px;vertical-align:-1px}
 .im-up{display:inline-flex;align-items:center;gap:7px}
-/* Settings fits one screen: two rows of cards, long lists scroll inside their card */
-.set-page{grid-template-rows:minmax(0,1fr) minmax(0,1fr);height:calc(100vh - var(--topbar-h) - 120px);min-height:600px}
-.set-page > .card{display:flex;flex-direction:column;min-height:0}
-.set-page > .card > .card-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
-.tm-add{display:flex;gap:8px;margin-bottom:12px} .tm-add input{flex:1 1 0;min-width:0} .tm-add select{width:auto;flex:none}
+/* Settings: Data health is as tall as the Account card beside it and scrolls inside;
+   Team and the No cold email list run the full width below */
+.set-page #data-health{height:0;min-height:100%;display:flex;flex-direction:column}
+.set-page #data-health > .card-body{flex:1;min-height:0;overflow-y:auto}
+.tm-add{display:flex;gap:8px;margin-bottom:12px} .tm-add input{flex:1 1 0;min-width:0;max-width:300px} .tm-add select{width:auto;flex:none}
 table.edit.tm td{vertical-align:middle}
-.set-page table.edit.fr col.fr-domain{width:92px} .set-page table.edit.fr col.fr-rule{width:156px} .set-page table.edit.fr col.fr-on{width:40px} .set-page table.edit.fr col.fr-del{width:48px}
 table.edit.tm{width:100%;min-width:0} table.edit.tm td.tm-acts{white-space:normal;text-align:right} table.edit.tm td.tm-acts .btn{margin:2px 0 2px 4px}
-@media (max-width:1180px){ .set-page{height:auto;grid-template-rows:none} .set-page > .card > .card-body{max-height:420px} }
+@media (max-width:1180px){ .set-page #data-health{height:auto;min-height:0} .set-page #data-health > .card-body{max-height:420px} }
 .s-book-row{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:nowrap}
 .s-book-row label{font-size:13px;color:var(--ink-2);font-weight:500;white-space:nowrap}
 .s-book-row input{flex:1 1 auto;min-width:0;width:auto}
@@ -609,7 +608,7 @@ table.edit.tm{width:100%;min-width:0} table.edit.tm td.tm-acts{white-space:norma
 .zoom-back{position:fixed;inset:0;z-index:200;background:rgba(15,30,51,.82);display:grid;place-items:center;padding:56px 24px 24px;cursor:zoom-out}
 .zoom-back img{max-width:100%;max-height:calc(100vh - 80px);border-radius:8px;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.4);cursor:default}
 .zoom-back .zoom-x{position:fixed;top:14px;right:18px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:var(--ink);font-size:22px;line-height:40px;padding:0;cursor:pointer;box-shadow:var(--shadow)}
-table.edit.fr col.fr-domain{width:150px} table.edit.fr col.fr-rule{width:290px} table.edit.fr col.fr-on{width:60px} table.edit.fr col.fr-del{width:110px}
+table.edit.fr col.fr-domain{width:150px} table.edit.fr col.fr-rule{width:290px} table.edit.fr col.fr-on{width:60px} table.edit.fr col.fr-del{width:60px}
 table.edit.fr{table-layout:fixed;width:100%}
 .im-shots .x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(15,30,51,.75);color:#fff;font-size:14px;line-height:22px;padding:0;cursor:pointer}
 .replies td{vertical-align:top}
@@ -3177,7 +3176,7 @@ const Merge = {
    back to them as usual. */
 const GMAIL_CLIENT_ID = '392793545104-b84mg82kd5669r6hfj4qc7tdnfksfmmp.apps.googleusercontent.com';   // the OAuth client "Gaard CRM Web" in Google Cloud (public; never the client secret)
 const Gmail = {
-  token: null, expires: 0, email: '',
+  token: null, expires: 0, email: '', canRead: false,
   /** Why sending is not possible here, or '' when it is. */
   blocker(){
     if (!GMAIL_CLIENT_ID) return 'Sending from Gmail is not set up yet: the Google client ID still has to be added to the app.';
@@ -3185,18 +3184,22 @@ const Gmail = {
     return '';
   },
   async lib(){ if (!(window.google && google.accounts && google.accounts.oauth2)) await loadScript('https://accounts.google.com/gsi/client'); },
-  /** The send-only permission, asked for in a Google popup when there is none. */
-  async authorize(){
-    if (this.token && Date.now() < this.expires - 60000) return this.token;
+  /** Permission to send, asked for in a Google popup when there is none. Reading
+      replies (read = true) asks for the read permission as well, only then: some
+      accounts (Google's Advanced Protection) refuse reading for apps Google has not
+      verified, and sending should keep working for them. */
+  async authorize(read = false){
+    if (this.token && Date.now() < this.expires - 60000 && (!read || this.canRead)) return this.token;
     await this.lib();
     const token = await new Promise((ok, no) => {
       const client = google.accounts.oauth2.initTokenClient({ client_id: GMAIL_CLIENT_ID,
-        scope: 'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly openid email', hint: Live.email || undefined,
+        scope: 'https://www.googleapis.com/auth/gmail.send openid email' + (read ? ' https://www.googleapis.com/auth/gmail.readonly' : ''), hint: Live.email || undefined,
         callback: r => r.error ? no(new Error(r.error_description || r.error)) : ok(r),
         error_callback: e => no(new Error(e.type === 'popup_closed' ? 'The Google window was closed before giving permission.' : (e.message || 'Google did not give permission.'))) });
       client.requestAccessToken({ prompt: '' });
     });
     this.token = token.access_token; this.expires = Date.now() + (Number(token.expires_in) || 3600) * 1000;
+    this.canRead = /gmail.readonly/.test(token.scope || '');
     const me = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: 'Bearer ' + this.token } }).then(r => r.json()).catch(() => ({}));
     this.email = me.email || '';
     return this.token;
@@ -3267,7 +3270,8 @@ const Inbox = {
     const why = Gmail.blocker(); if (why){ if (!quiet) Toast.show(why, { kind:'warn' }); return; }
     this.checking = true; renderNav();
     try {
-      await Gmail.authorize();
+      await Gmail.authorize(true);
+      if (!Gmail.canRead) throw new Error('Google gave permission to send but not to read. Press "Check Gmail for replies" again and tick the box that lets the CRM read your email.');
       const me = Gmail.email.toLowerCase(), threads = this.sentThreads(me);
       const known = new Set((Store.state.email_messages || []).map(m => m.external_id).filter(Boolean));
       const found = [];
@@ -3305,7 +3309,7 @@ const Inbox = {
       });
       this.last = new Date();
       if (!quiet || found.length) Toast.show(found.length ? `${found.length} new repl${found.length === 1 ? 'y' : 'ies'}: see the bell to confirm them` : `No new replies in ${threads.length} letter${threads.length === 1 ? '' : 's'} you sent`, { kind:'ok' });
-    } catch (err){ if (!quiet) Toast.show('Could not check Gmail: ' + err.message, { kind:'warn', ms: 9000 }); }
+    } catch (err){ if (!quiet) Toast.show(/policy_enforced|advanced protection/i.test(err.message) ? 'Google blocked reading for this account (Advanced Protection). Check replies from an account without it, or paste the replies into Import.' : 'Could not check Gmail: ' + err.message, { kind:'warn', ms: 12000 }); }
     finally { this.checking = false; renderNav(); }
   },
   /** Answer a reply in the same Gmail conversation, from the sender's Gmail. */
@@ -3321,7 +3325,7 @@ const Inbox = {
       { key: 'body', label: 'Your answer', type: 'textarea', rows: 10, span: true, value: '\n\n' + (Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name } ] });
     if (!out || !out.body.trim()) return;
     try {
-      await Gmail.authorize();
+      await Gmail.authorize(true);
       const meta = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/' + encodeURIComponent(theirs.external_id) + '?format=metadata&metadataHeaders=Message-ID&metadataHeaders=References',
         { headers: { Authorization: 'Bearer ' + Gmail.token } }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
       const hv = n => (((meta.payload || {}).headers || []).find(x => x.name.toLowerCase() === n) || {}).value || '';
@@ -3337,7 +3341,7 @@ const Inbox = {
   },
 };
 
-setInterval(() => { if (Store.live && Gmail.token && Date.now() < Gmail.expires - 60000) Inbox.check({ quiet: true }); }, 10 * 60 * 1000);
+setInterval(() => { if (Store.live && Gmail.token && Gmail.canRead && Date.now() < Gmail.expires - 60000) Inbox.check({ quiet: true }); }, 10 * 60 * 1000);
 
 /* ===== Dashboard =====================================================
    Four headline numbers with their comparison, one chart that answers the
@@ -6018,7 +6022,7 @@ Views.settings = { title:'Settings',
       ${who && who.role === 'admin' ? (() => { const team = (Store.state.team_members || []).slice().sort((a, b) => (b.is_active - a.is_active) || String(a.full_name).localeCompare(String(b.full_name)));
         const status = t => !t.is_active ? '<span class="muted">Removed</span>' : t.auth_user_id ? '<span class="pill st-funded">Joined</span>'
           : `<span class="pill st-upcoming" title="Added${t.invited_at ? ' ' + esc(fmtDate(t.invited_at, { month:'short', day:'numeric' })) : ''}, not signed in yet">Not signed in</span>`;
-        return `<section class="card col-6" id="team"><div class="card-head"><h2>Team</h2><span class="sub">Who can sign in with Google</span></div><div class="card-body">
+        return `<section class="card col-12" id="team"><div class="card-head"><h2>Team</h2><span class="sub">Who can sign in with Google</span></div><div class="card-body">
         <div class="tm-add">
           <label class="sr-only" for="tm-name">Name</label><input id="tm-name" type="text" placeholder="Name">
           <label class="sr-only" for="tm-email">Email</label><input id="tm-email" type="email" placeholder="name@gaard.capital">
@@ -6030,7 +6034,7 @@ Views.settings = { title:'Settings',
           <td>${status(t)}</td>
           <td class="tm-acts">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-copy="${t.id}">Copy invite</button> ` : ''}${t.is_active && t.auth_user_id && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-mfa="${t.id}" title="For someone who lost their phone: they set up a new authenticator app at their next sign-in">Reset 2-step</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-restore="${t.id}">Add back</button>` : ''}</td></tr>`).join('')}
         </tbody></table></div></section>`; })() : ''}
-      <section class="card ${who && who.role === 'admin' ? 'col-6' : 'col-12'}" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
+      <section class="card col-12" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
         <div class="card-body">
         <table class="edit fr"><colgroup><col class="fr-domain"><col class="fr-rule"><col><col class="fr-on"><col class="fr-del"></colgroup>
         <thead><tr><th>Domain</th><th>Rule</th><th>Reason</th><th>On</th><th></th></tr></thead><tbody>
