@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-25.1">
+<meta name="build-version" content="2026-10-26.2">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -828,6 +828,11 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 .bell-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .bell-btn .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .bell-menu{position:absolute;right:0;top:calc(100% + 8px);width:340px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:6px;z-index:70;white-space:normal}
+.act-order{margin-top:4px} .act-part{margin-top:6px} .act-part.reply{border-left:2px solid var(--accent);padding-left:8px} .act-part.answer{border-left:2px solid var(--good);padding-left:8px}
+.act-lab{font-weight:600;font-size:13px;margin-bottom:2px} .act-part .body{margin-top:0}
+.clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.entry.tp-target{animation:tpflash 2.4s ease-out 1}
+@keyframes tpflash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
 .bell-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .bell-menu .who{padding:8px 12px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:13px;color:var(--ink)}
 .bell-menu a{display:flex;gap:10px;align-items:baseline;padding:9px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:13px;line-height:1.45}
@@ -2894,6 +2899,7 @@ const href = (name, params={}) => { const q = Object.entries(params).filter(([,v
 const go = (name, params) => { location.hash = href(name, params); };
 
 const UI = {
+  actOrder: (() => { try { return localStorage.getItem('gaard_act_order') || 'desc'; } catch (e) { return 'desc'; } })(), actOpen: new Set(), tpJumped: null,
   filters: Metrics.empty(),
   contacts: { sel:new Set(), sort:'added', dir:'desc', page:0, pageSize:150, q:'', expanded:new Set(), nextEdit:null,
     zoom: (() => { try { return Number(localStorage.getItem('gaard_sheet_zoom')) || 100; } catch (e) { return 100; } })() },
@@ -3304,13 +3310,32 @@ const Inbox = {
           if (!tp) continue;
           const cls = f.auto ? { code: 'OUT_OF_OFFICE', sure: true } : Replies.classify(f.body);
           Object.assign(tp, { response_excerpt: f.body.slice(0, 400), responded_at: f.at, ai_suggested_outcome: cls.code || null,
-            ai_confidence: cls.code ? (cls.sure ? 0.9 : 0.6) : null, ai_reason: 'Read from the reply in Gmail', outcome_status: 'needs_review', updated_at: now });
+            ai_confidence: cls.code ? (cls.sure ? 0.9 : 0.6) : null, updated_at: now });
+          // the closest outcome is set straight away and its follow-up scheduled; Change on the activity puts it right.
+          // Only a reply with no likely outcome at all waits for a person.
+          if (cls.code){ Object.assign(tp, { outcome_code: cls.code, outcome_status: 'confirmed', confirmed_at: now, ai_reason: 'Set from their reply in Gmail' }); Rules.applyOutcome(st, tp, () => {}); }
+          else Object.assign(tp, { outcome_status: 'needs_review', ai_reason: 'Read from the reply in Gmail' });
         }
       });
       this.last = new Date();
-      if (!quiet || found.length) Toast.show(found.length ? `${found.length} new repl${found.length === 1 ? 'y' : 'ies'}: see the bell to confirm them` : `No new replies in ${threads.length} letter${threads.length === 1 ? '' : 's'} you sent`, { kind:'ok' });
+      if (!quiet || found.length) Toast.show(found.length ? `${found.length} new repl${found.length === 1 ? 'y' : 'ies'}: the outcome is set from the wording; see the bell` : `No new replies in ${threads.length} letter${threads.length === 1 ? '' : 's'} you sent`, { kind:'ok' });
     } catch (err){ if (!quiet) Toast.show(/policy_enforced|advanced protection/i.test(err.message) ? 'Google blocked reading for this account (Advanced Protection). Check replies from an account without it, or paste the replies into Import.' : 'Could not check Gmail: ' + err.message, { kind:'warn', ms: 12000 }); }
     finally { this.checking = false; renderNav(); }
+  },
+  /** A starting answer for the reply's outcome, signed by the sender. Only a suggestion: the person edits it and sends. */
+  suggest(tp, c){
+    const first = c.first_name || String(c.full_name || '').split(' ')[0] || 'there', link = myBookingLink();
+    const say = {
+      OUT_OF_OFFICE: 'Thank you, and no rush at all. I will follow up when you are back.',
+      NOT_NOW: 'Understood, and thank you for letting me know. I will check back in a few months; if anything changes before then, I would be glad to talk.',
+      INTERESTED: 'Thank you, I am glad to hear it. ' + (link ? 'Here is a link to pick a time that suits you: ' + link : 'What day and time would suit you for a short call?') + '\n\nI look forward to talking.',
+      NOT_INTERESTED: 'Thank you for letting me know, and for taking the time to reply. I wish you all the best.',
+      UNSUBSCRIBE: 'Understood. You will not hear from us again, and thank you for letting me know.',
+      WRONG_PERSON: 'Thank you for letting me know. Would you be willing to point me to the right person?',
+      REFERRED_INTERNALLY: 'Thank you for pointing me in the right direction. I will reach out to them directly.',
+      HAS_ADVISOR: 'Thank you, that makes sense. If it would ever help to compare notes, I would be glad to talk.',
+    }[tp.outcome_code || tp.ai_suggested_outcome] || 'Thank you for your reply.';
+    return 'Hi ' + first + ',\n\n' + say + '\n\n' + (Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name;
   },
   /** Answer a reply in the same Gmail conversation, from the sender's Gmail. */
   async answer(tpId){
@@ -3322,7 +3347,7 @@ const Inbox = {
     const subject = /^re:/i.test(theirs.subject || '') ? theirs.subject : 'Re: ' + (theirs.subject || tp.subject || '');
     const out = await Modal.form({ title: 'Reply to ' + c.full_name, wide: true, okLabel: 'Send from my Gmail', fields: [
       { key: 'subject', label: 'Subject', value: subject, span: true },
-      { key: 'body', label: 'Your answer', type: 'textarea', rows: 10, span: true, value: '\n\n' + (Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name } ] });
+      { key: 'body', label: 'Your answer (a suggestion for this outcome: change anything before sending)', type: 'textarea', rows: 12, span: true, value: this.suggest(tp, c) } ] });
     if (!out || !out.body.trim()) return;
     try {
       await Gmail.authorize(true);
@@ -4246,7 +4271,7 @@ Views.touchpoints = { title:'Correspondence',
 async function changeOutcome(tpId){
   const t = Repo.touchpoints.byId(tpId); if (!t) return;
   const out = await Modal.form({ title:'Set the outcome', okLabel:'Confirm outcome', fields:[
-    { key:'outcome_code', label:'Outcome', type:'select', value: t.ai_suggested_outcome || 'NOT_NOW', options: OUTCOMES.map(o => ({ value:o.code, label:o.label })) } ]});
+    { key:'outcome_code', label:'Outcome', type:'select', value: (t.outcome_status === 'needs_review' ? t.ai_suggested_outcome : t.outcome_code) || 'NOT_NOW', options: OUTCOMES.map(o => ({ value:o.code, label:o.label })) } ]});
   if (out) Repo.touchpoints.confirmOutcome(t.id, out.outcome_code);
 }
 
@@ -4645,18 +4670,31 @@ Views.contact = { title:'Contact',
     const via = !c.newsletter_added_via ? null
       : /^auto:/i.test(c.newsletter_added_via) ? 'Added automatically when the outcome was "' + c.newsletter_added_via.replace(/^auto:\s*/i,'') + '"'
       : 'Added ' + c.newsletter_added_via;
+    /* An activity can hold the letter, their replies and our answers; when it holds more
+       than one, a link inside it turns their order (one choice for every activity). Anything longer than two lines shows two until opened. */
+    const asc = UI.actOrder === 'asc';
+    const parts = (t, emails) => {
+      const letter = emails.find(m => m.direction === 'outbound'), inbound = emails.filter(m => m.direction === 'inbound');
+      const ps = [{ key: 'l', when: t.touched_at, text: t.notes || (letter && letter.body_text) || '' }];
+      if (inbound.length) inbound.forEach(m => ps.push({ key: 'r' + m.id, when: m.sent_at, cls: 'reply', label: 'Their reply', text: m.body_text || '' }));
+      else if (t.response_excerpt) ps.push({ key: 'r', when: t.responded_at || t.touched_at, cls: 'reply', label: 'Their reply', text: t.response_excerpt });
+      emails.filter(m => m.direction === 'outbound' && m.thread_id && m !== letter).forEach(m => ps.push({ key: 'a' + m.id, when: m.sent_at, cls: 'answer', label: 'You answered ' + fmtDate(m.sent_at, { month:'short', day:'numeric' }), text: m.body_text || '' }));
+      const ordered = ps.filter(p => p.text).sort((a, b) => String(a.when).localeCompare(String(b.when)));
+      const toggle = ordered.length > 1 ? `<div class="act-order"><button class="linkish small" type="button" data-order title="The order of the messages inside an activity">${asc ? 'Oldest message first' : 'Newest message first'} ⇅</button></div>` : '';
+      return toggle + (asc ? ordered : ordered.reverse()).map(p => {
+        const k = t.id + ':' + p.key, long = p.text.replace(/\s+/g, ' ').trim().length > 150, open = UI.actOpen.has(k);
+        return `<div class="act-part ${p.cls || ''}">${p.label ? `<div class="act-lab">${esc(p.label)}</div>` : ''}<div class="body${long && !open ? ' clamp2' : ''}">${esc(long && !open ? p.text.replace(/\s+/g, ' ').trim() : p.text)}</div>${long ? `<button class="linkish small" type="button" data-more="${esc(k)}">${open ? 'Show less' : 'Show more'}</button>` : ''}</div>`; }).join('');
+    };
     const entry = t => { const emails = Repo.touchpoints.emails(t.id);
-      return `<div class="entry ${t.direction === 'inbound' ? 'Inbound' : 'Outbound'}"><button class="tp-edit" type="button" data-edit-tp="${t.id}" aria-label="Edit or delete this activity" title="Edit or delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg></button>
+      return `<div class="entry ${t.direction === 'inbound' ? 'Inbound' : 'Outbound'}${String(params.tp) === String(t.id) ? ' tp-target' : ''}" id="tp-${t.id}"><button class="tp-edit" type="button" data-edit-tp="${t.id}" aria-label="Edit or delete this activity" title="Edit or delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg></button>
         <div class="when"><b>${whenLabel(t.touched_at)}</b>${esc(TT.get(t.touch_type)?.name || t.touch_type)}</div>
         <div><div class="subj"><span class="pill dir-${t.direction === 'inbound' ? 'Inbound':'Outbound'}">${t.direction === 'inbound' ? 'Inbound':'Outbound'}</span>${t.outcome_code ? outcomePill(t.outcome_code) : ''}
           ${t.outcome_status === 'needs_review' ? '<span class="pill warnflag">Needs review</span>' : ''}
           ${t.event_id != null ? `<span class="tag">${esc(Repo.events.byId(t.event_id)?.name || 'Event')}</span>` : ''}
           ${t.subject ? `<span>${esc(t.subject)}</span>` : ''}</div>
-        <div class="body">${esc(t.notes || (emails[0] && emails[0].body_text) || '')}</div>
-        ${t.response_excerpt ? `<div class="body" style="border-left:2px solid var(--accent);padding-left:8px;margin-top:6px"><b>Their reply:</b> ${esc(t.response_excerpt)}</div>` : ''}
-        ${(() => { const thread = emails.filter(m => m.thread_id), answers = thread.filter(m => m.direction === 'outbound').slice(1), canReply = Store.live && thread.some(m => m.direction === 'inbound');
-          return answers.map(m => `<div class="body" style="border-left:2px solid var(--good);padding-left:8px;margin-top:6px"><b>You answered ${esc(fmtDate(m.sent_at, { month:'short', day:'numeric' }))}:</b> ${esc(String(m.body_text || '').slice(0, 400))}</div>`).join('')
-            + (canReply ? `<div style="margin-top:8px"><button class="btn btn-sm" type="button" data-answer="${t.id}">Reply from my Gmail</button></div>` : ''); })()}
+        ${parts(t, emails)}
+        ${Store.live && emails.some(m => m.thread_id && m.direction === 'inbound') ? `<div style="margin-top:8px"><button class="btn btn-sm" type="button" data-answer="${t.id}">Reply from my Gmail</button></div>` : ''}
+        ${t.outcome_status === 'confirmed' && /^(Set from their reply|Claude, for)/.test(t.ai_reason || '') ? `<div class="muted small" style="margin-top:6px">Outcome set from their reply${/^Claude/.test(t.ai_reason) ? ' by Claude' : ''}. <button class="linkish small" type="button" data-edit-outcome="${t.id}">Change</button></div>` : ''}
         ${t.outcome_status === 'needs_review' ? `<div class="chips" style="margin-top:6px"><div class="chip">${t.ai_suggested_outcome ? `<span class="k">Suggested:</span><b>${esc(outLabel(t.ai_suggested_outcome))}</b><span class="muted">${t.ai_confidence != null ? fmtPct(t.ai_confidence,0) : ''}</span><button class="btn btn-sm btn-accent" type="button" data-confirm="${t.id}">Confirm</button>` : '<span class="k">They replied: choose the outcome</span>'}<button class="btn btn-sm" type="button" data-edit-outcome="${t.id}">Change</button></div></div>` : ''}
         <div class="meta">${esc(Repo.teamName(t.owner_id))}${t.outcome_raw ? ' &middot; original wording: ' + esc(t.outcome_raw) : ''}${emails.length ? ' &middot; ' + emails.length + ' email' + (emails.length>1?'s':'') + ' on file' : ''}</div></div></div>`; };
     return `<div class="page-head"><div><a href="${href('contacts')}" class="small">All contacts</a><div class="title-row" style="margin-top:2px"><h1>${esc(c.full_name)}</h1>
@@ -4717,6 +4755,11 @@ Views.contact = { title:'Contact',
     const log = () => openLogTouch(c.id);
     root.querySelector('#c-log').addEventListener('click', log);
     root.querySelectorAll('[data-answer]').forEach(b => b.addEventListener('click', () => Inbox.answer(Number(b.dataset.answer))));
+    root.querySelectorAll('[data-more]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.more; UI.actOpen.has(k) ? UI.actOpen.delete(k) : UI.actOpen.add(k); render(); }));
+    root.querySelectorAll('[data-order]').forEach(b => b.addEventListener('click', () => { UI.actOrder = UI.actOrder === 'asc' ? 'desc' : 'asc'; try { localStorage.setItem('gaard_act_order', UI.actOrder); } catch (e) {} render(); }));
+    // opened from the bell: bring that activity into view once
+    if (params.tp && UI.tpJumped !== location.hash){ UI.tpJumped = location.hash;
+      setTimeout(() => document.getElementById('tp-' + params.tp)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60); }
     root.querySelectorAll('[data-edit-outcome]').forEach(b => b.addEventListener('click', () => changeOutcome(Number(b.dataset.editOutcome))));
     root.querySelectorAll('[data-edit-tp]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
       const t = Repo.touchpoints.byId(Number(b.dataset.editTp)); if (t) openActivity(c.id, t); }));
@@ -5987,7 +6030,7 @@ const ClaudeLink = {
         <li>Check that Gmail is connected there too.</li>
         <li>In a chat, ask for example: <i>"Check my Gmail for replies to my Gaard outreach and record them in Gaard CRM."</i></li>
       </ol>
-      <p class="muted small" style="margin-top:10px">The replies appear under the bell here after a reload. Confirm or Change each one; the follow-up is scheduled then.</p>`,
+      <p class="muted small" style="margin-top:10px">The replies appear under the bell here after a reload, with the outcome set and the follow-up scheduled. Change any that are wrong.</p>`,
       foot: `<button class="btn btn-primary" type="button" data-ok>Done</button>` });
     m.querySelector('#cl-copy').onclick = () => { navigator.clipboard.writeText(url); Toast.show('Address copied', { kind:'ok' }); };
     m.querySelector('[data-ok]').onclick = () => { Modal.close(); this.load(root); };
@@ -6009,7 +6052,7 @@ Views.settings = { title:'Settings',
             <input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
           <div class="s-book-row"><label>Your Claude:</label>
             <div class="info-pop"><button class="info-btn" type="button" aria-label="About connecting Claude" aria-describedby="cl-info">i</button>
-              <div class="info-panel" role="tooltip" id="cl-info"><div class="info-card"><p>Lets your own Claude (claude.ai, with Gmail connected) find replies in your mailbox and put them in the CRM. Claude can list who has not replied, look people up, and store a reply with the outcome it suggests. It cannot confirm, delete or send anything: each reply waits under the bell for you to Confirm or Change.</p></div></div></div>
+              <div class="info-panel" role="tooltip" id="cl-info"><div class="info-card"><p>Lets your own Claude (claude.ai, with Gmail connected) find replies in your mailbox and put them in the CRM. Claude can list who has not replied, look people up, and store a reply with the outcome it suggests. It sets the closest outcome, as the CRM does with replies it reads itself, and cannot delete or send anything. Each reply shows under the bell, and Change on the activity puts a wrong outcome right.</p></div></div></div>
             <div id="cl-body" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0"><span class="muted small">Checking…</span></div></div>
           <div class="page-actions" style="margin-top:14px"><button class="btn btn-sm" type="button" id="s-mfa">Use a new authenticator app</button><button class="btn btn-sm" type="button" id="s-pass">Change password</button><button class="btn btn-sm" type="button" id="s-out">Sign out</button></div>`
         : `<p class="muted">You are looking at the demo data. Nothing here is the live database.</p>
@@ -6250,7 +6293,12 @@ function renderNav(){
   const plural = (n, one, many) => fmtInt(n) + ' ' + (n === 1 ? one : many);
   const notes = [
     ...Repo.touchpoints.reviewQueue().slice(0, 6).map(t => { const c = Repo.contacts.byId(t.contact_id);
-      return { text: (c ? c.full_name : 'Someone') + ' replied: ' + (t.ai_suggested_outcome ? 'looks like ' + outLabel(t.ai_suggested_outcome) + '. Confirm?' : 'choose the outcome'), go: href('contacts/' + t.contact_id) }; }),
+      return { text: (c ? c.full_name : 'Someone') + ' replied: ' + (t.ai_suggested_outcome ? 'looks like ' + outLabel(t.ai_suggested_outcome) + '. Confirm?' : 'choose the outcome'), go: href('contacts/' + t.contact_id, { tp: t.id }) }; }),
+    // replies of the last three days whose outcome was set from the wording, to look over
+    ...Repo.touchpoints.all().filter(t => t.outcome_status === 'confirmed' && t.responded_at && /^(Set from their reply|Claude, for)/.test(t.ai_reason || '')
+        && Date.now() - new Date(t.responded_at).getTime() < 3 * 864e5).sort((a, b) => String(b.responded_at).localeCompare(String(a.responded_at))).slice(0, 6)
+      .map(t => { const c = Repo.contacts.byId(t.contact_id);
+        return { text: (c ? c.full_name : 'Someone') + ' replied: ' + outLabel(t.outcome_code), go: href('contacts/' + t.contact_id, { tp: t.id }) }; }),
     S.review_queue > 6 ? { text: plural(S.review_queue - 6, 'more reply', 'more replies') + ' to confirm', go: href('touchpoints', { review:'1' }) } : null,
     stuck ? { text: plural(stuck, 'piece', 'pieces') + ' of outreach went nowhere and ' + (stuck === 1 ? 'is' : 'are') + ' on nobody\'s list', go: href('reminders', { bucket:'fixing' }) } : null,
     late ? { text: plural(late, 'follow-up is', 'follow-ups are') + ' overdue', go: href('reminders', { bucket:'overdue' }) } : null,

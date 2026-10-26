@@ -4,13 +4,13 @@
 //
 //   outreach_waiting_for_reply  who we wrote to and have not heard back from
 //   find_contact                look one person up by email or name
-//   record_reply                store a reply and SUGGEST its outcome
+//   record_reply                store a reply with its closest outcome
 //
-// A reply recorded here does not change the follow-up schedule. It sets the
-// letter's activity to "needs review" with the suggested outcome, exactly as
-// the CRM's own Gmail check does, and appears under the bell; a person
-// presses Confirm (or Change) in the CRM and only then the outcome rules run.
-// Claude cannot delete, merge, confirm, send, or read anything else.
+// A reply recorded here sets the outcome on the letter's activity, exactly as
+// the CRM's own Gmail check does; the database's outcome rules then schedule
+// the follow-up. It appears under the bell for three days and a person can
+// Change it on the contact's activity. Claude cannot delete, merge, send, or
+// read anything else.
 //
 // Who is calling: each person makes their own long random key in Settings >
 // Connect your Claude, and their connector address ends with it:
@@ -59,7 +59,7 @@ const TOOLS = [
   },
   {
     name: 'record_reply',
-    description: 'Store a reply someone sent to one of our emails, with the outcome you suggest. It does not change anything else: the reply waits under the CRM bell until a person confirms or changes the outcome. ' +
+    description: 'Store a reply someone sent to one of our emails, with the closest outcome. The CRM sets that outcome and schedules the follow-up from it; a person can change it in the CRM. ' +
       'Outcomes: ' + Object.entries(OUTCOMES).map(([k, v]) => `${k} = ${v}`).join('; ') + '. Use UNSUBSCRIBE only when they ask us to stop writing.',
     inputSchema: { type: 'object', properties: {
       email: { type: 'string', description: "The sender's email address." },
@@ -163,10 +163,12 @@ async function record(db: Db, me: string, a: Record<string, unknown>) {
   const excerpt = body.slice(0, 400);
   if (tp.response_excerpt === excerpt) return { text: `Already stored: this reply from ${c.full_name} is in the CRM.` };
 
+  // The outcome is set at once, as the CRM's own Gmail check does: the database's
+  // outcome rules then schedule the follow-up. A person changes it in the CRM if it is wrong.
   const conf = a.confidence == null ? null : Math.min(1, Math.max(0, Number(a.confidence)));
   const { error: e3 } = await db.from('touchpoints').update({
-    response_excerpt: excerpt, responded_at: at.toISOString(), ai_suggested_outcome: code,
-    ai_confidence: Number.isFinite(conf) ? conf : null, outcome_status: 'needs_review', updated_at: new Date().toISOString(),
+    response_excerpt: excerpt, responded_at: at.toISOString(), ai_suggested_outcome: code, outcome_code: code,
+    ai_confidence: Number.isFinite(conf) ? conf : null, outcome_status: 'confirmed', confirmed_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     ai_reason: (`Claude, for ${me}: ` + String(a.reason ?? 'read from the reply')).slice(0, 500),
   }).eq('id', tp.id);
   if (e3) throw new Error(e3.message);
@@ -175,7 +177,7 @@ async function record(db: Db, me: string, a: Record<string, unknown>) {
     to_emails: [me], subject: null, body_text: body, sent_at: at.toISOString(), is_auto_reply: code === 'OUT_OF_OFFICE',
   });
   if (e4) throw new Error(e4.message);
-  return { text: `Stored the reply from ${c.full_name}, suggested outcome: ${OUTCOMES[code]}. It waits under the bell in the CRM until someone confirms it; the follow-up is scheduled then.` };
+  return { text: `Stored the reply from ${c.full_name} with the outcome ${OUTCOMES[code]}; the follow-up is scheduled from it. It shows under the bell in the CRM, where it can be changed.` };
 }
 
 /** One MCP request (JSON-RPC 2.0) for the person `me`. Returns the response, or null for a notification. */
@@ -189,7 +191,7 @@ export async function rpc(db: Db, me: string, msg: Db) {
       const asked = msg.params?.protocolVersion;
       return ok({ protocolVersion: PROTOCOLS.includes(asked) ? asked : PROTOCOLS[0], capabilities: { tools: {} },
         serverInfo: { name: 'gaard-crm', version: '1.0.0' },
-        instructions: 'Gaard Capital CRM. Typical use: call outreach_waiting_for_reply, search Gmail for replies from those addresses, then call record_reply once per reply. Replies wait for a person to confirm them in the CRM.' });
+        instructions: 'Gaard Capital CRM. Typical use: call outreach_waiting_for_reply, search Gmail for replies from those addresses, then call record_reply once per reply with the closest outcome. The team can change an outcome in the CRM.' });
     }
     case 'ping': return ok({});
     case 'tools/list': return ok({ tools: TOOLS });
