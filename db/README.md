@@ -6,7 +6,7 @@ Everything on the database side of the CRM, in the order it is applied.
 |---|---|
 | `base/` | the base schema: migrations 1 to 6 (Sep 26, 2026) and 7 to 10 (Oct 3: the workbook import, client views, review helpers, reference rows) |
 | `gaard_crm_install.sql` | the same ten files in one, for an empty project (rebuilt by `scripts/build_install.sh`) |
-| `001_...` to `013_...` | changes made since, run by hand in the SQL Editor, in order; new changes go here as `014_...`, `015_...`. `012` is the Events / RFP sheet importers (Jon's Event ROI Tracker and RFP Log, as they are); `013` is the weekly data check |
+| `001_...` to `013_...` | changes made since, run by hand in the SQL Editor, in order; new changes go here as `014_...`, `015_...`. `012` is the Events / RFP sheet importers (Jon's Event ROI Tracker and RFP Log, as they are); `013` is the weekly data check; `015` connects a person's own Claude. **`016_clear_demo_data.sql` is not part of the setup**: it empties the CRM records at go-live, has a guard line to uncomment, and is run once, by Jon (CLAUDE.md > Going live with real data) |
 | `tests/` | `automation_tests.sql` (41 checks), `workbook_import_test.sql` (25), `events_rfps_test.sql` (44, db/012) and `data_checks_test.sql` (14, db/013: scrambles a copy of the data and checks the run catches it); all roll themselves back, safe on real data |
 | `docs/` | `database.md` (the write-up), `import_playbook.md` (how Jon's workbook was imported and how to import a tab again), `dashboard_connection.md` (views and functions the app uses) |
 | `mock/` | fictional data only: `seed.sql` (or the four `seed_parts/`), the CSV exports, the import demo |

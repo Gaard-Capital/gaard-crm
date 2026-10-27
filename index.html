@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-26.2">
+<meta name="build-version" content="2026-10-27.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -580,6 +580,7 @@ table.edit.tm{width:100%;min-width:0} table.edit.tm td.tm-acts{white-space:norma
 .imp-go svg,.imp-sample > svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .imp-side{display:flex;flex-direction:column;gap:16px}
 .imp-side .card{margin:0}
+.dz-touch{display:none} @media (hover:none) and (pointer:coarse){ .dz-desk{display:none} .dz-touch{display:inline} }
 .imp-kinds{display:flex;flex-direction:column;gap:14px}
 .imp-kinds > div{display:flex;gap:12px}
 .imp-kinds p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-3)}
@@ -630,6 +631,9 @@ table.edit.fr{table-layout:fixed;width:100%}
 .info-card dt{font-weight:600;color:var(--ink)} .info-card dd{margin:0}
 .info-card .foot-note{margin:10px 0 0;padding-top:9px;border-top:1px solid var(--line);color:var(--ink-3)}
 @media (max-width:640px){
+  .btn-group{flex-wrap:wrap;border-radius:var(--radius-lg)}
+  .split > *{min-width:0} .card-head{flex-wrap:wrap;row-gap:6px}
+  .set-page #flag-rules > .card-body,.set-page #team > .card-body{overflow-x:auto}
   .title-row{position:relative} .info-pop{position:static}
   .info-panel{left:0;width:calc(100vw - 32px)}
   .info-card dl{grid-template-columns:1fr;gap:2px} .info-card dd{margin-bottom:6px}
@@ -828,11 +832,13 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 .bell-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .bell-btn .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .bell-menu{position:absolute;right:0;top:calc(100% + 8px);width:340px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:6px;z-index:70;white-space:normal}
-.act-order{margin-top:4px} .act-part{margin-top:6px} .act-part.reply{border-left:2px solid var(--accent);padding-left:8px} .act-part.answer{border-left:2px solid var(--good);padding-left:8px}
+.act-order{position:absolute;top:18px;right:52px;white-space:nowrap} .entry:has(.act-order){padding-right:190px} .act-part{margin-top:6px} .act-part.reply{border-left:2px solid var(--accent);padding-left:8px} .act-part.answer{border-left:2px solid var(--good);padding-left:8px}
 .act-lab{font-weight:600;font-size:13px;margin-bottom:2px} .act-part .body{margin-top:0}
 .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .entry.tp-target{animation:tpflash 2.4s ease-out 1}
 @keyframes tpflash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
+.cols-menu .cols-all{border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px;font-weight:600}
+.mm-book{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);white-space:nowrap}
 .bell-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .bell-menu .who{padding:8px 12px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:13px;color:var(--ink)}
 .bell-menu a{display:flex;gap:10px;align-items:baseline;padding:9px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:13px;line-height:1.45}
@@ -1713,7 +1719,22 @@ const Repo = {
     }),
   },
 
-  rfps: { all: memo(() => Store.state.rfps.slice().sort((a,b) => String(b.released_on).localeCompare(String(a.released_on)))), byId: id => Repo._rfpIx().get(id) || null },
+  rfps: {
+    /** update rfps set status, decision_on, decision_result, decision_notes where id = $1; the follow-up as a reminder on the RFP */
+    decide: (id, f) => Store.commit('RFP updated', st => {
+      const r = st.rfps.find(x => x.id === id); if (!r) return;
+      const was = r.status; Object.assign(r, f, { updated_at: new Date().toISOString().slice(0, 19) });
+      if (f.status === was || !['won', 'lost'].includes(f.status)) return;
+      const day = n => Rules.addBusinessDays(Rules.addDays(new Date(), n - 1), 1).toISOString().slice(0, 10);   // on a working day
+      // on Follow-ups a reminder sits under a person: the RFP's contact, or someone at the organization
+      const who = r.contact_id ?? (st.contacts.find(c => c.organization_id === r.organization_id) || {}).id ?? null;
+      st.reminders.push({ id: Math.max(0, ...st.reminders.map(x => x.id)) + 1, rfp_id: r.id, organization_id: r.organization_id, contact_id: who,
+        reminder_type: f.status === 'won' ? 'follow_up' : 'custom', due_on: f.status === 'won' ? day(60) : day(5),
+        title: f.status === 'won' ? 'Two months after winning: check in on ' + r.title : 'Lost ' + r.title + ': ask who won and how we scored',
+        details: f.status === 'won' ? 'RFP won (' + r.title + '): check in two months on, to see how the start has gone.' : 'RFP lost (' + r.title + '): ask who won and how we scored.\nWrite both on the RFP (RFPs > Update) so the next bid learns from it.',
+        status: 'open', created_by: 'rule', assigned_to: st.settings.default_owner_id, created_at: new Date().toISOString().slice(0, 19) });
+    }),
+    all: memo(() => Store.state.rfps.slice().sort((a,b) => String(b.released_on).localeCompare(String(a.released_on)))), byId: id => Repo._rfpIx().get(id) || null },
 };
 
 /* ======================================================================
@@ -2475,7 +2496,7 @@ const Replies = (() => {
     ['HAS_ADVISOR',         /(happy|satisfied|pleased) with (our|the) (current|existing)|already (have|has|work with|working with) (an? )?(advisor|adviser|manager|firm)/i],
     ['NOT_INTERESTED',      /not interested|no,? thank(s| you)|we('?re| are) (all )?set|not a (good )?fit|pass on (this|it)|(must|will) decline|not something we/i],
     ['NOT_NOW',             /not (right )?now|not at this time|not at (this|the) (moment|point)|not the right time|maybe (later|next)|(next|later this|early next) (year|quarter|month|spring|summer|fall)|(reach out|check back|circle back|follow up|touch base)( with (me|us))?( again)? (in|after|next|later)|after (the|our) (board|budget|fiscal)|revisit/i],
-    ['INTERESTED',          /interested|let'?s (talk|chat|connect|set up|schedule|meet)|happy to (chat|talk|meet|connect|hop on)|(set up|schedule) a (call|time|meeting)|would (love|like) to (learn|hear|talk|chat|meet)|tell me more|more (information|info|details)|what times? works?|(are you|you'?re) (free|available)|sounds (good|great|interesting)/i],
+    ['INTERESTED',          /interested|let'?s (talk|chat|connect|set up|schedule|meet)|(could|can|shall) we (talk|chat|meet|connect|speak|set up|schedule|find a time)|happy to (chat|talk|meet|connect|hop on)|(set up|schedule) a (call|time|meeting)|would (love|like) to (learn|hear|talk|chat|meet)|tell me more|more (information|info|details)|what times? works?|(are you|you'?re) (free|available)|sounds (good|great|interesting)/i],
   ];
   const own = e => OWN_DOMAINS.some(d => String(e || '').toLowerCase().endsWith('@' + d));
 
@@ -2689,6 +2710,27 @@ const Ocr = {
       const g = c.getContext('2d'); g.filter = 'grayscale(1) contrast(1.2)'; g.imageSmoothingQuality = 'high'; g.drawImage(bmp, 0, 0, c.width, c.height);
       return c;
     } catch { return image; }
+  },
+  /** A photo of a business card: name, title, organization, email, phone and website, or null when it
+      does not look like one (no email and no phone). Lines are guessed by their shape and wording. */
+  cardRow(text){
+    const lines = String(text || '').split('\n').map(l => l.replace(/[|•·]+/g, ' ').replace(/\s+/g, ' ').trim()).filter(l => l.length > 1);
+    if (lines.length < 2 || lines.length > 20 || /\bwrote:|^from:|^subject:/im.test(text)) return null;
+    const all = lines.join('\n');
+    const email = ((all.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/) || [''])[0]).toLowerCase();
+    const phone = ((all.match(/(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/) || [''])[0]).trim();
+    if (!email && !phone) return null;
+    const web = (all.split(/\s+/).find(w => !w.includes('@') && /^(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|edu|gov|us|co|io|capital|biz|info|example)(?:\/\S*)?$/i.test(w)) || '');
+    const plain = lines.filter(l => !/@|\d{3}\D{0,3}\d{3}\D?\d{4}|www\.|https?:|\.(?:com|org|net|edu)\b|^\d+\s+\w+.*\b(?:st|street|ave|avenue|rd|road|blvd|suite|ste|dr|drive|way|ln)\b/i.test(l));
+    const TITLE = /\b(director|president|ceo|cfo|coo|cio|cto|chief|manager|officer|partner|founder|vice|vp|head|treasurer|trustee|chair|chairman|advis[eo]r|analyst|associate|principal|executive|board|secretary|controller|consultant|owner|administrator|coordinator|specialist|lead)\b/i;
+    const ORG = /\b(inc|llc|l\.l\.c|corp|corporation|company|group|foundation|fund|trust|capital|partners|bank|university|college|school|association|council|society|church|hospital|health|institute|benefits|advisors|wealth|financial|investments?|management|endowment|plan|services)\b/i;
+    const isName = l => /^[A-Z][A-Za-z'’.-]+(?:\s+[A-Z][A-Za-z'’.-]*){1,3}$/.test(l) && !TITLE.test(l) && !ORG.test(l);
+    const cap = l => l === l.toUpperCase() ? l.toLowerCase().replace(/\b[a-z]/g, m => m.toUpperCase()) : l;
+    const name = plain.find(isName) || '';
+    const title = plain.find(l => l !== name && TITLE.test(l)) || '';
+    const domain = email.split('@')[1] || '', free = /^(gmail|yahoo|hotmail|outlook|icloud|aol|msn|live|proton)\./i.test(domain);
+    const org = plain.find(l => l !== name && l !== title && ORG.test(l)) || plain.find(l => l !== name && l !== title) || (!free && domain ? domain.split('.')[0] : '');
+    return { name: cap(name), title, org, email, phone, website: web };
   },
   /* A screenshot of a sheet: one person per line, each with an email. The
      line is cut around the email, the links, the dollar amount and the date,
@@ -3120,6 +3162,17 @@ const Merge = {
     if (!ctx.booking_link) s = s.split('\n').filter(l => !/\{\{\s*booking[ _]link\s*\}\}/i.test(l)).join('\n').replace(/\n{3,}/g, '\n\n');
     return s.replace(/\{\{\s*([\w ]+?)\s*\}\}/g, (m, k) => { const v = ctx[k.toLowerCase().replace(/\s+/g, '_')]; return v != null && v !== '' ? v : m; });
   },
+  /** The letter with or without the booking-link line. On: a template without the field gets the
+      line above the sender's name. Off: the line is taken out. Filled later by fill(). */
+  booking(text, on){
+    const s = String(text || ''), has = /\{\{\s*booking[ _]link\s*\}\}/i;
+    if (!on) return s.split('\n').filter(l => !has.test(l)).join('\n').replace(/\n{3,}/g, '\n\n');
+    if (has.test(s)) return s;
+    const lines = s.split('\n'), at = lines.findIndex(l => /\{\{\s*sender[ _]name\s*\}\}/i.test(l));
+    const line = 'If it is easier, pick a time here: {{booking_link}}';
+    if (at < 0) return s.replace(/\s*$/, '') + '\n\n' + line;
+    lines.splice(at, 0, line, ''); return lines.join('\n');
+  },
   /** Any merge field the template uses that has nothing to fill it. */
   gaps(tpl, c){
     const out = [];
@@ -3157,10 +3210,11 @@ const Merge = {
       for (const r of rows){
         const c = st.contacts.find(x => x.id === r.contact.id); if (!c) continue;
         const tp = { id: ++nextId, contact_id: c.id, organization_id: c.organization_id,
-          touch_type:'email', direction:'outbound', touched_at: now, campaign_id:null, event_id:null, rfp_id:null,
+          touch_type:'email', direction:'outbound', touched_at: now, campaign_id:null, event_id:null, rfp_id: r.rfp_id ?? null,
           subject: r.subject, notes: r.body, outcome_code:'NO_RESPONSE', outcome_status:'confirmed',
           outcome_raw: null, owner_id: st.settings.default_owner_id, created_at: now,
           merge_template: tplName };
+        if (r.follow_up_on) tp.follow_up_on = r.follow_up_on;
         st.touchpoints.push(tp);
         // sent from Gmail: the message and its conversation, so replies can be found later
         if (r.gmail) st.email_messages.push({ id: Math.max(0, ...st.email_messages.map(m => m.id)) + 1, contact_id: c.id, touchpoint_id: tp.id, mailbox: r.mailbox,
@@ -3336,6 +3390,22 @@ const Inbox = {
       HAS_ADVISOR: 'Thank you, that makes sense. If it would ever help to compare notes, I would be glad to talk.',
     }[tp.outcome_code || tp.ai_suggested_outcome] || 'Thank you for your reply.';
     return 'Hi ' + first + ',\n\n' + say + '\n\n' + (Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name;
+  },
+  /** Write one letter to one person (an RFP's contact, for instance), from the sender's Gmail. It is logged
+      as an email on the person's Activity, with its follow-up a week on, and its replies are read like any other. */
+  async compose(c, { subject = '', body = '', rfp_id = null, title } = {}){
+    if (!c || !c.email) return Toast.show('There is no email address to write to.', { kind:'warn' });
+    const out = await Modal.form({ title: title || 'Email ' + c.full_name, wide: true, okLabel: Store.live ? 'Send from my Gmail' : 'Log as sent (demo)', fields: [
+      { key: 'subject', label: 'Subject', value: subject, span: true },
+      { key: 'body', label: 'To ' + c.email + ' (a suggestion: change anything before sending)', type: 'textarea', rows: 12, span: true, value: body } ] });
+    if (!out || !out.body.trim()) return;
+    const row = { contact: c, subject: out.subject, body: out.body, rfp_id, follow_up_on: Rules.addBusinessDays(new Date(), 5).toISOString().slice(0, 10) };
+    if (Store.live){
+      const why = Gmail.blocker(); if (why) return Toast.show(why, { kind:'warn' });
+      try { await Gmail.authorize(); row.gmail = await Gmail.send({ to: c.email, subject: out.subject, text: out.body }); row.mailbox = Gmail.email.toLowerCase(); }
+      catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
+    }
+    Merge.send([row], null);
   },
   /** Answer a reply in the same Gmail conversation, from the sender's Gmail. */
   async answer(tpId){
@@ -3709,7 +3779,7 @@ Views.mailmerge = { title:'Mass Email',
     const preview = chosen.find(r => r.contact.id === st.previewId) || chosen[0] || sendable[0] || null;
     if (preview) st.previewId = preview.contact.id;
 
-    const letterFor = c => (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) };
+    const letterFor = c => (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book !== false), c) };
     const srcBtn = (k, l, n) => `<button class="btn btn-sm" type="button" data-source="${k}" aria-pressed="${st.source===k}">${l} <span class="muted">${n}</span></button>`;
     const dueAll = Merge.due().filter(x => inScope.has(x.contact.id));
 
@@ -3764,7 +3834,8 @@ Views.mailmerge = { title:'Mass Email',
           ].filter(Boolean).join(' ')}</div>`; })() : ''}</section>
 
       <section class="card"><div class="card-head"><h2>What ${preview ? esc(preview.contact.full_name) : 'they'} will read</h2>
-        <span class="sub">${esc(tpl.name)}</span></div>
+        <span class="sub">${esc(tpl.name)}</span>
+        <label class="mm-book" title="${myBookingLink() ? 'Your booking page goes in above your name, in every letter of this batch' : 'Set your Google booking link in Settings first'}"><input type="checkbox" id="mm-book" ${st.book !== false && myBookingLink() ? 'checked' : ''} ${myBookingLink() ? '' : 'disabled'}> Add my booking link</label></div>
         <div class="card-body">
         ${preview ? `<dl class="kv mm-head" style="grid-template-columns:70px 1fr;margin-bottom:12px">
             <dt>To</dt><dd>${esc(preview.contact.email || 'no address')}</dd>
@@ -3796,6 +3867,7 @@ Views.mailmerge = { title:'Mass Email',
       st.edits = st.edits || {}; st.edits[c.id] = { subject: root.querySelector('#mm-subj').value, body: root.querySelector('#mm-body').value }; };
     root.querySelector('#mm-subj')?.addEventListener('input', keep);
     root.querySelector('#mm-body')?.addEventListener('input', keep);
+    root.querySelector('#mm-book')?.addEventListener('change', e => { st.book = e.target.checked; st.edits = {}; render(); });
     root.querySelector('#mm-subj')?.addEventListener('change', render);
     root.querySelector('#mm-body')?.addEventListener('change', render);
     root.querySelector('#mm-undo')?.addEventListener('click', () => { delete st.edits[st.previewId]; render(); });
@@ -3812,7 +3884,7 @@ Views.mailmerge = { title:'Mass Email',
     const build = () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];   // the letter on screen
       const picked = [...root.querySelectorAll('[data-pick]')].filter(cb => cb.checked).map(cb => Repo.contacts.byId(Number(cb.dataset.pick))).filter(Boolean);
-      return picked.map(c => (st.edits || {})[c.id] ? { contact: c, ...st.edits[c.id] } : { contact: c, subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) });
+      return picked.map(c => (st.edits || {})[c.id] ? { contact: c, ...st.edits[c.id] } : { contact: c, subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book !== false), c) });
     };
     const copy = async (text, label) => {
       try { await navigator.clipboard.writeText(text); Toast.show(label, { kind:'ok' }); }
@@ -3820,7 +3892,7 @@ Views.mailmerge = { title:'Mass Email',
     };
     root.querySelector('#mm-copy-one')?.addEventListener('click', () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0]; const c = Repo.contacts.byId(st.previewId); if (!c) return;
-      const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) };
+      const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book !== false), c) };
       copy(`To: ${c.email}\nSubject: ${L.subject}\n\n${L.body}`, 'Message copied');
     });
     root.querySelector('#mm-copy-all')?.addEventListener('click', () => {
@@ -3832,7 +3904,7 @@ Views.mailmerge = { title:'Mass Email',
     root.querySelector('#mm-gtest')?.addEventListener('click', async () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0], c = Repo.contacts.byId(st.previewId); if (!tpl || !c) return;
       try { await Gmail.authorize();
-        const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(tpl.body, c) };
+        const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book !== false), c) };
         await Gmail.send({ to: Gmail.email, subject: '[Test] ' + L.subject, text: L.body });
         Toast.show('Test sent to ' + Gmail.email + ', filled in as for ' + c.full_name, { kind:'ok' }); render();
       } catch (err){ Toast.show('Test not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
@@ -4413,7 +4485,7 @@ Views.contacts = { title:'Contacts',
       <span class="zoomer"><button class="btn btn-sm" type="button" data-zoom="-1" aria-label="Zoom out" ${st.zoom<=60?'disabled':''}>&minus;</button>
         <b>${st.zoom}%</b>
         <button class="btn btn-sm" type="button" data-zoom="1" aria-label="Zoom in" ${st.zoom>=110?'disabled':''}>+</button></span>
-      <div class="multi"><button class="btn btn-sm" type="button" id="c-cols" aria-haspopup="true" aria-expanded="${!!UI.openCols}">Columns<span class="caret">${UI.openCols ? '&#9652;' : '&#9662;'}</span></button>${UI.openCols ? `<div class="multi-menu cols-menu" role="group" aria-label="Columns">${cols.filter(x => !x.fixed).map(x => `<label><input type="checkbox" data-col="${esc(x.label)}" ${x.shown ? 'checked' : ''} ${news && x.label === 'Newsletter' ? 'disabled' : ''}><span>${esc(x.label)}</span></label>`).join('')}<div class="multi-foot"><button class="btn btn-sm" type="button" id="c-cols-default">Default</button><span class="spacer"></span><button class="btn btn-sm" type="button" id="c-cols-done">Done</button></div></div>` : ''}</div>
+      <div class="multi"><button class="btn btn-sm" type="button" id="c-cols" aria-haspopup="true" aria-expanded="${!!UI.openCols}">Columns<span class="caret">${UI.openCols ? '&#9652;' : '&#9662;'}</span></button>${UI.openCols ? `<div class="multi-menu cols-menu" role="group" aria-label="Columns"><label class="cols-all"><input type="checkbox" id="c-cols-all" ${cols.filter(x => !x.fixed).every(x => x.shown) ? 'checked' : ''}><span>All columns</span></label>${cols.filter(x => !x.fixed).map(x => `<label><input type="checkbox" data-col="${esc(x.label)}" ${x.shown ? 'checked' : ''} ${news && x.label === 'Newsletter' ? 'disabled' : ''}><span>${esc(x.label)}</span></label>`).join('')}<div class="multi-foot"><button class="btn btn-sm" type="button" id="c-cols-default">Default</button><span class="spacer"></span><button class="btn btn-sm" type="button" id="c-cols-done">Done</button></div></div>` : ''}</div>
       <span class="count">${fmtInt(total)} shown</span></div>
     <style>${cols.map((x, i) => x.shown ? '' : `#contacts-sheet tr > :nth-child(${i + 2}){display:none}`).join('')}</style>
     <div class="table-wrap sheet-wrap"><table class="grid sheet ss ${st.sel.size ? 'selmode' : ''}" id="contacts-sheet" style="zoom:${st.zoom/100};min-width:${42 + cols.reduce((s, x) => s + (x.shown ? x.w : 0), 0)}px">
@@ -4449,6 +4521,9 @@ Views.contacts = { title:'Contacts',
     const saveCols = labels => { try { localStorage.setItem(SHEET_COLS_KEY, JSON.stringify(labels)); } catch (e) { /* private window */ } render(); };
     root.querySelectorAll('[data-col]').forEach(cb => cb.addEventListener('change', () =>
       saveCols([...root.querySelectorAll('[data-col]')].filter(x => x.checked).map(x => x.dataset.col))));
+    // the box at the top: every column, or none but the pinned ones
+    root.querySelector('#c-cols-all')?.addEventListener('change', e => saveCols(e.target.checked ? SHEET_COLS.map(x => x.label) : []));
+    const ca = root.querySelector('#c-cols-all'); if (ca){ const boxes = [...root.querySelectorAll('[data-col]')]; ca.indeterminate = boxes.some(x => x.checked) && !boxes.every(x => x.checked); }
     root.querySelector('#c-cols-default')?.addEventListener('click', () => { try { localStorage.removeItem(SHEET_COLS_KEY); } catch (e) { /* private window */ } render(); });
     root.querySelector('#c-cols-done')?.addEventListener('click', () => { UI.openCols = false; render(); });
     root.querySelector('#c-collapse')?.addEventListener('click', () => { st.expanded.clear(); render(); });
@@ -4680,7 +4755,7 @@ Views.contact = { title:'Contact',
       else if (t.response_excerpt) ps.push({ key: 'r', when: t.responded_at || t.touched_at, cls: 'reply', label: 'Their reply', text: t.response_excerpt });
       emails.filter(m => m.direction === 'outbound' && m.thread_id && m !== letter).forEach(m => ps.push({ key: 'a' + m.id, when: m.sent_at, cls: 'answer', label: 'You answered ' + fmtDate(m.sent_at, { month:'short', day:'numeric' }), text: m.body_text || '' }));
       const ordered = ps.filter(p => p.text).sort((a, b) => String(a.when).localeCompare(String(b.when)));
-      const toggle = ordered.length > 1 ? `<div class="act-order"><button class="linkish small" type="button" data-order title="The order of the messages inside an activity">${asc ? 'Oldest message first' : 'Newest message first'} ⇅</button></div>` : '';
+      const toggle = ordered.length > 1 ? `<div class="act-order"><button class="linkish small" type="button" data-order title="The order of the messages inside an activity">${asc ? 'Oldest first' : 'Newest first'} ⇅</button></div>` : '';
       return toggle + (asc ? ordered : ordered.reverse()).map(p => {
         const k = t.id + ':' + p.key, long = p.text.replace(/\s+/g, ' ').trim().length > 150, open = UI.actOpen.has(k);
         return `<div class="act-part ${p.cls || ''}">${p.label ? `<div class="act-lab">${esc(p.label)}</div>` : ''}<div class="body${long && !open ? ' clamp2' : ''}">${esc(long && !open ? p.text.replace(/\s+/g, ' ').trim() : p.text)}</div>${long ? `<button class="linkish small" type="button" data-more="${esc(k)}">${open ? 'Show less' : 'Show more'}</button>` : ''}</div>`; }).join('');
@@ -5158,6 +5233,133 @@ Views.organization = { title:'Organization',
 };
 
 /* ===== Events, campaigns and RFPs ==================================== */
+/* ===== Events > Bring in events ======================================
+   Two ways in, each a check on the other: the events on the signed-in
+   person's Google Calendar (read-only permission, asked for only here), and
+   Jon's Event ROI Tracker (Excel or CSV, as he keeps it). Each becomes a list:
+   an event already on the Events page is matched (same name, or a close name
+   within three days) and only its blanks and the tracker's counts are filled;
+   the rest are ticked to be added. Nothing is written until "Add". */
+const EventSync = {
+  TYPE: e => /webinar|zoom|virtual|online/i.test(e) ? 'webinar' : /workshop|training|class/i.test(e) ? 'workshop'
+    : /network|lunch|luncheon|breakfast|reception|mixer|happy hour|dinner|gala/i.test(e) ? 'networking'
+    : /conference|summit|forum|symposium|convention|expo|annual meeting|roundtable/i.test(e) ? 'conference' : 'other',
+  key: s => String(s || '').toLowerCase().replace(/\b(the|annual|20\d\d)\b/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim(),
+  /** The event on file this one is: the same name, or a close one (Jaro 0.88) within three days. */
+  match(c){
+    const k = this.key(c.name), near = e => !c.start_on || !e.start_on || Math.abs(daysBetween(e.start_on, c.start_on)) <= 3;
+    return Repo.events.all().find(e => (c.gcal_id && String(e.notes || '').includes('gcal:' + c.gcal_id)))
+      || Repo.events.all().find(e => this.key(e.name) === k && near(e))
+      || Repo.events.all().find(e => near(e) && e.start_on && Intelligence.jaro(this.key(e.name), k) >= 0.88) || null;
+  },
+  day(v){
+    const s = String(v || '').trim(); let m;
+    if ((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+    if ((m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/))) { const y = m[3].length === 2 ? '20' + m[3] : m[3]; return `${y}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}`; }
+    const d = new Date(s); return isNaN(d) ? null : d.toISOString().slice(0, 10);
+  },
+  money: v => { const n = Number(String(v || '').replace(/[$,\s]/g, '')); return isFinite(n) && String(v || '').trim() !== '' ? n : null; },
+  state(loc){ const m = String(loc || '').match(/,\s*([A-Z]{2})\b(?:\s+\d{5})?/); return m ? m[1] : null; },
+
+  /** Events on the person's Google Calendar, four months back and six ahead, that look like events (not one-to-one meetings). */
+  async fromCalendar(){
+    const why = Gmail.blocker(); if (why) throw new Error(why);
+    await Gmail.lib();
+    const tok = await new Promise((ok, no) => google.accounts.oauth2.initTokenClient({ client_id: GMAIL_CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.readonly',
+      hint: Live.email || undefined, callback: r => r.error ? no(new Error(r.error_description || r.error)) : ok(r.access_token),
+      error_callback: e => no(new Error(e.type === 'popup_closed' ? 'The Google window was closed before giving permission.' : (e.message || 'Google did not give permission.'))) }).requestAccessToken({ prompt: '' }));
+    const q = new URLSearchParams({ timeMin: Rules.addDays(new Date(), -120).toISOString(), timeMax: Rules.addDays(new Date(), 180).toISOString(),
+      singleEvents: 'true', orderBy: 'startTime', maxResults: '250' });
+    const r = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?' + q, { headers: { Authorization: 'Bearer ' + tok } });
+    if (!r.ok){ const j = await r.json().catch(() => ({})); throw new Error((j.error && j.error.message) || 'Google Calendar answered ' + r.status); }
+    const LOOKS = /conference|summit|forum|webinar|workshop|seminar|symposium|luncheon|lunch|breakfast|gala|networking|meetup|mixer|expo|convention|roundtable|panel|reception|association|chamber|annual meeting|event/i;
+    return ((await r.json()).items || []).filter(e => e.summary && e.status !== 'cancelled' && e.eventType !== 'outOfOffice' && e.eventType !== 'focusTime'
+        && (LOOKS.test(e.summary + ' ' + (e.description || '')) || (e.attendees || []).length > 6
+          // somewhere, all day or two hours and more: an event rather than a meeting
+          || (e.location && ((e.start || {}).date || new Date((e.end || {}).dateTime) - new Date((e.start || {}).dateTime) >= 2 * 36e5))))
+      .map(e => { const text = e.summary + ' ' + (e.location || '') + ' ' + (e.description || '');
+        return { source: 'Calendar', gcal_id: e.id, name: e.summary.trim(), start_on: this.day((e.start || {}).date || (e.start || {}).dateTime),
+          end_on: (e.end || {}).date ? this.day(Rules.addDays(new Date(e.end.date + 'T12:00:00'), -1).toISOString()) : null,
+          format: e.hangoutLink || /zoom|teams\.microsoft|webinar|virtual|online/i.test(text) ? 'virtual' : 'in_person',
+          event_type: this.TYPE(text), state: this.state(e.location), city: null, cost_usd: null, counts: null,
+          where: e.location || (e.hangoutLink ? 'Google Meet' : '') }; });
+  },
+  /** Jon's Event ROI Tracker: the header row is found wherever it is (it is on row 14 in his file). */
+  fromTracker(text){
+    const csv = l => { const out = []; let cur = '', q = false;   // commas inside quotes ("$2,500") stay in the cell
+      for (const ch of l){ if (ch === '"'){ q = !q; continue; } if (ch === ',' && !q){ out.push(cur); cur = ''; continue; } cur += ch; }
+      out.push(cur); return out; };
+    const lines = String(text || '').split(/\r?\n/).map(l => (l.includes('\t') ? l.split('\t') : csv(l)).map(x => x.trim()));
+    const hi = lines.findIndex(r => r.some(c => /^event name$/i.test(c)));
+    if (hi < 0) throw new Error('No "Event Name" column found. Is this the Event ROI Tracker?');
+    const H = lines[hi].map(c => c.toLowerCase()), col = re => H.findIndex(c => re.test(c)), get = (r, re) => { const i = col(re); return i < 0 ? '' : (r[i] || ''); };
+    const num = v => { const n = this.money(v); return n == null ? null : Math.round(n); };
+    return lines.slice(hi + 1).filter(r => get(r, /^event name$/).trim()).map(r => {
+      const name = get(r, /^event name$/), type = get(r, /event type|type/);
+      return { source: 'Tracker', name, start_on: this.day(get(r, /^date$/)), end_on: null, format: /virtual|webinar|online/i.test(type + ' ' + name) ? 'virtual' : 'in_person',
+        event_type: this.TYPE(type + ' ' + name), state: (get(r, /^state$/).match(/^[A-Za-z]{2}$/) || [null])[0]?.toUpperCase() || null, city: null,
+        cost_usd: this.money(get(r, /^cost/)), where: get(r, /^state$/),
+        counts: { people_met_reported: num(get(r, /# of contacts|contacts/)), responses_reported: num(get(r, /# of responses|responses/)),
+          meetings_reported: num(get(r, /# of meetings|meetings/)), clients_won_usd: this.money(get(r, /clients won/)) },
+        notes: get(r, /^notes$/) || null };
+    });
+  },
+  list: [],
+  open(){
+    this.list = [];
+    const m = Modal.open({ title: 'Bring in events', wide: true, body: `
+      <p>Events from your Google Calendar, or from your Event ROI Tracker (Excel or CSV). Each one is checked against the Events page: one already there is matched, not added twice.</p>
+      <div class="page-actions" style="margin:12px 0 4px;justify-content:flex-start"><button class="btn btn-sm btn-primary" type="button" id="es-cal">From my Google Calendar</button>
+        <label class="btn btn-sm" for="es-file">From my event tracker file</label><input type="file" id="es-file" accept=".xlsx,.xls,.csv,.tsv,.txt" class="sr-only"></div>
+      <p class="muted small" id="es-msg" role="status"></p><div id="es-list"></div>`,
+      foot: `<button class="btn" type="button" data-cancel>Close</button><button class="btn btn-primary" type="button" id="es-add" disabled>Add</button>` });
+    const msg = t => { m.querySelector('#es-msg').textContent = t; };
+    const take = async (how, label) => {
+      msg('Reading ' + label + '…');
+      try { const got = await how(); this.list = got.map(c => ({ ...c, match: this.match(c) })).map(c => ({ ...c, on: !c.match }));
+        msg(got.length ? `${got.length} event${got.length === 1 ? '' : 's'} found in ${label}.` : 'No events found in ' + label + '.'); this.show(m); }
+      catch (err){ msg(/insufficient|scope|403/i.test(err.message) ? 'Google did not allow reading the calendar. Try again and tick the calendar box.' : err.message); }
+    };
+    m.querySelector('[data-cancel]').onclick = () => Modal.close();
+    m.querySelector('#es-cal').onclick = () => take(() => this.fromCalendar(), 'your calendar');
+    m.querySelector('#es-file').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+      take(async () => this.fromTracker(/\.xlsx?$/i.test(f.name) ? ((await Files.sheets(f)).find(s => /event name/i.test(s.text)) || {}).text || '' : await f.text()), f.name); };
+    m.querySelector('#es-add').onclick = () => { this.save(); Modal.close(); };
+  },
+  show(m){
+    const L = this.list, box = m.querySelector('#es-list');
+    box.innerHTML = !L.length ? '' : `<div class="table-wrap auto" style="box-shadow:none;max-height:46vh"><table class="grid"><thead><tr><th></th><th>Date</th><th>Event</th><th>Where</th><th>On the Events page</th></tr></thead><tbody>
+      ${L.map((c, i) => `<tr><td>${c.match ? '' : `<input type="checkbox" data-es="${i}" ${c.on ? 'checked' : ''} aria-label="Add ${esc(c.name)}">`}</td>
+        <td>${esc(fmtDate(c.start_on) || '')}</td><td><b>${esc(c.name)}</b><span class="sub">${esc(c.format === 'virtual' ? 'Virtual' : 'In person')} · ${esc(c.event_type)}</span></td>
+        <td>${esc(c.where || '')}</td><td>${c.match ? `<span class="pill st-funded">Already there</span><span class="sub">${esc(c.match.name)}${c.counts ? ', counts updated' : ''}</span>` : '<span class="muted">New</span>'}</td></tr>`).join('')}
+      </tbody></table></div>`;
+    box.querySelectorAll('[data-es]').forEach(cb => cb.addEventListener('change', () => { L[Number(cb.dataset.es)].on = cb.checked; this.count(m); }));
+    this.count(m);
+  },
+  count(m){ const L = this.list, add = L.filter(c => !c.match && c.on).length, upd = L.filter(c => c.match && (c.counts || c.cost_usd != null)).length;
+    const b = m.querySelector('#es-add'); b.disabled = !(add + upd); b.textContent = [add ? 'Add ' + add : '', upd ? 'update ' + upd : ''].filter(Boolean).join(' · ') || 'Add'; },
+  save(){
+    const L = this.list;
+    Store.commit('Events brought in', st => {
+      const now = new Date().toISOString().slice(0, 19);
+      for (const c of L){
+        const counts = Object.fromEntries(Object.entries(c.counts || {}).filter(([, v]) => v != null));
+        if (c.match){ const e = st.events.find(x => x.id === c.match.id); if (!e) continue;
+          if (e.cost_usd == null || e.cost_usd === 0) { if (c.cost_usd != null) e.cost_usd = c.cost_usd; }
+          if (!e.state && c.state) e.state = c.state;
+          Object.assign(e, counts);
+          if (c.gcal_id && !String(e.notes || '').includes('gcal:')) e.notes = (e.notes ? e.notes + '\n' : '') + 'gcal:' + c.gcal_id;
+          continue; }
+        if (!c.on || !c.start_on) continue;
+        st.events.push({ id: Math.max(0, ...st.events.map(x => x.id)) + 1, name: c.name, event_type: c.event_type, format: c.format, hosted_by_us: false,
+          start_on: c.start_on, end_on: c.end_on && c.end_on !== c.start_on ? c.end_on : null, city: c.city, state: c.state, cost_usd: c.cost_usd ?? 0,
+          owner_id: st.settings.default_owner_id, created_at: now, ...counts,
+          notes: [c.notes, c.source === 'Calendar' ? 'From Google Calendar' : 'From the event tracker', c.gcal_id ? 'gcal:' + c.gcal_id : ''].filter(Boolean).join('\n') });
+      }
+    });
+  },
+};
+
 Views.events = { title:'Events',
   /* One screen, read like a dashboard: the totals across the top, then where
      the people came from, in person against virtual, events against cold
@@ -5214,7 +5416,7 @@ Views.events = { title:'Events',
       : `<div class="card-body">${emptyState(q ? 'Nobody found' : 'No events in this filter')}</div>`;
 
     return `<div class="ev-page">
-    <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}</div></div>
+    <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}<button class="btn btn-sm" type="button" id="ev-sync">Bring in events</button></div></div>
     ${filterBar({ compact:true,
       // The format is one pick like the other filters: All formats, In person or Virtual
       extra: (() => { const FM = [['All','All formats'], ['in_person','In person'], ['virtual','Virtual']], cur = FM.find(([v]) => v === fmt) || FM[0];
@@ -5268,6 +5470,7 @@ Views.events = { title:'Events',
   mount(root){
     const st = UI.events;
     bindRowNav(root); bindGo(root); bindTips(root); bindFilters(root, render);
+    root.querySelector('#ev-sync')?.addEventListener('click', () => EventSync.open());
     root.querySelector('#ev-fmt-btn')?.addEventListener('click', e => { e.stopPropagation(); UI.openPick = UI.openPick === 'evfmt' ? null : 'evfmt'; UI.openState = false; render(); });
     root.querySelectorAll('[data-evfmt]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); st.format = b.dataset.evfmt; UI.openPick = null; render(); }));
     root.querySelector('#ev-q')?.addEventListener('input', debounce(e => { st.q = e.target.value; render(); }, 220));
@@ -5301,7 +5504,7 @@ Views.rfps = { title:'RFPs',
       <div class="kpi"><div class="kpi-head"><span class="lbl"><span class="kpi-icon">${ICONS.calendar}</span>Due next</span><span class="row"><span class="val">${open.length ? fmtDate(open.slice().sort((x,y) => String(x.rfp.due_on).localeCompare(String(y.rfp.due_on)))[0].rfp.due_on, {month:'short', day:'numeric'}) : '-'}</span></span></div><div class="kpi-body">${fmtInt(n('submitted'))} submitted, ${fmtInt(n('finalist'))} at finalist</div></div>
     </div>
     <section class="card"><div class="card-head"><h2>Every RFP</h2><span class="sub">${rfps.length} on file</span></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Organization</th><th>Mandate</th><th class="num">Est. AUM</th><th>Released</th><th>Due</th><th>Status</th><th>Outcome so far</th></tr></thead><tbody>
+      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Organization</th><th>Mandate</th><th class="num">Est. AUM</th><th>Released</th><th>Due</th><th>Status</th><th>Outcome so far</th><th></th></tr></thead><tbody>
       ${rfps.length ? rfps.map(r => { const tps = r.rfp.id != null ? Repo.touchpoints.all().filter(t => t.rfp_id === r.rfp.id) : [];
         const last = tps.sort((x,y) => String(y.touched_at).localeCompare(String(x.touched_at)))[0];
         return `<tr class="row-link" data-href="${r.organization ? href('organizations/'+r.organization.id) : '#'}">
@@ -5309,12 +5512,40 @@ Views.rfps = { title:'RFPs',
         <td>${esc(r.rfp.mandate_type||'')}</td><td class="num">${fmtUSD(r.rfp.est_mandate_aum)||'-'}</td>
         <td>${fmtDate(r.rfp.released_on)}</td><td>${fmtDate(r.rfp.due_on)} <span class="muted">${relDays(r.rfp.due_on)}</span></td>
         <td><span class="pill ${r.rfp.status === 'won' ? 'st-funded' : r.rfp.status === 'lost' ? 'st-lost' : 'st-upcoming'}">${esc(r.rfp.status)}</span></td>
-        <td>${last ? outcomePill(last.outcome_code) + ` <span class="muted">${fmtDate(last.touched_at)}</span>` : '<span class="muted">No touchpoint logged</span>'}</td></tr>`; }).join('')
-        : `<tr><td colspan="7">${emptyState('No RFPs on file')}</td></tr>`}
+        <td>${r.rfp.decision_result ? `<span>${esc(r.rfp.decision_result)}</span>${r.rfp.decision_notes ? `<span class="sub">${esc(String(r.rfp.decision_notes).slice(0, 90))}</span>` : ''}` : last ? outcomePill(last.outcome_code) + ` <span class="muted">${fmtDate(last.touched_at)}</span>` : '<span class="muted">No touchpoint logged</span>'}</td>
+        <td style="white-space:nowrap">${['won','lost'].includes(r.rfp.status) ? `<button class="btn btn-sm" type="button" data-rfp-mail="${r.rfp.id}">Email</button> ` : ''}<button class="btn btn-sm" type="button" data-rfp="${r.rfp.id}">Update</button></td></tr>`; }).join('')
+        : `<tr><td colspan="8">${emptyState('No RFPs on file')}</td></tr>`}
       </tbody></table></div></section>`;
   },
-  mount(root){ bindRowNav(root); bindGo(root); bindFilters(root, render); }
+  mount(root){ bindRowNav(root); bindGo(root); bindFilters(root, render);
+    root.querySelectorAll('[data-rfp]').forEach(b => b.addEventListener('click', async e => { e.stopPropagation();
+      const r = Repo.rfps.all().find(x => x.id === Number(b.dataset.rfp)); if (!r) return;
+      const S = [['identified','Identified'], ['intent_to_bid','Intend to bid'], ['submitted','Submitted'], ['finalist','Finalist'], ['won','Won'], ['lost','Lost'], ['declined','Declined to bid'], ['cancelled','Cancelled']];
+      const out = await Modal.form({ title: 'Update ' + r.title, wide: true, okLabel: 'Save', fields: [
+        { key:'status', label:'Status', type:'select', value: r.status, options: S.map(([value, label]) => ({ value, label })) },
+        { key:'decision_on', label:'Decided on', type:'date', value: r.decision_on || '' },
+        { key:'decision_result', label:'Who won', hint:'when we did not', value: r.decision_result || '', span: true, placeholder:'e.g. Lost to Mercer' },
+        { key:'decision_notes', label:'How we scored, and their feedback', type:'textarea', rows: 4, value: r.decision_notes || '', span: true } ] });
+      if (!out) return;
+      Repo.rfps.decide(r.id, { status: out.status, decision_on: out.decision_on || (['won','lost'].includes(out.status) && !r.decision_on ? new Date().toISOString().slice(0, 10) : r.decision_on || null),
+        decision_result: out.decision_result.trim() || null, decision_notes: out.decision_notes.trim() || null });
+      if (out.status !== r.status && ['won','lost'].includes(out.status)) Toast.show(out.status === 'won' ? 'Won. A check-in is on Follow-ups for two months from now.' : 'Lost. Email on this row writes to ask who won and how we scored.', { kind:'ok', ms: 7000 });
+    }));
+    root.querySelectorAll('[data-rfp-mail]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); rfpEmail(Number(b.dataset.rfpMail)); })); }
 };
+/** The letter after an RFP is decided: lost asks who won and how we scored; won checks in. Sent and logged by Inbox.compose. */
+function rfpEmail(id){
+  const r = Repo.rfps.all().find(x => x.id === id); if (!r) return;
+  const c = (r.contact_id != null && Repo.contacts.byId(r.contact_id)) || Repo.contacts.all().find(x => x.organization_id === r.organization_id && x.email);
+  if (!c) return Toast.show('No one at this organization has an email on file. Add the contact first.', { kind:'warn' });
+  const first = c.first_name || String(c.full_name || '').split(' ')[0], sign = '\n\n' + (Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name;
+  const lost = r.status === 'lost';
+  Inbox.compose(c, { rfp_id: r.id, title: (lost ? 'Ask how we scored: ' : 'Check in: ') + r.title,
+    subject: lost ? 'Thank you, and a question about ' + r.title : 'Checking in on ' + r.title,
+    body: 'Hi ' + first + ',\n\n' + (lost
+      ? 'Thank you for considering GAARD Capital for ' + r.title + '. We were sorry not to be selected, and we would value learning from it: could you share which firm was chosen, and how our proposal scored or where it fell short?\n\nThank you again for the opportunity.'
+      : 'It has been about two months since we started on ' + r.title + ', and I wanted to check in: how has the start gone on your side, and is there anything we should adjust?') + sign });
+}
 
 /* ===== Portfolio reviews ============================================= */
 Views.reviews = { title:'Reviews',
@@ -5502,7 +5733,8 @@ Views.import = { title:'Import',
       const a = st.analysis, kind = st.kind || 'new', events = Repo.events.all();
       const n = { add:0, merge:0, same:0, ask:0, skip:0 };
       const picks = r => (r.picks || []).length;
-      a.forEach(r => { if (!r.decided) n.ask++; else if (r.decision === 'skip') n.skip++; else if (r.decision === 'merge') (picks(r) ? n.merge++ : n.same++); else n.add++; });
+      const listSays = kind === 'event' || kind === 'newsletter';   // the list itself is news for someone on file
+      a.forEach(r => { if (!r.decided) n.ask++; else if (r.decision === 'skip') n.skip++; else if (r.decision === 'merge') (picks(r) || listSays ? n.merge++ : n.same++); else n.add++; });
       const ready = n.add + n.merge;
       // For a row that needs a choice, the reason is the possible match; otherwise the first real problem
       const problem = r => r.status === 'no_email' && !r.decided ? (r.badEmail ? `"${r.badEmail}" is not an email address. ` : 'No email in this row. ')
@@ -5542,7 +5774,8 @@ Views.import = { title:'Import',
             ${r.match ? opt('merge', 'Same person as ' + r.match.full_name, false) : ''}${r.nameDiffers ? '' : opt('import', r.status === 'no_email' ? (r.match ? 'A different person: add without email' : 'Add without an email') : r.match ? 'A different person: add as new' : r.orgMatch ? 'Add, at ' + r.orgMatch.name : 'Add as a new person', false)}${opt('skip', 'Leave out', false)}</select>
           <span class="sub imp-why">${esc(problem(r))}</span>${r.match && basis(r).length ? `<span class="sub">Matches on ${esc(basis(r).join(', '))}${toggle(r, i)}</span>` : ''}`;
         if (r.decision === 'skip') return `<span class="muted">Left out${problem(r) ? ': ' + esc(problem(r).toLowerCase()) : ''}</span>${toggle(r, i)}`;
-        if (r.decision === 'merge') return (picks(r) ? `<span class="pill g-probable">Already on file</span>` : `<span class="muted">Already on file, nothing new</span>`)
+        if (r.decision === 'merge') return (picks(r) || listSays ? `<span class="pill g-probable">Already on file</span>` : `<span class="muted">Already on file, nothing new</span>`)
+          + (listSays && !picks(r) ? `<span class="sub">${kind === 'event' ? 'Meeting them at the event is added to their activity.' : 'Subscribed to the newsletter.'}</span>` : '')
           + `<span class="sub">${basis(r).length ? 'Matches on ' + esc(basis(r).join(', ')) + '. ' : ''}${picks(r) ? 'Updates ' + esc(writes(r).join(', ')) + '.' : ''}${toggle(r, i)}</span>`;
         const p = problem(r);
         return `<span class="pill g-new">New</span>${p ? `<span class="sub imp-why">${esc(p)}</span>` : ''}${r.badEmail ? '<span class="sub">Added without an email</span>' : ''}${toggle(r, i)}`;
@@ -5569,8 +5802,9 @@ Views.import = { title:'Import',
           ${n.skip ? `<span class="muted">${n.skip} left out</span>` : ''}</div>
         <div class="imp-opts">
           <label class="f"><span>This list is</span><select id="im-kind">${KINDS.map(([v, l]) => opt(v, l, v === kind)).join('')}</select></label>
-          ${kind === 'event' ? (events.length ? `<label class="f"><span>Event</span><select id="im-event">${events.map(e => opt(e.id, e.name + (e.start_on ? ' (' + fmtDate(e.start_on) + ')' : ''), e.id === st.event_id)).join('')}</select></label>`
-            : `<p class="muted small" style="align-self:end">No events yet. Add the event on the Events page first.</p>`) : ''}
+          ${kind === 'event' ? `<label class="f"><span>Event</span><select id="im-event">${events.map(e => opt(e.id, e.name + (e.start_on ? ' (' + fmtDate(e.start_on) + ')' : ''), !st.newEvent && e.id === st.event_id)).join('')}${opt('new', '+ A new event', !!st.newEvent)}</select></label>
+            ${st.newEvent ? `<label class="f"><span>Event name</span><input id="im-evname" type="text" value="${esc(st.newEvent.name)}" placeholder="e.g. Utah Nonprofits Summit"></label>
+              <label class="f"><span>Date</span><input id="im-evdate" type="date" value="${esc(st.newEvent.start_on)}"></label>` : ''}` : ''}
           ${kind === 'new' || kind === 'event' || kind === 'newsletter' ? `<label class="f"><span>Segment, where a row does not say</span><select id="im-seg">${SEGMENTS.filter(s => s.code !== 'RET_BENEFIT' && s.code !== 'AFFILIATE').map(s => opt(s.code, s.group === s.name ? s.name : s.group + ': ' + s.name, st.defaults.segment === s.code)).join('')}</select></label>` : ''}
         </div>
         <p class="muted small" style="margin-top:12px">Columns read: ${esc(colsRead.join(' · ') || 'none')} <button class="linkish" type="button" id="im-cols">${st.showCols ? 'Done' : 'Change'}</button></p>
@@ -5609,14 +5843,14 @@ Views.import = { title:'Import',
       <section class="card imp-add" id="im-drop">
         <label class="imp-dropzone" for="im-file">
           <span class="imp-dz-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5"/><path d="M12 12v8"/><path d="M8.5 15.5 12 12l3.5 3.5"/></svg></span>
-          <span class="imp-dz-title">Drop a file here, or <u>browse</u></span>
+          <span class="imp-dz-title"><span class="dz-desk">Drop a file here, or <u>browse</u></span><span class="dz-touch">Tap to add a file, or take a photo of business cards</span></span>
           <span class="imp-dz-types"><span class="ft ft-csv">CSV</span><span class="ft ft-xls">XLSX</span><span class="ft ft-doc">DOCX</span><span class="ft ft-img">PNG · JPG</span></span>
         </label>
         <input type="file" id="im-file" multiple accept=".csv,.tsv,.txt,.xlsx,.xls,.docx,image/*,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="sr-only">
         <div class="imp-or"><span>or paste</span></div>
         ${st.sheets && st.sheets.list.length > 1 ? `<div class="im-sheets"><span>${esc(st.sheets.file)} has ${st.sheets.list.length} sheets. Showing</span>
           <select id="im-sheet" aria-label="Sheet to read">${st.sheets.list.map((s, i) => `<option value="${i}" ${i === st.sheets.at ? 'selected' : ''}>${esc(s.name)} (${s.rows} row${s.rows === 1 ? '' : 's'})</option>`).join('')}</select></div>` : ''}
-        <label class="sr-only" for="im-text">Paste rows, replies or a screenshot</label><div class="im-box"><textarea id="im-text" rows="9" wrap="${String(st.text || '').includes(String.fromCharCode(9)) ? 'off' : 'soft'}" placeholder="Rows copied from a sheet, the text of client replies, or a screenshot (Ctrl+V)">${esc(st.text)}</textarea>
+        <label class="sr-only" for="im-text">Paste rows, replies or a screenshot</label><div class="im-box"><textarea id="im-text" rows="9" wrap="${String(st.text || '').includes(String.fromCharCode(9)) ? 'off' : 'soft'}" placeholder="Rows copied from a sheet, the text of client replies, or a screenshot (Ctrl+V). People met at an event: start with a line such as Met at Utah Nonprofits Summit">${esc(st.text)}</textarea>
         ${(st.shots || []).length ? `<div class="im-shots">${st.shots.map((s, i) => `<figure><img src="${s.url}" alt="Screenshot ${i + 1}" title="Read when you press Continue" data-shotview="${i}"><button class="x" type="button" data-shotrm="${i}" aria-label="Remove screenshot ${i + 1}">×</button></figure>`).join('')}</div>` : ''}</div>
         <p class="muted small" id="im-ocr" role="status" ${st.ocrMsg ? '' : 'hidden'} style="margin-top:8px">${esc(st.ocrMsg || '')}</p>
         <div class="imp-actions">
@@ -5628,7 +5862,8 @@ Views.import = { title:'Import',
         <section class="card"><div class="card-head"><h2>What you can import</h2></div><div class="card-body imp-kinds">
           <div><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 9v11"/></svg></span><p><b>Contact lists</b>Rows from a sheet, with or without the header row. Each person is checked against the contacts on file before anything is saved.</p></div>
           <div><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span><p><b>Client replies</b>The text of the emails clients sent back. Each is matched to the sender and given an outcome, which schedules the next follow-up.</p></div>
-          <div><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><p><b>Screenshots</b>Of a sheet or of an email. The text is read on this computer; the picture is never uploaded.</p></div>
+          <div><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><p><b>Screenshots and business cards</b>Of a sheet, an email, or a business card (a photo from your phone works). The text is read on this device; the picture is never uploaded.</p></div>
+          <div><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><p><b>People met at an event</b>Write "Met at" and the event's name on the first line, then paste the people or add photos of their cards. A new event is added to the Events page.</p></div>
         </div></section>
         <section class="card"><div class="card-head"><h2>Try a sample</h2></div><div class="card-body imp-samples">
           <button class="imp-sample" type="button" id="im-example"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 9v11"/></svg></span><span><b>Sourcing sheet</b>31 messy rows</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
@@ -5695,7 +5930,7 @@ Views.import = { title:'Import',
           if (r.status === 'existing_contact' && r.match && !sameName(r.values.contact_name, r.match.full_name)){ r.nameDiffers = true; r.decided = false; }
         }
         r.cmp = compareRow(r);
-        r.picks = r.cmp.filter(x => x.pickable && x.how !== 'diff').map(x => x.key);
+        r.picks = r.cmp.filter(x => x.pickable && (x.how !== 'diff' || (st.fromCards && ['phone', 'title'].includes(x.key)))).map(x => x.key);
         r.open = !r.decided && !!r.match;
       }); };
     const read = text => { st.text = text; const p = Intelligence.readRows(text);
@@ -5704,11 +5939,15 @@ Views.import = { title:'Import',
       st.kind = st.kind || 'new'; analyzeNow(); st.step = 'check'; render(); };
     root.querySelector('#im-seg')?.addEventListener('change', e => { st.defaults.segment = e.target.value; });
     root.querySelector('#im-kind')?.addEventListener('change', e => { st.kind = e.target.value;
-      if (st.kind === 'event' && !st.event_id){ const ev = Repo.events.all()[0]; st.event_id = ev ? ev.id : null; }
+      if (st.kind === 'event' && !st.event_id && !st.newEvent){ const ev = Repo.events.all()[0]; if (ev) st.event_id = ev.id; else st.newEvent = { name: '', start_on: new Date().toISOString().slice(0, 10) }; }
       st.defaults.segment = st.kind === 'benefit' ? 'RET_BENEFIT' : st.kind === 'referral' ? 'AFFILIATE'
         : (st.defaults.segment === 'RET_BENEFIT' || st.defaults.segment === 'AFFILIATE' ? 'ORG_NONPROFIT' : st.defaults.segment);
       render(); });
-    root.querySelector('#im-event')?.addEventListener('change', e => { st.event_id = Number(e.target.value); });
+    root.querySelector('#im-event')?.addEventListener('change', e => {
+      if (e.target.value === 'new'){ st.newEvent = st.newEvent || { name: '', start_on: new Date().toISOString().slice(0, 10) }; st.event_id = null; render(); return; }
+      st.newEvent = null; st.event_id = Number(e.target.value); render(); });
+    root.querySelector('#im-evname')?.addEventListener('input', e => { st.newEvent.name = e.target.value; });
+    root.querySelector('#im-evdate')?.addEventListener('change', e => { st.newEvent.start_on = e.target.value; });
     root.querySelector('#im-cols')?.addEventListener('click', () => { st.showCols = !st.showCols; render(); });
     root.querySelectorAll('[data-map]').forEach(sel => sel.addEventListener('change', () => { st.mapping[Number(sel.dataset.map)] = sel.value; analyzeNow(); render(); }));
     root.querySelectorAll('[data-decide]').forEach(sel => sel.addEventListener('change', () => {
@@ -5717,6 +5956,14 @@ Views.import = { title:'Import',
     root.querySelectorAll('[data-pick]').forEach(cb => cb.addEventListener('change', () => { const r = st.analysis[Number(cb.dataset.pick)];
       r.picks = (r.picks || []).filter(k => k !== cb.value).concat(cb.checked ? [cb.value] : []); render(); }));
     root.querySelector('#im-commit')?.addEventListener('click', () => {
+      // a new event named here is added first, then the people are tied to it
+      if (st.kind === 'event' && st.newEvent){
+        const name = st.newEvent.name.trim(); if (!name) return Toast.show('Name the event first.', { kind:'warn' });
+        let id = null;
+        Store.commit('Event added: ' + name, s => { id = Math.max(0, ...s.events.map(x => x.id)) + 1;
+          s.events.push({ id, name, event_type: 'other', format: 'in_person', hosted_by_us: false, start_on: st.newEvent.start_on || new Date().toISOString().slice(0, 10),
+            cost_usd: 0, owner_id: s.settings.default_owner_id, created_at: new Date().toISOString().slice(0, 19) }); }, { silent: true });
+        st.event_id = id; st.newEvent = null; }
       st.result = commitBatch(st.analysis, { ...st.defaults, kind: st.kind || 'new', event_id: st.event_id || null }); st.result.at = Date.now(); window.scrollTo(0, 0); render();
       Toast.show(`Imported ${st.result.contacts} new and added to ${st.result.merged} already on file`, { kind:'ok', action:'Undo', onAction: () => { Store.undo(); UI.import = null; render(); } }); });
     /* One box takes both: rows go to column mapping, anything else is read as replies. */
@@ -5724,7 +5971,13 @@ Views.import = { title:'Import',
       if (!list.length){ Toast.show('No reply found. Paste the email text, including the From line if you can.', { kind:'warn' }); return; }
       st.replies = list; st.ocrMsg = ''; st.step = 'replies'; render(); };
     const readAny = (text, fromShots) => {
-      if (!fromShots && (st.readShots || []).length){ st.readShots.forEach(s => URL.revokeObjectURL(s.url)); st.readShots = []; }
+      if (!fromShots){ st.fromCards = false; if ((st.readShots || []).length){ st.readShots.forEach(s => URL.revokeObjectURL(s.url)); st.readShots = []; } }
+      // "Met at Utah Nonprofits Summit" on a line of its own: these people were met there
+      const met = String(text || '').match(/^[ \t]*(?:met|meet)\s+(?:at|@)\s+(.+?)[ \t]*$/im);
+      if (met){ text = String(text).replace(met[0], '').trim();
+        const name = met[1].replace(/\s+event$/i, '').trim(), key = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+        const evs = Repo.events.all(), ev = evs.find(e => key(e.name) === key(name)) || evs.find(e => key(e.name).includes(key(name)) || key(name).includes(key(e.name)));
+        st.kind = 'event'; if (ev){ st.event_id = ev.id; st.newEvent = null; } else { st.event_id = null; st.newEvent = { name, start_on: new Date().toISOString().slice(0, 10) }; } }
       if (!String(text || '').trim()){ Toast.show('Paste rows, replies or a screenshot first.', { kind:'warn' }); return; }
       return Replies.looksLikeRows(text) ? read(text) : readReplies(text); };
     root.querySelector('#im-read')?.addEventListener('click', () => (st.shots || []).length ? readShots() : readAny(root.querySelector('#im-text').value));
@@ -5744,9 +5997,18 @@ Views.import = { title:'Import',
       let text = box.value.trim();
       btn.disabled = true;
       try {
-        for (const s of st.shots){ const t = Ocr.tidy(await Ocr.read(s.file, ocrMsg)).trim(); if (t) text = (text ? text + '\n\n' : '') + t; }
-        if (!text){ ocrMsg('No text found in the screenshot. Try a sharper one.'); btn.disabled = false; return; }
-        text = Ocr.sheetRows(text) || text;   // a screenshot of a sheet becomes rows
+        const texts = [];
+        for (const s of st.shots){ const t = Ocr.tidy(await Ocr.read(s.file, ocrMsg)).trim(); if (t) texts.push(t); }
+        // photos of business cards: one row each, under a header row
+        const cards = texts.map(t => Ocr.sheetRows(t) ? null : Ocr.cardRow(t));
+        if (texts.length && cards.every(Boolean)){
+          const tsv = ['Name\tTitle\tOrganization\tEmail\tPhone\tWebsite', ...cards.map(c => [c.name, c.title, c.org, c.email, c.phone, c.website].join('\t'))].join('\n');
+          text = (text ? text + '\n' : '') + tsv; st.fromCards = true;
+        } else {
+          for (const t of texts) text = (text ? text + '\n\n' : '') + t;
+          if (!text){ ocrMsg('No text found in the screenshot. Try a sharper one.'); btn.disabled = false; return; }
+          text = Ocr.sheetRows(text) || text;   // a screenshot of a sheet becomes rows
+        }
         (st.readShots || []).forEach(s => URL.revokeObjectURL(s.url)); st.readShots = st.shots; st.shots = []; st.ocrMsg = '';
         box.value = text; readAny(text, true);
       } catch (err){ ocrMsg(err.message || 'The screenshot could not be read.'); btn.disabled = false; }
