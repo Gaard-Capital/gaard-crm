@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-27.3">
+<meta name="build-version" content="2026-10-28.2">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -552,6 +552,7 @@ table.edit.tm{width:100%;min-width:0} table.edit.tm td.tm-acts{white-space:norma
 .s-book-row{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:nowrap}
 .s-book-row label{font-size:13px;color:var(--ink-2);font-weight:500;white-space:nowrap}
 .s-book-row input{flex:1 1 auto;min-width:0;width:auto}
+.s-sig-row{align-items:flex-start} .s-sig{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px} .s-sig textarea{width:100%;font:inherit;font-size:13px}
 .saved-people{list-style:none;margin:16px 0 0;padding:0;border-top:1px solid var(--line)}
 .saved-people li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
 /* Import, step one: steps, a drop zone, the paste box, and a side panel */
@@ -3138,6 +3139,10 @@ const Views = {};
    ===================================================================== */
 /** The signed-in person's booking page, or ''. */
 const myBookingLink = () => ((Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {}).booking_url || '';
+/** The foot of a letter: the sender's own signature (Settings, db/017), or their name and the firm. */
+const mySignature = () => { const me = (Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {};
+  return String(me.email_signature || '').trim() || ((Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name); };
+const myLogo = () => ((Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {}).email_logo_url || '';
 const Merge = {
   /** Fill one template for one contact. */
   fill(text, c){
@@ -3158,7 +3163,8 @@ const Merge = {
       booking_link: myBookingLink(),
     };
     // {{first_name}}, and Jon's own style {{First Name}} or {{Booking link}}, all work
-    let s = String(text || '');
+    // a signature set in Settings takes the place of the name-and-firm lines at the foot
+    let s = String(text || '').replace(/\{\{\s*sender[ _]name\s*\}\}[ \t]*\n[ \t]*\{\{\s*firm[ _]name\s*\}\}/i, () => mySignature()).replace(/\{\{\s*signature\s*\}\}/i, () => mySignature());
     if (!ctx.booking_link) s = s.split('\n').filter(l => !/\{\{\s*booking[ _]link\s*\}\}/i.test(l)).join('\n').replace(/\n{3,}/g, '\n\n');
     return s.replace(/\{\{\s*([\w ]+?)\s*\}\}/g, (m, k) => { const v = ctx[k.toLowerCase().replace(/\s+/g, '_')]; return v != null && v !== '' ? v : m; });
   },
@@ -3268,7 +3274,11 @@ const Gmail = {
   raw({ to, subject, text, bcc, replyTo, inReplyTo, references }){
     const b64 = s => btoa(unescape(encodeURIComponent(s)));
     const head = s => /^[\x20-\x7e]*$/.test(s) ? s : '=?UTF-8?B?' + b64(s) + '?=';
-    const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + esc(text).replace(/\n/g, '<br>') + '</div>';
+    const sig = mySignature(), logo = myLogo(), at = logo ? text.lastIndexOf(sig) : -1;
+    const lines = s => esc(s).replace(/\n/g, '<br>');
+    const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + (at < 0 ? lines(text)
+      : lines(text.slice(0, at)) + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:4px"><tr><td style="padding-right:14px;border-right:2px solid #ccc;text-align:right;font-size:13px;line-height:1.45">'
+        + lines(sig).replace(/^([^<]*)/, '<b>$1</b>') + '</td><td style="padding-left:14px;vertical-align:middle"><img src="' + esc(logo) + '" alt="' + esc(Repo.settings().firm_name) + '" height="64" style="display:block;height:64px"></td></tr></table>' + lines(text.slice(at + sig.length))) + '</div>';
     const wrap = s => b64(s).replace(/.{76}/g, m => m + '\r\n');
     const b = 'gaard-' + Math.random().toString(36).slice(2);
     const headers = ['To: ' + to, bcc && 'Bcc: ' + bcc, replyTo && 'Reply-To: ' + replyTo, 'Subject: ' + head(subject),
@@ -3389,7 +3399,7 @@ const Inbox = {
       REFERRED_INTERNALLY: 'Thank you for pointing me in the right direction. I will reach out to them directly.',
       HAS_ADVISOR: 'Thank you, that makes sense. If it would ever help to compare notes, I would be glad to talk.',
     }[tp.outcome_code || tp.ai_suggested_outcome] || 'Thank you for your reply.';
-    return 'Hi ' + first + ',\n\n' + say + '\n\n' + (Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name;
+    return 'Hi ' + first + ',\n\n' + say + '\n\n' + mySignature();
   },
   /** Write one letter to one person (an RFP's contact, for instance), from the sender's Gmail. It is logged
       as an email on the person's Activity, with its follow-up a week on, and its replies are read like any other. */
@@ -5274,11 +5284,11 @@ const EventSync = {
     if (!r.ok){ const j = await r.json().catch(() => ({})); throw new Error((j.error && j.error.message) || 'Google Calendar answered ' + r.status); }
     const LOOKS = /conference|summit|forum|webinar|workshop|seminar|symposium|luncheon|lunch|breakfast|gala|networking|meetup|mixer|expo|convention|roundtable|panel|reception|association|chamber|annual meeting|event/i;
     return ((await r.json()).items || []).filter(e => e.summary && e.status !== 'cancelled' && e.eventType !== 'outOfOffice' && e.eventType !== 'focusTime'
-        && (LOOKS.test(e.summary + ' ' + (e.description || '')) || (e.attendees || []).length > 6
+        && (/Gaard Event Finder/i.test(e.description || '') || LOOKS.test(e.summary + ' ' + (e.description || '')) || (e.attendees || []).length > 6
           // somewhere, all day or two hours and more: an event rather than a meeting
           || (e.location && ((e.start || {}).date || new Date((e.end || {}).dateTime) - new Date((e.start || {}).dateTime) >= 2 * 36e5))))
       .map(e => { const text = e.summary + ' ' + (e.location || '') + ' ' + (e.description || '');
-        return { source: 'Calendar', gcal_id: e.id, name: e.summary.trim(), start_on: this.day((e.start || {}).date || (e.start || {}).dateTime),
+        return { source: /Gaard Event Finder/i.test(e.description || '') ? 'Event Finder' : 'Calendar', gcal_id: e.id, name: e.summary.trim(), start_on: this.day((e.start || {}).date || (e.start || {}).dateTime),
           end_on: (e.end || {}).date ? this.day(Rules.addDays(new Date(e.end.date + 'T12:00:00'), -1).toISOString()) : null,
           format: e.hangoutLink || /zoom|teams\.microsoft|webinar|virtual|online/i.test(text) ? 'virtual' : 'in_person',
           event_type: this.TYPE(text), state: this.state(e.location), city: null, cost_usd: null, counts: null,
@@ -5331,7 +5341,7 @@ const EventSync = {
     box.innerHTML = !L.length ? '' : `<div class="table-wrap auto" style="box-shadow:none;max-height:46vh"><table class="grid"><thead><tr><th></th><th>Date</th><th>Event</th><th>Where</th><th>On the Events page</th></tr></thead><tbody>
       ${L.map((c, i) => `<tr><td>${c.match ? '' : `<input type="checkbox" data-es="${i}" ${c.on ? 'checked' : ''} aria-label="Add ${esc(c.name)}">`}</td>
         <td>${esc(fmtDate(c.start_on) || '')}</td><td><b>${esc(c.name)}</b><span class="sub">${esc(c.format === 'virtual' ? 'Virtual' : 'In person')} · ${esc(c.event_type)}</span></td>
-        <td>${esc(c.where || '')}</td><td>${c.match ? `<span class="pill st-funded">Already there</span><span class="sub">${esc(c.match.name)}${c.counts ? ', counts updated' : ''}</span>` : '<span class="muted">New</span>'}</td></tr>`).join('')}
+        <td>${esc(c.where || '')}${c.source === 'Event Finder' ? '<span class="sub">From your Event Finder</span>' : ''}</td><td>${c.match ? `<span class="pill st-funded">Already there</span><span class="sub">${esc(c.match.name)}${c.counts ? ', counts updated' : ''}</span>` : '<span class="muted">New</span>'}</td></tr>`).join('')}
       </tbody></table></div>`;
     box.querySelectorAll('[data-es]').forEach(cb => cb.addEventListener('change', () => { L[Number(cb.dataset.es)].on = cb.checked; this.count(m); }));
     this.count(m);
@@ -5354,7 +5364,7 @@ const EventSync = {
         st.events.push({ id: Math.max(0, ...st.events.map(x => x.id)) + 1, name: c.name, event_type: c.event_type, format: c.format, hosted_by_us: false,
           start_on: c.start_on, end_on: c.end_on && c.end_on !== c.start_on ? c.end_on : null, city: c.city, state: c.state, cost_usd: c.cost_usd ?? 0,
           owner_id: st.settings.default_owner_id, created_at: now, ...counts,
-          notes: [c.notes, c.source === 'Calendar' ? 'From Google Calendar' : 'From the event tracker', c.gcal_id ? 'gcal:' + c.gcal_id : ''].filter(Boolean).join('\n') });
+          notes: [c.notes, c.source === 'Event Finder' ? 'From the Gaard Event Finder (Google Calendar)' : c.source === 'Calendar' ? 'From Google Calendar' : 'From the event tracker', c.gcal_id ? 'gcal:' + c.gcal_id : ''].filter(Boolean).join('\n') });
       }
     });
   },
@@ -5416,7 +5426,7 @@ Views.events = { title:'Events',
       : `<div class="card-body">${emptyState(q ? 'Nobody found' : 'No events in this filter')}</div>`;
 
     return `<div class="ev-page">
-    <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}<button class="btn btn-sm" type="button" id="ev-sync">Bring in events</button></div></div>
+    <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}<a class="btn btn-sm" href="https://claude.ai/artifact/UV7sCKMc56UKQubKaA7hsK" target="_blank" rel="noopener" title="Jon's Gaard Event Finder on claude.ai">Event Finder</a><button class="btn btn-sm" type="button" id="ev-sync">Bring in events</button></div></div>
     ${filterBar({ compact:true,
       // The format is one pick like the other filters: All formats, In person or Virtual
       extra: (() => { const FM = [['All','All formats'], ['in_person','In person'], ['virtual','Virtual']], cur = FM.find(([v]) => v === fmt) || FM[0];
@@ -5538,7 +5548,7 @@ function rfpEmail(id){
   const r = Repo.rfps.all().find(x => x.id === id); if (!r) return;
   const c = (r.contact_id != null && Repo.contacts.byId(r.contact_id)) || Repo.contacts.all().find(x => x.organization_id === r.organization_id && x.email);
   if (!c) return Toast.show('No one at this organization has an email on file. Add the contact first.', { kind:'warn' });
-  const first = c.first_name || String(c.full_name || '').split(' ')[0], sign = '\n\n' + (Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name;
+  const first = c.first_name || String(c.full_name || '').split(' ')[0], sign = '\n\n' + mySignature();
   const lost = r.status === 'lost';
   Inbox.compose(c, { rfp_id: r.id, title: (lost ? 'Ask how we scored: ' : 'Check in: ') + r.title,
     subject: lost ? 'Thank you, and a question about ' + r.title : 'Checking in on ' + r.title,
@@ -6312,6 +6322,12 @@ Views.settings = { title:'Settings',
             <div class="info-pop"><button class="info-btn" type="button" aria-label="About the booking link" aria-describedby="s-book-info">i</button>
               <div class="info-panel" role="tooltip" id="s-book-info"><div class="info-card"><p>Your Google Calendar booking page (Calendar → Create → Appointment schedule → Copy link). Letters that use {{booking_link}} put it in for whoever sends them.</p></div></div></div>
             <input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
+          <div class="s-book-row s-sig-row"><label for="s-sig">Your email signature:</label>
+            <div class="info-pop"><button class="info-btn" type="button" aria-label="About the signature" aria-describedby="s-sig-info">i</button>
+              <div class="info-panel" role="tooltip" id="s-sig-info"><div class="info-card"><p>Goes at the foot of the letters you send from the CRM, in place of your name and the firm. A logo link (an image on the web, starting with https://) puts the logo beside it, as in your own emails.</p></div></div></div>
+            <div class="s-sig"><textarea id="s-sig" rows="4" placeholder="Your name&#10;Your title&#10;Phone&#10;www.gaard.capital">${esc(((Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {}).email_signature || '')}</textarea>
+              <input id="s-logo" type="url" placeholder="Logo link (optional): https://…" value="${esc(myLogo())}"></div>
+            <button class="btn btn-sm" type="button" id="s-sig-save">Save</button></div>
           <div class="s-book-row"><label>Your Claude:</label>
             <div class="info-pop"><button class="info-btn" type="button" aria-label="About connecting Claude" aria-describedby="cl-info">i</button>
               <div class="info-panel" role="tooltip" id="cl-info"><div class="info-card"><p>Lets your own Claude (claude.ai, with Gmail connected) find replies in your mailbox and put them in the CRM. Claude can list who has not replied, look people up, and store a reply with the outcome it suggests. It sets the closest outcome, as the CRM does with replies it reads itself, and cannot delete or send anything. Each reply shows under the bell, and Change on the activity puts a wrong outcome right.</p></div></div></div>
@@ -6373,6 +6389,20 @@ Views.settings = { title:'Settings',
         Store.version++; render(); return Toast.show(v ? 'Booking link saved' : 'Booking link removed', { kind:'ok' });
       }
       Store.commit(v ? 'Booking link saved' : 'Booking link removed', st => { const row = st.team_members.find(t => t.id === id); if (row) row.booking_url = v || null; });
+    });
+    /* The signature also lives on the person's own team row, written through set_my_signature() (db/017). */
+    root.querySelector('#s-sig-save')?.addEventListener('click', async () => {
+      const sig = root.querySelector('#s-sig').value.trim(), logo = root.querySelector('#s-logo').value.trim();
+      if (logo && !/^https:\/\/\S+$/i.test(logo)) return Toast.show('The logo link should start with https://', { kind:'warn' });
+      const id = Repo.settings().default_owner_id;
+      if (Store.live){
+        const { error } = await (await Live.sb()).rpc('set_my_signature', { p_signature: sig, p_logo_url: logo });
+        if (error) return Toast.show(/function|does not exist|schema cache/i.test(error.message) ? 'Not saved: the database needs db/017_email_signature.sql run first.' : 'Not saved: ' + error.message, { kind:'warn', ms: 9000 });
+        const row = (Store.state.team_members || []).find(t => t.id === id);
+        if (row){ row.email_signature = sig || null; row.email_logo_url = logo || null; if (Live.shadow && Live.shadow.team_members) Live.shadow.team_members.set(row.id, JSON.stringify(row)); }
+        Store.version++; render(); return Toast.show(sig ? 'Signature saved' : 'Signature removed', { kind:'ok' });
+      }
+      Store.commit(sig ? 'Signature saved' : 'Signature removed', st => { const row = st.team_members.find(t => t.id === id); if (row){ row.email_signature = sig || null; row.email_logo_url = logo || null; } });
     });
     root.querySelector('#s-out')?.addEventListener('click', () => Live.signOut());
     root.querySelector('#s-in')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });

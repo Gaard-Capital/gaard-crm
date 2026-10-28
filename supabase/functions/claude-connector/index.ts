@@ -1,10 +1,13 @@
 // claude-connector: lets a team member's own Claude (claude.ai) put email
 // replies into the CRM. It is an MCP server (Model Context Protocol, the way
-// Claude talks to outside tools) with three narrow tools and nothing else:
+// Claude talks to outside tools) with five narrow tools and nothing else:
 //
 //   outreach_waiting_for_reply  who we wrote to and have not heard back from
 //   find_contact                look one person up by email or name
 //   record_reply                store a reply with its closest outcome
+//   list_events                 the events on the CRM's Events page
+//   record_event                add or update an event (e.g. from Jon's Gaard
+//                               Event Finder: the ones marked Going or Attended)
 //
 // A reply recorded here sets the outcome on the letter's activity, exactly as
 // the CRM's own Gmail check does; the database's outcome rules then schedule
@@ -70,6 +73,34 @@ const TOOLS = [
       reason: { type: 'string', description: 'One short sentence: why this outcome.' },
       gmail_message_id: { type: 'string', description: "Gmail's message id, if known; stops the same reply being stored twice." },
     }, required: ['email', 'reply_text', 'received_at', 'suggested_outcome'] },
+  },
+  {
+    name: 'list_events',
+    description: "Events on the Gaard CRM's Events page between two dates, with how many people were met at each. Use it to see what the CRM already has before record_event, or to write CRM notes back to the Gaard Event Finder.",
+    inputSchema: { type: 'object', properties: {
+      from: { type: 'string', description: 'First day, YYYY-MM-DD (default: 120 days ago).' },
+      to: { type: 'string', description: 'Last day, YYYY-MM-DD (default: 180 days ahead).' },
+    } },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: 'record_event',
+    description: "Put an event Jon is going to, or went to, on the Gaard CRM's Events page (for example from the Gaard Event Finder: events marked Going or Attended). An event already there (same name, or a close one within three days) is updated, not added twice.",
+    inputSchema: { type: 'object', properties: {
+      name: { type: 'string' },
+      date: { type: 'string', description: 'The day it starts, YYYY-MM-DD.' },
+      end_date: { type: 'string', description: 'The last day, YYYY-MM-DD, for an event of several days.' },
+      status: { type: 'string', enum: ['going', 'maybe', 'attended'] },
+      format: { type: 'string', enum: ['in_person', 'virtual', 'hybrid'] },
+      kind: { type: 'string', enum: ['conference', 'networking', 'webinar', 'workshop', 'other'] },
+      host: { type: 'string', description: 'The organization or association running it.' },
+      city: { type: 'string' },
+      state: { type: 'string', description: 'Two-letter state, e.g. UT.' },
+      cost_usd: { type: 'number' },
+      people_met: { type: 'integer', description: 'How many contacts were made there, once attended.' },
+      url: { type: 'string', description: 'The event page.' },
+      notes: { type: 'string' },
+    }, required: ['name', 'date'] },
   },
 ];
 
@@ -180,6 +211,52 @@ async function record(db: Db, me: string, a: Record<string, unknown>) {
   return { text: `Stored the reply from ${c.full_name} with the outcome ${OUTCOMES[code]}; the follow-up is scheduled from it. It shows under the bell in the CRM, where it can be changed.` };
 }
 
+const isDay = (s: unknown) => /^\d{4}-\d{2}-\d{2}$/.test(String(s ?? '')) && !isNaN(new Date(String(s)).getTime());
+const evKey = (s: unknown) => String(s ?? '').toLowerCase().replace(/\b(the|annual|20\d\d)\b/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+
+async function listEvents(db: Db, a: { from?: string; to?: string }) {
+  const from = isDay(a.from) ? a.from : new Date(Date.now() - 120 * 864e5).toISOString().slice(0, 10);
+  const to = isDay(a.to) ? a.to : new Date(Date.now() + 180 * 864e5).toISOString().slice(0, 10);
+  const { data, error } = await db.from('events').select('id, name, start_on, format, city, state, notes').gte('start_on', from).lte('start_on', to).order('start_on').limit(500);
+  if (error) throw new Error(error.message);
+  if (!data?.length) return `No events on the CRM's Events page between ${from} and ${to}.`;
+  const { data: tps } = await db.from('touchpoints').select('event_id, contact_id').in('event_id', data.map((e: Db) => e.id)).limit(5000);
+  const met = (id: number) => new Set((tps ?? []).filter((t: Db) => t.event_id === id).map((t: Db) => t.contact_id)).size;
+  return data.map((e: Db) => `- ${e.start_on} ${e.name} (${e.format === 'virtual' ? 'online' : [e.city, e.state].filter(Boolean).join(', ') || 'in person'}): ${met(e.id)} people met`).join('\n');
+}
+
+async function recordEvent(db: Db, me: string, a: Record<string, unknown>) {
+  const name = String(a.name ?? '').trim().slice(0, 300);
+  if (!name || !isDay(a.date)) return { text: 'An event needs a name and a date (YYYY-MM-DD).', error: true };
+  const start = String(a.date), end = isDay(a.end_date) && String(a.end_date) > start ? String(a.end_date) : null;
+  const state = /^[A-Za-z]{2}$/.test(String(a.state ?? '')) ? String(a.state).toUpperCase() : null;
+  const kind = ['conference', 'networking', 'webinar', 'workshop', 'other'].includes(String(a.kind)) ? String(a.kind) : 'other';
+  const format = a.format === 'virtual' ? 'virtual' : 'in_person';
+  const line = ['Event Finder: ' + (a.status || 'going') + (a.format === 'hybrid' ? ', hybrid' : ''), a.url ? String(a.url) : '', a.notes ? String(a.notes).slice(0, 1000) : '']
+    .filter(Boolean).join('\n');
+  // the same event already on the page: the same name, or a close one, within three days
+  const lo = new Date(new Date(start).getTime() - 3 * 864e5).toISOString().slice(0, 10), hi = new Date(new Date(start).getTime() + 3 * 864e5).toISOString().slice(0, 10);
+  const { data: near, error: e1 } = await db.from('events').select('id, name, notes, cost_usd, state, city').gte('start_on', lo).lte('start_on', hi).limit(200);
+  if (e1) throw new Error(e1.message);
+  const k = evKey(name), words = new Set(k.split(' '));
+  const same = (near ?? []).find((e: Db) => evKey(e.name) === k)
+    || (near ?? []).find((e: Db) => { const w = evKey(e.name).split(' '); const hit = w.filter((x) => words.has(x)).length; return hit >= Math.max(2, Math.ceil(Math.min(w.length, words.size) * 0.7)); });
+  const counts = Number.isFinite(Number(a.people_met)) && a.people_met != null ? { people_met_reported: Math.round(Number(a.people_met)) } : {};
+  if (same) {
+    const notes = String(same.notes || '').replace(/^Event Finder: .*$/m, '').trim();
+    const { error } = await db.from('events').update({ notes: [line, notes].filter(Boolean).join('\n'), ...counts,
+      ...(same.cost_usd == null || Number(same.cost_usd) === 0 ? (a.cost_usd != null && Number.isFinite(Number(a.cost_usd)) ? { cost_usd: Number(a.cost_usd) } : {}) : {}),
+      ...(!same.state && state ? { state } : {}), ...(!same.city && a.city ? { city: String(a.city) } : {}) }).eq('id', same.id);
+    if (error) throw new Error(error.message);
+    return { text: `Already on the Events page as "${same.name}"; updated (${a.status || 'going'}).` };
+  }
+  const { error } = await db.from('events').insert({ name, event_type: kind, format, hosted_by_us: false, host_org: a.host ? String(a.host) : null,
+    start_on: start, end_on: end, city: a.city ? String(a.city) : null, state, cost_usd: a.cost_usd != null && Number.isFinite(Number(a.cost_usd)) ? Number(a.cost_usd) : 0,
+    notes: line + '\nAdded by Claude, for ' + me, ...counts });
+  if (error) throw new Error(error.message);
+  return { text: `Added "${name}" (${start}) to the Events page.` };
+}
+
 /** One MCP request (JSON-RPC 2.0) for the person `me`. Returns the response, or null for a notification. */
 export async function rpc(db: Db, me: string, msg: Db) {
   const ok = (result: unknown) => ({ jsonrpc: '2.0', id: msg.id, result });
@@ -201,6 +278,8 @@ export async function rpc(db: Db, me: string, msg: Db) {
         if (name === 'outreach_waiting_for_reply') return ok({ content: [{ type: 'text', text: await waiting(db, args) }] });
         if (name === 'find_contact') return ok({ content: [{ type: 'text', text: await find(db, args) }] });
         if (name === 'record_reply') { const r = await record(db, me, args); return ok({ content: [{ type: 'text', text: r.text }], isError: !!r.error }); }
+        if (name === 'list_events') return ok({ content: [{ type: 'text', text: await listEvents(db, args) }] });
+        if (name === 'record_event') { const r = await recordEvent(db, me, args); return ok({ content: [{ type: 'text', text: r.text }], isError: !!r.error }); }
         return fail(-32602, 'Unknown tool ' + name);
       } catch (err) {
         return ok({ content: [{ type: 'text', text: 'The CRM refused: ' + (err as Error).message }], isError: true });
