@@ -1,13 +1,15 @@
 // claude-connector: lets a team member's own Claude (claude.ai) put email
 // replies into the CRM. It is an MCP server (Model Context Protocol, the way
-// Claude talks to outside tools) with five narrow tools and nothing else:
+// Claude talks to outside tools) with seven narrow tools and nothing else:
 //
 //   outreach_waiting_for_reply  who we wrote to and have not heard back from
 //   find_contact                look one person up by email or name
 //   record_reply                store a reply with its closest outcome
 //   list_events                 the events on the CRM's Events page
-//   record_event                add or update an event (e.g. from Jon's Gaard
-//                               Event Finder: the ones marked Going or Attended)
+//   record_event                add, update or take back an event (from Jon's Gaard
+//                               Event Finder: Going, Maybe, Attended, Not going)
+//   list_rfps                   the RFP log, in its 13 columns
+//   record_rfp                  add or update an RFP, column for column as the log
 //
 // A reply recorded here sets the outcome on the letter's activity, exactly as
 // the CRM's own Gmail check does; the database's outcome rules then schedule
@@ -84,13 +86,34 @@ const TOOLS = [
     annotations: { readOnlyHint: true },
   },
   {
+    name: 'list_rfps',
+    description: "The Gaard CRM's RFP log, in the 13 columns of Jon's RFP Log sheet, plus the status and who won. Everyone on the team sees the same log.",
+    inputSchema: { type: 'object', properties: {} },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: 'record_rfp',
+    description: "Add an RFP to the Gaard CRM's RFP log, or update it (matched on the reference number, then on issuer and name). The fields are the columns of Jon's RFP Log. Send what is known; anything left out stays as it is. Dates YYYY-MM-DD, AUM a plain number. A new RFP that has only been found and screened: status identified. Do not put staff names in notes.",
+    inputSchema: { type: 'object', properties: {
+      rfp_name: { type: 'string' }, issuer: { type: 'string', description: 'The organization issuing it.' },
+      reference_number: { type: 'string' }, final_submission_date: { type: 'string' },
+      approved_for_submission: { type: 'string', enum: ['Y', 'N'] }, reviewed_by: { type: 'string' }, date_reviewed: { type: 'string' },
+      size_of_aum: { type: 'number' }, conditions_or_limitations: { type: 'string' }, notes: { type: 'string', description: 'Submission mechanics and the deal summary, or the screening notes.' },
+      response: { type: 'string', description: 'N until they answer, then their answer.' }, date_responded: { type: 'string' }, correspondence: { type: 'string' },
+      won: { type: 'string', enum: ['Y', 'N'] }, status: { type: 'string', enum: ['identified', 'intent_to_bid', 'submitted', 'finalist', 'won', 'lost', 'declined', 'cancelled'] },
+      arrangement: { type: 'string', description: 'Type of arrangement, for example OPEB trust; direct institutional portfolio.' },
+      winner: { type: 'string', description: 'Who won, when we did not.' }, how_we_scored: { type: 'string' }, url: { type: 'string', description: 'The RFP page or document.' },
+    }, required: ['rfp_name', 'issuer'] },
+  },
+  {
     name: 'record_event',
-    description: "Put an event Jon is going to, or went to, on the Gaard CRM's Events page (for example from the Gaard Event Finder: events marked Going or Attended). An event already there (same name, or a close one within three days) is updated, not added twice.",
+    description: "Keep the Gaard CRM's Events page in step with the Gaard Event Finder. Call it whenever an event is marked Going, Maybe or Attended, and with status not_going whenever that mark is taken off. An event already there (same finder_id, or the same or a close name within three days) is updated, not added twice. not_going deletes the event from the CRM, or, if people were met at it, keeps it marked Not going.",
     inputSchema: { type: 'object', properties: {
       name: { type: 'string' },
       date: { type: 'string', description: 'The day it starts, YYYY-MM-DD.' },
       end_date: { type: 'string', description: 'The last day, YYYY-MM-DD, for an event of several days.' },
-      status: { type: 'string', enum: ['going', 'maybe', 'attended'] },
+      status: { type: 'string', enum: ['going', 'maybe', 'attended', 'not_going'] },
+      finder_id: { type: 'string', description: "The Event Finder's own id for this event." },
       format: { type: 'string', enum: ['in_person', 'virtual', 'hybrid'] },
       kind: { type: 'string', enum: ['conference', 'networking', 'webinar', 'workshop', 'other'] },
       host: { type: 'string', description: 'The organization or association running it.' },
@@ -217,44 +240,99 @@ const evKey = (s: unknown) => String(s ?? '').toLowerCase().replace(/\b(the|annu
 async function listEvents(db: Db, a: { from?: string; to?: string }) {
   const from = isDay(a.from) ? a.from : new Date(Date.now() - 120 * 864e5).toISOString().slice(0, 10);
   const to = isDay(a.to) ? a.to : new Date(Date.now() + 180 * 864e5).toISOString().slice(0, 10);
-  const { data, error } = await db.from('events').select('id, name, start_on, format, city, state, notes').gte('start_on', from).lte('start_on', to).order('start_on').limit(500);
+  const { data, error } = await db.from('events').select('id, name, start_on, format, city, state, attendance').gte('start_on', from).lte('start_on', to).order('start_on').limit(500);
   if (error) throw new Error(error.message);
   if (!data?.length) return `No events on the CRM's Events page between ${from} and ${to}.`;
   const { data: tps } = await db.from('touchpoints').select('event_id, contact_id').in('event_id', data.map((e: Db) => e.id)).limit(5000);
   const met = (id: number) => new Set((tps ?? []).filter((t: Db) => t.event_id === id).map((t: Db) => t.contact_id)).size;
-  return data.map((e: Db) => `- ${e.start_on} ${e.name} (${e.format === 'virtual' ? 'online' : [e.city, e.state].filter(Boolean).join(', ') || 'in person'}): ${met(e.id)} people met`).join('\n');
+  return data.map((e: Db) => `- ${e.start_on} ${e.name} (${e.format === 'virtual' ? 'online' : [e.city, e.state].filter(Boolean).join(', ') || 'in person'}): ${e.attendance || 'going'}, ${met(e.id)} people met`).join('\n');
 }
 
 async function recordEvent(db: Db, me: string, a: Record<string, unknown>) {
-  const name = String(a.name ?? '').trim().slice(0, 300);
+  const name = String(a.name ?? '').trim().slice(0, 300), status = String(a.status || 'going'), finder = a.finder_id ? String(a.finder_id) : null;
   if (!name || !isDay(a.date)) return { text: 'An event needs a name and a date (YYYY-MM-DD).', error: true };
+  if (!['going', 'maybe', 'attended', 'not_going'].includes(status)) return { text: 'Unknown status ' + status + '.', error: true };
   const start = String(a.date), end = isDay(a.end_date) && String(a.end_date) > start ? String(a.end_date) : null;
   const state = /^[A-Za-z]{2}$/.test(String(a.state ?? '')) ? String(a.state).toUpperCase() : null;
   const kind = ['conference', 'networking', 'webinar', 'workshop', 'other'].includes(String(a.kind)) ? String(a.kind) : 'other';
-  const format = a.format === 'virtual' ? 'virtual' : 'in_person';
-  const line = ['Event Finder: ' + (a.status || 'going') + (a.format === 'hybrid' ? ', hybrid' : ''), a.url ? String(a.url) : '', a.notes ? String(a.notes).slice(0, 1000) : '']
-    .filter(Boolean).join('\n');
-  // the same event already on the page: the same name, or a close one, within three days
-  const lo = new Date(new Date(start).getTime() - 3 * 864e5).toISOString().slice(0, 10), hi = new Date(new Date(start).getTime() + 3 * 864e5).toISOString().slice(0, 10);
-  const { data: near, error: e1 } = await db.from('events').select('id, name, notes, cost_usd, state, city').gte('start_on', lo).lte('start_on', hi).limit(200);
-  if (e1) throw new Error(e1.message);
-  const k = evKey(name), words = new Set(k.split(' '));
-  const same = (near ?? []).find((e: Db) => evKey(e.name) === k)
-    || (near ?? []).find((e: Db) => { const w = evKey(e.name).split(' '); const hit = w.filter((x) => words.has(x)).length; return hit >= Math.max(2, Math.ceil(Math.min(w.length, words.size) * 0.7)); });
+  const format = a.format === 'virtual' ? 'virtual' : 'in_person', url = a.url ? String(a.url).slice(0, 1000) : null;
+  // the same event already on the page: its Finder id, or the same or a close name within three days
+  let same: Db = null;
+  if (finder) { const { data, error } = await db.from('events').select('id, name, cost_usd, state, city').eq('finder_id', finder).limit(1); if (error) throw new Error(error.message); same = data?.[0] ?? null; }
+  if (!same) {
+    const lo = new Date(new Date(start).getTime() - 3 * 864e5).toISOString().slice(0, 10), hi = new Date(new Date(start).getTime() + 3 * 864e5).toISOString().slice(0, 10);
+    const { data: near, error: e1 } = await db.from('events').select('id, name, cost_usd, state, city').gte('start_on', lo).lte('start_on', hi).limit(200);
+    if (e1) throw new Error(e1.message);
+    const k = evKey(name), words = new Set(k.split(' '));
+    same = (near ?? []).find((e: Db) => evKey(e.name) === k)
+      || (near ?? []).find((e: Db) => { const w = evKey(e.name).split(' '); return w.filter((x) => words.has(x)).length >= Math.max(2, Math.ceil(Math.min(w.length, words.size) * 0.7)); }) || null;
+  }
+  if (status === 'not_going') {
+    if (!same) return { text: `"${name}" is not on the Events page, so there is nothing to take off.` };
+    // deleted, unless people were met there: then the foreign keys refuse and it stays, marked Not going
+    const { error } = await db.from('events').delete().eq('id', same.id);
+    if (!error) return { text: `Took "${same.name}" off the Events page.` };
+    const { error: e2 } = await db.from('events').update({ attendance: 'not_going' }).eq('id', same.id);
+    if (e2) throw new Error(e2.message);
+    return { text: `People were met at "${same.name}", so it stays with their history, marked Not going.` };
+  }
   const counts = Number.isFinite(Number(a.people_met)) && a.people_met != null ? { people_met_reported: Math.round(Number(a.people_met)) } : {};
+  const cost = a.cost_usd != null && Number.isFinite(Number(a.cost_usd)) ? Number(a.cost_usd) : null;
   if (same) {
-    const notes = String(same.notes || '').replace(/^Event Finder: .*$/m, '').trim();
-    const { error } = await db.from('events').update({ notes: [line, notes].filter(Boolean).join('\n'), ...counts,
-      ...(same.cost_usd == null || Number(same.cost_usd) === 0 ? (a.cost_usd != null && Number.isFinite(Number(a.cost_usd)) ? { cost_usd: Number(a.cost_usd) } : {}) : {}),
+    const { error } = await db.from('events').update({ attendance: status, start_on: start, end_on: end, ...counts, ...(finder ? { finder_id: finder } : {}), ...(url ? { source_url: url } : {}),
+      ...(cost != null && (same.cost_usd == null || Number(same.cost_usd) === 0) ? { cost_usd: cost } : {}),
       ...(!same.state && state ? { state } : {}), ...(!same.city && a.city ? { city: String(a.city) } : {}) }).eq('id', same.id);
     if (error) throw new Error(error.message);
-    return { text: `Already on the Events page as "${same.name}"; updated (${a.status || 'going'}).` };
+    return { text: `Already on the Events page as "${same.name}"; now ${status}.` };
   }
-  const { error } = await db.from('events').insert({ name, event_type: kind, format, hosted_by_us: false, host_org: a.host ? String(a.host) : null,
-    start_on: start, end_on: end, city: a.city ? String(a.city) : null, state, cost_usd: a.cost_usd != null && Number.isFinite(Number(a.cost_usd)) ? Number(a.cost_usd) : 0,
-    notes: line + '\nAdded by Claude, for ' + me, ...counts });
+  const { error } = await db.from('events').insert({ name, event_type: kind, format, hosted_by_us: false, host_org: a.host ? String(a.host) : null, start_on: start, end_on: end,
+    city: a.city ? String(a.city) : null, state, cost_usd: cost ?? 0, attendance: status, finder_id: finder, source_url: url, ...counts,
+    notes: [a.notes ? String(a.notes).slice(0, 1000) : '', 'Added by Claude, for ' + me].filter(Boolean).join('\n') });
   if (error) throw new Error(error.message);
-  return { text: `Added "${name}" (${start}) to the Events page.` };
+  return { text: `Added "${name}" (${start}) to the Events page, ${status}.` };
+}
+
+const yn = (v: unknown) => (v == null ? '' : v ? 'Y' : 'N');
+async function listRfps(db: Db) {
+  const { data, error } = await db.from('rfps').select('*, organizations(name)').order('due_on', { ascending: false }).limit(500);
+  if (error) throw new Error(error.message);
+  if (!data?.length) return 'The RFP log is empty.';
+  return ['RFP Name / Issuer\tRFP Reference Number\tFinal Submission Date\tApproved for Submission\tReviewed By\tDate Reviewed\tSize of AUM\tConditions or Limitations\tNotes\tResponse\tDate Responded\tCorrespondence\tWON\tStatus\tWho won',
+    ...data.map((r: Db) => [`${r.title} / ${r.organizations?.name ?? ''}`, r.reference_number, r.submitted_on || r.due_on, yn(r.approved_for_submission), r.reviewed_by, r.reviewed_on, r.est_mandate_aum, r.terms, r.notes,
+      r.response || 'N', r.decision_on, r.correspondence, r.status === 'won' ? 'Y' : r.status === 'lost' ? 'N' : '', r.status, r.winner].map((v) => String(v ?? '').replace(/\s+/g, ' ')).join('\t'))].join('\n');
+}
+
+async function recordRfp(db: Db, me: string, a: Record<string, unknown>) {
+  const title = String(a.rfp_name ?? '').trim().slice(0, 300), issuer = String(a.issuer ?? '').trim().slice(0, 300);
+  if (!title || !issuer) return { text: 'An RFP needs its name and its issuer.', error: true };
+  for (const k of ['final_submission_date', 'date_reviewed', 'date_responded']) if (a[k] != null && a[k] !== '' && !isDay(a[k])) return { text: k + ' must be YYYY-MM-DD.', error: true };
+  const { data: orgs, error: e1 } = await db.from('organizations').select('id, name').ilike('name', issuer.replace(/[%_]/g, ' ')).limit(1);
+  if (e1) throw new Error(e1.message);
+  let org = orgs?.[0];
+  if (!org) {
+    const { data, error } = await db.from('organizations').insert({ name: issuer, segment_code: /foundation|nonprofit|charit|trust|endowment|society|association/i.test(issuer) ? 'ORG_NONPROFIT' : 'ORG_OTHER', legacy_ref: 'RFP tracker' }).select('id, name').single();
+    if (error) throw new Error(error.message);
+    org = data;
+  }
+  const ref = a.reference_number ? String(a.reference_number).trim() : null;
+  let same: Db = null;
+  if (ref) { const { data } = await db.from('rfps').select('id, status, submitted_on').eq('reference_number', ref).limit(1); same = data?.[0] ?? null; }
+  if (!same) { const { data } = await db.from('rfps').select('id, status, submitted_on').eq('organization_id', org.id).ilike('title', title.replace(/[%_]/g, ' ')).limit(1); same = data?.[0] ?? null; }
+  const given = (k: string) => a[k] !== undefined && a[k] !== null && a[k] !== '';
+  const final = given('final_submission_date') ? String(a.final_submission_date) : null, today = new Date().toISOString().slice(0, 10);
+  const status = a.won === 'Y' ? 'won' : a.won === 'N' ? 'lost' : given('status') ? String(a.status) : same ? same.status : final && final <= today && a.approved_for_submission === 'Y' ? 'submitted' : a.approved_for_submission === 'Y' ? 'intent_to_bid' : 'identified';
+  const row: Db = { status, title, organization_id: org.id };
+  if (ref) row.reference_number = ref;
+  if (final) { if (['submitted', 'finalist', 'won', 'lost'].includes(status)) row.submitted_on = final; row.due_on = final; }
+  if (given('approved_for_submission')) row.approved_for_submission = a.approved_for_submission === 'Y';
+  if (given('date_responded')) row.decision_on = a.date_responded;
+  if (given('date_reviewed')) row.reviewed_on = a.date_reviewed;
+  if (given('size_of_aum') && Number.isFinite(Number(a.size_of_aum))) row.est_mandate_aum = Number(a.size_of_aum);
+  for (const [k, col] of [['reviewed_by', 'reviewed_by'], ['conditions_or_limitations', 'terms'], ['notes', 'notes'], ['response', 'response'], ['correspondence', 'correspondence'],
+    ['arrangement', 'mandate_type'], ['winner', 'winner'], ['how_we_scored', 'decision_notes'], ['url', 'source_url']]) if (given(k)) row[col] = String(a[k]).slice(0, 5000);
+  const { error } = same ? await db.from('rfps').update(row).eq('id', same.id) : await db.from('rfps').insert(row);
+  if (error) throw new Error(error.message);
+  return { text: `${same ? 'Updated' : 'Added'} "${title}" (${org.name}) in the RFP log, ${status}. Everyone on the team sees it.` };
 }
 
 /** One MCP request (JSON-RPC 2.0) for the person `me`. Returns the response, or null for a notification. */
@@ -280,6 +358,8 @@ export async function rpc(db: Db, me: string, msg: Db) {
         if (name === 'record_reply') { const r = await record(db, me, args); return ok({ content: [{ type: 'text', text: r.text }], isError: !!r.error }); }
         if (name === 'list_events') return ok({ content: [{ type: 'text', text: await listEvents(db, args) }] });
         if (name === 'record_event') { const r = await recordEvent(db, me, args); return ok({ content: [{ type: 'text', text: r.text }], isError: !!r.error }); }
+        if (name === 'list_rfps') return ok({ content: [{ type: 'text', text: await listRfps(db) }] });
+        if (name === 'record_rfp') { const r = await recordRfp(db, me, args); return ok({ content: [{ type: 'text', text: r.text }], isError: !!r.error }); }
         return fail(-32602, 'Unknown tool ' + name);
       } catch (err) {
         return ok({ content: [{ type: 'text', text: 'The CRM refused: ' + (err as Error).message }], isError: true });

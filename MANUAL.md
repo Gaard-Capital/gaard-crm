@@ -117,11 +117,11 @@ Click a line to open the person. The search box finds a name.
 
 ### Events
 
-A one-page dashboard of events: totals, people met per event, in person against virtual, events against cold email, and every event beside the people met there. Search a name to see every event that person was met at. **Bring in events** adds events from your Google Calendar or your Event ROI Tracker file. See section 6.
+A one-page dashboard of events that everyone on the team sees: totals, people met per event, in person against virtual, events against cold email, and every event beside the people met there. The list has **All, Past, Today, Coming up** and **Not going**, and each event shows Attended, Today, Going, Maybe or Not going. Choose an event to set its status or delete it. An event people were met at cannot be deleted, because it is part of their history: set it to Not going, which takes it out of the totals. Search a name to see every event that person was met at. **Bring in events** adds events from your Google Calendar or your Event ROI Tracker file. See section 6.
 
 ### RFPs
 
-Every request for proposal: organization, mandate, estimated AUM, dates, status and what happened. **Add an RFP**, and **Update** and **Email** on each row. See section 8.
+Every request for proposal: organization, mandate, estimated AUM, dates, status and what happened. It is the RFP Log, column for column, shared by everyone. **Add an RFP**, **Copy for the spreadsheet**, and **Update** and **Email** on each row. See section 8.
 
 ### Dashboard
 
@@ -133,7 +133,7 @@ Tabs: **KPIs** (the detailed tables: by quarter, by channel, events, campaigns, 
 
 ### Settings (account menu, top right)
 
-- **Account**: your name, email and role; **your Google booking link**; **your email signature** (and logo); **Your Claude** (connect your own Claude, section 9); change password; new authenticator app; sign out.
+- **Account**: your name, email and role; **your Google booking link**; **Your Claude** (connect your own Claude, section 9); change password; new authenticator app; sign out.
 - **Data health**: the weekly accuracy check (section 10).
 - **Team** (admins only): add a person (they then sign in with Google with that address), change a role (Member or Admin), Reset 2-step, Remove, Add back. Copy invite puts a ready message on the clipboard.
 - **No cold email list**: email domains (such as universities) whose people are never cold-emailed: they are left out of mass emails, labelled "In person only", and given a "Reach out in person" follow-up. A domain can also be set to Do not contact.
@@ -183,25 +183,29 @@ The six reply outcomes: **Interested, Not now, Not interested, Bounced (wrong em
 1. Choose who: tick people on Contacts and press **Mail merge**, or open Mass Email and tick them there (the box in the list heading ticks everyone).
 2. Choose the **letter** (template). The first cold introduction is chosen when none of them was written to before.
 3. Read the letter on the right, filled in for each person. **Type in it to change it for that person only** ("Undo my changes" puts it back).
-4. **Add my booking link**: on, the line "If it is easier, pick a time here: (your booking link)" goes above your signature in every letter; off, it is left out. It is greyed out until you save a booking link in Settings.
+4. **Add my booking link**: tick it to put the line "If it is easier, pick a time here: (your booking link)" in every letter of the batch. It is off to begin with, because a link in a first cold email makes spam filters more suspicious. It is greyed out until you save a booking link in Settings.
 5. **Send a test to myself** sends the letter on screen to you first.
-6. **Send N from my Gmail** sends the letters from your own Gmail, one about every second, each marked Sent or Not sent. They appear in your Gmail Sent folder; each is logged as an email with outcome No response, and its follow-up is scheduled.
+6. **Send N from my Gmail** sends the letters from your own Gmail, one every 20 to 45 seconds, with your Gmail signature. Keep the page open while it runs (**Stop after this one** ends it early). Each is marked Sent or Not sent, appears in your Gmail Sent folder and is logged as an email with outcome No response, and its follow-up is scheduled.
 
-Google asks your permission the first time (a Google window: allow sending). People on the do-not-contact list, with a bounced address, or on the No cold email list are greyed out and never sent to. **Or send from your own email by hand** copies the letters instead and **Mark as sent** logs them.
+Google asks your permission the first time (a Google window: allow the CRM to send, and to read your email settings and replies). People on the do-not-contact list, with a bounced address, or on the No cold email list are greyed out and never sent to. **Or send from your own email by hand** copies the letters instead and **Mark as sent** logs them.
 
 **Organization names read naturally.** In a letter, the organization's name is tidied for the sentence ("I am curious how ____ manages its investments."): Inc., LLC and Corp. are dropped, an acronym in brackets is dropped, "Of" and "And" become lowercase, and "the" is added to a bare name such as "Community Center" (not to Foundation, Alliance, Association, Trust and the like). Change any one letter by typing in it.
 
-**Preview**, under the letter, shows the email the way the person will see it, with your signature and logo.
+**Preview**, under the letter, shows the email the way the person will see it, with your Gmail signature.
 
 ### Templates (Mass Email > Email templates)
 
 The letters everyone shares. The list is on the left; the chosen letter on the right. **Merge fields** (inserted at the cursor) fill in for each person: `{{first_name}}`, `{{organization}}`, `{{booking_link}}`, `{{sender_name}}`, `{{firm_name}}`, and more; Jon's own style (`{{First Name}}`) works too. **Use it** opens the batch screen with that letter.
 
-### Your signature and booking link (Settings)
+### Your signature and booking link
 
 - **Your Google booking link**: your Google Calendar appointment page (Calendar > Create > Appointment schedule > Copy link). It fills `{{booking_link}}` in letters you send.
 - **Calls**: your Zoom link, and who is always invited to your calls (for example Dr. Brogaard). Schedule a call uses both.
-- **Your email signature**: what goes at the foot of every letter you send from the CRM (mass email, replies, RFP letters), in place of your name and the firm. Type it line by line. The Gaard logo is placed beside it, as in Gaard's own emails. To use another picture, press the pencil on the logo and paste its link (starting with `https://`).
+- **Your signature** is the one you set up in Gmail (Gmail > Settings > See all settings > Signature, and choose it for new emails). The CRM reads it and adds it to every letter you send, so it is exactly what your own emails carry. With no signature in Gmail, your name and the firm go at the foot.
+
+### Staying out of spam
+
+Nobody can promise the inbox: Google and each mailbox decide. What the CRM does: it sends plain letters as Gmail itself writes them, from your own address under your own name, one every 20 to 45 seconds, never to bounced or do-not-contact people, and it warns past about 50 emails a day from one address. What helps most from your side: send from your @gaard.capital address; keep cold letters short and personal, with few links; send a steady number every day rather than a large batch now and then; stop writing to addresses that bounce. Replies are the strongest signal of all. To check a letter, open it in Gmail, press the three dots, then Show original: SPF, DKIM and DMARC should each say PASS.
 
 ### Replies come in by themselves
 
@@ -245,9 +249,9 @@ Jon's Event Finder (a page on claude.ai that searches for Utah events twice a we
 
 1. **Directly from the Finder (the best way, once set up).** The Finder page can already use your claude.ai connectors (it adds events to Google Calendar that way). With the Gaard CRM connector added to your claude.ai (section 9), the Finder can send an event to the CRM the moment you mark it Going or Attended. To set it up once, open the Finder in claude.ai and ask Claude:
 
-   > *In this Gaard Event Finder artifact: whenever I mark an event Going or Attended, or save its cost and contacts, also send it to my "Gaard CRM" connector: `const mcp = await window.claude.use("mcp"); await mcp.callTool("Gaard CRM", "record_event", { name, date: "YYYY-MM-DD", end_date, status: "going" | "maybe" | "attended", format: "in_person" | "virtual" | "hybrid", kind: "conference" | "networking" | "webinar" | "workshop" | "other", host, city, state: two letters, cost_usd, people_met, url, notes })`. Do it quietly; if the connector is not there, carry on as before. Add a small "Send to CRM" button on each Going or Attended event too, and show "In the CRM" once it is sent. Use the connector's `list_events` to mark events the CRM already has.*
+   > *In this Gaard Event Finder artifact: whenever I mark an event Going, Maybe or Attended, or save its cost and contacts, send it to my "Gaard CRM" connector, and whenever I take that mark off, send the same event with status not_going: `const mcp = await window.claude.use("mcp"); await mcp.callTool("Gaard CRM", "record_event", { finder_id: the event's id, name, date: "YYYY-MM-DD", end_date, status: "going" | "maybe" | "attended" | "not_going", format: "in_person" | "virtual" | "hybrid", kind: "conference" | "networking" | "webinar" | "workshop" | "other", host, city, state: two letters, cost_usd, people_met, url, notes })`. Do it quietly; if the connector is not there, carry on as before. Add a small "Send to CRM" button on each Going or Attended event too, and show "In the CRM" once it is sent. Use the connector's `list_events` to mark events the CRM already has.*
 
-   Use the connector name exactly as it appears in claude.ai > Settings > Connectors. An event already in the CRM is updated, never added twice.
+   Use the connector name exactly as it appears in claude.ai > Settings > Connectors. An event already in the CRM is updated, never added twice. Taking the mark off removes it from the CRM within a minute, or, if people were met there, marks it Not going.
 2. **Through Google Calendar.** When you put an event from the Finder on your calendar, the Finder writes "From the Gaard Event Finder" in it. **Events > Bring in events > From my Google Calendar** picks those up (one click; it is not a background sync).
 3. **Through your Claude, by asking.** With the connector added, ask in claude.ai: *"Look at my Gaard Event Finder and put every event I marked Going or Attended on the Gaard CRM Events page."* Claude uses the CRM's `record_event` tool.
 
@@ -284,8 +288,14 @@ Messy values are cleaned on their own: capitals and spaces in emails, "NR", "no 
 
 **Add an RFP**: paste either the RFP screen Claude gives you (the headline and the seven fields) or a row of your RFP log (the 13 tab-separated columns). The CRM reads the issuer, the size of AUM, the type of arrangement, the due date and the requirements (or every column of the log row) and shows them for checking before saving. A log row for an RFP already in the CRM updates it. A new RFP with a deadline ahead gets an "RFP due" follow-up five working days before.
 
+**The RFP tracker** connects through the same connector as the Event Finder, so there is nothing new to connect: with Gaard CRM added to your claude.ai (section 9), your RFP agent can write to the log. Ask Claude to change the tracker or the agent once:
+
+> *Whenever an RFP is found and screened, and whenever anything about it changes, send it to my "Gaard CRM" connector with its `record_rfp` tool: rfp_name, issuer, reference_number, final_submission_date, approved_for_submission, reviewed_by, date_reviewed, size_of_aum, conditions_or_limitations, notes, response, date_responded, correspondence, won, plus status, arrangement, winner, how_we_scored and url. Dates are YYYY-MM-DD and AUM a plain number. Use `list_rfps` to see what the CRM already has.*
+
+Everyone on the team sees the same log within a minute. **Copy for the spreadsheet** gives the 13 columns of the RFP Log with their headers.
+
 Each RFP row has:
-- **Update**: status (identified, intend to bid, submitted, finalist, won, lost, declined, cancelled), the day it was decided, **who won**, and **how we scored and their feedback**.
+- **Update**: every column of the log, the status (identified, intend to bid, submitted, finalist, won, lost, declined, cancelled), **who won**, and **how we scored and their feedback**.
   - Marking it **won** adds a check-in to Follow-ups two months later.
   - Marking it **lost** adds "ask who won and how we scored" to Follow-ups for this week.
 - **Email** (on a won or lost RFP): a ready letter to the RFP's contact. Lost: thanks, and who was chosen and how we scored. Won: how the start has gone. Edit and send from your Gmail. It is logged on the person's activity, with a follow-up five working days later, and their reply is read like any other.
@@ -294,14 +304,15 @@ The "Outcome so far" column shows who won and the feedback once written.
 
 ## 9. Connecting your own Claude
 
-Your own Claude (claude.ai, with Gmail connected there) can work with the CRM through a **connector** that can do five things and nothing else:
+Your own Claude (claude.ai, with Gmail connected there) can work with the CRM through a **connector** that can do these things and nothing else:
 - list who was emailed and has not replied;
 - look a person up;
 - store a reply with its outcome (which schedules the follow-up, as above);
 - list the events on the Events page;
-- add or update an event (for example from the Event Finder).
+- add, update or take back an event (from the Event Finder);
+- read the RFP log, and add or update an RFP (from your RFP tracker).
 
-It cannot delete, send, or read anything else.
+It cannot send, delete anything else, or read anything else.
 
 1. Settings > **Your Claude** > **Connect my Claude**, then **Copy it and open Claude**. That copies your CRM address (shown once; keep it to yourself, like a password) and opens claude.ai's Connectors page. (claude.ai lets no other website add a connector for you, so this one paste is needed.)
 2. On that page: **Add custom connector**, name it "Gaard CRM", paste, **Add**.

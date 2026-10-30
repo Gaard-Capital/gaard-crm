@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-30.4">
+<meta name="build-version" content="2026-10-30.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -369,6 +369,7 @@ tr.mm-blocked:hover td{background:transparent}
 .pill.st-overdue{background:var(--danger-soft);color:var(--danger)}
 .pill.st-today{background:var(--warn-soft);color:var(--warn)}
 .pill.st-upcoming{background:var(--surface-3);color:var(--ink-2)}
+.ev-act{margin-left:auto;display:flex;align-items:center;gap:6px} .ev-act select{width:auto} .ev-when{margin-left:auto} .ev-when .btn[aria-pressed="true"]{background:var(--surface);font-weight:600}
 /* Settings > Data health (db/013) */
 .dh-sum{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .dh-sum .pill{font-size:12px}
@@ -552,11 +553,6 @@ table.edit.tm{width:100%;min-width:0} table.edit.tm td.tm-acts{white-space:norma
 .s-book-row{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:nowrap}
 .s-book-row label{font-size:13px;color:var(--ink-2);font-weight:500;white-space:nowrap}
 .s-book-row input{flex:1 1 auto;min-width:0;width:auto}
-.s-sig-row{align-items:center;flex-wrap:wrap} .s-sig-row .s-sig{order:4;flex:1 1 100%} .s-sig{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px} .s-sig-card{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#fff}
-.s-sig-card textarea{flex:1 1 auto;min-width:0;width:auto;border:0;border-right:2px solid #ccc;border-radius:0;box-shadow:none;padding:2px 14px 2px 0;text-align:right;resize:vertical;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.45;color:#222;background:transparent}
-.s-sig-card textarea:focus{outline:none;border-right-color:var(--accent)}
-.s-sig-card:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.s-sig-card img{flex:none;height:56px;width:auto;max-width:45%;object-fit:contain} .s-sig .linkish{align-self:flex-start}
 .saved-people{list-style:none;margin:16px 0 0;padding:0;border-top:1px solid var(--line)}
 .saved-people li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
 /* Import, step one: steps, a drop zone, the paste box, and a side panel */
@@ -851,14 +847,7 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 .af-f{min-width:0} .af-f > input{width:100%}
 .af-top{align-self:start;padding-top:10px}
 .af-two{display:flex;gap:8px} .af-two input{flex:1 1 0;min-width:0}
-.af-span{grid-column:2 / span 2;display:flex;align-items:center;gap:8px} .af-span.s-sig{display:block}
-.s-sig-foot{display:flex;justify-content:flex-end;margin-top:8px}
-.s-logo-wrap img{height:48px;width:auto;max-width:none}
-.s-logo-wrap{position:relative;flex:none;display:flex;align-items:center}
-.s-logo-edit{position:absolute;top:-14px;right:-18px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--ink-3);display:grid;place-items:center;cursor:pointer;opacity:.55;padding:0}
-.s-logo-edit svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.s-logo-wrap:hover .s-logo-edit,.s-logo-edit:focus-visible{opacity:1;color:var(--accent);border-color:var(--accent)}
-.s-sig #s-logo{margin-top:8px;width:100%}
+.af-span{grid-column:2 / span 2;display:flex;align-items:center;gap:8px}
 @media (max-width:640px){ .acct-form{grid-template-columns:1fr} .af-span{grid-column:auto} .af-top{padding-top:0} }
 table.grid.onb td{vertical-align:middle} table.grid.onb input{width:100%;min-width:240px}
 .bell-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -1650,6 +1639,8 @@ const Repo = {
     /** Contacts whose relationship started at this event. */
     sourced: memo(id => Store.state.contacts.filter(c => c.source_event_id === id)),
     update: (id, patch) => Store.commit('Event updated', st => { const e = st.events.find(x => x.id === id); if (e) Object.assign(e, patch); }),
+    /** delete from events where id = $1 (only an event nobody was met at) */
+    remove: id => Store.commit('Event deleted', st => { st.events = st.events.filter(x => x.id !== id); }),
   },
 
   templates: {
@@ -3176,13 +3167,6 @@ const Views = {};
    ===================================================================== */
 /** The signed-in person's booking page, or ''. */
 const myBookingLink = () => ((Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {}).booking_url || '';
-/** The foot of a letter: the sender's own signature (Settings, db/017), or their name and the firm. */
-const mySignature = () => { const me = (Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {};
-  return String(me.email_signature || '').trim() || ((Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name); };
-/* The logo beside a signature: the person's own link, or the firm's (the one in Gaard's own email signatures, on gaard.capital) once they have set a signature. */
-const FIRM_LOGO = 'https://gaard.capital/wp-content/uploads/image-2-1.png';
-const myLogo = () => { const me = (Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {};
-  return me.email_logo_url || (String(me.email_signature || '').trim() ? FIRM_LOGO : ''); };
 const Merge = {
   /** Fill one template for one contact. */
   fill(text, c){
@@ -3204,8 +3188,8 @@ const Merge = {
       booking_link: myBookingLink(),
     };
     // {{first_name}}, and Jon's own style {{First Name}} or {{Booking link}}, all work
-    // a signature set in Settings takes the place of the name-and-firm lines at the foot
-    let s = String(text || '').replace(/\{\{\s*sender[ _]name\s*\}\}[ \t]*\n[ \t]*\{\{\s*firm[ _]name\s*\}\}/i, () => mySignature()).replace(/\{\{\s*signature\s*\}\}/i, () => mySignature());
+    // the foot of a letter is the signature the person set up in Gmail, added when it is sent (Gmail.signed)
+    let s = String(text || '').replace(/\{\{\s*sender[ _]name\s*\}\}[ \t]*\n[ \t]*\{\{\s*firm[ _]name\s*\}\}/i, '').replace(/\{\{\s*signature\s*\}\}/i, '').replace(/\s+$/, '');
     if (!ctx.booking_link) s = s.split('\n').filter(l => !/\{\{\s*booking[ _]link\s*\}\}/i.test(l)).join('\n').replace(/\n{3,}/g, '\n\n');
     return s.replace(/\{\{\s*([\w ]+?)\s*\}\}/g, (m, k) => { const v = ctx[k.toLowerCase().replace(/\s+/g, '_')]; return v != null && v !== '' ? v : m; });
   },
@@ -3283,7 +3267,7 @@ const Merge = {
    back to them as usual. */
 const GMAIL_CLIENT_ID = '392793545104-b84mg82kd5669r6hfj4qc7tdnfksfmmp.apps.googleusercontent.com';   // the OAuth client "Gaard CRM Web" in Google Cloud (public; never the client secret)
 const Gmail = {
-  token: null, expires: 0, email: '', canRead: false,
+  token: null, expires: 0, email: '', canRead: false, me: null, meToken: null,
   /** Why sending is not possible here, or '' when it is. */
   blocker(){
     if (!GMAIL_CLIENT_ID) return 'Sending from Gmail is not set up yet: the Google client ID still has to be added to the app.';
@@ -3312,15 +3296,31 @@ const Gmail = {
     return this.token;
   },
   /** One message in the format Gmail takes: headers, a plain and an HTML part, base64url. */
-  /** The HTML part of a letter: its lines, and the signature beside the logo as in Gaard's own emails. The inbox preview uses it too. */
+  /** Ready to send: the permission, and the name and signature the person set up in Gmail (settings.sendAs,
+      which needs the read permission). An account that refuses reading (Advanced Protection) can still send,
+      with their name and the firm at the foot instead. */
+  async prepare(){
+    try { await this.authorize(true); }
+    catch (err){ if (/closed before/i.test(err.message)) throw err; await this.authorize(); this.me = { signature: '', name: '', email: this.email }; return this.me; }
+    if (this.me && this.meToken === this.token) return this.me;
+    const r = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs', { headers: { Authorization: 'Bearer ' + this.token } }).then(x => x.ok ? x.json() : {}).catch(() => ({}));
+    const list = r.sendAs || [], d = list.find(x => x.isDefault) || list.find(x => x.isPrimary) || {};
+    this.me = { signature: d.signature || '', name: d.displayName || '', email: d.sendAsEmail || this.email }; this.meToken = this.token;
+    return this.me;
+  },
+  /** The foot as plain text: the Gmail signature without its markup, or the name and the firm when none is set up. */
+  footText(){
+    const sig = (this.me && this.me.signature) || '';
+    if (!sig) return (Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name;
+    const doc = new DOMParser().parseFromString(sig.replace(/<br\s*\/?>/gi, '\n').replace(/<\/(div|p|tr)>/gi, '\n'), 'text/html');
+    return String(doc.body.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+  },
+  /** The plain part of a letter, signed. */
+  signed(text){ return String(text || '').replace(/\s+$/, '') + '\n\n' + this.footText(); },
+  /** The HTML part: what Gmail itself writes, the lines and the person's own signature, with no styling of ours. The Preview uses it too. */
   html(text){
-    text = String(text || '');
-    const sig = mySignature(), logo = myLogo(), at = logo ? text.lastIndexOf(sig) : -1;
-    const lines = s => esc(s).replace(/\n/g, '<br>');
-    const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + (at < 0 ? lines(text)
-      : lines(text.slice(0, at)) + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:4px"><tr><td style="padding-right:14px;border-right:2px solid #ccc;text-align:right;font-size:13px;line-height:1.45">'
-        + lines(sig).replace(/^([^<]*)/, '<b>$1</b>') + '</td><td style="padding-left:14px;vertical-align:middle"><img src="' + esc(logo) + '" alt="' + esc(Repo.settings().firm_name) + '" height="64" style="display:block;height:64px"></td></tr></table>' + lines(text.slice(at + sig.length))) + '</div>';
-    return html;
+    const lines = s => esc(s).replace(/\n/g, '<br>'), sig = (this.me && this.me.signature) || '';
+    return '<div dir="ltr">' + lines(String(text || '').replace(/\s+$/, '')) + '<br><br>' + (sig ? '<div class="gmail_signature">' + sig + '</div>' : lines(this.footText())) + '</div>';
   },
   /** Files chosen in a form, read for sending (base64), at most 20 MB together. */
   async files(list){
@@ -3332,13 +3332,14 @@ const Gmail = {
   raw({ to, subject, text, bcc, replyTo, inReplyTo, references, files }){
     const b64 = s => btoa(unescape(encodeURIComponent(s)));
     const head = s => /^[\x20-\x7e]*$/.test(s) ? s : '=?UTF-8?B?' + b64(s) + '?=';
-    const html = this.html(text);
+    const html = this.html(text), plain = this.signed(text), me = this.me || {};
     const wrap = s => b64(s).replace(/.{76}/g, m => m + '\r\n');
     const b = 'gaard-' + Math.random().toString(36).slice(2), mx = files && files.length ? 'gaard-m-' + Math.random().toString(36).slice(2) : null;
-    const headers = ['To: ' + to, bcc && 'Bcc: ' + bcc, replyTo && 'Reply-To: ' + replyTo, 'Subject: ' + head(subject),
+    // the sender's name as in Gmail: a bare address reads as a machine
+    const headers = [me.name && 'From: ' + (/^[\x20-\x7e]*$/.test(me.name) ? '"' + me.name.replace(/"/g, '') + '"' : head(me.name)) + ' <' + (me.email || this.email) + '>', 'To: ' + to, bcc && 'Bcc: ' + bcc, replyTo && 'Reply-To: ' + replyTo, 'Subject: ' + head(subject),
       inReplyTo && 'In-Reply-To: ' + inReplyTo, references && 'References: ' + references,
       'MIME-Version: 1.0', 'Content-Type: ' + (mx ? 'multipart/mixed; boundary="' + mx + '"' : 'multipart/alternative; boundary="' + b + '"')].filter(Boolean);
-    const alt = ['--' + b, 'Content-Type: text/plain; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap(text),
+    const alt = ['--' + b, 'Content-Type: text/plain; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap(plain),
       '--' + b, 'Content-Type: text/html; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap(html), '--' + b + '--'];
     const body = !mx ? ['', ...alt] : ['', '--' + mx, 'Content-Type: multipart/alternative; boundary="' + b + '"', '', ...alt,
       ...files.flatMap(f => ['--' + mx, 'Content-Type: ' + f.type + '; name="' + head(f.name) + '"', 'Content-Disposition: attachment; filename="' + head(f.name) + '"',
@@ -3456,7 +3457,7 @@ const Inbox = {
       REFERRED_INTERNALLY: 'Thank you for pointing me in the right direction. I will reach out to them directly.',
       HAS_ADVISOR: 'Thank you, that makes sense. If it would ever help to compare notes, I would be glad to talk.',
     }[tp.outcome_code || tp.ai_suggested_outcome] || 'Thank you for your reply.';
-    return 'Hi ' + first + ',\n\n' + say + '\n\n' + mySignature();
+    return 'Hi ' + first + ',\n\n' + say;
   },
   /** Write one letter to one person (an RFP's contact, for instance), from the sender's Gmail. It is logged
       as an email on the person's Activity, with its follow-up a week on, and its replies are read like any other. */
@@ -3476,7 +3477,7 @@ const Inbox = {
     const row = { contact: c, subject: out.subject, body: out.body, rfp_id, outcome, follow_up_on: follow_up_on || Rules.addBusinessDays(new Date(), 5).toISOString().slice(0, 10) };
     if (Store.live){
       const why = Gmail.blocker(); if (why) return Toast.show(why, { kind:'warn' });
-      try { await Gmail.authorize(); row.gmail = await Gmail.send({ to: c.email, subject: out.subject, text: out.body, files: await Gmail.files(out.files) }); row.mailbox = Gmail.email.toLowerCase(); }
+      try { await Gmail.prepare(); row.gmail = await Gmail.send({ to: c.email, subject: out.subject, text: out.body, files: await Gmail.files(out.files) }); row.mailbox = Gmail.email.toLowerCase(); }
       catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
     }
     Merge.send([row], null);
@@ -3496,7 +3497,7 @@ const Inbox = {
       { key: 'files', label: 'Attach files', hint: 'optional', type: 'file', span: true } ] });
     if (!out || !out.body.trim()) return;
     try {
-      await Gmail.authorize(true);
+      await Gmail.prepare();
       const meta = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/' + encodeURIComponent(theirs.external_id) + '?format=metadata&metadataHeaders=Message-ID&metadataHeaders=References',
         { headers: { Authorization: 'Bearer ' + Gmail.token } }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
       const hv = n => (((meta.payload || {}).headers || []).find(x => x.name.toLowerCase() === n) || {}).value || '';
@@ -3513,6 +3514,8 @@ const Inbox = {
   },
 };
 
+setInterval(() => Live.pollShared(), 60000);
+window.addEventListener('focus', () => Live.pollShared());
 setInterval(() => { if (Store.live && Gmail.token && Gmail.canRead && Date.now() < Gmail.expires - 60000) Inbox.check({ quiet: true }); }, 10 * 60 * 1000);
 
 /* ===== Dashboard =====================================================
@@ -3856,7 +3859,7 @@ Views.mailmerge = { title:'Mass Email',
     const preview = chosen.find(r => r.contact.id === st.previewId) || chosen[0] || sendable[0] || null;
     if (preview) st.previewId = preview.contact.id;
 
-    const letterFor = c => (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book !== false), c) };
+    const letterFor = c => (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book === true), c) };
     const srcBtn = (k, l, n) => `<button class="btn btn-sm" type="button" data-source="${k}" aria-pressed="${st.source===k}">${l} <span class="muted">${n}</span></button>`;
     const dueAll = Merge.due().filter(x => inScope.has(x.contact.id));
 
@@ -3912,7 +3915,7 @@ Views.mailmerge = { title:'Mass Email',
 
       <section class="card"><div class="card-head"><h2>What ${preview ? esc(preview.contact.full_name) : 'they'} will read</h2>
         <span class="sub">${esc(tpl.name)}</span>
-        <label class="mm-book" title="${myBookingLink() ? 'Your booking page goes in above your name, in every letter of this batch' : 'Set your Google booking link in Settings first'}"><input type="checkbox" id="mm-book" ${st.book !== false && myBookingLink() ? 'checked' : ''} ${myBookingLink() ? '' : 'disabled'}> Add my booking link</label></div>
+        <label class="mm-book" title="${myBookingLink() ? 'Your booking page goes in above your name, in every letter of this batch' : 'Set your Google booking link in Settings first'}"><input type="checkbox" id="mm-book" ${st.book === true && myBookingLink() ? 'checked' : ''} ${myBookingLink() ? '' : 'disabled'}> Add my booking link</label></div>
         <div class="card-body">
         ${preview ? `<dl class="kv mm-head" style="grid-template-columns:70px 1fr;margin-bottom:12px">
             <dt>To</dt><dd>${esc(preview.contact.email || 'no address')}</dd>
@@ -3924,8 +3927,9 @@ Views.mailmerge = { title:'Mass Email',
           ${(() => { const why = Gmail.blocker(), busy = !!st.sending;
             return `<div class="page-actions">
             <button class="btn btn-primary btn-xl" type="button" id="mm-gsend" ${chosen.length && !why && !busy ? '' : 'disabled'}>${busy ? 'Sending ' + st.sending.done + ' of ' + st.sending.total + '…' : 'Send ' + chosen.length + ' from my Gmail'}</button>
+            ${busy ? '<button class="btn btn-xl" type="button" id="mm-stop">Stop after this one</button>' : ''}
             <button class="btn btn-xl" type="button" id="mm-gtest" ${why || busy ? 'disabled' : ''}>Send a test to myself</button></div>
-          <p class="muted small" style="margin-top:10px">${why ? esc(why) : `Each letter goes out from your own Gmail${Gmail.email ? ' (' + esc(Gmail.email) + ')' : ''}, one at a time, and shows up in your Sent folder; replies come back to you. Every person sent to is marked <b>No response</b> and their next follow-up is set. The CRM asks Google for permission to send only: it cannot read your inbox.`}</p>
+          <p class="muted small" style="margin-top:10px">${why ? esc(why) : `Each letter goes out from your own Gmail${Gmail.email ? ' (' + esc(Gmail.email) + ')' : ''}, one about every half minute (keep this page open), with the signature you set up in Gmail, and shows up in your Sent folder; replies come back to you. Every person sent to is marked <b>No response</b> and their next follow-up is set.`}</p>
           <details class="mm-manual"><summary>Or send from your own email by hand</summary>
             <div class="page-actions" style="margin-top:10px"><button class="btn" type="button" id="mm-copy-all" ${chosen.length?'':'disabled'}>Copy all ${chosen.length} into my email</button>
               <button class="btn" type="button" id="mm-send" ${chosen.length?'':'disabled'}>Mark ${chosen.length} as sent</button>
@@ -3944,8 +3948,11 @@ Views.mailmerge = { title:'Mass Email',
       st.edits = st.edits || {}; st.edits[c.id] = { subject: root.querySelector('#mm-subj').value, body: root.querySelector('#mm-body').value }; };
     root.querySelector('#mm-subj')?.addEventListener('input', keep);
     root.querySelector('#mm-body')?.addEventListener('input', keep);
-    root.querySelector('#mm-preview')?.addEventListener('click', () => {
-      const m = Modal.open({ title: 'As it arrives in their inbox', wide: true, body: `<p class="muted small" style="margin-bottom:8px">To ${esc(root.querySelector('.mm-head dd')?.textContent || '')} · ${esc(root.querySelector('#mm-subj')?.value || '')}</p><div class="mm-html">${Gmail.html(root.querySelector('#mm-body').value)}</div>`,
+    root.querySelector('#mm-preview')?.addEventListener('click', async () => {
+      const body = root.querySelector('#mm-body').value, to = root.querySelector('.mm-head dd')?.textContent || '', subj = root.querySelector('#mm-subj')?.value || '';
+      if (Store.live && !Gmail.blocker()){ try { await Gmail.prepare(); } catch (err){ return Toast.show(err.message, { kind:'warn', ms: 8000 }); } }
+      const noSig = Store.live && Gmail.me && !Gmail.me.signature;
+      const m = Modal.open({ title: 'As it arrives in their inbox', wide: true, body: `<p class="muted small" style="margin-bottom:8px">To ${esc(to)} · ${esc(subj)}</p><div class="mm-html">${Gmail.html(body)}</div>${noSig ? '<p class="muted small" style="margin-top:8px">No signature is set up in this Gmail account, or Google did not allow reading it: your name and the firm go at the foot. Gmail > Settings > See all settings > Signature.</p>' : !Store.live ? '<p class="muted small" style="margin-top:8px">Live, your Gmail signature goes here.</p>' : ''}`,
         foot: '<button class="btn btn-primary" type="button" data-ok>Close</button>' });
       m.querySelector('[data-ok]').onclick = () => Modal.close(); });
     root.querySelector('#mm-book')?.addEventListener('change', e => { st.book = e.target.checked; st.edits = {}; render(); });
@@ -3965,7 +3972,7 @@ Views.mailmerge = { title:'Mass Email',
     const build = () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];   // the letter on screen
       const picked = [...root.querySelectorAll('[data-pick]')].filter(cb => cb.checked).map(cb => Repo.contacts.byId(Number(cb.dataset.pick))).filter(Boolean);
-      return picked.map(c => (st.edits || {})[c.id] ? { contact: c, ...st.edits[c.id] } : { contact: c, subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book !== false), c) });
+      return picked.map(c => (st.edits || {})[c.id] ? { contact: c, ...st.edits[c.id] } : { contact: c, subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book === true), c) });
     };
     const copy = async (text, label) => {
       try { await navigator.clipboard.writeText(text); Toast.show(label, { kind:'ok' }); }
@@ -3973,7 +3980,7 @@ Views.mailmerge = { title:'Mass Email',
     };
     root.querySelector('#mm-copy-one')?.addEventListener('click', () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0]; const c = Repo.contacts.byId(st.previewId); if (!c) return;
-      const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book !== false), c) };
+      const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book === true), c) };
       copy(`To: ${c.email}\nSubject: ${L.subject}\n\n${L.body}`, 'Message copied');
     });
     root.querySelector('#mm-copy-all')?.addEventListener('click', () => {
@@ -3984,20 +3991,24 @@ Views.mailmerge = { title:'Mass Email',
        person marked Sent or Not sent as it goes; the ones that went are logged as No response. */
     root.querySelector('#mm-gtest')?.addEventListener('click', async () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0], c = Repo.contacts.byId(st.previewId); if (!tpl || !c) return;
-      try { await Gmail.authorize();
-        const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book !== false), c) };
+      try { await Gmail.prepare();
+        const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book === true), c) };
         await Gmail.send({ to: Gmail.email, subject: '[Test] ' + L.subject, text: L.body });
         Toast.show('Test sent to ' + Gmail.email + ', filled in as for ' + c.full_name, { kind:'ok' }); render();
       } catch (err){ Toast.show('Test not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
     });
+    root.querySelector('#mm-stop')?.addEventListener('click', () => { st.stop = true; Toast.show('Stopping after the letter being sent', { kind:'ok' }); });
     root.querySelector('#mm-gsend')?.addEventListener('click', async () => {
       const rows = build(); if (!rows.length) return;
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];
       if (!Store.live) return Toast.show('This is the demo data: the addresses are made up. Use "Send a test to myself" to try it.', { kind:'warn', ms: 8000 });
-      try { await Gmail.authorize(); } catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
+      try { await Gmail.prepare(); } catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
       const other = Live.email && Gmail.email && Live.email.toLowerCase() !== Gmail.email.toLowerCase();
+      const today = new Date().toISOString().slice(0, 10), mine = Gmail.email.toLowerCase();
+      const sentToday = (Store.state.email_messages || []).filter(m => m.direction === 'outbound' && String(m.mailbox || '').toLowerCase() === mine && String(m.sent_at).slice(0, 10) === today).length;
+      const mins = Math.max(1, Math.round((rows.length - 1) * 32 / 60));
       const ok = await Modal.confirm({ title: `Send ${rows.length} email${rows.length === 1 ? '' : 's'} now?`,
-        message: `They go out from ${Gmail.email}, one at a time${other ? ' (not the account you signed in to the CRM with, ' + Live.email + ')' : ''}. Each person is marked No response and their next follow-up is set.`,
+        message: `They go out from ${Gmail.email}, one about every half minute, so this takes about ${mins} minute${mins === 1 ? '' : 's'}: keep this page open.${other ? ' This is not the account you signed in to the CRM with (' + Live.email + ').' : ''}${!Gmail.me.signature ? ' You have no signature set up in Gmail, so your name and the firm go at the foot.' : ''}${sentToday + rows.length > 50 ? ' That makes ' + (sentToday + rows.length) + ' emails from this address today. More than about 50 cold emails a day raises the risk of landing in spam; consider sending the rest tomorrow.' : ''} Each person is marked No response and their next follow-up is set.`,
         okLabel: `Send ${rows.length}` });
       if (!ok) return;
       st.sendLog = st.sendLog || {}; st.sending = { done: 0, total: rows.length, queue: rows.map(r => r.contact.id), current: null }; render();
@@ -4007,9 +4018,12 @@ Views.mailmerge = { title:'Mass Email',
         try { r.gmail = await Gmail.send({ to: r.contact.email, subject: r.subject, text: r.body }); r.mailbox = Gmail.email.toLowerCase(); st.sendLog[r.contact.id] = 'sent'; sent.push(r); }
         catch (err){ st.sendLog[r.contact.id] = err.message; }
         st.sending.done++; st.sending.queue = st.sending.queue.filter(id => id !== r.contact.id); st.sending.current = null; render();
-        await new Promise(res => setTimeout(res, 1200));   // a steady pace, as a person sending would
+        if (st.stop || !st.sending.queue.length) break;
+        // a person's pace: a burst of near-identical letters is what spam filters look for
+        await new Promise(res => setTimeout(res, 20000 + Math.random() * 25000));
+        if (st.stop) break;
       }
-      st.sending = null;
+      st.sending = null; st.stop = false;
       if (sent.length){ Merge.send(sent, tpl.name); sent.forEach(r => { st.selected.delete(r.contact.id); if (UI.contacts.sel) UI.contacts.sel.delete(r.contact.id); }); }
       const failed = rows.length - sent.length;
       Toast.show(`Sent ${sent.length}${failed ? ', ' + failed + ' not sent (see the names marked Not sent)' : ''}`, { kind: failed ? 'warn' : 'ok', ms: 8000 });
@@ -5048,7 +5062,7 @@ const RfpIn = {
     const status = yes(won) ? 'won' : /^n/i.test(won || '') ? 'lost' : answered ? 'submitted' : /^n/i.test(approved || '') ? 'declined' : due && due > today ? 'intent_to_bid' : 'submitted';
     return { organization: issuer, title, reference_number: ref || null, due_on: due, submitted_on: status !== 'intent_to_bid' && status !== 'declined' && due && due <= today ? due : null,
       approved_for_submission: approved ? yes(approved) : null, reviewed_by: reviewedBy || null, reviewed_on: this.day(reviewedOn), est_mandate_aum: this.money(aum),
-      terms: cond || null, notes: notes || null, decision_on: this.day(respOn), decision_notes: [answered ? resp : '', corr].filter(Boolean).join('\n') || null, status, mandate_type: null };
+      terms: cond || null, notes: notes || null, decision_on: this.day(respOn), response: resp || 'N', correspondence: corr || null, status, mandate_type: null };
   },
   /** Jon's RFP screen: the headline, then the seven numbered fields. */
   screen(text){
@@ -5089,13 +5103,13 @@ const RfpIn = {
         est_mandate_aum: out.est_mandate_aum === '' ? null : Number(out.est_mandate_aum), due_on: out.due_on || null, mandate_type: out.mandate_type.trim() || null,
         terms: out.terms.trim() || null, notes: out.notes.trim() || null };
       if (row) Object.assign(fields, { submitted_on: r.submitted_on, approved_for_submission: r.approved_for_submission, reviewed_by: r.reviewed_by, reviewed_on: r.reviewed_on,
-        decision_on: r.decision_on, decision_notes: r.decision_notes });
+        decision_on: r.decision_on, response: r.response, correspondence: r.correspondence });
       const same = st.rfps.find(x => (fields.reference_number && x.reference_number === fields.reference_number) || (x.organization_id === org.id && String(x.title).toLowerCase() === fields.title.toLowerCase()));
       if (same) Object.assign(same, fields, { updated_at: now });
       else st.rfps.push({ id: Math.max(0, ...st.rfps.map(x => x.id)) + 1, ...fields, owner_id: st.settings.default_owner_id, created_at: now });
       if (!same && fields.due_on && ['identified', 'intent_to_bid'].includes(fields.status) && fields.due_on > now.slice(0, 10)){
         const id = st.rfps[st.rfps.length - 1].id;
-        st.reminders.push({ id: Math.max(0, ...st.reminders.map(x => x.id)) + 1, reminder_type: 'rfp_deadline', rfp_id: id, organization_id: org.id, contact_id: null,
+        st.reminders.push({ id: Math.max(0, ...st.reminders.map(x => x.id)) + 1, reminder_type: 'rfp_deadline', rfp_id: id, organization_id: org.id, contact_id: (st.contacts.find(c => c.organization_id === org.id) || {}).id ?? null,
           due_on: Rules.addBusinessDays(new Date(fields.due_on + 'T12:00:00'), -5).toISOString().slice(0, 10), title: 'RFP due ' + fmtDate(fields.due_on) + ': ' + fields.title,
           details: 'RFP due ' + fmtDate(fields.due_on) + ' (' + out.organization.trim() + ').', status: 'open', created_by: 'rule', assigned_to: st.settings.default_owner_id, created_at: now }); }
     });
@@ -5750,7 +5764,7 @@ const EventSync = {
         if (!c.on || !c.start_on) continue;
         st.events.push({ id: Math.max(0, ...st.events.map(x => x.id)) + 1, name: c.name, event_type: c.event_type, format: c.format, hosted_by_us: false,
           start_on: c.start_on, end_on: c.end_on && c.end_on !== c.start_on ? c.end_on : null, city: c.city, state: c.state, cost_usd: c.cost_usd ?? 0,
-          owner_id: st.settings.default_owner_id, created_at: now, ...counts,
+          owner_id: st.settings.default_owner_id, created_at: now, attendance: c.start_on > now.slice(0, 10) ? 'going' : 'attended', ...counts,
           notes: [c.notes, c.source === 'Event Finder' ? 'From the Gaard Event Finder (Google Calendar)' : c.source === 'Calendar' ? 'From Google Calendar' : 'From the event tracker', c.gcal_id ? 'gcal:' + c.gcal_id : ''].filter(Boolean).join('\n') });
       }
     });
@@ -5766,7 +5780,9 @@ Views.events = { title:'Events',
   render(params){
     const st = UI.events || (UI.events = { q:'', format:'All' });
     const f = UI.filters, fmt = st.format;
-    const all = Metrics.events(f).filter(r => fmt === 'All' || r.event.format === fmt);
+    const today = new Date().toISOString().slice(0, 10), everyEv = Metrics.events(f).filter(r => fmt === 'All' || r.event.format === fmt);
+    const all = everyEv.filter(r => r.event.attendance !== 'not_going');
+    const isNow = r => (r.event.start_on || '') <= today && (r.event.end_on || r.event.start_on || '') >= today;
     const past = all.filter(r => !r.upcoming);
     const tot = { n: past.length, cost: sum(past, r => r.event.cost_usd), met: sum(past, r => r.people_met), calls: sum(past, r => r.calls),
       funded: sum(past, r => r.funded), aum: sum(past, r => r.funded_aum) };
@@ -5781,9 +5797,13 @@ Views.events = { title:'Events',
     const q = st.q.trim().toLowerCase();
     const personHits = q ? [...eventsOf.keys()].map(id => Repo.contacts.byId(id)).filter(c => c && [c.full_name, c.email, orgNameOf(c)].some(v => String(v || '').toLowerCase().includes(q))) : [];
     const hitEvents = new Set(personHits.flatMap(c => eventsOf.get(c.id)));
-    const rows = q ? all.filter(r => r.event.name.toLowerCase().includes(q) || hitEvents.has(r.event.id)) : all;
+    const when = st.when || 'all', WHEN = [['all', 'All', all], ['past', 'Past', all.filter(r => !r.upcoming && !isNow(r))], ['now', 'Today', all.filter(isNow)],
+      ['next', 'Coming up', all.filter(r => r.upcoming)], ['off', 'Not going', everyEv.filter(r => r.event.attendance === 'not_going')]];
+    const shown = (WHEN.find(w => w[0] === when) || WHEN[0])[2];
+    const rows = q ? shown.filter(r => r.event.name.toLowerCase().includes(q) || hitEvents.has(r.event.id)) : shown;
+    const statusOf = r => { const a = r.event.attendance; return a === 'not_going' ? ['Not going', 'st-lost'] : a === 'maybe' ? ['Maybe', 'st-upcoming'] : isNow(r) ? ['Today', 'st-today'] : r.upcoming ? ['Going', 'st-upcoming'] : ['Attended', 'st-funded']; };
     const selId = Number(params && params.ev) || (rows.find(r => !r.upcoming) || rows[0] || {}).event?.id;
-    const sel = all.find(r => r.event.id === selId) || null;
+    const sel = everyEv.find(r => r.event.id === selId) || null;
 
     const tile = (label, value, sub, tone) => `<div class="ev-tile ${tone || ''}"><span class="lbl">${esc(label)}</span><span class="val">${value}</span><span class="sub">${sub || '&nbsp;'}</span></div>`;
     const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
@@ -5806,7 +5826,8 @@ Views.events = { title:'Events',
            return `<a class="tag" href="${href('events', { ev: id })}" data-ev="${id}">${esc(e.name)}${e.start_on ? ' · ' + esc(fmtDate(e.start_on, { month:'short', year:'numeric' })) : ''}</a>`; }).join('')}</span>`)).join('')}</ul>`
       : sel ? (() => { const ids = peopleAt(sel.event.id), list = ids.map(id => Repo.contacts.byId(id)).filter(Boolean).sort((a, b) => a.full_name.localeCompare(b.full_name));
           const atEvent = id => Store.state.touchpoints.filter(t => t.event_id === sel.event.id && t.contact_id === id).sort((a, b) => String(b.touched_at).localeCompare(String(a.touched_at)))[0];
-          return `<div class="card-head"><h2>Met at ${esc(sel.event.name)}</h2><span class="sub">${fmtInt(list.length)} ${list.length === 1 ? 'person' : 'people'}</span></div>
+          return `<div class="card-head"><h2>Met at ${esc(sel.event.name)}</h2><span class="sub">${fmtInt(list.length)} ${list.length === 1 ? 'person' : 'people'}</span>
+              <span class="ev-act"><select id="ev-att" data-id="${sel.event.id}" aria-label="Attendance">${[['going', 'Going'], ['maybe', 'Maybe'], ['attended', 'Attended'], ['not_going', 'Not going']].map(([v, l]) => `<option value="${v}" ${(sel.event.attendance || (sel.upcoming ? 'going' : 'attended')) === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="btn btn-sm" type="button" id="ev-del" data-id="${sel.event.id}" data-people="${list.length}">Delete</button></span></div>
             ${list.length ? `<ul class="ev-people" id="ev-people">${list.map(c => { const t = atEvent(c.id);
               return personLine(c, `<span class="ev-out">${t && t.outcome_code ? outcomePill(t.outcome_code) : c.source_event_id === sel.event.id ? '<span class="tag">Added from this event</span>' : ''}</span>`); }).join('')}</ul>`
               : `<div class="card-body">${emptyState(sel.upcoming ? 'Not held yet' : 'Nobody logged at this event', sel.upcoming ? 'People met here will show once they are logged.' : 'Log a Met at event activity on a contact, or import the list with "People met at an event".')}</div>`}`; })()
@@ -5852,11 +5873,12 @@ Views.events = { title:'Events',
     </div>
 
     <div class="ev-bottom">
-      <section class="card ev-box"><div class="card-head"><h2>${q ? 'Events matching "' + esc(st.q.trim()) + '"' : 'Every event'}</h2><span class="sub">${fmtInt(rows.length)}</span></div>
+      <section class="card ev-box"><div class="card-head"><h2>${q ? 'Events matching "' + esc(st.q.trim()) + '"' : 'Every event'}</h2><span class="sub">${fmtInt(rows.length)}</span>
+          <span class="btn-group ev-when">${WHEN.map(([k, l, list]) => `<button class="btn btn-sm" type="button" data-when="${k}" aria-pressed="${when === k}">${l} ${fmtInt(list.length)}</button>`).join('')}</span></div>
         <div class="ev-scroll" id="ev-list"><table class="grid ev-list"><thead><tr><th>Event</th><th>Date</th><th class="num">Met</th><th class="num">Calls</th><th class="num">Funded</th><th class="num">Cost</th><th class="num">Per call</th></tr></thead><tbody>
         ${rows.map(r => `<tr class="row-link ${sel && sel.event.id === r.event.id ? 'is-sel' : ''}" data-ev="${r.event.id}">
           <td><b>${esc(r.event.name)}</b><span class="sub">${esc([r.event.format === 'in_person' ? 'In person' : 'Virtual', r.event.event_type, [r.event.city, r.event.state].filter(Boolean).join(', ')].filter(Boolean).join(' · '))}${r.event.hosted_by_us ? ' · hosted by us' : ''}</span></td>
-          <td>${fmtDate(r.event.start_on)}${r.upcoming ? ' <span class="pill st-upcoming">Coming up</span>' : ''}</td>
+          <td>${fmtDate(r.event.start_on)} <span class="pill ${statusOf(r)[1]}">${statusOf(r)[0]}</span></td>
           <td class="num">${r.upcoming ? '' : fmtInt(r.people_met)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.calls)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.funded)}</td>
           <td class="num">${fmtUSD(r.event.cost_usd) || '-'}</td><td class="num">${r.cost_per_call != null ? fmtUSD(r.cost_per_call) : '-'}</td></tr>`).join('') || `<tr><td colspan="7">${emptyState(q ? 'No event matches' : 'No events in this filter')}</td></tr>`}
         </tbody></table></div></section>
@@ -5868,6 +5890,13 @@ Views.events = { title:'Events',
     const st = UI.events;
     bindRowNav(root); bindGo(root); bindTips(root); bindFilters(root, render);
     root.querySelector('#ev-sync')?.addEventListener('click', () => EventSync.open());
+    root.querySelectorAll('[data-when]').forEach(b => b.addEventListener('click', () => { st.when = b.dataset.when; render(); }));
+    root.querySelector('#ev-att')?.addEventListener('change', e => Repo.events.update(Number(e.target.dataset.id), { attendance: e.target.value }));
+    root.querySelector('#ev-del')?.addEventListener('click', async e => { const id = Number(e.target.dataset.id), ev = Repo.events.byId(id); if (!ev) return;
+      if (Number(e.target.dataset.people) > 0 || Store.state.touchpoints.some(t => t.event_id === id) || Store.state.opportunities.some(o => o.source_event_id === id))
+        return Toast.show('People were met at this event, so it stays with their history. Set it to Not going instead.', { kind:'warn', ms: 8000 });
+      if (!await Modal.confirm({ title: 'Delete ' + ev.name, message: 'This removes the event from the CRM for everyone. If the Event Finder still has it marked Going, it can come back: unmark it there too.', okLabel: 'Delete' })) return;
+      Repo.events.remove(id); go('events'); });
     root.querySelector('#ev-fmt-btn')?.addEventListener('click', e => { e.stopPropagation(); UI.openPick = UI.openPick === 'evfmt' ? null : 'evfmt'; UI.openState = false; render(); });
     root.querySelectorAll('[data-evfmt]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); st.format = b.dataset.evfmt; UI.openPick = null; render(); }));
     root.querySelector('#ev-q')?.addEventListener('input', debounce(e => { st.q = e.target.value; render(); }, 220));
@@ -5900,43 +5929,66 @@ Views.rfps = { title:'RFPs',
       <div class="kpi good"><div class="kpi-head"><span class="lbl"><span class="kpi-icon">${ICONS.check}</span>Won</span><span class="row"><span class="val">${fmtInt(won.length)}</span></span></div><div class="kpi-body">${decided ? fmtPct(won.length/decided) + ' of the ones decided' : 'None decided yet'}</div></div>
       <div class="kpi"><div class="kpi-head"><span class="lbl"><span class="kpi-icon">${ICONS.calendar}</span>Due next</span><span class="row"><span class="val">${open.length ? fmtDate(open.slice().sort((x,y) => String(x.rfp.due_on).localeCompare(String(y.rfp.due_on)))[0].rfp.due_on, {month:'short', day:'numeric'}) : '-'}</span></span></div><div class="kpi-body">${fmtInt(n('submitted'))} submitted, ${fmtInt(n('finalist'))} at finalist</div></div>
     </div>
-    <section class="card"><div class="card-head"><h2>Every RFP</h2><span class="sub">${rfps.length} on file</span></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Organization</th><th>Mandate</th><th class="num">Est. AUM</th><th>Released</th><th>Due</th><th>Status</th><th>Outcome so far</th><th></th></tr></thead><tbody>
-      ${rfps.length ? rfps.map(r => { const tps = r.rfp.id != null ? Repo.touchpoints.all().filter(t => t.rfp_id === r.rfp.id) : [];
-        const last = tps.sort((x,y) => String(y.touched_at).localeCompare(String(x.touched_at)))[0];
+    <section class="card"><div class="card-head"><h2>RFP log</h2><span class="sub">${rfps.length} on file, the same columns as the RFP Log sheet</span>
+      <button class="btn btn-sm" type="button" id="rfp-copy" style="margin-left:auto">Copy for the spreadsheet</button></div>
+      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid rfp-log"><thead><tr>${RFP_LOG_HEAD.map(t => `<th>${esc(t)}</th>`).join('')}<th>Status</th><th>Who won / how we scored</th><th></th></tr></thead><tbody>
+      ${rfps.length ? rfps.map(r => { const log = rfpLogRow(r.rfp);
         return `<tr class="row-link" data-href="${r.organization ? href('organizations/'+r.organization.id) : '#'}">
-        <td><span class="name">${esc(r.organization ? r.organization.name : 'Unknown')}</span><span class="sub">${esc(r.rfp.title)}</span></td>
-        <td>${esc(r.rfp.mandate_type||'')}</td><td class="num">${fmtUSD(r.rfp.est_mandate_aum)||'-'}</td>
-        <td>${fmtDate(r.rfp.released_on)}</td><td>${fmtDate(r.rfp.due_on)} <span class="muted">${relDays(r.rfp.due_on)}</span></td>
+        ${log.map((v, i) => `<td class="${i === 6 ? 'num' : ''}">${i === 0 ? '<span class="name">' + esc(v) + '</span>' : esc(i === 6 && v ? fmtUSD(v) : v)}</td>`).join('')}
         <td><span class="pill ${r.rfp.status === 'won' ? 'st-funded' : r.rfp.status === 'lost' ? 'st-lost' : 'st-upcoming'}">${esc(r.rfp.status)}</span></td>
-        <td>${r.rfp.decision_result ? `<span>${esc(r.rfp.decision_result)}</span>${r.rfp.decision_notes ? `<span class="sub">${esc(String(r.rfp.decision_notes).slice(0, 90))}</span>` : ''}` : last ? outcomePill(last.outcome_code) + ` <span class="muted">${fmtDate(last.touched_at)}</span>` : '<span class="muted">No touchpoint logged</span>'}</td>
+        <td>${esc(r.rfp.winner || '')}${r.rfp.decision_notes ? `<span class="sub">${esc(String(r.rfp.decision_notes).slice(0, 90))}</span>` : ''}</td>
         <td style="white-space:nowrap">${['won','lost'].includes(r.rfp.status) ? `<button class="btn btn-sm" type="button" data-rfp-mail="${r.rfp.id}">Email</button> ` : ''}<button class="btn btn-sm" type="button" data-rfp="${r.rfp.id}">Update</button></td></tr>`; }).join('')
-        : `<tr><td colspan="8">${emptyState('No RFPs on file')}</td></tr>`}
+        : `<tr><td colspan="16">${emptyState('No RFPs on file')}</td></tr>`}
       </tbody></table></div></section>`;
   },
   mount(root){ bindRowNav(root); bindGo(root); bindFilters(root, render);
     root.querySelectorAll('[data-rfp]').forEach(b => b.addEventListener('click', async e => { e.stopPropagation();
       const r = Repo.rfps.all().find(x => x.id === Number(b.dataset.rfp)); if (!r) return;
       const S = [['identified','Identified'], ['intent_to_bid','Intend to bid'], ['submitted','Submitted'], ['finalist','Finalist'], ['won','Won'], ['lost','Lost'], ['declined','Declined to bid'], ['cancelled','Cancelled']];
+      const log = rfpLogRow(r);
       const out = await Modal.form({ title: 'Update ' + r.title, wide: true, okLabel: 'Save', fields: [
         { key:'status', label:'Status', type:'select', value: r.status, options: S.map(([value, label]) => ({ value, label })) },
-        { key:'decision_on', label:'Decided on', type:'date', value: r.decision_on || '' },
-        { key:'decision_result', label:'Who won', hint:'when we did not', value: r.decision_result || '', span: true, placeholder:'e.g. Lost to Mercer' },
-        { key:'decision_notes', label:'How we scored, and their feedback', type:'textarea', rows: 4, value: r.decision_notes || '', span: true } ] });
+        { key:'reference_number', label:'RFP Reference Number', value: r.reference_number || '' },
+        { key:'final', label:'Final Submission Date', type:'date', value: log[2] },
+        { key:'approved', label:'Approved for Submission', type:'select', value: log[3], options: [{ value:'', label:'Not yet' }, { value:'Y', label:'Y' }, { value:'N', label:'N' }] },
+        { key:'reviewed_by', label:'Reviewed By', value: r.reviewed_by || '' },
+        { key:'reviewed_on', label:'Date Reviewed', type:'date', value: r.reviewed_on || '' },
+        { key:'aum', label:'Size of AUM ($)', type:'number', value: r.est_mandate_aum ?? '' },
+        { key:'response', label:'Response', value: log[9] },
+        { key:'decision_on', label:'Date Responded', type:'date', value: r.decision_on || '' },
+        { key:'terms', label:'Conditions or Limitations', type:'textarea', rows: 2, value: r.terms || '', span: true },
+        { key:'notes', label:'Notes', type:'textarea', rows: 3, value: r.notes || '', span: true },
+        { key:'correspondence', label:'Correspondence', type:'textarea', rows: 3, value: r.correspondence || '', span: true },
+        { key:'winner', label:'Who won', hint:'when we did not', value: r.winner || '', span: true },
+        { key:'decision_notes', label:'How we scored, and their feedback', type:'textarea', rows: 3, value: r.decision_notes || '', span: true } ] });
       if (!out) return;
-      Repo.rfps.decide(r.id, { status: out.status, decision_on: out.decision_on || (['won','lost'].includes(out.status) && !r.decision_on ? new Date().toISOString().slice(0, 10) : r.decision_on || null),
-        decision_result: out.decision_result.trim() || null, decision_notes: out.decision_notes.trim() || null });
+      const sub = ['submitted', 'finalist', 'won', 'lost'].includes(out.status);
+      Repo.rfps.decide(r.id, { status: out.status, reference_number: out.reference_number.trim() || null, due_on: out.final && !sub ? out.final : r.due_on || out.final || null, submitted_on: sub ? out.final || r.submitted_on || null : r.submitted_on || null,
+        approved_for_submission: out.approved ? out.approved === 'Y' : null, reviewed_by: out.reviewed_by.trim() || null, reviewed_on: out.reviewed_on || null,
+        est_mandate_aum: out.aum === '' ? null : Number(out.aum), response: out.response.trim() || null, terms: out.terms.trim() || null, notes: out.notes.trim() || null, correspondence: out.correspondence.trim() || null,
+        decision_on: out.decision_on || (['won','lost'].includes(out.status) && !r.decision_on ? new Date().toISOString().slice(0, 10) : r.decision_on || null),
+        winner: out.winner.trim() || null, decision_notes: out.decision_notes.trim() || null });
       if (out.status !== r.status && ['won','lost'].includes(out.status)) Toast.show(out.status === 'won' ? 'Won. A check-in is on Follow-ups for two months from now.' : 'Lost. Email on this row writes to ask who won and how we scored.', { kind:'ok', ms: 7000 });
     }));
     root.querySelector('#rfp-add')?.addEventListener('click', () => RfpIn.open());
+    root.querySelector('#rfp-copy')?.addEventListener('click', () => { navigator.clipboard.writeText([RFP_LOG_HEAD.join('\t'), ...Repo.rfps.all().map(r => rfpLogRow(r).map(v => String(v).replace(/\s+/g, ' ')).join('\t'))].join('\n'));
+      Toast.show('Copied: paste it into the RFP Log sheet', { kind:'ok' }); });
     root.querySelectorAll('[data-rfp-mail]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); rfpEmail(Number(b.dataset.rfpMail)); })); }
 };
+/** The 13 columns of Jon's RFP Log, in order. */
+const RFP_LOG_HEAD = ['RFP Name / Issuer', 'RFP Reference Number', 'Final Submission Date', 'Approved for Submission', 'Reviewed By', 'Date Reviewed', 'Size of AUM', 'Conditions or Limitations', 'Notes', 'Response', 'Date Responded', 'Correspondence', 'WON'];
+function rfpLogRow(r){
+  const org = Repo.organizations.byId(r.organization_id), old = (String(r.decision_notes || '').match(/^Response: (.*)$/m) || [])[1];
+  return [r.title + (org ? ' / ' + org.name : ''), r.reference_number || '', r.submitted_on || r.due_on || '', r.approved_for_submission == null ? '' : r.approved_for_submission ? 'Y' : 'N',
+    r.reviewed_by || '', r.reviewed_on || '', r.est_mandate_aum ?? '', r.terms || '', r.notes || '', r.response || old || 'N', r.decision_on || '', r.correspondence || '',
+    r.status === 'won' ? 'Y' : r.status === 'lost' ? 'N' : ''];
+}
 /** The letter after an RFP is decided: lost asks who won and how we scored; won checks in. Sent and logged by Inbox.compose. */
 function rfpEmail(id){
   const r = Repo.rfps.all().find(x => x.id === id); if (!r) return;
   const c = (r.contact_id != null && Repo.contacts.byId(r.contact_id)) || Repo.contacts.all().find(x => x.organization_id === r.organization_id && x.email);
   if (!c) return Toast.show('No one at this organization has an email on file. Add the contact first.', { kind:'warn' });
-  const first = c.first_name || String(c.full_name || '').split(' ')[0], sign = '\n\n' + mySignature();
+  const first = c.first_name || String(c.full_name || '').split(' ')[0], sign = '';
   const lost = r.status === 'lost';
   Inbox.compose(c, { rfp_id: r.id, title: (lost ? 'Ask how we scored: ' : 'Check in: ') + r.title,
     subject: lost ? 'Thank you, and a question about ' + r.title : 'Checking in on ' + r.title,
@@ -6717,13 +6769,6 @@ Views.settings = { title:'Settings',
             <div class="af-l"><label for="s-zoom">Calls</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About calls" aria-describedby="s-zoom-info">i</button><div class="info-panel" role="tooltip" id="s-zoom-info"><div class="info-card"><p>Schedule a call (on a contact's page) puts your Zoom link in the invitation and the confirmation email, and invites these people too (for example Dr. Brogaard).</p></div></div></div></div>
             <div class="af-f af-two"><input id="s-zoom" type="url" placeholder="Zoom link (https://…)" value="${esc(myRow().zoom_link || '')}" aria-label="Your Zoom link"><input id="s-invite" type="text" placeholder="Always invite (emails)" value="${esc(myRow().invite_also || '')}" aria-label="Always invite"></div>
             <div class="af-b"><button class="btn btn-sm" type="button" id="s-zoom-save">Save</button></div>
-            <div class="af-l af-top"><label for="s-sig">Signature</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About the signature" aria-describedby="s-sig-info">i</button><div class="info-panel" role="tooltip" id="s-sig-info"><div class="info-card"><p>Goes at the foot of the letters you send from the CRM, in place of your name and the firm, with the Gaard logo beside it as in Gaard's own emails. The pencil on the logo uses another picture instead.</p></div></div></div></div>
-            ${(() => { const me = myRow();
-              /* laid out as it reads in the email: the lines on the left, a rule, the logo on the right */
-              return `<div class="af-f af-span s-sig"><div class="s-sig-card"><textarea id="s-sig" rows="4" wrap="off" aria-label="Your email signature" placeholder="Your name&#10;Your title&#10;Phone&#10;www.gaard.capital">${esc(me.email_signature || '')}</textarea>
-                <div class="s-logo-wrap"><img id="s-sig-logo" src="${esc(me.email_logo_url || FIRM_LOGO)}" alt="Logo beside the signature">
-                  <button class="s-logo-edit" type="button" id="s-logo-toggle" title="Use another logo" aria-label="Use another logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg></button></div></div>
-                <input id="s-logo" type="url" placeholder="Link to another logo (https://…); empty uses the Gaard logo" value="${esc(me.email_logo_url || '')}" ${me.email_logo_url ? '' : 'hidden'}><div class="s-sig-foot"><button class="btn btn-sm" type="button" id="s-sig-save">Save</button></div></div>`; })()}
             <div class="af-l"><label>Your Claude</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About connecting Claude" aria-describedby="cl-info">i</button><div class="info-panel" role="tooltip" id="cl-info"><div class="info-card"><p>Lets your own Claude (claude.ai, with Gmail connected) find replies in your mailbox and put them in the CRM, and add events from the Event Finder. It cannot delete or send anything; a reply it records shows under the bell, and Change on the activity puts a wrong outcome right.</p></div></div></div></div>
             <div class="af-f af-span" id="cl-body"><span class="muted small">Checking…</span></div>
           </div>
@@ -6785,7 +6830,6 @@ Views.settings = { title:'Settings',
       }
       Store.commit(v ? 'Booking link saved' : 'Booking link removed', st => { const row = st.team_members.find(t => t.id === id); if (row) row.booking_url = v || null; });
     });
-    /* The signature also lives on the person's own team row, written through set_my_signature() (db/017). */
     /* The Zoom link and who is always invited also live on the person's own team row (set_my_meeting_defaults, db/018). */
     root.querySelector('#s-zoom-save')?.addEventListener('click', async () => {
       const zoom = root.querySelector('#s-zoom').value.trim(), invite = root.querySelector('#s-invite').value.trim(), id = Repo.settings().default_owner_id;
@@ -6798,21 +6842,6 @@ Views.settings = { title:'Settings',
         Store.version++; render(); return Toast.show('Saved', { kind:'ok' });
       }
       Store.commit('Call settings saved', st => { const row = st.team_members.find(t => t.id === id); if (row){ row.zoom_link = zoom || null; row.invite_also = invite || null; } });
-    });
-    root.querySelector('#s-logo-toggle')?.addEventListener('click', () => { const i = root.querySelector('#s-logo'); i.hidden = !i.hidden; if (!i.hidden) i.focus(); });
-    root.querySelector('#s-logo')?.addEventListener('input', e => { const v = e.target.value.trim(); root.querySelector('#s-sig-logo').src = /^https:\/\/\S+$/i.test(v) ? v : FIRM_LOGO; });
-    root.querySelector('#s-sig-save')?.addEventListener('click', async () => {
-      const sig = root.querySelector('#s-sig').value.trim(), logo = root.querySelector('#s-logo').value.trim();
-      if (logo && !/^https:\/\/\S+$/i.test(logo)) return Toast.show('The logo link should start with https://', { kind:'warn' });
-      const id = Repo.settings().default_owner_id;
-      if (Store.live){
-        const { error } = await (await Live.sb()).rpc('set_my_signature', { p_signature: sig, p_logo_url: logo });
-        if (error) return Toast.show(/function|does not exist|schema cache/i.test(error.message) ? 'Not saved: the database needs db/017_email_signature.sql run first.' : 'Not saved: ' + error.message, { kind:'warn', ms: 9000 });
-        const row = (Store.state.team_members || []).find(t => t.id === id);
-        if (row){ row.email_signature = sig || null; row.email_logo_url = logo || null; if (Live.shadow && Live.shadow.team_members) Live.shadow.team_members.set(row.id, JSON.stringify(row)); }
-        Store.version++; render(); return Toast.show(sig ? 'Signature saved' : 'Signature removed', { kind:'ok' });
-      }
-      Store.commit(sig ? 'Signature saved' : 'Signature removed', st => { const row = st.team_members.find(t => t.id === id); if (row){ row.email_signature = sig || null; row.email_logo_url = logo || null; } });
     });
     root.querySelector('#s-out')?.addEventListener('click', () => Live.signOut());
     root.querySelector('#s-in')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
@@ -7271,6 +7300,20 @@ const Live = {
       if (error){ if (this.OPTIONAL.includes(table)){ this.missing.add(table); return []; } throw new Error(`Reading ${table}: ${error.message}`); }
       out.push(...data); if (data.length < 1000) break; }
     return out; },
+  /** Events and RFPs change outside this page (the Event Finder, the RFP tracker, a colleague): look every minute, and when the page comes back, for everyone signed in. Never over unsaved work. */
+  async pollShared(){
+    if (!Store.live || !this.shadow || this.saving || document.hidden) return;
+    const back = document.getElementById('modal-back'), a = document.activeElement;
+    if ((back && !back.hidden) || (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) return;
+    let changed = false;
+    for (const t of ['events', 'rfps']){
+      const rows = await this.fetchAll(t).catch(() => null); if (!rows || this.saving) return;
+      const cur = this.shadow[t], same = rows.length === cur.size && rows.every(r => cur.get(r.id) === JSON.stringify(r));
+      const clean = (Store.state[t] || []).every(r => cur.get(r.id) === JSON.stringify(r));
+      if (!same && clean){ Store.state[t] = rows; this.shadow[t] = new Map(rows.map(r => [r.id, JSON.stringify(r)])); changed = true; }
+    }
+    if (changed){ Store.version++; render(); }
+  },
   /** Read one table again (after an Edge Function changed it) without touching the rest. */
   async refreshTable(t){ const rows = await this.fetchAll(t); Store.state[t] = rows;
     if (this.shadow) this.shadow[t] = new Map(rows.map(r => [r.id, JSON.stringify(r)])); Store.version++; render(); },
