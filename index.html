@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-28.2">
+<meta name="build-version" content="2026-10-30.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -552,7 +552,11 @@ table.edit.tm{width:100%;min-width:0} table.edit.tm td.tm-acts{white-space:norma
 .s-book-row{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:nowrap}
 .s-book-row label{font-size:13px;color:var(--ink-2);font-weight:500;white-space:nowrap}
 .s-book-row input{flex:1 1 auto;min-width:0;width:auto}
-.s-sig-row{align-items:flex-start} .s-sig{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px} .s-sig textarea{width:100%;font:inherit;font-size:13px}
+.s-sig-row{align-items:center;flex-wrap:wrap} .s-sig-row .s-sig{order:4;flex:1 1 100%} .s-sig{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px} .s-sig-card{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#fff}
+.s-sig-card textarea{flex:1 1 auto;min-width:0;width:auto;border:0;border-right:2px solid #ccc;border-radius:0;box-shadow:none;padding:2px 14px 2px 0;text-align:right;resize:vertical;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.45;color:#222;background:transparent}
+.s-sig-card textarea:focus{outline:none;border-right-color:var(--accent)}
+.s-sig-card:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.s-sig-card img{flex:none;height:56px;width:auto;max-width:45%;object-fit:contain} .s-sig .linkish{align-self:flex-start}
 .saved-people{list-style:none;margin:16px 0 0;padding:0;border-top:1px solid var(--line)}
 .saved-people li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
 /* Import, step one: steps, a drop zone, the paste box, and a side panel */
@@ -3142,7 +3146,10 @@ const myBookingLink = () => ((Store.state.team_members || []).find(t => t.id ===
 /** The foot of a letter: the sender's own signature (Settings, db/017), or their name and the firm. */
 const mySignature = () => { const me = (Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {};
   return String(me.email_signature || '').trim() || ((Repo.teamName(Repo.settings().default_owner_id) || '') + '\n' + Repo.settings().firm_name); };
-const myLogo = () => ((Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {}).email_logo_url || '';
+/* The logo beside a signature: the person's own link, or the firm's (the one in Gaard's own email signatures, on gaard.capital) once they have set a signature. */
+const FIRM_LOGO = 'https://gaard.capital/wp-content/uploads/image-2-1.png';
+const myLogo = () => { const me = (Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {};
+  return me.email_logo_url || (String(me.email_signature || '').trim() ? FIRM_LOGO : ''); };
 const Merge = {
   /** Fill one template for one contact. */
   fill(text, c){
@@ -6293,18 +6300,22 @@ const ClaudeLink = {
     const { error } = await (await Live.sb()).rpc('set_my_connector_key', { p_hash: hash });
     if (error) return Toast.show('Not connected: ' + error.message, { kind:'warn', ms: 9000 });
     const url = this.url(key);
+    /* claude.ai lets no other website add a connector to someone's account, so the person pastes
+       the address there. One button copies it and opens claude.ai's Connectors page. */
     const m = Modal.open({ title:'Connect your Claude', wide: true, body: `
-      <p>Copy this address now: it is shown only once. Anyone who has it can do what your Claude can do, so keep it to yourself.</p>
-      <div style="display:flex;gap:8px;margin:12px 0"><input id="cl-url" readonly value="${esc(url)}" style="flex:1;min-width:0" class="mono"><button class="btn btn-sm btn-primary" type="button" id="cl-copy">Copy</button></div>
-      <ol style="margin:0 0 0 18px;line-height:1.7">
-        <li>In claude.ai open <b>Settings → Connectors</b> and choose <b>Add custom connector</b>.</li>
-        <li>Name it <b>Gaard CRM</b>, paste the address, and press Add. Leave the advanced settings empty.</li>
-        <li>Check that Gmail is connected there too.</li>
-        <li>In a chat, ask for example: <i>"Check my Gmail for replies to my Gaard outreach and record them in Gaard CRM."</i></li>
+      <p>Your Claude needs this CRM address once. It is shown only here; anyone who has it can do what your Claude can do, so keep it to yourself.</p>
+      <div style="display:flex;gap:8px;margin:12px 0"><input id="cl-url" readonly value="${esc(url)}" style="flex:1;min-width:0" class="mono" aria-label="Your connector address"></div>
+      <p><button class="btn btn-primary" type="button" id="cl-copy">Copy it and open Claude</button></p>
+      <ol style="margin:12px 0 0 18px;line-height:1.7">
+        <li>On the Claude page that opens, press <b>Add custom connector</b>.</li>
+        <li>Name it <b>Gaard CRM</b>, paste (Ctrl+V) into the address box, and press <b>Add</b>. That is all.</li>
       </ol>
-      <p class="muted small" style="margin-top:10px">The replies appear under the bell here after a reload, with the outcome set and the follow-up scheduled. Change any that are wrong.</p>`,
-      foot: `<button class="btn btn-primary" type="button" data-ok>Done</button>` });
-    m.querySelector('#cl-copy').onclick = () => { navigator.clipboard.writeText(url); Toast.show('Address copied', { kind:'ok' }); };
+      <p class="muted small" style="margin-top:10px">Then, in any Claude chat with Gmail connected: <i>"Check my Gmail for replies to my Gaard outreach and record them in Gaard CRM."</i> Replies appear under the bell here after a reload, with the outcome set and the follow-up scheduled.</p>`,
+      foot: `<button class="btn" type="button" data-ok>Done</button>` });
+    m.querySelector('#cl-copy').onclick = async () => {
+      try { await navigator.clipboard.writeText(url); } catch (e) { const i = m.querySelector('#cl-url'); i.select(); document.execCommand('copy'); }
+      window.open('https://claude.ai/settings/connectors', '_blank', 'noopener');
+      Toast.show('Copied. In Claude: Add custom connector, name it Gaard CRM, paste, Add.', { kind:'ok', ms: 9000 }); };
     m.querySelector('[data-ok]').onclick = () => { Modal.close(); this.load(root); };
   },
 };
@@ -6324,9 +6335,13 @@ Views.settings = { title:'Settings',
             <input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
           <div class="s-book-row s-sig-row"><label for="s-sig">Your email signature:</label>
             <div class="info-pop"><button class="info-btn" type="button" aria-label="About the signature" aria-describedby="s-sig-info">i</button>
-              <div class="info-panel" role="tooltip" id="s-sig-info"><div class="info-card"><p>Goes at the foot of the letters you send from the CRM, in place of your name and the firm. A logo link (an image on the web, starting with https://) puts the logo beside it, as in your own emails.</p></div></div></div>
-            <div class="s-sig"><textarea id="s-sig" rows="4" placeholder="Your name&#10;Your title&#10;Phone&#10;www.gaard.capital">${esc(((Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {}).email_signature || '')}</textarea>
-              <input id="s-logo" type="url" placeholder="Logo link (optional): https://…" value="${esc(myLogo())}"></div>
+              <div class="info-panel" role="tooltip" id="s-sig-info"><div class="info-card"><p>Goes at the foot of the letters you send from the CRM, in place of your name and the firm. The Gaard logo goes beside it, as in Gaard's own emails; a logo link (an image on the web, starting with https://) uses another picture instead.</p></div></div></div>
+            ${(() => { const me = (Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {};
+              /* laid out as it reads in the email: the lines on the left, a rule, the logo on the right */
+              return `<div class="s-sig"><div class="s-sig-card"><textarea id="s-sig" rows="4" wrap="off" aria-label="Your email signature" placeholder="Your name&#10;Your title&#10;Phone&#10;www.gaard.capital">${esc(me.email_signature || '')}</textarea>
+                <img id="s-sig-logo" src="${esc(me.email_logo_url || FIRM_LOGO)}" alt="Logo beside the signature"></div>
+                <button class="linkish small" type="button" id="s-logo-toggle" ${me.email_logo_url ? 'hidden' : ''}>Use another logo</button>
+                <input id="s-logo" type="url" placeholder="Link to another logo (https://…); empty uses the Gaard logo" value="${esc(me.email_logo_url || '')}" ${me.email_logo_url ? '' : 'hidden'}></div>`; })()}
             <button class="btn btn-sm" type="button" id="s-sig-save">Save</button></div>
           <div class="s-book-row"><label>Your Claude:</label>
             <div class="info-pop"><button class="info-btn" type="button" aria-label="About connecting Claude" aria-describedby="cl-info">i</button>
@@ -6391,6 +6406,8 @@ Views.settings = { title:'Settings',
       Store.commit(v ? 'Booking link saved' : 'Booking link removed', st => { const row = st.team_members.find(t => t.id === id); if (row) row.booking_url = v || null; });
     });
     /* The signature also lives on the person's own team row, written through set_my_signature() (db/017). */
+    root.querySelector('#s-logo-toggle')?.addEventListener('click', e => { e.target.hidden = true; const i = root.querySelector('#s-logo'); i.hidden = false; i.focus(); });
+    root.querySelector('#s-logo')?.addEventListener('input', e => { const v = e.target.value.trim(); root.querySelector('#s-sig-logo').src = /^https:\/\/\S+$/i.test(v) ? v : FIRM_LOGO; });
     root.querySelector('#s-sig-save')?.addEventListener('click', async () => {
       const sig = root.querySelector('#s-sig').value.trim(), logo = root.querySelector('#s-logo').value.trim();
       if (logo && !/^https:\/\/\S+$/i.test(logo)) return Toast.show('The logo link should start with https://', { kind:'warn' });

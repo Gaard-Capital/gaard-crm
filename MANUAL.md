@@ -187,7 +187,7 @@ The letters everyone shares. The list is on the left; the chosen letter on the r
 ### Your signature and booking link (Settings)
 
 - **Your Google booking link**: your Google Calendar appointment page (Calendar > Create > Appointment schedule > Copy link). It fills `{{booking_link}}` in letters you send.
-- **Your email signature**: what goes at the foot of every letter you send from the CRM (mass email, replies, RFP letters), in place of your name and the firm. Type it line by line. **Logo link** (optional): a picture on the web (a link starting with `https://`) placed beside the signature, as in Gaard's emails.
+- **Your email signature**: what goes at the foot of every letter you send from the CRM (mass email, replies, RFP letters), in place of your name and the firm. Type it line by line. The Gaard logo is placed beside it, as in Gaard's own emails. **Logo link** (optional): another picture on the web (a link starting with `https://`) to use instead.
 
 ### Replies come in by themselves
 
@@ -287,8 +287,8 @@ Your own Claude (claude.ai, with Gmail connected there) can work with the CRM th
 
 It cannot delete, send, or read anything else.
 
-1. Settings > **Your Claude** > **Connect my Claude**. Copy the address shown (it is shown once; keep it to yourself, like a password).
-2. claude.ai > Settings > Connectors > **Add custom connector**: name it "Gaard CRM", paste the address, Add.
+1. Settings > **Your Claude** > **Connect my Claude**, then **Copy it and open Claude**. That copies your CRM address (shown once; keep it to yourself, like a password) and opens claude.ai's Connectors page. (claude.ai lets no other website add a connector for you, so this one paste is needed.)
+2. On that page: **Add custom connector**, name it "Gaard CRM", paste, **Add**.
 3. Ask, for example: *"Check my Gmail for replies to my Gaard outreach and record them in Gaard CRM."*
 
 **New address** replaces the old one; **Disconnect** cuts it off. Removing someone from the team also cuts their Claude off.
