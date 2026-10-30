@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-30.5">
+<meta name="build-version" content="2026-10-30.6">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -326,6 +326,12 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .colcopy svg{width:12px;height:12px;stroke:currentColor;stroke-width:2;fill:none}
 table.grid th.col-h:hover .colcopy,.colcopy:focus-visible{opacity:1}
 .colcopy:hover{background:var(--accent-soft);color:var(--accent-strong)}
+/* The same mark on a row, in the pinned name cell so it never scrolls away. */
+td.rowcopy-host{position:relative}
+.rowcopy{position:absolute;top:50%;right:4px;transform:translateY(-50%);width:20px;height:20px;display:grid;place-items:center;padding:0;border:0;border-radius:5px;background:var(--surface-3);color:var(--ink-3);cursor:pointer;opacity:0;transition:opacity .12s;z-index:4}
+.rowcopy svg{width:11px;height:11px;stroke:currentColor;stroke-width:2;fill:none}
+tr:hover .rowcopy,.rowcopy:focus-visible{opacity:1}
+.rowcopy:hover{background:var(--accent-soft);color:var(--accent-strong)}
 table.grid.sheet.ss tr:hover td{background:var(--surface-2)}
 table.grid.sheet.ss tr:hover td.pin2,table.grid.sheet.ss tr:hover td.pin3{background:var(--surface-2)}
 table.grid.sheet.ss tr.is-open td.pin2,table.grid.sheet.ss tr.is-open td.pin3{background:var(--accent-soft)}
@@ -3287,17 +3293,33 @@ const Sheet = {
     }
   },
 
+  /** An expanded thread spans the table; a data row never does. */
+  isDataRow(tr){ return !tr.classList.contains('threadrow') && ![...tr.cells].some(c => c.colSpan > 1); },
+
   /** Every cell under one heading, as the person sees it, one per line. */
   column(table, i){
     const out = [];
-    const width = table.querySelector('colgroup').children.length;
     [...table.tBodies[0].rows].forEach(r => {
-      if (r.cells.length !== width) return;           // skip expanded thread rows
+      if (!Sheet.isDataRow(r)) return;
       const cell = r.cells[i]; if (!cell) return;
       const field = cell.querySelector('input:not([type=checkbox]), select, textarea');
       out.push(((field ? field.value : cell.innerText) || '').replace(/\s+/g, ' ').trim());
     });
     return out;
+  },
+
+  /** One whole row, tab separated, so it pastes across a sheet as one line.
+      Hidden columns are left out: what you copy is what you can see. */
+  rowText(table, tr){
+    if (!Sheet.isDataRow(tr)) return '';
+    const out = [];
+    [...tr.cells].forEach((cell, i) => {
+      if (cell.classList.contains('rn')) return;        // the row number and its tick box are not data
+      if (getComputedStyle(cell).display === 'none') return;
+      const field = cell.querySelector('input:not([type=checkbox]), select, textarea');
+      out.push(((field ? field.value : cell.innerText) || '').replace(/[\t\r\n]+/g, ' ').trim());
+    });
+    return out.join('\t');
   },
 
   enhance(root, view){
@@ -3309,6 +3331,28 @@ const Sheet = {
       const k = Sheet.key(view, ti), cfg = Sheet.read(k);
 
       Sheet.applyOrder(table, cfg.order);
+
+      /* A copy mark on each row, in the last pinned cell so it stays on screen
+         however far right the sheet is scrolled. It copies that whole row. */
+      [...table.tBodies[0].rows].forEach(tr => {
+        if (tr.classList.contains('threadrow')) return;
+        const anchor = tr.querySelector('td.pin3') || tr.querySelector('td.pin2') || tr.cells[1];
+        if (!anchor || anchor.querySelector('.rowcopy')) return;
+        anchor.classList.add('rowcopy-host');
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'rowcopy'; b.title = 'Copy this whole row';
+        b.setAttribute('aria-label', 'Copy this whole row');
+        b.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>';
+        b.addEventListener('click', async e => {
+          e.stopPropagation(); e.preventDefault();
+          const text = Sheet.rowText(table, tr);
+          if (!text) return Toast.show('Nothing on that row to copy.', { kind:'warn' });
+          try { await navigator.clipboard.writeText(text);
+            Toast.show('Row copied, every column you can see.', { kind:'ok' }); }
+          catch (err){ Toast.show('Could not reach the clipboard.', { kind:'warn' }); }
+        });
+        anchor.appendChild(b);
+      });
 
       [...head.cells].forEach(th => {
         const label = Sheet.label(th), col = cg.children[th.cellIndex];
@@ -5742,6 +5786,7 @@ Views.contact = { title:'Contact',
           <dt>LinkedIn</dt><dd class="ed" data-edit="linkedin" title="Click to change">${!blankish(c.linkedin_url) ? `<a href="${esc(/^https?:/i.test(c.linkedin_url) ? c.linkedin_url : 'https://' + c.linkedin_url)}" target="_blank" rel="noopener">${esc(c.linkedin_url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '<span class="muted">None</span>'}</dd>
           <dt>How we met</dt><dd class="ed" data-edit="channel" title="Click to change">${esc(chName(c.source_channel_code))}${detail ? ` <span class="muted">${esc(detail)}</span>` : ''}${ev ? `<span class="sub">At <a href="${href('events')}">${esc(ev.name)}</a></span>` : ''}${referrer ? `<span class="sub">Referred by <a href="${href('contacts/'+referrer.id)}">${esc(referrer.full_name)}</a></span>` : ''}</dd>
           ${Repo.contacts.path(c.id) ? `<dt>The path in</dt><dd title="Read from the touchpoints, in order. The conversion is credited to whichever one opened the opportunity, not the first.">${esc(Repo.contacts.path(c.id))}${(() => { const o = Repo.contacts.opportunity(c.id); return o && o.converting_channel_code ? `<span class="sub">Conversion credited to ${esc(chName(o.converting_channel_code))}</span>` : ''; })()}</dd>` : ''}
+          <dt>Status</dt><dd class="ed" data-edit="status" title="${esc(statusNote(c))}">${statusPill(Repo.contacts.statusOf(c.id))}${c.status_override ? '<span class="sub">Set by hand</span>' : '<span class="sub">Worked out automatically</span>'}</dd>
           <dt>Newsletter</dt><dd class="ed" data-edit="newsletter" title="Click to change">${esc(NEWSLETTER_LABEL[c.newsletter_status] || c.newsletter_status || 'Not recorded')}${via ? `<span class="sub">${esc(via)}</span>` : ''}</dd>
           </dl>
           <h3 class="rec-sub">Organization</h3>
@@ -5803,6 +5848,7 @@ Views.contact = { title:'Contact',
         : field === 'channel' ? `<select>${opt('', 'Not recorded', !c.source_channel_code)}${CHANNELS.map(x => opt(x.code, x.name, c.source_channel_code === x.code)).join('')}</select>`
         : field === 'stage' ? `<select>${STAGES.map(x => opt(x.code, x.label, opp && opp.stage === x.code)).join('')}</select>`
         : field === 'newsletter' ? `<select>${['subscribed','not_subscribed','unsubscribed'].map(x => opt(x, NEWSLETTER_LABEL[x], c.newsletter_status === x)).join('')}</select>`
+        : field === 'status' ? `<select>${CONTACT_STATUS.map(x => opt(x.code, x.label, Repo.contacts.statusOf(c.id) === x.code)).join('')}${opt('auto', 'Work it out automatically', !c.status_override)}</select>`
         : field === 'notes' ? `<textarea rows="4">${esc(c.notes || '')}</textarea>`
         : field === 'aum' ? `<input type="number" step="1000" min="0" value="${aum ?? ''}">`
         : field === 'org' ? `<input type="text" list="rec-orgs" value="${esc(org ? org.name : c.employer || '')}"><datalist id="rec-orgs">${Repo.organizations.all().map(o => `<option value="${esc(o.name)}"></option>`).join('')}</datalist>`
