@@ -83,6 +83,13 @@ Tabs: **People**, **Organizations**, **Partners**, **Newsletter**.
 - **Log activity** records a call, meeting or email by hand; the pencil on an activity edits or deletes it.
 - **Edit** (top) holds the name, email status, do not contact and the "in person only" flag.
 
+**Buttons at the top of a person's page:**
+- **Write an email**: one letter to this person from your Gmail. Start from any template (the merge fields fill in), change anything, attach files (for example the endowment overview PDF). It is logged on their activity and their reply is read like any other.
+- **Schedule a call**: once a time is agreed. Check the title ("[Organization] - Gaard Capital"), the day, the time (Mountain), the length (30 minutes), the guests (the person plus whoever you always invite, set in Settings) and the Zoom link. Google Calendar opens with the invitation filled in: remove the Google Meet link if Google added one, then Save and Send. Then the confirmation email opens, in Jon's wording ("I just sent over a calendar invite with a Zoom link for Thu (7/9) at 12:30PM MT..."), in the same Gmail conversation when there is one. The call becomes the person's next follow-up: "log how it went" on the day.
+- **Call brief**: the brief in Jon's layout. The CRM fills the top (the organization with its website, who is on the call with their LinkedIn); you type the mission, PURPOSE OF CALL and NOTES. "Copy the brief" copies it with its links for the shared doc, and the note for JB's list is ready to copy after.
+
+**Onboarding checklist** (on the Opportunity card, from the onboarding stage): the firm's 21 standard steps, each with a status note ("Delivered via email and documented, June 9, 2026", or "Not yet completed", "Awaiting settlement and processing", "To be determined"). The card shows how many are done. "Copy as a table" pastes into the workbook.
+
 **Organizations** lists organizations with their people; **Partners** the referral and benefit-group partners; **Newsletter** who is subscribed.
 
 ### Import
@@ -106,13 +113,15 @@ Click a line to open the person. The search box finds a name.
 
 **Client reviews** is the portfolio review calendar for funded clients: overdue, due within 60 days, later.
 
+**Client loyalty** is the loyalty program: every funded client gets three touches a year, a Thanksgiving card (the Friday before Thanksgiving) and two referral check-ins (a visit, a call or a coffee; the third Friday of February and of August the year after), away from the quarter-end newsletters. A cycle is named for the year of its card. **Add** (or "Add all") puts the three follow-ups on the client; they come up on One at a time when due. Type each client's **mailing address** in the table (an individual's: ask them). Click a date to put the prep day (three weeks before) or the day itself on your Google Calendar. **Copy rows for the Customer Loyalty tab** gives the sheet's columns B to H. When the cycle is done, **Start the next cycle**.
+
 ### Events
 
 A one-page dashboard of events: totals, people met per event, in person against virtual, events against cold email, and every event beside the people met there. Search a name to see every event that person was met at. **Bring in events** adds events from your Google Calendar or your Event ROI Tracker file. See section 6.
 
 ### RFPs
 
-Every request for proposal: organization, mandate, estimated AUM, dates, status and what happened. **Update** and **Email** on each row. See section 8.
+Every request for proposal: organization, mandate, estimated AUM, dates, status and what happened. **Add an RFP**, and **Update** and **Email** on each row. See section 8.
 
 ### Dashboard
 
@@ -180,6 +189,10 @@ The six reply outcomes: **Interested, Not now, Not interested, Bounced (wrong em
 
 Google asks your permission the first time (a Google window: allow sending). People on the do-not-contact list, with a bounced address, or on the No cold email list are greyed out and never sent to. **Or send from your own email by hand** copies the letters instead and **Mark as sent** logs them.
 
+**Organization names read naturally.** In a letter, the organization's name is tidied for the sentence ("I am curious how ____ manages its investments."): Inc., LLC and Corp. are dropped, an acronym in brackets is dropped, "Of" and "And" become lowercase, and "the" is added to a bare name such as "Community Center" (not to Foundation, Alliance, Association, Trust and the like). Change any one letter by typing in it.
+
+**As it arrives in their inbox**, under the letter, shows the email the way the person will see it, with your signature and logo.
+
 ### Templates (Mass Email > Email templates)
 
 The letters everyone shares. The list is on the left; the chosen letter on the right. **Merge fields** (inserted at the cursor) fill in for each person: `{{first_name}}`, `{{organization}}`, `{{booking_link}}`, `{{sender_name}}`, `{{firm_name}}`, and more; Jon's own style (`{{First Name}}`) works too. **Use it** opens the batch screen with that letter.
@@ -187,6 +200,7 @@ The letters everyone shares. The list is on the left; the chosen letter on the r
 ### Your signature and booking link (Settings)
 
 - **Your Google booking link**: your Google Calendar appointment page (Calendar > Create > Appointment schedule > Copy link). It fills `{{booking_link}}` in letters you send.
+- **Calls**: your Zoom link, and who is always invited to your calls (for example Dr. Brogaard). Schedule a call uses both.
 - **Your email signature**: what goes at the foot of every letter you send from the CRM (mass email, replies, RFP letters), in place of your name and the firm. Type it line by line. The Gaard logo is placed beside it, as in Gaard's own emails. **Logo link** (optional): another picture on the web (a link starting with `https://`) to use instead.
 
 ### Replies come in by themselves
@@ -267,6 +281,8 @@ Messy values are cleaned on their own: capitals and spaces in emails, "NR", "no 
 **The whole workbook at once** (many tabs, thousands of rows) is better loaded in the database itself: see `db/docs/import_playbook.md`.
 
 ## 8. RFPs
+
+**Add an RFP**: paste either the RFP screen Claude gives you (the headline and the seven fields) or a row of your RFP log (the 13 tab-separated columns). The CRM reads the issuer, the size of AUM, the type of arrangement, the due date and the requirements (or every column of the log row) and shows them for checking before saving. A log row for an RFP already in the CRM updates it. A new RFP with a deadline ahead gets an "RFP due" follow-up five working days before.
 
 Each RFP row has:
 - **Update**: status (identified, intend to bid, submitted, finalist, won, lost, declined, cancelled), the day it was decided, **who won**, and **how we scored and their feedback**.

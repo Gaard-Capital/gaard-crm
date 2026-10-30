@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-30.1">
+<meta name="build-version" content="2026-10-30.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -844,6 +844,11 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 @keyframes tpflash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
 .cols-menu .cols-all{border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px;font-weight:600}
 .mm-book{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.mm-inbox{margin-top:10px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 14px}
+.mm-inbox > span{display:block;margin-bottom:6px}
+.mm-html{color:#222;max-height:260px;overflow:auto}
+table.grid.onb td{vertical-align:middle} table.grid.onb input{width:100%;min-width:240px}
+#s-invite{max-width:220px}
 .bell-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .bell-menu .who{padding:8px 12px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:13px;color:var(--ink)}
 .bell-menu a{display:flex;gap:10px;align-items:baseline;padding:9px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:13px;line-height:1.45}
@@ -1047,6 +1052,8 @@ const REFERENCE = {
     { code:'rfp_deadline',       label:'RFP deadline' },
     { code:'portfolio_review',   label:'Portfolio review' },
     { code:'in_person',          label:'Reach out in person' },
+    { code:'thanksgiving_card',  label:'Thanksgiving card' },
+    { code:'referral_check_in',  label:'Referral check-in' },
     { code:'custom',             label:'Other' },
   ],
   /* Email domains that get a label on sight (public.flag_rules). 'university'
@@ -1231,6 +1238,16 @@ Good to meet you. As promised, here is a short overview of how we work with orga
 If it is useful, I can send a sample quarterly report so you can see the output before we talk.
 
 Would a 20-minute call in the next couple of weeks suit?
+
+If it is easier, pick a time here: {{booking_link}}
+
+{{sender_name}}
+{{firm_name}}` },
+  { id:'t_np_short', name:'Nonprofit investing (short)', segment:'ORG_NONPROFIT',
+    subject:'Nonprofit investing',
+    body:`Hi {{first_name}},
+
+I am curious how {{Organization Name}} manages its investments. Would you be open to a brief chat?
 
 If it is easier, pick a time here: {{booking_link}}
 
@@ -2443,6 +2460,9 @@ const Intelligence = (() => {
   function readRows(text){
     const p = parseCSV(text);
     if (!p.headers.length) return { headers: [], rows: [], mapping: [], hasHeader: false };
+    // "n/a" means it was looked for and not found (Jon's sheets and skills write it that way): an empty cell, not a value
+    const NONE = /^(n\/?a|none|not found|unknown|-+|—)$/i;
+    p.rows.forEach(r => { r.cells = r.cells.map(c => NONE.test(String(c ?? '').trim()) ? '' : c); });
     const first = p.headers, named = first.map(h => autoMap(h));
     const looksLikeData = first.some(c => /@|\d{1,2}\/\d{1,2}\/\d{2,4}|https?:|www\.|linkedin\.com|\$\d/i.test(c));
     const hasHeader = !looksLikeData && named.filter(Boolean).length >= Math.max(1, Math.ceil(first.length / 3));
@@ -2921,11 +2941,12 @@ const Modal = {
           ? `<select id="${id}">${f.options.map(o => { const v = typeof o === 'string' ? o : o.value, l = typeof o === 'string' ? o : o.label;
               return `<option value="${esc(v)}" ${String(f.value ?? '') === String(v) ? 'selected' : ''}>${esc(l)}</option>`; }).join('')}</select>`
           : f.type === 'textarea' ? `<textarea id="${id}" rows="${f.rows||4}">${esc(f.value||'')}</textarea>`
+          : f.type === 'file' ? `<input id="${id}" type="file" multiple>`
           : `<input id="${id}" type="${f.type||'text'}" value="${esc(f.value ?? '')}" ${f.step?`step="${f.step}"`:''} ${f.placeholder?`placeholder="${esc(f.placeholder)}"`:''}>`;
         return `<label class="f ${f.span?'span2':''}"><span>${esc(f.label)}${f.hint?` <span class="muted">${esc(f.hint)}</span>`:''}</span>${input}</label>`; }).join('') + `</div>`;
       const m = Modal.open({ title, body, wide, foot:`<button class="btn" type="button" data-cancel>Cancel</button><button class="btn btn-primary" type="button" data-ok>${esc(okLabel)}</button>` });
       m.querySelector('[data-cancel]').onclick = () => { Modal.close(); res(null); };
-      m.querySelector('[data-ok]').onclick = () => { const out = {}; fields.forEach(f => { const el = m.querySelector('#mf-'+f.key); out[f.key] = el ? el.value : ''; }); Modal.close(); res(out); };
+      m.querySelector('[data-ok]').onclick = () => { const out = {}; fields.forEach(f => { const el = m.querySelector('#mf-'+f.key); out[f.key] = el ? (f.type === 'file' ? el.files : el.value) : ''; }); Modal.close(); res(out); };
     });
   },
 };
@@ -3159,7 +3180,8 @@ const Merge = {
       first_name: c.first_name || 'there',
       last_name: c.last_name || '',
       full_name: c.full_name || '',
-      organization: org ? org.name : (c.employer || 'your organization'),
+      organization: letterOrgName(org ? org.name : (c.employer || 'your organization')),
+      organization_name: letterOrgName(org ? org.name : (c.employer || 'your organization')),
       title: c.title || '',
       state: c.state || '',
       last_outcome: last ? outLabel(last.outcome_code) : 'no outreach yet',
@@ -3224,7 +3246,7 @@ const Merge = {
         const c = st.contacts.find(x => x.id === r.contact.id); if (!c) continue;
         const tp = { id: ++nextId, contact_id: c.id, organization_id: c.organization_id,
           touch_type:'email', direction:'outbound', touched_at: now, campaign_id:null, event_id:null, rfp_id: r.rfp_id ?? null,
-          subject: r.subject, notes: r.body, outcome_code:'NO_RESPONSE', outcome_status:'confirmed',
+          subject: r.subject, notes: r.body, outcome_code: r.outcome || 'NO_RESPONSE', outcome_status:'confirmed',
           outcome_raw: null, owner_id: st.settings.default_owner_id, created_at: now,
           merge_template: tplName };
         if (r.follow_up_on) tp.follow_up_on = r.follow_up_on;
@@ -3278,21 +3300,37 @@ const Gmail = {
     return this.token;
   },
   /** One message in the format Gmail takes: headers, a plain and an HTML part, base64url. */
-  raw({ to, subject, text, bcc, replyTo, inReplyTo, references }){
-    const b64 = s => btoa(unescape(encodeURIComponent(s)));
-    const head = s => /^[\x20-\x7e]*$/.test(s) ? s : '=?UTF-8?B?' + b64(s) + '?=';
+  /** The HTML part of a letter: its lines, and the signature beside the logo as in Gaard's own emails. The inbox preview uses it too. */
+  html(text){
+    text = String(text || '');
     const sig = mySignature(), logo = myLogo(), at = logo ? text.lastIndexOf(sig) : -1;
     const lines = s => esc(s).replace(/\n/g, '<br>');
     const html = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + (at < 0 ? lines(text)
       : lines(text.slice(0, at)) + '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:4px"><tr><td style="padding-right:14px;border-right:2px solid #ccc;text-align:right;font-size:13px;line-height:1.45">'
         + lines(sig).replace(/^([^<]*)/, '<b>$1</b>') + '</td><td style="padding-left:14px;vertical-align:middle"><img src="' + esc(logo) + '" alt="' + esc(Repo.settings().firm_name) + '" height="64" style="display:block;height:64px"></td></tr></table>' + lines(text.slice(at + sig.length))) + '</div>';
+    return html;
+  },
+  /** Files chosen in a form, read for sending (base64), at most 20 MB together. */
+  async files(list){
+    const fs2 = [...(list || [])]; if (fs2.reduce((s, f) => s + f.size, 0) > 20 * 1024 * 1024) throw new Error('The attachments are larger than 20 MB together.');
+    return Promise.all(fs2.map(f => new Promise((ok, no) => { const rd = new FileReader();
+      rd.onload = () => ok({ name: f.name, type: f.type || 'application/octet-stream', data: String(rd.result).split(',')[1] || '' }); rd.onerror = () => no(rd.error); rd.readAsDataURL(f); })));
+  },
+  /** One message in the format Gmail takes: headers, a plain and an HTML part (and any attachments), base64url. */
+  raw({ to, subject, text, bcc, replyTo, inReplyTo, references, files }){
+    const b64 = s => btoa(unescape(encodeURIComponent(s)));
+    const head = s => /^[\x20-\x7e]*$/.test(s) ? s : '=?UTF-8?B?' + b64(s) + '?=';
+    const html = this.html(text);
     const wrap = s => b64(s).replace(/.{76}/g, m => m + '\r\n');
-    const b = 'gaard-' + Math.random().toString(36).slice(2);
+    const b = 'gaard-' + Math.random().toString(36).slice(2), mx = files && files.length ? 'gaard-m-' + Math.random().toString(36).slice(2) : null;
     const headers = ['To: ' + to, bcc && 'Bcc: ' + bcc, replyTo && 'Reply-To: ' + replyTo, 'Subject: ' + head(subject),
       inReplyTo && 'In-Reply-To: ' + inReplyTo, references && 'References: ' + references,
-      'MIME-Version: 1.0', 'Content-Type: multipart/alternative; boundary="' + b + '"'].filter(Boolean);
-    const body = ['', '--' + b, 'Content-Type: text/plain; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap(text),
+      'MIME-Version: 1.0', 'Content-Type: ' + (mx ? 'multipart/mixed; boundary="' + mx + '"' : 'multipart/alternative; boundary="' + b + '"')].filter(Boolean);
+    const alt = ['--' + b, 'Content-Type: text/plain; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap(text),
       '--' + b, 'Content-Type: text/html; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap(html), '--' + b + '--'];
+    const body = !mx ? ['', ...alt] : ['', '--' + mx, 'Content-Type: multipart/alternative; boundary="' + b + '"', '', ...alt,
+      ...files.flatMap(f => ['--' + mx, 'Content-Type: ' + f.type + '; name="' + head(f.name) + '"', 'Content-Disposition: attachment; filename="' + head(f.name) + '"',
+        'Content-Transfer-Encoding: base64', '', f.data.replace(/.{76}/g, m => m + '\r\n')]), '--' + mx + '--'];
     return b64([...headers, ...body].join('\r\n')).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   },
   async send(msg){
@@ -3410,38 +3448,47 @@ const Inbox = {
   },
   /** Write one letter to one person (an RFP's contact, for instance), from the sender's Gmail. It is logged
       as an email on the person's Activity, with its follow-up a week on, and its replies are read like any other. */
-  async compose(c, { subject = '', body = '', rfp_id = null, title } = {}){
+  async compose(c, { subject = '', body = '', rfp_id = null, title, outcome = null, follow_up_on = null, after = null } = {}){
     if (!c || !c.email) return Toast.show('There is no email address to write to.', { kind:'warn' });
-    const out = await Modal.form({ title: title || 'Email ' + c.full_name, wide: true, okLabel: Store.live ? 'Send from my Gmail' : 'Log as sent (demo)', fields: [
+    const tpls = Repo.templates.all();
+    const p = Modal.form({ title: title || 'Email ' + c.full_name, wide: true, okLabel: Store.live ? 'Send from my Gmail' : 'Log as sent (demo)', fields: [
+      ...(tpls.length && !body ? [{ key: 'tpl', label: 'Start from a template', type: 'select', value: '', span: true, options: [{ value: '', label: 'Write it myself' }, ...tpls.map(t => ({ value: String(t.id), label: t.name }))] }] : []),
       { key: 'subject', label: 'Subject', value: subject, span: true },
-      { key: 'body', label: 'To ' + c.email + ' (a suggestion: change anything before sending)', type: 'textarea', rows: 12, span: true, value: body } ] });
+      { key: 'body', label: 'To ' + c.email + (body ? ' (a suggestion: change anything before sending)' : ''), type: 'textarea', rows: 14, span: true, value: body },
+      ...(Store.live ? [{ key: 'files', label: 'Attach files', hint: 'optional', type: 'file', span: true }] : []) ] });
+    const sel = document.getElementById('mf-tpl');
+    if (sel) sel.onchange = () => { const t = tpls.find(x => String(x.id) === sel.value); if (!t) return;
+      document.getElementById('mf-subject').value = Merge.fill(t.subject, c); document.getElementById('mf-body').value = Merge.fill(t.body, c); };
+    const out = await p;
     if (!out || !out.body.trim()) return;
-    const row = { contact: c, subject: out.subject, body: out.body, rfp_id, follow_up_on: Rules.addBusinessDays(new Date(), 5).toISOString().slice(0, 10) };
+    const row = { contact: c, subject: out.subject, body: out.body, rfp_id, outcome, follow_up_on: follow_up_on || Rules.addBusinessDays(new Date(), 5).toISOString().slice(0, 10) };
     if (Store.live){
       const why = Gmail.blocker(); if (why) return Toast.show(why, { kind:'warn' });
-      try { await Gmail.authorize(); row.gmail = await Gmail.send({ to: c.email, subject: out.subject, text: out.body }); row.mailbox = Gmail.email.toLowerCase(); }
+      try { await Gmail.authorize(); row.gmail = await Gmail.send({ to: c.email, subject: out.subject, text: out.body, files: await Gmail.files(out.files) }); row.mailbox = Gmail.email.toLowerCase(); }
       catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
     }
     Merge.send([row], null);
+    if (after) after();
   },
   /** Answer a reply in the same Gmail conversation, from the sender's Gmail. */
-  async answer(tpId){
+  async answer(tpId, preset = {}){
     const tp = Repo.touchpoints.byId(tpId); if (!tp) return;
     const c = Repo.contacts.byId(tp.contact_id);
     const msgs = (Store.state.email_messages || []).filter(m => m.touchpoint_id === tp.id && m.thread_id).sort((a, b) => String(a.sent_at).localeCompare(String(b.sent_at)));
     const theirs = msgs.filter(m => m.direction === 'inbound').pop();
     if (!c || !theirs) return Toast.show('There is no Gmail reply to answer here.', { kind:'warn' });
     const subject = /^re:/i.test(theirs.subject || '') ? theirs.subject : 'Re: ' + (theirs.subject || tp.subject || '');
-    const out = await Modal.form({ title: 'Reply to ' + c.full_name, wide: true, okLabel: 'Send from my Gmail', fields: [
+    const out = await Modal.form({ title: preset.title || 'Reply to ' + c.full_name, wide: true, okLabel: 'Send from my Gmail', fields: [
       { key: 'subject', label: 'Subject', value: subject, span: true },
-      { key: 'body', label: 'Your answer (a suggestion for this outcome: change anything before sending)', type: 'textarea', rows: 12, span: true, value: this.suggest(tp, c) } ] });
+      { key: 'body', label: 'Your answer (a suggestion: change anything before sending)', type: 'textarea', rows: 12, span: true, value: preset.body || this.suggest(tp, c) },
+      { key: 'files', label: 'Attach files', hint: 'optional', type: 'file', span: true } ] });
     if (!out || !out.body.trim()) return;
     try {
       await Gmail.authorize(true);
       const meta = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/' + encodeURIComponent(theirs.external_id) + '?format=metadata&metadataHeaders=Message-ID&metadataHeaders=References',
         { headers: { Authorization: 'Bearer ' + Gmail.token } }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
       const hv = n => (((meta.payload || {}).headers || []).find(x => x.name.toLowerCase() === n) || {}).value || '';
-      const res = await Gmail.send({ to: theirs.from_email, subject: out.subject, text: out.body, threadId: theirs.thread_id,
+      const res = await Gmail.send({ to: theirs.from_email, subject: out.subject, text: out.body, threadId: theirs.thread_id, files: await Gmail.files(out.files),
         inReplyTo: hv('message-id'), references: [hv('references'), hv('message-id')].filter(Boolean).join(' ') });
       Store.commit('Reply sent to ' + c.full_name, st => {
         const now = new Date().toISOString().slice(0, 19);
@@ -3449,6 +3496,7 @@ const Inbox = {
           external_id: res.id, thread_id: res.threadId || theirs.thread_id, direction: 'outbound', from_email: Gmail.email, to_emails: [theirs.from_email], cc_emails: [],
           subject: out.subject, body_text: out.body, sent_at: now, is_auto_reply: false, created_at: now });
       });
+      if (preset.after) preset.after();
     } catch (err){ Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
   },
 };
@@ -3858,6 +3906,7 @@ Views.mailmerge = { title:'Mass Email',
             <dt>To</dt><dd>${esc(preview.contact.email || 'no address')}</dd>
             <dt>Subject</dt><dd><label class="sr-only" for="mm-subj">Subject</label><input id="mm-subj" type="text" class="mm-subj" value="${esc(letterFor(preview.contact).subject)}"></dd></dl>
           <label class="sr-only" for="mm-body">Letter</label><textarea id="mm-body" class="mergebody mm-body" rows="16">${esc(letterFor(preview.contact).body)}</textarea>
+          <div class="mm-inbox"><span class="muted small">As it arrives in their inbox</span><div class="mm-html">${Gmail.html(letterFor(preview.contact).body)}</div></div>
           <p class="muted small mm-edited">${(st.edits || {})[preview.contact.id] ? `Changed for ${esc(preview.contact.full_name)} only; the template stays as it is. <button class="linkish" type="button" id="mm-undo">Undo my changes</button>` : 'Type in the letter to change it for this person only.'}</p>
 
           <div class="stephead" style="margin:20px 0 12px"><span class="stepnum">3</span><h2>Send them</h2></div>
@@ -4740,6 +4789,317 @@ Views.newsletter = { title:'Newsletter',
   mount(root, params){ return Views.contacts.mount(root, { ...params, flag:'newsletter', mode:'newsletter' }); }
 };
 
+/* ===== Jon's workflow ================================================
+   What Jon's own Claude skills do, done where the data already is: the call
+   invitation and its confirmation (gaard-call-scheduler), the call brief
+   (gaard-call-brief), the onboarding checklist (gaard-onboarding-checklist),
+   the client loyalty program (gaard-client-touchpoint) and adding an RFP from a
+   screen or a log row (gaard-rfp-screening, gaard-rfp-log). Jon's house style
+   holds in every letter: no em dashes, no contractions.
+   ===================================================================== */
+const myRow = () => (Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {};
+const firstNameOf = c => c.first_name || String(c.full_name || '').split(' ')[0] || 'there';
+const pad2 = n => String(n).padStart(2, '0');
+/** A Google Calendar page with the event filled in; the person presses Save (and Send for guests). No permission needed. */
+function gcalLink({ title, start, end, allDay, details = '', guests = '' }){
+  const f = d => allDay ? d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate())
+    : d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + pad2(d.getMinutes()) + '00';
+  const q = new URLSearchParams({ action: 'TEMPLATE', text: title, dates: f(start) + '/' + f(end), ctz: 'America/Denver', details });
+  if (guests) q.set('add', guests.replace(/\s+/g, ''));
+  return 'https://calendar.google.com/calendar/render?' + q.toString();
+}
+/** Copy rich text (with links) and plain text together. */
+async function copyRich(html, text){
+  try { await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([text], { type: 'text/plain' }) })]); }
+  catch (e) { await navigator.clipboard.writeText(text); }
+}
+
+/* Schedule a call: Google Calendar opens with the invitation filled in (title
+   "[Organization] - Gaard Capital", 30 minutes, the contact and whoever you
+   always invite, the Zoom link), and the confirmation email follows in Jon's
+   words, in the same Gmail conversation when there is one. */
+async function scheduleCall(c){
+  if (!c) return;
+  const me = myRow(), org = Repo.contacts.organization(c.id);
+  const out = await Modal.form({ title: 'Schedule a call with ' + c.full_name, wide: true, okLabel: 'Open the invitation, then the email', fields: [
+    { key: 'title', label: 'Title', value: (org ? org.name : c.full_name) + ' - Gaard Capital', span: true },
+    { key: 'day', label: 'Day', type: 'date', value: Rules.addBusinessDays(new Date(), 2).toISOString().slice(0, 10) },
+    { key: 'time', label: 'Time (Mountain)', type: 'time', value: '10:00' },
+    { key: 'mins', label: 'Minutes', type: 'number', value: '30' },
+    { key: 'guests', label: 'Guests', hint: 'separated by commas', value: [c.email, me.invite_also].filter(Boolean).join(', '), span: true },
+    { key: 'zoom', label: 'Zoom link', value: me.zoom_link || '', span: true, placeholder: 'https://… (save yours in Settings)' } ] });
+  if (!out || !out.day || !out.time) return;
+  const start = new Date(out.day + 'T' + out.time + ':00'), end = new Date(start.getTime() + (Number(out.mins) || 30) * 60000);
+  window.open(gcalLink({ title: out.title, start, end, details: out.zoom ? 'ZOOM LINK:\n' + out.zoom : '', guests: out.guests }), '_blank', 'noopener');
+  let h = start.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+  const when = start.toLocaleDateString('en-US', { weekday: 'short' }) + ' (' + (start.getMonth() + 1) + '/' + start.getDate() + ') at ' + h + ':' + pad2(start.getMinutes()) + ap + ' MT';
+  const body = 'Dear ' + firstNameOf(c) + ',\n\nI just sent over a calendar invite with a Zoom link for ' + when + '.'
+    + (out.zoom ? ' I am also including the link here for your convenience:\n' + out.zoom : '') + '\n\nLooking forward to connecting.\n\nBest,\n'
+    + (String(Repo.teamName(Repo.settings().default_owner_id) || '').split(' ')[0] || '');
+  const after = () => Store.commit('Call scheduled with ' + c.full_name, st => {
+    // the call is now the next thing to do for this person: it replaces their open follow-ups
+    st.reminders.filter(x => x.contact_id === c.id && (x.status === 'open' || x.status === 'snoozed') && ['post_call', 'follow_up'].includes(x.reminder_type)).forEach(x => { x.status = 'superseded'; });
+    st.reminders.push({ id: Math.max(0, ...st.reminders.map(x => x.id)) + 1, reminder_type: 'post_call', contact_id: c.id, organization_id: c.organization_id ?? null,
+      due_on: out.day, title: 'Call ' + when + ': log how it went', details: 'Call scheduled: ' + out.title + ', ' + when + '.\nAfter the call, Log activity with what was agreed.',
+      status: 'open', created_by: 'rule', assigned_to: st.settings.default_owner_id, created_at: new Date().toISOString().slice(0, 19) }); });
+  Toast.show('In Google Calendar: remove the Google Meet link if one was added, then Save and Send the invitation.', { kind: 'ok', ms: 10000 });
+  const thread = (Store.state.email_messages || []).filter(m => m.contact_id === c.id && m.direction === 'inbound' && m.thread_id && m.touchpoint_id)
+    .sort((a, b) => String(a.sent_at).localeCompare(String(b.sent_at))).pop();
+  if (Store.live && thread) return Inbox.answer(thread.touchpoint_id, { body, title: 'Confirm the call with ' + c.full_name, after });
+  return Inbox.compose(c, { subject: 'Call ' + when, body, title: 'Confirm the call with ' + c.full_name, outcome: 'INTERESTED', follow_up_on: out.day, after });
+}
+
+/* The call brief, laid out the way Jon keeps it: the top block from the CRM,
+   PURPOSE OF CALL and NOTES in his own words. Copied with its links. */
+async function callBrief(c){
+  if (!c) return;
+  const org = Repo.contacts.organization(c.id), people = org ? Repo.organizations.contacts(org.id) : [c];
+  const rem = Repo.contacts.reminders(c.id).find(r => r.reminder_type === 'post_call' && r.status === 'open');
+  const out = await Modal.form({ title: 'Call brief: ' + (org ? org.name : c.full_name), wide: true, okLabel: 'Copy the brief', fields: [
+    { key: 'when', label: 'Day and time', value: rem ? fmtDate(rem.due_on, { weekday: 'long', month: 'long', day: 'numeric' }) + ' · [time] MT' : 'Date and time TBD', span: true },
+    { key: 'mission', label: 'Mission', hint: 'one phrase, lowercase start', value: '', span: true, placeholder: 'to support Utah youth through mentoring, education, and scholarships' },
+    { key: 'who', label: 'On the call', hint: 'one per line, Title: Name', type: 'textarea', rows: 3, span: true, value: (c.title || 'Title') + ': ' + c.full_name },
+    { key: 'purpose', label: 'PURPOSE OF CALL', hint: 'what they want from the call', type: 'textarea', rows: 3, span: true },
+    { key: 'notes', label: 'NOTES', hint: 'background and history', type: 'textarea', rows: 4, span: true } ] });
+  if (!out) return;
+  const link = (t, u) => u ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}">${esc(t)}</a>` : esc(t);
+  const li = name => { const p = people.find(x => String(x.full_name || '').toLowerCase() === name.trim().toLowerCase()); return p && p.linkedin_url ? p.linkedin_url : ''; };
+  const who = out.who.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const [t, ...n] = l.split(':'); const name = n.join(':').trim() || t.trim(); return { t: n.length ? t.trim() : '', name }; });
+  const head = 'Call with ' + (org ? org.name : c.full_name);
+  const html = `<p><b>${esc(head)}</b><br>${esc(out.when)}</p><p><b>Organization:</b> ${link(org ? org.name : (c.employer || ''), org && org.website)}<br><b>Mission:</b> ${esc(out.mission)}</p>`
+    + `<p><b>On the call</b><br>${who.map(w => (w.t ? esc(w.t) + ': ' : '') + link(w.name, li(w.name))).join('<br>')}</p>`
+    + `<p><b>PURPOSE OF CALL:</b><br>${esc(out.purpose).replace(/\n/g, '<br>')}</p><p><b>NOTES:</b><br>${esc(out.notes).replace(/\n/g, '<br>')}</p>`;
+  const text = [head, out.when, '', 'Organization: ' + (org ? org.name : '') + (org && org.website ? ' (' + org.website + ')' : ''), 'Mission: ' + out.mission, '', 'On the call',
+    ...who.map(w => (w.t ? w.t + ': ' : '') + w.name + (li(w.name) ? ' (' + li(w.name) + ')' : '')), '', 'PURPOSE OF CALL:', out.purpose, '', 'NOTES:', out.notes].join('\n');
+  await copyRich(html, text);
+  const jb = 'JC - JB, you have a call with ' + c.full_name + (org ? ' of ' + org.name : '') + ' on ' + out.when.replace(/\s*·\s*/, ' at ').replace(/\s+MT$/, '') + ' MT; the call brief is in the shared doc, please see page [#].';
+  const m = Modal.open({ title: 'Brief copied', body: `<p>Paste it into the shared doc. The note for JB's list:</p><textarea id="jb-note" rows="3" style="width:100%">${esc(jb)}</textarea>`,
+    foot: `<button class="btn" type="button" data-ok>Close</button><button class="btn btn-primary" type="button" id="jb-copy">Copy the note</button>` });
+  m.querySelector('[data-ok]').onclick = () => Modal.close();
+  m.querySelector('#jb-copy').onclick = () => { navigator.clipboard.writeText(m.querySelector('#jb-note').value); Toast.show('Note copied', { kind: 'ok' }); };
+}
+
+/* The firm's onboarding checklist: the fixed 21 steps, a status note on each, kept on the opportunity (db/018). */
+const ONBOARDING_TASKS = [
+  ['Deliver Form ADV Part 2A and 2B', 'Initial Disclosures and Engagement'],
+  ['Deliver Privacy Policy Notice', 'Initial Disclosures and Engagement'],
+  ['Collect full client identity information (name, address, DOB, SSN/EIN, contact details)', 'Client Identification and Due Diligence'],
+  ['Conduct investment objectives and goals discussion', 'Investment Objectives and Guidelines Review'],
+  ['Define risk tolerance, time horizon, liquidity, and any restrictions', 'Investment Objectives and Guidelines Review'],
+  ['Draft and finalize Investment Policy Statement (IPS) or internal guidelines', 'Investment Objectives and Guidelines Review'],
+  ['Obtain client approval of IPS', 'Investment Objectives and Guidelines Review'],
+  ['Execute Investment Advisory Agreement', 'Agreement Execution'],
+  ['Ensure fee terms and discretionary authority are clearly defined', 'Agreement Execution'],
+  ['Maintain Custodial trading authorization / LPOA (written agreement copy of application)', 'Agreement Execution'],
+  ['Submit custodian forms and assist with new account setup', 'Custodial Coordination'],
+  ['Link client bank accounts', 'Custodial Coordination'],
+  ['Confirm initial funding or asset transfer', 'Initial Funding and Implementation'],
+  ['Monitor settlement and verify custodial processing', 'Initial Funding and Implementation'],
+  ['Implement portfolio per IPS', 'Initial Funding and Implementation'],
+  ['Provide client portal and dashboard demo', 'Initial Funding and Implementation'],
+  ['Store all onboarding documents in client file', 'Recordkeeping and Documentation'],
+  ['Conduct initial quarterly portfolio review', 'Ongoing Obligations'],
+  ['Schedule annual client review and IPS update', 'Ongoing Obligations'],
+  ['Send updated ADV annually', 'Ongoing Obligations'],
+  ['Deliver updated Privacy Policy if materially changed', 'Ongoing Obligations'],
+];
+const PENDING = /^\s*(not yet|awaiting|to be determined)/i;
+const checklistDone = o => { const s = (o && o.onboarding_checklist) || {}; return ONBOARDING_TASKS.filter((_, i) => s[i] && !PENDING.test(s[i])).length; };
+function openChecklist(oppId){
+  const o = Repo.opportunities.all().find(x => x.id === oppId); if (!o) return;
+  const c = Repo.contacts.byId(o.contact_id), s = { ...(o.onboarding_checklist || {}) };
+  const m = Modal.open({ title: 'Onboarding checklist: ' + (Repo.contacts.organization(o.contact_id)?.name || (c && c.full_name) || ''), wide: true, body: `
+    <p class="muted small">The firm's standard steps. Write what happened and when ("Delivered via email and documented, June 9, 2026"), or a pending note ("Not yet completed", "Awaiting settlement and processing", "To be determined").</p>
+    <div class="table-wrap auto" style="box-shadow:none;max-height:58vh"><table class="grid onb"><thead><tr><th>Task</th><th>Category</th><th>Status / Notes</th></tr></thead><tbody>
+    ${ONBOARDING_TASKS.map(([t, cat], i) => `<tr><td>${esc(t)}</td><td class="muted">${esc(cat)}</td><td><input type="text" data-onb="${i}" value="${esc(s[i] || '')}" aria-label="Status for ${esc(t)}"></td></tr>`).join('')}
+    </tbody></table></div>`,
+    foot: `<button class="btn" type="button" id="onb-copy">Copy as a table</button><span class="spacer"></span><button class="btn" type="button" data-cancel>Cancel</button><button class="btn btn-primary" type="button" data-ok>Save</button>` });
+  const read = () => { m.querySelectorAll('[data-onb]').forEach(i => { const v = i.value.trim(); if (v) s[i.dataset.onb] = v; else delete s[i.dataset.onb]; }); };
+  m.querySelector('[data-cancel]').onclick = () => Modal.close();
+  m.querySelector('#onb-copy').onclick = async () => { read();
+    const rows = ONBOARDING_TASKS.map(([t, cat], i) => [t, cat, s[i] || '']);
+    await copyRich('<table><tr><th>Task</th><th>Category</th><th>Status / Notes</th></tr>' + rows.map(r => '<tr>' + r.map(x => '<td>' + esc(x) + '</td>').join('') + '</tr>').join('') + '</table>',
+      ['Task\tCategory\tStatus / Notes', ...rows.map(r => r.join('\t'))].join('\n'));
+    Toast.show('Copied: paste it into the workbook', { kind: 'ok' }); };
+  m.querySelector('[data-ok]').onclick = () => { read(); Modal.close();
+    Store.commit('Onboarding checklist saved', st => { const x = st.opportunities.find(y => y.id === oppId); if (x) x.onboarding_checklist = { ...s }; }); };
+}
+
+/* The client loyalty program: a Thanksgiving card (the Friday before
+   Thanksgiving) and two referral check-ins (the third Friday of February and of
+   August the year after), kept away from the quarter-end newsletters. A cycle
+   is named for the year of its card; each step is a follow-up on the client. */
+const Loyalty = {
+  iso: d => d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate()),
+  nth(y, m, wd, n){ const d = new Date(Date.UTC(y, m - 1, 1)); return new Date(Date.UTC(y, m - 1, 1 + ((wd - d.getUTCDay() + 7) % 7) + 7 * (n - 1))); },
+  cycle(y){ const tg = this.nth(y, 11, 4, 4), card = new Date(tg.getTime() - 6 * 864e5);
+    return { year: y, card: this.iso(card), ref1: this.iso(this.nth(y + 1, 2, 5, 3)), ref2: this.iso(this.nth(y + 1, 8, 5, 3)) }; },
+  /** The cycle still running: its last check-in has not passed. */
+  current(){ const t = new Date().toISOString().slice(0, 10); let y = new Date().getFullYear() - 1; while (this.cycle(y).ref2 < t) y++; return this.cycle(y); },
+  type(c){ const g = (SEGMENTS.find(s => s.code === c.segment_code) || {}).group; return g === 'Individual' ? 'Individual' : g === '401(k)' ? '401k Plan' : 'Nonprofit'; },
+  clients(){
+    const seen = new Set(), cyc = this.current();
+    return Repo.opportunities.all().filter(o => o.stage === 'funded').map(o => Repo.contacts.byId(o.contact_id)).filter(c => c && !seen.has(c.id) && seen.add(c.id))
+      .map(c => { const org = Repo.contacts.organization(c.id), rems = Repo.contacts.reminders(c.id);
+        return { c, org, type: this.type(c), name: org ? org.name : c.full_name, contact: this.type(c) === 'Individual' ? 'n/a' : c.full_name,
+          address: c.mailing_address || (org && org.mailing_address) || '',
+          card: rems.find(r => r.reminder_type === 'thanksgiving_card' && r.status !== 'dismissed' && r.status !== 'superseded' && r.due_on === cyc.card) }; })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  },
+  /** The three follow-ups of a cycle for each client given, unless they are already there. */
+  add(list, cyc){
+    Store.commit('Client loyalty: ' + list.length + ' client' + (list.length === 1 ? '' : 's') + ', ' + cyc.year + ' cycle', st => {
+      const now = new Date().toISOString().slice(0, 19);
+      for (const x of list){
+        for (const [type, due, title, details] of [
+          ['thanksgiving_card', cyc.card, 'Thanksgiving card: ' + x.name, 'Client loyalty, ' + cyc.year + ' cycle. Mail the Thanksgiving card' + (x.address ? ' to ' + x.address : ' (no mailing address on file yet)') + '.'],
+          ['referral_check_in', cyc.ref1, 'Referral check-in: ' + x.name, 'Client loyalty, ' + cyc.year + ' cycle. A visit, call or coffee; ask them to refer Gaard within their network.'],
+          ['referral_check_in', cyc.ref2, 'Referral check-in: ' + x.name, 'Client loyalty, ' + cyc.year + ' cycle. A visit, call or coffee; ask them to refer Gaard within their network.']]){
+          if (st.reminders.some(r => r.contact_id === x.c.id && r.reminder_type === type && r.due_on === due)) continue;
+          st.reminders.push({ id: Math.max(0, ...st.reminders.map(r => r.id)) + 1, reminder_type: type, contact_id: x.c.id, organization_id: x.c.organization_id ?? null,
+            due_on: due, title, details, status: 'open', created_by: 'rule', assigned_to: st.settings.default_owner_id, created_at: now });
+        }
+      }
+    });
+  },
+};
+Views.loyalty = { title: 'Client loyalty',
+  render(){
+    const cyc = Loyalty.current(), next = Loyalty.cycle(cyc.year + 1), all = Loyalty.clients(), inP = all.filter(x => x.card), out = all.filter(x => !x.card);
+    const d = s => fmtDate(s, { month: 'short', day: 'numeric', year: 'numeric' }), prep = s => Rules.addDays(new Date(s + 'T12:00:00'), -21).toISOString().slice(0, 10);
+    const cal = (title, s) => gcalLink({ title: title + ' (client loyalty)', start: new Date(s + 'T12:00:00'), end: new Date(new Date(s + 'T12:00:00').getTime() + 864e5), allDay: true });
+    const steps = [['Thanksgiving cards', cyc.card], ['Referral check-in calls', cyc.ref1], ['Referral check-in calls', cyc.ref2]];
+    return `<div class="page-head"><div><h1>Client loyalty</h1><p>Three touches a year for every client: a Thanksgiving card, and two referral check-ins (a visit, a call or a coffee) away from the quarter-end newsletters. Each one is a follow-up on the client, on Follow-ups when it is due.</p></div></div>
+    <div class="dash-grid">
+      <section class="card col-5"><div class="card-head"><h2>The ${cyc.year} cycle</h2></div><div class="card-body">
+        <table class="grid"><thead><tr><th>Step</th><th>Prepare</th><th>Do it</th></tr></thead><tbody>
+        ${steps.map(([l, s]) => `<tr><td><b>${esc(l)}</b></td><td><a href="${esc(cal('Prep ' + l.toLowerCase(), prep(s)))}" target="_blank" rel="noopener" title="Put it on my Google Calendar">${d(prep(s))}</a></td><td><a href="${esc(cal(l, s))}" target="_blank" rel="noopener" title="Put it on my Google Calendar">${d(s)}</a></td></tr>`).join('')}
+        </tbody></table>
+        <p class="muted small" style="margin-top:8px">Click a date to put it on your Google Calendar (all day).</p>
+        <p class="muted small" style="margin-top:10px">Next cycle (${next.year}): card ${d(next.card)}, check-ins ${d(next.ref1)} and ${d(next.ref2)}.</p>
+        <div class="page-actions" style="margin-top:10px;justify-content:flex-start">
+          ${out.length ? `<button class="btn btn-sm btn-primary" type="button" id="ly-all">Add all ${out.length} client${out.length === 1 ? '' : 's'} to the ${cyc.year} cycle</button>` : ''}
+          ${inP.length ? `<button class="btn btn-sm" type="button" id="ly-next">Start the ${next.year} cycle for everyone in the program</button>` : ''}</div>
+      </div></section>
+      <section class="card col-7"><div class="card-head"><h2>Clients</h2><span class="sub">${inP.length} of ${all.length} in the ${cyc.year} cycle</span>
+        ${inP.length ? '<button class="btn btn-sm" type="button" id="ly-copy" style="margin-left:auto">Copy rows for the Customer Loyalty tab</button>' : ''}</div>
+        <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Client</th><th>Type</th><th>Mailing address</th><th>In the program</th></tr></thead><tbody>
+        ${all.length ? all.map(x => `<tr><td><a href="${href('contacts/' + x.c.id)}"><b>${esc(x.name)}</b></a><span class="sub">${esc(x.contact)}</span></td><td>${esc(x.type)}</td>
+          <td><input type="text" data-ly-addr="${x.c.id}" value="${esc(x.address)}" placeholder="${x.type === 'Individual' ? 'Ask the client' : 'Street, city, state ZIP'}" aria-label="Mailing address for ${esc(x.name)}"></td>
+          <td>${x.card ? '<span class="pill st-funded">Yes</span>' : `<button class="btn btn-sm" type="button" data-ly-add="${x.c.id}">Add</button>`}</td></tr>`).join('')
+          : `<tr><td colspan="4">${emptyState('No funded clients yet')}</td></tr>`}
+        </tbody></table></div></section>
+    </div>`;
+  },
+  mount(root){
+    const cyc = Loyalty.current(), all = Loyalty.clients();
+    root.querySelector('#ly-all')?.addEventListener('click', () => Loyalty.add(all.filter(x => !x.card), cyc));
+    root.querySelector('#ly-next')?.addEventListener('click', () => Loyalty.add(all.filter(x => x.card), Loyalty.cycle(cyc.year + 1)));
+    root.querySelectorAll('[data-ly-add]').forEach(b => b.addEventListener('click', () => Loyalty.add(all.filter(x => x.c.id === Number(b.dataset.lyAdd)), cyc)));
+    root.querySelectorAll('[data-ly-addr]').forEach(i => i.addEventListener('change', () => { const x = all.find(y => y.c.id === Number(i.dataset.lyAddr)); if (!x) return;
+      Store.commit('Mailing address saved', st => { const v = i.value.trim() || null;
+        if (x.org && x.type !== 'Individual'){ const o = st.organizations.find(y => y.id === x.org.id); if (o) o.mailing_address = v; }
+        else { const c = st.contacts.find(y => y.id === x.c.id); if (c) c.mailing_address = v; } }); }));
+    root.querySelector('#ly-copy')?.addEventListener('click', () => { const f = s => { const [y, m, dd] = s.split('-'); return Number(m) + '/' + Number(dd) + '/' + y; };
+      const rows = all.filter(x => x.card).map(x => [x.type, x.name, x.contact, x.address, f(cyc.card), f(cyc.ref1), f(cyc.ref2)].join('\t')).join('\n');
+      navigator.clipboard.writeText(rows); Toast.show('Copied. In the sheet, click the next empty cell in column B, then paste.', { kind: 'ok', ms: 8000 }); });
+  }
+};
+
+/* An RFP from Jon's screen (gaard-rfp-screening) or a row of his RFP log
+   (gaard-rfp-log): read, shown for checking, then saved. A log row for an RFP
+   already on file updates it. */
+const RfpIn = {
+  money(s){ let best = null; String(s || '').replace(/\$\s?([\d,.]+)\s*(billion|million|thousand|bn|mm|b|m|k)?\b/gi, (all, n, u) => {
+      const v = parseFloat(n.replace(/,/g, '')) * ({ billion: 1e9, bn: 1e9, b: 1e9, million: 1e6, mm: 1e6, m: 1e6, thousand: 1e3, k: 1e3 }[String(u || '').toLowerCase()] || 1);
+      if (isFinite(v) && (best == null || v > best)) best = v; return all; });
+    if (best == null && /^\s*\d[\d,]*\s*$/.test(String(s || ''))) best = Number(String(s).replace(/,/g, ''));
+    return best; },
+  day(s){ const t = String(s || '').trim(); if (!t) return null; let m;
+    if ((m = t.match(/(\d{4})-(\d{2})-(\d{2})/))) return m[0];
+    if ((m = t.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/))) return (m[3].length === 2 ? '20' + m[3] : m[3]) + '-' + pad2(m[1]) + '-' + pad2(m[2]);
+    if ((m = t.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})(?:,?\s+(\d{4}))?/i))){
+      const mo = 'janfebmaraprmayjunjulaugsepoctnovdec'.indexOf(m[1].toLowerCase()) / 3 + 1, now = new Date();
+      let y = m[3] ? Number(m[3]) : now.getFullYear(); const iso = y + '-' + pad2(mo) + '-' + pad2(m[2]);
+      if (!m[3] && iso < now.toISOString().slice(0, 10)) y++; return y + '-' + pad2(mo) + '-' + pad2(m[2]); }
+    return null; },
+  /** A row of the RFP log: 13 tab-separated columns. */
+  logRow(line){
+    const c = line.split('\t').map(x => x.trim()); if (c.length < 9) return null;
+    const [nameIssuer, ref, final, approved, reviewedBy, reviewedOn, aum, cond, notes, resp, respOn, corr, won] = c;
+    const parts = nameIssuer.split(/\s+\/\s+/), title = parts[0] || nameIssuer, issuer = parts[1] || parts[0];
+    const due = this.day(final), today = new Date().toISOString().slice(0, 10), yes = v => /^y/i.test(v || '');
+    const answered = resp && !/^n$/i.test(resp);
+    const status = yes(won) ? 'won' : /^n/i.test(won || '') ? 'lost' : answered ? 'submitted' : /^n/i.test(approved || '') ? 'declined' : due && due > today ? 'intent_to_bid' : 'submitted';
+    return { organization: issuer, title, reference_number: ref || null, due_on: due, submitted_on: status !== 'intent_to_bid' && status !== 'declined' && due && due <= today ? due : null,
+      approved_for_submission: approved ? yes(approved) : null, reviewed_by: reviewedBy || null, reviewed_on: this.day(reviewedOn), est_mandate_aum: this.money(aum),
+      terms: cond || null, notes: notes || null, decision_on: this.day(respOn), decision_notes: [answered ? resp : '', corr].filter(Boolean).join('\n') || null, status, mandate_type: null };
+  },
+  /** Jon's RFP screen: the headline, then the seven numbered fields. */
+  screen(text){
+    const t = String(text || '').replace(/\r/g, ''), sec = n => { const m = t.match(new RegExp('(?:^|\\n)[#*\\s]*' + n + '\\.[^\\n]*\\n([\\s\\S]*?)(?=\\n[#*\\s]*\\d\\.\\s|$)')); return m ? m[1].trim() : ''; };
+    const lines = t.split('\n').map(l => l.replace(/^[#*\s>-]+|\*+$/g, '').trim()).filter(Boolean);
+    const hi = lines.findIndex(l => /headline|what it is/i.test(l)), headline = ((hi >= 0 && lines[hi].replace(/^.*?(headline:?\s*)?what it is:?\s*/i, '').trim()) || lines[hi + 1] || lines[0] || '').replace(/^[*\s:]+|[*\s]+$/g, '');
+    const org = headline.split(/\s+(?:is\s+)?(?:seeking|seeks|requests|is requesting|wants|needs|issued|issues|looking for)\b/i)[0].trim();
+    const arr = sec(2), pick = k => ((arr.match(new RegExp(k + '[^:]*:\\s*([^\\n]+)', 'i')) || [])[1] || '').replace(/\*/g, '').trim();
+    const s1 = sec(1), total = (s1.match(/(?:total|combined)[^$\n]*(\$[^\n;]+)/i) || [])[1];
+    return { organization: org, title: headline.replace(/\.$/, '').slice(0, 200), reference_number: null, est_mandate_aum: this.money(total || s1),
+      mandate_type: [pick('Vehicle'), pick('Classification')].filter(Boolean).join('; ') || null, due_on: this.day(sec(6) || headline),
+      terms: sec(7).replace(/\*/g, '').trim() || null, notes: t.trim(), status: 'identified', submitted_on: null };
+  },
+  async open(){
+    const first = await Modal.form({ title: 'Add an RFP', wide: true, okLabel: 'Read it', fields: [
+      { key: 'text', label: 'Paste the RFP screen, or a row of the RFP log', type: 'textarea', rows: 12, span: true, placeholder: 'The screen Claude gives (the headline and the seven fields), or the tab-separated log row' } ] });
+    if (!first || !first.text.trim()) return;
+    const row = first.text.split('\n').find(l => l.split('\t').length >= 9), r = row ? this.logRow(row) : this.screen(first.text);
+    const S = [['identified','Identified'], ['intent_to_bid','Intend to bid'], ['submitted','Submitted'], ['finalist','Finalist'], ['won','Won'], ['lost','Lost'], ['declined','Declined to bid'], ['cancelled','Cancelled']];
+    const out = await Modal.form({ title: row ? 'From the RFP log' : 'From the RFP screen', wide: true, okLabel: 'Save the RFP', fields: [
+      { key: 'organization', label: 'Issuer (organization)', value: r.organization, span: true },
+      { key: 'title', label: 'RFP', value: r.title, span: true },
+      { key: 'reference_number', label: 'Reference number', value: r.reference_number || '' },
+      { key: 'status', label: 'Status', type: 'select', value: r.status, options: S.map(([value, label]) => ({ value, label })) },
+      { key: 'est_mandate_aum', label: 'Size of AUM ($)', type: 'number', value: r.est_mandate_aum ?? '' },
+      { key: 'due_on', label: 'Due date', type: 'date', value: r.due_on || '' },
+      { key: 'mandate_type', label: 'Type of arrangement', value: r.mandate_type || '', span: true },
+      { key: 'terms', label: 'Requirements, conditions', type: 'textarea', rows: 3, value: r.terms || '', span: true },
+      { key: 'notes', label: 'Notes', type: 'textarea', rows: 4, value: r.notes || '', span: true } ] });
+    if (!out || !out.organization.trim() || !out.title.trim()) return;
+    const key = Intelligence.orgKey(out.organization);
+    Store.commit('RFP saved: ' + out.title, st => {
+      const now = new Date().toISOString().slice(0, 19);
+      let org = st.organizations.find(o => Intelligence.orgKey(o.name) === key);
+      if (!org){ org = { id: Math.max(0, ...st.organizations.map(o => o.id)) + 1, name: out.organization.trim(), segment_code: /foundation|nonprofit|charit|trust|endowment|society|association/i.test(out.organization) ? 'ORG_NONPROFIT' : 'ORG_OTHER',
+        is_university_affiliated: false, do_not_contact: false, owner_id: st.settings.default_owner_id, legacy_ref: 'RFP ' + now.slice(0, 10), created_at: now }; st.organizations.push(org); }
+      const fields = { organization_id: org.id, title: out.title.trim(), reference_number: out.reference_number.trim() || null, status: out.status,
+        est_mandate_aum: out.est_mandate_aum === '' ? null : Number(out.est_mandate_aum), due_on: out.due_on || null, mandate_type: out.mandate_type.trim() || null,
+        terms: out.terms.trim() || null, notes: out.notes.trim() || null };
+      if (row) Object.assign(fields, { submitted_on: r.submitted_on, approved_for_submission: r.approved_for_submission, reviewed_by: r.reviewed_by, reviewed_on: r.reviewed_on,
+        decision_on: r.decision_on, decision_notes: r.decision_notes });
+      const same = st.rfps.find(x => (fields.reference_number && x.reference_number === fields.reference_number) || (x.organization_id === org.id && String(x.title).toLowerCase() === fields.title.toLowerCase()));
+      if (same) Object.assign(same, fields, { updated_at: now });
+      else st.rfps.push({ id: Math.max(0, ...st.rfps.map(x => x.id)) + 1, ...fields, owner_id: st.settings.default_owner_id, created_at: now });
+      if (!same && fields.due_on && ['identified', 'intent_to_bid'].includes(fields.status) && fields.due_on > now.slice(0, 10)){
+        const id = st.rfps[st.rfps.length - 1].id;
+        st.reminders.push({ id: Math.max(0, ...st.reminders.map(x => x.id)) + 1, reminder_type: 'rfp_deadline', rfp_id: id, organization_id: org.id, contact_id: null,
+          due_on: Rules.addBusinessDays(new Date(fields.due_on + 'T12:00:00'), -5).toISOString().slice(0, 10), title: 'RFP due ' + fmtDate(fields.due_on) + ': ' + fields.title,
+          details: 'RFP due ' + fmtDate(fields.due_on) + ' (' + out.organization.trim() + ').', status: 'open', created_by: 'rule', assigned_to: st.settings.default_owner_id, created_at: now }); }
+    });
+  },
+};
+
+/* Organization names inside a sentence (jb-mail-merge): "I am curious how
+   ____ manages its investments." Legal suffixes and acronyms in brackets go,
+   small words go lowercase, and a bare common-noun name gets "the". */
+function letterOrgName(name){
+  let s = String(name || '').trim(); if (!s) return s;
+  s = s.replace(/,?\s+(inc|llc|l\.l\.c|corp|corporation|ltd|co)\.?$/i, '').replace(/\s*\((?=[^)]*[A-Z]{2})[A-Za-z&.]{2,10}\)\s*/g, ' ').replace(/\s+group$/i, '').replace(/\s+/g, ' ').trim();
+  s = s.split(' ').map((w, i) => i > 0 && /^(and|of|for|the|in|on|at|to|a|an)$/i.test(w) ? w.toLowerCase() : w).join(' ');
+  const head = (s.split(/\s+of\s+/i)[0].split(' ').pop() || '').toLowerCase();
+  const bare = /^(center|centre|connection|zone|authority|committee|museum|library|hospital|clinic|commission|department|district)$/.test(head);
+  if (bare && !/^(the|friends|voices)\b/i.test(s)) s = 'the ' + s;
+  return s;
+}
+
 /* ===== Contact record ================================================ */
 Views.contact = { title:'Contact',
   render(params){
@@ -4795,7 +5155,7 @@ Views.contact = { title:'Contact',
             <dt>Added</dt><dd>${fmtDate(c.sourced_on || dayOf(c.created_at)) || 'Unknown'}</dd>
           </dl></div></div></div></div>
       <p class="keep">${esc(c.title||'')}${org ? ` at <a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : ' <span class="muted">Individual investor</span>'}${c.state ? ' &middot; ' + esc([c.city,c.state].filter(Boolean).join(', ')) : ''}</p></div>
-      <div class="page-actions"><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}</div></div>
+      <div class="page-actions"><button class="btn" type="button" id="c-mail">Write an email</button><button class="btn" type="button" id="c-sched">Schedule a call</button><button class="btn" type="button" id="c-brief">Call brief</button><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}</div></div>
     ${c.do_not_contact ? `<div class="banner danger"><b>Do not contact.</b> ${esc(c.dnc_reason || 'Asked not to be contacted')}${c.dnc_on ? ' (' + fmtDate(c.dnc_on) + ')' : ''}. The database refuses outreach to this contact.</div>` : ''}
     ${c.email_status === 'bounced' ? `<div class="banner warn"><b>Email bounced.</b> ${esc(c.email||'')} is on the wrong-email list. Fixing the address clears this and the reminder together.</div>` : ''}
     ${c.email_status === 'wrong_person' ? `<div class="banner warn"><b>Wrong person.</b> They are no longer at this organization. Find someone else with leadership authority.</div>` : ''}
@@ -4836,6 +5196,7 @@ Views.contact = { title:'Contact',
             <div class="aum-cell"><div class="l">Funded AUM</div><div class="v">${fmtUSD(opp.funded_aum)||'-'}</div></div>
             <div class="aum-cell"><div class="l">Est. annual revenue</div><div class="v">${fmtUSD((opp.funded_aum||opp.expected_aum||0)*Repo.settings().assumed_fee_rate)||'-'}</div></div></div>
           <div class="stage-line">${[['Opened', opp.opened_on], ['First call', opp.first_call_on], ['Next steps', opp.hot_on], ['Onboarding', opp.onboarding_started_on], ['Funded', opp.funded_on]].filter(([, d]) => d).map(([l, d]) => `<span>${l} <b>${esc(fmtDate(d))}</b></span>`).join('')}</div>
+          ${['onboarding', 'funded'].includes(opp.stage) || opp.onboarding_checklist ? `<div style="margin-top:10px"><button class="btn btn-sm" type="button" id="c-onb">Onboarding checklist</button> <span class="muted small">${checklistDone(opp)} of ${ONBOARDING_TASKS.length} done</span></div>` : ''}
           <dl class="kv" style="margin-top:10px">${opp.lost_reason ? `<dt>Lost reason</dt><dd>${esc(opp.lost_reason)}</dd>` : ''}<dt>What booked the call</dt><dd>${esc(chName(opp.converting_channel_code)) || '<span class="muted">Not recorded</span>'}</dd></dl></div></section>` : ''}
       </aside>
     </div>
@@ -4856,6 +5217,10 @@ Views.contact = { title:'Contact',
     root.querySelectorAll('[data-edit-tp]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
       const t = Repo.touchpoints.byId(Number(b.dataset.editTp)); if (t) openActivity(c.id, t); }));
     root.querySelector('#c-opp')?.addEventListener('click', () => { const o = Repo.contacts.opportunity(c.id); if (o) openEditOpportunity(o.id); });
+    root.querySelector('#c-onb')?.addEventListener('click', () => { const o = Repo.contacts.opportunity(c.id); if (o) openChecklist(o.id); });
+    root.querySelector('#c-mail')?.addEventListener('click', () => Inbox.compose(c));
+    root.querySelector('#c-sched')?.addEventListener('click', () => scheduleCall(c));
+    root.querySelector('#c-brief')?.addEventListener('click', () => callBrief(c));
     root.querySelectorAll('[data-done]').forEach(b => b.addEventListener('click', () => Repo.reminders.complete(Number(b.dataset.done))));
     root.querySelectorAll('[data-snooze]').forEach(b => b.addEventListener('click', () => Repo.reminders.snooze(Number(b.dataset.snooze), Number(b.dataset.days))));
     root.querySelectorAll('[data-confirm]').forEach(b => b.addEventListener('click', () => Repo.touchpoints.confirmOutcome(Number(b.dataset.confirm))));
@@ -5513,7 +5878,7 @@ Views.rfps = { title:'RFPs',
     const decided = won.length + lost.length;
     const open = rfps.filter(r => r.rfp.status !== 'won' && r.rfp.status !== 'lost');
     const pot = sum(open, r => r.rfp.est_mandate_aum);
-    return `<div class="page-head"><div><h1>RFPs</h1><p>Every request for proposal on file, what it is worth and where it stands. A finalist presentation opens an opportunity like any other outcome.</p></div><div class="page-actions">${demoTag}</div></div>
+    return `<div class="page-head"><div><h1>RFPs</h1><p>Every request for proposal on file, what it is worth and where it stands. A finalist presentation opens an opportunity like any other outcome.</p></div><div class="page-actions">${demoTag}<button class="btn btn-sm btn-primary" type="button" id="rfp-add">Add an RFP</button></div></div>
     <div class="kpis">
       <div class="kpi"><div class="kpi-head"><span class="lbl"><span class="kpi-icon">${ICONS.box}</span>On file</span><span class="row"><span class="val">${fmtInt(rfps.length)}</span></span></div><div class="kpi-body">${fmtInt(open.length)} still open</div></div>
       <div class="kpi"><div class="kpi-head"><span class="lbl"><span class="kpi-icon">${ICONS.dollar}</span>Open mandate value</span><span class="row"><span class="val">${fmtUSD(pot)||'-'}</span></span></div><div class="kpi-body">Estimated, as stated in the RFP</div></div>
@@ -5548,6 +5913,7 @@ Views.rfps = { title:'RFPs',
         decision_result: out.decision_result.trim() || null, decision_notes: out.decision_notes.trim() || null });
       if (out.status !== r.status && ['won','lost'].includes(out.status)) Toast.show(out.status === 'won' ? 'Won. A check-in is on Follow-ups for two months from now.' : 'Lost. Email on this row writes to ask who won and how we scored.', { kind:'ok', ms: 7000 });
     }));
+    root.querySelector('#rfp-add')?.addEventListener('click', () => RfpIn.open());
     root.querySelectorAll('[data-rfp-mail]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); rfpEmail(Number(b.dataset.rfpMail)); })); }
 };
 /** The letter after an RFP is decided: lost asks who won and how we scored; won checks in. Sent and logged by Inbox.compose. */
@@ -6333,6 +6699,10 @@ Views.settings = { title:'Settings',
             <div class="info-pop"><button class="info-btn" type="button" aria-label="About the booking link" aria-describedby="s-book-info">i</button>
               <div class="info-panel" role="tooltip" id="s-book-info"><div class="info-card"><p>Your Google Calendar booking page (Calendar → Create → Appointment schedule → Copy link). Letters that use {{booking_link}} put it in for whoever sends them.</p></div></div></div>
             <input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
+          <div class="s-book-row"><label for="s-zoom">Calls:</label>
+            <div class="info-pop"><button class="info-btn" type="button" aria-label="About calls" aria-describedby="s-zoom-info">i</button>
+              <div class="info-panel" role="tooltip" id="s-zoom-info"><div class="info-card"><p>Schedule a call (on a contact's page) puts your Zoom link in the invitation and the confirmation email, and invites these people too (for example Dr. Brogaard).</p></div></div></div>
+            <input id="s-zoom" type="url" placeholder="Your Zoom link (https://…)" value="${esc(myRow().zoom_link || '')}"><input id="s-invite" type="text" placeholder="Always invite (emails, commas)" value="${esc(myRow().invite_also || '')}"><button class="btn btn-sm" type="button" id="s-zoom-save">Save</button></div>
           <div class="s-book-row s-sig-row"><label for="s-sig">Your email signature:</label>
             <div class="info-pop"><button class="info-btn" type="button" aria-label="About the signature" aria-describedby="s-sig-info">i</button>
               <div class="info-panel" role="tooltip" id="s-sig-info"><div class="info-card"><p>Goes at the foot of the letters you send from the CRM, in place of your name and the firm. The Gaard logo goes beside it, as in Gaard's own emails; a logo link (an image on the web, starting with https://) uses another picture instead.</p></div></div></div>
@@ -6406,6 +6776,19 @@ Views.settings = { title:'Settings',
       Store.commit(v ? 'Booking link saved' : 'Booking link removed', st => { const row = st.team_members.find(t => t.id === id); if (row) row.booking_url = v || null; });
     });
     /* The signature also lives on the person's own team row, written through set_my_signature() (db/017). */
+    /* The Zoom link and who is always invited also live on the person's own team row (set_my_meeting_defaults, db/018). */
+    root.querySelector('#s-zoom-save')?.addEventListener('click', async () => {
+      const zoom = root.querySelector('#s-zoom').value.trim(), invite = root.querySelector('#s-invite').value.trim(), id = Repo.settings().default_owner_id;
+      if (zoom && !/^https:\/\/\S+$/i.test(zoom)) return Toast.show('The Zoom link should start with https://', { kind:'warn' });
+      if (Store.live){
+        const { error } = await (await Live.sb()).rpc('set_my_meeting_defaults', { p_zoom_link: zoom, p_invite_also: invite });
+        if (error) return Toast.show(/function|does not exist|schema cache/i.test(error.message) ? 'Not saved: the database needs db/018_jon_workflow.sql run first.' : 'Not saved: ' + error.message, { kind:'warn', ms: 9000 });
+        const row = (Store.state.team_members || []).find(t => t.id === id);
+        if (row){ row.zoom_link = zoom || null; row.invite_also = invite || null; if (Live.shadow && Live.shadow.team_members) Live.shadow.team_members.set(row.id, JSON.stringify(row)); }
+        Store.version++; render(); return Toast.show('Saved', { kind:'ok' });
+      }
+      Store.commit('Call settings saved', st => { const row = st.team_members.find(t => t.id === id); if (row){ row.zoom_link = zoom || null; row.invite_also = invite || null; } });
+    });
     root.querySelector('#s-logo-toggle')?.addEventListener('click', e => { e.target.hidden = true; const i = root.querySelector('#s-logo'); i.hidden = false; i.focus(); });
     root.querySelector('#s-logo')?.addEventListener('input', e => { const v = e.target.value.trim(); root.querySelector('#s-sig-logo').src = /^https:\/\/\S+$/i.test(v) ? v : FIRM_LOGO; });
     root.querySelector('#s-sig-save')?.addEventListener('click', async () => {
@@ -6557,11 +6940,11 @@ const NAV = [
 ];
 /* Which sidebar entry owns each screen, and the tabs that screen sits in. */
 const NAV_OF = { contact:'contacts', organization:'contacts', organizations:'contacts', touchpoints:'contacts',
-  templates:'mailmerge', reviews:'reminders', pipeline:'kpis',
+  templates:'mailmerge', reviews:'reminders', loyalty:'reminders', pipeline:'kpis',
   partners:'contacts', newsletter:'contacts' };
 const TABS = [
   ['mailmerge', [['mailmerge','Send as a batch'], ['templates','Email templates']]],
-  ['reminders', [['reminders','One at a time'], ['reviews','Client reviews']]],
+  ['reminders', [['reminders','One at a time'], ['reviews','Client reviews'], ['loyalty','Client loyalty']]],
   ['contacts',  [['contacts','People'], ['organizations','Organizations'], ['partners','Partners'], ['newsletter','Newsletter']]],
   ['kpis',      [['kpis','KPIs'], ['pipeline','Pipeline']]],
 ];
