@@ -1,0 +1,5 @@
+Met at Park City Philanthropy Lunch
+Name	Title	Organization	Email	Phone
+Nora Castillo	Executive Director	Summit County Library Foundation	ncastillo@summitlibraryfdn.example	435-555-0121
+Ben Ashworth	Finance Chair	Park City Ski Education Fund	ben@pcskied.example	435-555-0122
+Kelsey Moana	Development Director	Wasatch Back Animal Rescue	kelsey.moana@wbanimalrescue.example	

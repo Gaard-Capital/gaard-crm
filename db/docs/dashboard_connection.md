@@ -27,6 +27,9 @@ const { data: me } = await supabase.rpc('my_access')   // member?, id, name, rol
 | Clients | `v_client_loyalty` | `.select('*')` |
 | Benefit groups | `v_benefit_groups` | `.select('*')` |
 | Import results | `v_import_results` | `.eq('batch_id', id)` |
+| Events | `v_event_performance` | `.select('*').order('start_on', { ascending: false })`; the sheet's own counts are `people_met_reported`, `responses_reported`, `meetings_reported`, `clients_won_usd` (db/012) |
+| RFPs | `v_rfp_tracker` | `.select('*').order('due_on')`; the RFP log's columns `reference_number`, `approved_for_submission`, `reviewed_by`, `reviewed_on`, `terms`, `decision_result`, `decision_notes` are at the end (db/012) |
+| Data health (Settings) | `v_data_check_latest` | `.select('*').order('sort_order')`: one row per check with `status` (ok / warn / fail), `count`, `previous`, `note` and `sample` (the first five rows behind it). `run_status` and `summary` describe the run; `ran_at` says when. History: `v_data_check_history` (db/013) |
 
 ## Every button calls a function (the rules run inside the database)
 
@@ -43,6 +46,8 @@ const { data: me } = await supabase.rpc('my_access')   // member?, id, name, rol
 | Merge two people | `supabase.rpc('merge_contacts', { p_keep, p_remove })` |
 | Paste in prospects | upload the rows as a table, then `supabase.rpc('import_uploaded_table', { p_table, p_label, ... })`; show `v_import_results` |
 | Re-run the outcome matcher | `supabase.rpc('rematch_outcomes')` |
+| Run the data check now | `supabase.rpc('run_data_checks')` returns `{ status, summary, checks: [{ code, status, count }] }`; then read `v_data_check_latest` (db/013) |
+| Import the Events sheet / the RFP log | upload the CSV as `upload_events` / `upload_rfps`, then `supabase.rpc('import_gaard_tab', { p_table: 'upload_events', p_tab: 'Events' })` (or `'RFPs'`); the result lists `skipped` rows with reasons and, for RFPs, `responses_to_check` (db/012) |
 
 Outcome dropdowns come from `select code, label, applies_to from outcomes where is_active`, filtered
 by the touch type. Reminder types from `reminder_types`, channels from `channels`.
