@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-18.5">
+<meta name="build-version" content="2026-10-18.10">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -313,9 +313,64 @@ table.grid.sheet.ss td.pin1,table.grid.sheet.ss th.pin1{position:sticky;left:0;z
 table.grid.sheet.ss td.pin2,table.grid.sheet.ss th.pin2{position:sticky;left:42px;z-index:3;background:var(--surface)}
 table.grid.sheet.ss td.pin3,table.grid.sheet.ss th.pin3{position:sticky;left:120px;z-index:3;background:var(--surface);box-shadow:1px 0 0 var(--line-strong)}
 table.grid.sheet.ss th.pin1,table.grid.sheet.ss th.pin2,table.grid.sheet.ss th.pin3{z-index:5}
+/* Column headings: a grip on the right edge to widen, the heading itself to
+   drag sideways, and a copy mark for that column on its own. */
+table.grid th.col-h{position:relative}
+table.grid th.col-h[draggable=true]{cursor:grab}
+table.grid th.col-h.col-dragging{opacity:.4}
+table.grid th.col-h.col-over{box-shadow:inset 3px 0 0 var(--accent)}
+.colgrip{position:absolute;top:0;right:0;width:9px;height:100%;cursor:col-resize;z-index:2}
+.colgrip:hover,body.col-resizing .colgrip{background:linear-gradient(90deg,transparent,var(--accent))}
+body.col-resizing{cursor:col-resize;user-select:none}
+.colcopy{position:absolute;top:50%;right:11px;transform:translateY(-50%);width:21px;height:21px;display:grid;place-items:center;padding:0;border:0;border-radius:5px;background:var(--surface-3);color:var(--ink-3);cursor:pointer;opacity:0;transition:opacity .12s;z-index:3}
+.colcopy svg{width:12px;height:12px;stroke:currentColor;stroke-width:2;fill:none}
+table.grid th.col-h:hover .colcopy,.colcopy:focus-visible{opacity:1}
+.colcopy:hover{background:var(--accent-soft);color:var(--accent-strong)}
 table.grid.sheet.ss tr:hover td{background:var(--surface-2)}
 table.grid.sheet.ss tr:hover td.pin2,table.grid.sheet.ss tr:hover td.pin3{background:var(--surface-2)}
 table.grid.sheet.ss tr.is-open td.pin2,table.grid.sheet.ss tr.is-open td.pin3{background:var(--accent-soft)}
+/* The quoted line from the last email, and the three contact statuses. */
+.corr-cell{color:var(--ink-2)}
+.corr-q{font-style:italic}
+/* The date range: presets and quarters above, the two dates underneath. */
+.range-btn{gap:7px}
+.range-btn .cal{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none;flex:none}
+.range-btn .range-dates{color:var(--ink-3);font-weight:400;margin-left:2px}
+.multi-menu.range-menu{width:min(430px,92vw);padding:0;overflow:hidden;max-height:none}
+/* In a page head the button sits at the right end, so the panel hangs from
+   its right edge instead of running off the side of the window. */
+.page-actions .multi-menu.range-menu{left:auto;right:0}
+/* The filter bar flattens every control inside it so the row reads as one
+   pill. The panel that hangs off it is not part of that row, so its own
+   buttons and date boxes get their borders and colours back. */
+.fbar .range-menu .btn{border:1px solid var(--line) !important;background:var(--surface);height:auto;border-radius:9px}
+.fbar .range-menu .btn-primary{background:var(--accent);border-color:var(--accent) !important;color:var(--accent-ink)}
+.fbar .range-menu .btn-primary:hover{background:var(--accent-strong)}
+.fbar .range-menu input{border:1px solid var(--line) !important;background:var(--surface);height:36px;border-radius:9px;padding:0 9px}
+.fbar .range-menu .pick-opt{height:auto}
+.range-cols{display:grid;grid-template-columns:1fr 128px;gap:0}
+.range-presets{display:grid;gap:1px;padding:8px;border-right:1px solid var(--line)}
+.range-quarters{padding:8px 10px;display:grid;align-content:start;gap:8px}
+.range-year{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.range-year b{font-variant-numeric:tabular-nums;font-size:14px}
+.range-qgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.range-qgrid .pick-opt{justify-content:center;text-align:center;border:1px solid var(--line);border-radius:7px;padding:7px 0;font-variant-numeric:tabular-nums}
+.range-qgrid .pick-opt[disabled]{opacity:.38;cursor:not-allowed}
+.range-menu .pick-opt.is-on{background:var(--accent-soft);color:var(--accent-strong);font-weight:600}
+.range-custom{display:flex;align-items:flex-end;gap:9px;padding:10px 12px;border-top:1px solid var(--line);background:var(--surface-2)}
+.range-custom .f{flex:1;display:grid;gap:3px;margin:0}
+.range-custom .f span{font-size:11.5px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.range-custom input{width:100%}
+@media (max-width:560px){.range-cols{grid-template-columns:1fr}.range-presets{border-right:0;border-bottom:1px solid var(--line)}.range-custom{flex-wrap:wrap}}
+table.grid.sbs th[scope=row]{text-align:left;font-weight:500;color:var(--ink-2)}
+table.grid.sbs td .delta{font-size:11px;margin-left:5px;font-weight:600}
+table.grid.sbs td .delta.up{color:var(--good,#1c7a46)} table.grid.sbs td .delta.down{color:var(--bad,#a32c2c)}
+.corr-body{white-space:pre-wrap;font-size:14px;line-height:1.55;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;max-height:46vh;overflow:auto}
+.corr-body.reply{margin-top:12px;border-left:3px solid var(--accent)}
+.corr-d{color:var(--ink-3);font-variant-numeric:tabular-nums}
+.pill.cs-active{background:var(--good-soft,#e4f3ea);color:var(--good,#1c7a46)}
+.pill.cs-dormant{background:var(--surface-3);color:var(--ink-3)}
+.pill.cs-dead{background:var(--bad-soft,#fae7e7);color:var(--bad,#a32c2c)}
 table.grid.sheet.ss .name{font-weight:600}
 table.grid.sheet.ss .pill{height:19px;padding:0 8px;font-size:11px}
 table.grid.sheet.ss .tag{font-size:10.5px;padding:1px 7px}
@@ -626,6 +681,12 @@ details.alt td.num,details.alt th.num{text-align:right}
 .modal-back{position:fixed;inset:0;background:rgba(17,32,25,.34);display:grid;place-items:center;z-index:150;backdrop-filter:blur(2px)}
 .modal-back[hidden]{display:none}
 .modal{background:var(--surface);border-radius:18px;width:min(580px,92vw);max-height:88vh;overflow:auto;box-shadow:0 24px 60px rgba(17,32,25,.24)}
+/* Every popup closes from a large, obvious X in its top right corner. */
+.modal .card-head{position:sticky;top:0;background:var(--surface);z-index:2;border-radius:18px 18px 0 0}
+.modal-x{flex:none;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink-2);cursor:pointer;font-size:0;line-height:0}
+.modal-x svg{width:19px;height:19px;stroke:currentColor;stroke-width:2.1;fill:none;stroke-linecap:round}
+.modal-x:hover{background:var(--surface-3);color:var(--ink);border-color:var(--ink-4,var(--line))}
+.modal-x:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .modal.wide{width:min(880px,94vw)}
 .modal .card-head{padding:19px 22px 16px}
 .modal .card-head h2{font-size:17px}
@@ -945,16 +1006,16 @@ const REFERENCE = {
      follow-up interval; sets_stage moves the opportunity; the flags mirror the
      columns on public.outcomes. */
   outcomes: [
-    { code:'NO_RESPONSE',        label:'No response',                       applies:['email','intro','check_in'],              sentiment:'none',     response:false, next_days:90,  reminder:'follow_up',          stage:null,        newsletter:false, dnc:false, bad_email:false },
+    { code:'NO_RESPONSE',        label:'No response',                       applies:['email','call','event','intro','rfp','meeting','check_in'], sentiment:'none',     response:false, next_days:90,  reminder:'follow_up',          stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'OUT_OF_OFFICE',      label:'Out of office (auto-reply)',        applies:['email','check_in'],                      sentiment:'none',     response:false, next_days:14,  reminder:'ooo_follow_up',      stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'BOUNCED',            label:'Bounced / wrong email',             applies:['email','check_in'],                      sentiment:'none',     response:false, next_days:2,   reminder:'fix_contact_info',   stage:null,        newsletter:false, dnc:false, bad_email:true },
     { code:'WRONG_PERSON',       label:'No longer there / wrong person',    applies:['email','call','check_in'],               sentiment:'neutral',  response:true,  next_days:7,   reminder:'find_new_contact',   stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'REFERRED_INTERNALLY',label:'Pointed us to a colleague',         applies:['email','call','event'],                  sentiment:'neutral',  response:true,  next_days:3,   reminder:'referral_follow_up', stage:null,        newsletter:false, dnc:false, bad_email:false },
-    { code:'NOT_NOW',            label:'Not now, check back later',         applies:['email','call','event','meeting','check_in'], sentiment:'neutral', response:true, next_days:90, reminder:'follow_up',       stage:null,        newsletter:false, dnc:false, bad_email:false },
+    { code:'NOT_NOW',            label:'Not now, check back later',         applies:['email','call','event','intro','rfp','meeting','check_in'], sentiment:'neutral', response:true, next_days:90, reminder:'follow_up',       stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'HAS_ADVISOR',        label:'Already has an advisor',            applies:['email','call','event','check_in'],       sentiment:'negative', response:true,  next_days:180, reminder:'follow_up',          stage:'lost',      newsletter:false, dnc:false, bad_email:false },
-    { code:'NOT_INTERESTED',     label:'Not interested / no thank you',     applies:['email','call','event','check_in'],       sentiment:'negative', response:true,  next_days:null,reminder:null,                 stage:'lost',      newsletter:false, dnc:false, bad_email:false },
+    { code:'NOT_INTERESTED',     label:'Not interested / no thank you',     applies:['email','call','event','intro','rfp','meeting','check_in'], sentiment:'negative', response:true,  next_days:null,reminder:null,                 stage:'lost',      newsletter:false, dnc:false, bad_email:false },
     { code:'UNSUBSCRIBE',        label:'Asked not to be contacted',         applies:['email','call','check_in'],               sentiment:'negative', response:true,  next_days:null,reminder:null,                 stage:'lost',      newsletter:false, dnc:true,  bad_email:false },
-    { code:'INTERESTED',         label:'Interested, call scheduled',        applies:['email','call','event','intro','check_in'],sentiment:'positive',response:true,  next_days:7,   reminder:'post_call',          stage:'call',      newsletter:true,  dnc:false, bad_email:false },
+    { code:'INTERESTED',         label:'Interested, call scheduled',        applies:['email','call','event','intro','rfp','meeting','check_in'],sentiment:'positive',response:true,  next_days:7,   reminder:'post_call',          stage:'call',      newsletter:true,  dnc:false, bad_email:false },
     { code:'NO_ANSWER',          label:'No answer',                         applies:['call'],                                  sentiment:'none',     response:false, next_days:7,   reminder:'follow_up',          stage:null,        newsletter:false, dnc:false, bad_email:false, retry_limit:3, after_limit_days:90 },
     { code:'VOICEMAIL',          label:'Left voicemail',                    applies:['call'],                                  sentiment:'none',     response:false, next_days:7,   reminder:'follow_up',          stage:null,        newsletter:false, dnc:false, bad_email:false, retry_limit:3, after_limit_days:90 },
     { code:'WRONG_NUMBER',       label:'Wrong number',                      applies:['call'],                                  sentiment:'none',     response:false, next_days:2,   reminder:'fix_contact_info',   stage:null,        newsletter:false, dnc:false, bad_email:false },
@@ -962,8 +1023,8 @@ const REFERENCE = {
     { code:'MEETING_AT_EVENT',   label:'Had a meeting at the event',        applies:['event'],                                 sentiment:'positive', response:true,  next_days:5,   reminder:'event_follow_up',    stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'INTRO_MADE',         label:'Introduction made',                 applies:['intro'],                                 sentiment:'neutral',  response:false, next_days:3,   reminder:'referral_follow_up', stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'REVIEW_HELD',        label:'Portfolio review held',             applies:['meeting','check_in'],                    sentiment:'positive', response:true,  next_days:null,reminder:null,                 stage:null,        newsletter:false, dnc:false, bad_email:false },
-    { code:'CALL_HELD',          label:'Call held, next steps set',         applies:['meeting'],                               sentiment:'positive', response:true,  next_days:14,  reminder:'post_call',          stage:'call',      newsletter:true,  dnc:false, bad_email:false },
-    { code:'HOT',                label:'Next steps: a proposal, or taking it to the board', applies:['meeting','email','check_in'],        sentiment:'positive', response:true,  next_days:7,   reminder:'post_call',          stage:'hot',       newsletter:true,  dnc:false, bad_email:false },
+    { code:'CALL_HELD',          label:'Call',                             applies:['email','call','event','intro','rfp','meeting','check_in'], sentiment:'positive', response:true,  next_days:14,  reminder:'post_call',          stage:'call',      newsletter:true,  dnc:false, bad_email:false },
+    { code:'HOT',                label:'Ready for a proposal',             applies:['meeting','email','check_in'],        sentiment:'positive', response:true,  next_days:7,   reminder:'post_call',          stage:'hot',       newsletter:true,  dnc:false, bad_email:false },
     { code:'READY_TO_ONBOARD',   label:'Wants to hire us, start onboarding',applies:['meeting','email','check_in'],            sentiment:'positive', response:true,  next_days:14,  reminder:'onboarding_task',    stage:'onboarding',newsletter:true,  dnc:false, bad_email:false },
     { code:'NOT_A_FIT',          label:'Not a fit after the call',          applies:['meeting','email','check_in'],            sentiment:'negative', response:true,  next_days:null,reminder:null,                 stage:'lost',      newsletter:false, dnc:false, bad_email:false },
     { code:'RFP_SUBMITTED',      label:'RFP response submitted',            applies:['rfp'],                                   sentiment:'neutral',  response:false, next_days:30,  reminder:'follow_up',          stage:null,        newsletter:false, dnc:false, bad_email:false },
@@ -1256,8 +1317,10 @@ const domainMatches = (domain, pattern) => {
   const d = String(domain || '').toLowerCase(), p = String(pattern || '').trim().toLowerCase();
   if (!d || !p) return false;
   return p[0] === '.' ? d.endsWith(p) : d === p || d.endsWith('.' + p); };
-/* The flag rules contacts_before_write applies. 'university' marks the contact
-   no cold email, in person only; any other flag puts them on do not contact.
+/* The flag rules contacts_before_write applies. Every flag puts the contact on
+   do not contact, which is what stops them reaching the mail merge. A university
+   address is marked as well, because that one is not a refusal: Jon still reaches
+   out, in person or by introduction, and the reminder below asks him to.
    As in the database, a rule only ever sets a flag: removing one clears nothing. */
 function applyFlagRules(c, rules){
   const email = String(c.email || '').trim().toLowerCase(), domain = email.split('@')[1] || '';
@@ -1266,9 +1329,16 @@ function applyFlagRules(c, rules){
     const hit = r.match_on === 'email_domain' ? domainMatches(domain, r.pattern)
       : r.match_on === 'email' ? email !== '' && email === String(r.pattern).trim().toLowerCase() : false;
     if (!hit) continue;
-    if (r.flag === 'university') c.is_university_affiliated = true;
-    else if (!c.do_not_contact){ c.do_not_contact = true; c.dnc_reason = c.dnc_reason || r.reason || 'Matches the do-not-contact list';
-      c.dnc_on = c.dnc_on || new Date().toISOString().slice(0,10); }
+    if (r.flag === 'university'){
+      c.is_university_affiliated = true;
+      const note = 'Academia: personal outreach only.';
+      if (!String(c.notes || '').includes(note)) c.notes = c.notes ? c.notes.trim() + ' ' + note : note;
+    }
+    if (!c.do_not_contact){
+      c.do_not_contact = true;
+      c.dnc_reason = c.dnc_reason || (r.flag === 'university' ? 'Academia: no cold outreach, personal only' : r.reason || 'Matches the do-not-contact list');
+      c.dnc_on = c.dnc_on || new Date().toISOString().slice(0,10);
+    }
   }
   return c;
 }
@@ -1386,6 +1456,51 @@ const Repo = {
       return Repo._oppByContact().get(id) || (c.organization_id != null ? Repo._oppByOrg().get(c.organization_id) : null) || null; },
     organization: id => { const c = Repo.contacts.byId(id); return c && c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null; },
     latestTouch: memo(() => { const m = new Map(); for (const [cid, list] of Repo._tpByContact()) m.set(cid, list[0]); return m; }),
+    /** How this one actually came in, in order, ending at whatever opened the
+        opportunity: "Cold email (no response), met at Jackson Hole, call." */
+    path(id){
+      const tps = Repo.contacts.touchpoints(id).slice().reverse();
+      if (!tps.length) return '';
+      const opp = Repo.contacts.opportunity(id);
+      const stop = opp ? opp.converting_touchpoint_id : null;
+      const parts = [];
+      for (const t of tps){
+        const ev = t.event_id != null ? Repo.events.byId(t.event_id) : null;
+        const ch = CH.get(TT.get(t.touch_type)?.channel);
+        let leg = ev ? 'met at ' + ev.name : (ch ? ch.name.toLowerCase() : (TT.get(t.touch_type)?.name || 'touch').toLowerCase());
+        if (t.outcome_code === 'NO_RESPONSE') leg += ' (no response)';
+        if (!parts.length || parts[parts.length - 1] !== leg) parts.push(leg);
+        if (stop && t.id === stop) break;
+      }
+      const end = opp && opp.stage ? stageLabel(opp.stage).toLowerCase() : null;
+      if (end && parts[parts.length - 1] !== end) parts.push(end);
+      const line = parts.join(', ');
+      return line ? line.charAt(0).toUpperCase() + line.slice(1) + '.' : '';
+    },
+    /** Active, Dormant or Dead. A value set by hand always wins. */
+    statusOf(id){
+      const c = Repo.contacts.byId(id); if (!c) return 'dormant';
+      if (c.status_override) return c.status_override;
+      if (Repo.contacts.deadReason(id)) return 'dead';
+      const opp = Repo.contacts.opportunity(id);
+      if (opp && opp.stage && !STG.get(opp.stage)?.closed) return 'active';
+      return Repo.contacts.nextReminder(id) ? 'active' : 'dormant';
+    },
+    /** Why a contact counts as dead, or null. Jon's two rules, no others:
+        they said no, or three follow-ups across three quarters went unanswered. */
+    deadReason(id){
+      const tps = Repo.contacts.touchpoints(id);
+      const answered = tps.find(t => OUT.get(t.outcome_code)?.response);
+      if (answered && ['NOT_INTERESTED', 'UNSUBSCRIBE', 'NOT_A_FIT'].includes(answered.outcome_code))
+        return outLabel(answered.outcome_code).toLowerCase() + ' on ' + fmtDate(answered.touched_at);
+      const silent = tps.filter(t => TT.get(t.touch_type)?.outreach && t.outcome_code === 'NO_RESPONSE');
+      if (silent.length >= 3){
+        const newest = silent[0], oldest = silent[silent.length - 1];
+        const months = Rules.monthsBetween(dayOf(oldest.touched_at), dayOf(newest.touched_at));
+        if (months >= 6) return `${silent.length} follow-ups with no reply, over ${Math.round(months / 3)} quarters`;
+      }
+      return null;
+    },
     /** Contacts that have never been written to or called: the first-outreach
         queue. These are not leads yet, which is why they are missing from
         v_lead_funnel, and they are not marked No response either. */
@@ -1661,7 +1776,7 @@ const Repo = {
                    stage, owner }  ('All' or empty means no restriction)
    ====================================================================== */
 const Metrics = {
-  empty: () => ({ period:'all', from:'', to:'', quarter:'All', state:'All', segment:'All', group:'All', channel:'All', outcome:'All', stage:'All', owner:'All' }),
+  empty: () => ({ period:'all', from:'', to:'', qy:'', qn:'', quarter:'All', state:'All', segment:'All', group:'All', channel:'All', outcome:'All', stage:'All', owner:'All', credit:'converting' }),
 
   /* One period control instead of two date boxes and a quarter list. Resolving it
      here also gives the previous window of the same length, which is what the
@@ -1670,10 +1785,12 @@ const Metrics = {
      (range() knows them) but are left off the menu: a custom range covers them. */
   PERIODS: [
     { key:'30d',    label:'Last 30 days' },
+    { key:'90d',    label:'Last 90 days' },
     { key:'qtd',    label:'This quarter' },
+    { key:'q_last', label:'Last quarter' },
     { key:'ytd',    label:'This year' },
+    { key:'y_last', label:'Last year' },
     { key:'all',    label:'All time' },
-    { key:'custom', label:'Custom range' },
   ],
   range: memo(f => {
     const iso = d => d.toISOString().slice(0,10);
@@ -1694,6 +1811,12 @@ const Metrics = {
       case 'y_last': { const y = today.getFullYear() - 1;
         return { from: y + '-01-01', to: y + '-12-31', prev_from: (y-1) + '-01-01', prev_to: (y-1) + '-12-31',
           label: String(y), prev_label: String(y-1) }; }
+      case 'quarter': {
+        const y = Number(f.qy) || today.getFullYear(), n = clamp(Number(f.qn) || 1, 1, 4);
+        const s0 = new Date(y, (n-1)*3, 1), e0 = new Date(y, n*3, 0);
+        const p0 = new Date(y, (n-1)*3 - 3, 1), p1 = new Date(y, (n-1)*3, 0);
+        return { from: iso(s0), to: iso(e0), prev_from: iso(p0), prev_to: iso(p1),
+          label: `Q${n} ${y}`, prev_label: n === 1 ? `Q4 ${y-1}` : `Q${n-1} ${y}` }; }
       case 'custom': {
         if (!f.from && !f.to) return { from:'', to:'', label:'All time' };
         const from = f.from || '2000-01-01', to = f.to || iso(today);
@@ -1706,10 +1829,16 @@ const Metrics = {
   /* The same filters shifted back one window, used only for the comparisons. */
   shiftBack: f => { const r = Metrics.range(f);
     return r.prev_from ? { ...f, period:'custom', from: r.prev_from, to: r.prev_to, quarter:'All' } : null; },
-  describe: f => Object.entries(f).filter(([k,v]) => v && v !== 'All' && !(k === 'period' && v === 'all') && !((k === 'from' || k === 'to') && f.period !== 'custom')).map(([k,v]) => ({
+  describe: f => Object.entries(f).filter(([k,v]) => v && v !== 'All' && !(k === 'period' && v === 'all')
+    && !((k === 'from' || k === 'to') && f.period !== 'custom')
+    && !((k === 'qy' || k === 'qn') && f.period !== 'quarter')
+    && !(k === 'credit' && v === 'converting')).map(([k,v]) => ({
     period: Metrics.range(f).label, from:'From ' + fmtDate(v), to:'To ' + fmtDate(v), quarter:v, state: multi(v).map(stateName).join(', '), segment:segName(v), group:v,
     channel:chName(v), outcome:outLabel(v), stage:stageLabel(v), owner:Repo.teamName(Number(v)) })[k]).filter(Boolean),
-  isActive: f => Object.entries(f).some(([k,v]) => v && v !== 'All' && !(k === 'period' && v === 'all') && !((k === 'from' || k === 'to') && f.period !== 'custom')),
+  isActive: f => Object.entries(f).some(([k,v]) => v && v !== 'All' && !(k === 'period' && v === 'all')
+    && !((k === 'from' || k === 'to') && f.period !== 'custom')
+    && !((k === 'qy' || k === 'qn') && f.period !== 'quarter')
+    && !(k === 'credit' && v === 'converting')),
 
   /** v_lead_funnel: one row per contact, with the milestone dates that every
       conversion number is counted from. */
@@ -1760,7 +1889,7 @@ const Metrics = {
     multiHas(f.state, r.state)
     && (f.segment === 'All' || !f.segment || r.segment_code === f.segment)
     && (f.group === 'All' || !f.group || r.segment_group === f.group)
-    && (f.channel === 'All' || !f.channel || r.source_channel_code === f.channel)
+    && (f.channel === 'All' || !f.channel || Metrics.channelOf(r, f) === f.channel)
     && (f.stage === 'All' || !f.stage || r.stage === f.stage)
     && (f.owner === 'All' || !f.owner || String(r.owner_id) === String(f.owner))
     && (f.quarter === 'All' || !f.quarter || r.cohort_quarter === f.quarter)
@@ -1829,11 +1958,21 @@ const Metrics = {
     };
   }),
 
+  /** The channel a conversion is credited to. A cold email that got no reply
+      followed by meeting them at an event credits the event, because the event
+      is what produced the call. The cold email is still counted as an email
+      sent: activity and credit are different questions. */
+  creditChannel: r => r.converting_channel_code || r.source_channel_code || null,
+  /** Which of the two the screens are reading. 'converting' is the rule Jon
+      asked for; 'first' is there so the older numbers can still be seen. */
+  creditMode: f => (f && f.credit) || 'converting',
+  channelOf: (r, f) => Metrics.creditMode(f) === 'first' ? (r.source_channel_code || null) : Metrics.creditChannel(r),
+
   /** v_channel_performance: each lead counted once, under the channel it came from. */
   byChannel: memo(f => {
     const leads = Metrics.leads(f), touches = Metrics.touches(f);
     return CHANNELS.map(ch => {
-      const l = leads.filter(x => x.source_channel_code === ch.code);
+      const l = leads.filter(x => Metrics.channelOf(x, f) === ch.code);
       const attempts = touches.filter(x => TT.get(x.t.touch_type)?.channel === ch.code).length;
       const funded = l.filter(x => x.stage === 'funded');
       const responded = l.filter(x => x.responded_on).length, calls = l.filter(x => x.call_booked_on).length;
@@ -1878,7 +2017,7 @@ const Metrics = {
   matchesExceptDates: (r, f) => multiHas(f.state, r.state)
     && (f.segment === 'All' || !f.segment || r.segment_code === f.segment)
     && (f.group === 'All' || !f.group || r.segment_group === f.group)
-    && (f.channel === 'All' || !f.channel || r.source_channel_code === f.channel)
+    && (f.channel === 'All' || !f.channel || Metrics.channelOf(r, f) === f.channel)
     && (f.stage === 'All' || !f.stage || r.stage === f.stage)
     && (f.owner === 'All' || !f.owner || String(r.owner_id) === String(f.owner)),
 
@@ -2687,7 +2826,12 @@ const Rules = (() => {
       let opp = st.opportunities.find(o => o.contact_id === tp.contact_id && !STG.get(o.stage)?.closed)
         || (contact.organization_id != null ? st.opportunities.find(o => o.organization_id === contact.organization_id && !STG.get(o.stage)?.closed) : null);
       const order = STAGES.map(s => s.code);
-      if (!opp && rule.stage !== 'lost'){
+      /* A funded client is a closed opportunity, so nothing open is found for
+         them. Without this they would be opened again as a fresh prospect at
+         Call the next time they say something warm, and be counted twice. */
+      const alreadyFunded = !opp && st.opportunities.some(o => o.stage === 'funded'
+        && (o.contact_id === tp.contact_id || (contact.organization_id != null && o.organization_id === contact.organization_id)));
+      if (!opp && !alreadyFunded && rule.stage !== 'lost'){
         opp = { id: Math.max(0, ...st.opportunities.map(o => o.id)) + 1, contact_id: contact.id, organization_id: contact.organization_id,
           segment_code: contact.segment_code, state: contact.state, stage: rule.stage,
           source_channel_code: contact.source_channel_code, converting_channel_code: TT.get(tp.touch_type)?.channel || null,
@@ -2733,7 +2877,13 @@ const Rules = (() => {
       title: `${RT.get(rule.reminder) || 'Follow up'}: ${who}`,
       details: `Last outcome: ${rule.label} (${TT.get(tp.touch_type)?.name || tp.touch_type}, ${fmtDate(tp.touched_at)})` + (tp.notes ? '\n' + tp.notes : '') };
   }
-  return { startOfDay, startOfWeek, addDays, addMonths, addBusinessDays, isBusinessDay, holidays, applyOutcome, nextReminder };
+  /** Whole months between two yyyy-mm-dd days, used by the dead rule. */
+  const monthsBetween = (a, b) => {
+    if (!a || !b) return 0;
+    const [ay, am, ad] = String(a).split('-').map(Number), [by, bm, bd] = String(b).split('-').map(Number);
+    return (by - ay) * 12 + (bm - am) - (bd < ad ? 1 : 0);
+  };
+  return { startOfDay, startOfWeek, addDays, addMonths, addBusinessDays, isBusinessDay, holidays, applyOutcome, nextReminder, monthsBetween };
 })();
 
 /* ======================================================================
@@ -2757,9 +2907,12 @@ const Modal = {
   open({ title, body, foot, wide=false }){
     const back = document.getElementById('modal-back'), m = document.getElementById('modal');
     m.className = 'modal' + (wide ? ' wide' : '');
-    m.innerHTML = `<div class="card-head"><h2 id="modal-title">${esc(title)}</h2></div><div class="card-body">${body}</div>` + (foot ? `<div class="card-foot">${foot}</div>` : '');
+    m.innerHTML = `<div class="card-head"><h2 id="modal-title">${esc(title)}</h2>`
+      + `<button class="modal-x" type="button" data-modal-x aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`
+      + `<div class="card-body">${body}</div>` + (foot ? `<div class="card-foot">${foot}</div>` : '');
     back.hidden = false;
     back.onclick = e => { if (e.target === back) Modal.close(); };
+    m.querySelector('[data-modal-x]').onclick = () => Modal.close();
     const first = m.querySelector('input, select, textarea, button'); if (first) first.focus();
     return m;
   },
@@ -2828,6 +2981,63 @@ const outcomePill = o => { const r = OUT.get(o); return o ? `<span class="pill o
 const segPill = code => `<span class="pill seg">${esc(segName(code))}</span>`;
 const emptyState = (t,s) => `<div class="empty"><b>${esc(t)}</b>${s ? esc(s) : ''}</div>`;
 const orgNameOf = c => c && c.organization_id != null ? (Repo.organizations.byId(c.organization_id)?.name || '') : (c && c.employer) || '';
+
+/* ===== The five outcomes, and Active / Dormant / Dead ================
+   Jon records one of five things after an outreach, and nothing else. The
+   codes underneath are the ones the rules already run on, so moving a
+   contact through the picker fires the same follow-up, stage move and
+   newsletter rule it always did.
+
+   Underneath the five sit the delivery problems: bounced, out of office,
+   wrong person. They are not outcomes Jon chooses between, they are the
+   mail coming back, and he asked for each of them to raise a reminder, so
+   they stay on the list under their own heading rather than being lost.
+   ===================================================================== */
+const FIVE_OUTCOMES = [
+  { code:'NO_RESPONSE',    label:'No Response' },
+  { code:'CALL_HELD',      label:'Call' },
+  { code:'INTERESTED',     label:'Responded - Interested' },
+  { code:'NOT_NOW',        label:'Responded - Not Now' },
+  { code:'NOT_INTERESTED', label:'Responded - Not Interested' },
+];
+const DELIVERY_OUTCOMES = ['BOUNCED', 'OUT_OF_OFFICE', 'WRONG_PERSON', 'WRONG_NUMBER', 'NO_ANSWER'];
+const CONTACT_STATUS = [
+  { code:'active',  label:'Active' },
+  { code:'dormant', label:'Dormant' },
+  { code:'dead',    label:'Dead' },
+];
+const statusPill = s => `<span class="pill cs-${esc(s)}">${esc((CONTACT_STATUS.find(x => x.code === s) || {}).label || s)}</span>`;
+function statusNote(c){
+  if (c.status_override) return 'Set by hand. Clear it to go back to the automatic reading.';
+  const why = Repo.contacts.deadReason(c.id);
+  if (why) return 'Dead: ' + why;
+  return 'Active while an opportunity or a follow-up is open, Dormant when nothing is scheduled. Click to set it by hand.';
+}
+
+/* The event where we met them. Stored on the contact, and otherwise read off
+   the first event touchpoint on their record. */
+function sourceEventOf(c, tps){
+  if (c.source_event_id != null) return Repo.events.byId(c.source_event_id);
+  const list = tps || Repo.contacts.touchpoints(c.id);
+  const ev = list.slice().reverse().find(t => t.event_id != null);
+  return ev ? Repo.events.byId(ev.event_id) : null;
+}
+const sourceEventName = (c, tps) => { const e = sourceEventOf(c, tps); return e ? e.name : ''; };
+
+/* The last thing they wrote, in their own words, short enough for one cell.
+   Their reply if there is one, otherwise the newest inbound email. */
+function latestEmailSummary(c, tps){
+  const list = tps || Repo.contacts.touchpoints(c.id);
+  const t = list.find(x => x.response_excerpt) || list.find(x => x.direction === 'inbound');
+  if (!t) return { html:'<span class="muted">-</span>', full:'' };
+  const body = t.response_excerpt || (Repo.touchpoints.emails(t.id)[0] || {}).body_text || t.notes || '';
+  const text = String(body).replace(/\s+/g, ' ').trim();
+  if (!text) return { html:'<span class="muted">-</span>', full:'' };
+  const short = text.length > 120 ? text.slice(0, 119).replace(/\s+\S*$/, '') + '...' : text;
+  return { html:`<span class="corr-q">&ldquo;${esc(short)}&rdquo;</span> <span class="corr-d">${esc(fmtDate(t.touched_at, { month:'numeric', day:'numeric', year:'2-digit' }))}</span>`,
+           full:`${fmtDate(t.touched_at)}: ${text}` };
+}
+
 const contactFlags = c => [
   c.do_not_contact ? '<span class="pill warnflag">Do not contact</span>' : '',
   c.email_status === 'bounced' ? '<span class="pill warnflag">Bounced</span>' : '',
@@ -2851,6 +3061,142 @@ function bindSort(root, st, rerender){ root.querySelectorAll('th[data-sort]').fo
 function pager(st, total, cls2=''){ const pages = Math.max(1, Math.ceil(total/st.pageSize)); st.page = clamp(st.page, 0, pages-1); const a = st.page*st.pageSize;
   return `<div class="pager ${cls2}"><span>Showing ${total ? a+1 : 0} to ${Math.min(total, a+st.pageSize)} of ${fmtInt(total)}</span><span class="spacer"></span><button class="btn btn-sm" type="button" data-page="prev" ${st.page===0?'disabled':''}>Previous</button><span>Page ${st.page+1} of ${pages}</span><button class="btn btn-sm" type="button" data-page="next" ${st.page>=pages-1?'disabled':''}>Next</button></div>`; }
 function bindPager(root, st, rerender){ root.querySelectorAll('[data-page]').forEach(b => b.addEventListener('click', () => { st.page += b.dataset.page === 'next' ? 1 : -1; rerender(); })); }
+
+/* ===== Sheet columns: resize, reorder, copy one column ===============
+   Three rules that apply to every sheet in the app, done once here rather
+   than in each view. Drag the line between two headings to widen a column,
+   drag a heading sideways to move it, or press the copy mark on a heading
+   to put that one column on the clipboard, with nothing else in it, ready
+   for the merge sheet. Widths and order are remembered per screen in this
+   browser. The pinned columns on the left stay where they are: the row
+   number, the date and the name are what everything else is read against.
+   ===================================================================== */
+const Sheet = {
+  key(view, i){ return `gaard_sheetcfg_${view}_${i}`; },
+  read(k){ try { return JSON.parse(localStorage.getItem(k) || 'null') || {}; } catch (e) { return {}; } },
+  write(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private window */ } },
+  pinned(th){ return th.classList.contains('pin1') || th.classList.contains('pin2') || th.classList.contains('pin3') || th.classList.contains('rn'); },
+  label(th){ return (th.textContent || '').replace(/[▲▼]/g, '').trim() || 'Column ' + th.cellIndex; },
+
+  /** Move one column, header, width and every body cell, from a to b. */
+  move(table, from, to){
+    if (from === to) return;
+    const cg = table.querySelector('colgroup');
+    const rows = [table.tHead.rows[0], ...table.tBodies[0].rows];
+    const shift = (parent, kids) => {
+      const node = kids[from];
+      if (!node) return;
+      if (to > from) parent.insertBefore(node, kids[to].nextSibling);
+      else parent.insertBefore(node, kids[to]);
+    };
+    shift(cg, [...cg.children]);
+    rows.forEach(r => {
+      if (!r) return;
+      const cells = [...r.cells];
+      // an expanded thread row spans the table and has no columns to move
+      if (cells.length !== cg.children.length) return;
+      shift(r, cells);
+    });
+  },
+
+  /** Put the saved order back after a rebuild, by label. */
+  applyOrder(table, order){
+    if (!Array.isArray(order) || !order.length) return;
+    for (let target = 0; target < order.length; target++){
+      const heads = [...table.tHead.rows[0].cells];
+      const at = heads.findIndex((th, i) => i >= target && Sheet.label(th) === order[target]);
+      if (at > target && !Sheet.pinned(heads[at]) && !Sheet.pinned(heads[target])) Sheet.move(table, at, target);
+    }
+  },
+
+  /** Every cell under one heading, as the person sees it, one per line. */
+  column(table, i){
+    const out = [];
+    const width = table.querySelector('colgroup').children.length;
+    [...table.tBodies[0].rows].forEach(r => {
+      if (r.cells.length !== width) return;           // skip expanded thread rows
+      const cell = r.cells[i]; if (!cell) return;
+      const field = cell.querySelector('input:not([type=checkbox]), select, textarea');
+      out.push(((field ? field.value : cell.innerText) || '').replace(/\s+/g, ' ').trim());
+    });
+    return out;
+  },
+
+  enhance(root, view){
+    root.querySelectorAll('table.grid').forEach((table, ti) => {
+      const cg = table.querySelector('colgroup');
+      if (!cg || !table.tHead || table.tHead.rows.length !== 1 || !table.tBodies[0]) return;
+      const head = table.tHead.rows[0];
+      if (cg.children.length !== head.cells.length) return;   // not a column-for-column table
+      const k = Sheet.key(view, ti), cfg = Sheet.read(k);
+
+      Sheet.applyOrder(table, cfg.order);
+
+      [...head.cells].forEach(th => {
+        const label = Sheet.label(th), col = cg.children[th.cellIndex];
+        if (cfg.w && cfg.w[label]) col.style.width = cfg.w[label] + 'px';
+        if (th.querySelector('.colgrip')) return;
+        th.classList.add('col-h');
+
+        const copy = document.createElement('button');
+        copy.type = 'button'; copy.className = 'colcopy'; copy.title = `Copy the ${label} column on its own`;
+        copy.setAttribute('aria-label', `Copy the ${label} column`);
+        copy.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>';
+        copy.addEventListener('click', async e => {
+          e.stopPropagation(); e.preventDefault();
+          const vals = Sheet.column(table, th.cellIndex).filter(v => v !== '');
+          if (!vals.length) return Toast.show('Nothing in that column to copy.', { kind:'warn' });
+          try { await navigator.clipboard.writeText(vals.join('\n'));
+            Toast.show(`${fmtInt(vals.length)} ${label} value${vals.length === 1 ? '' : 's'} copied, nothing else.`, { kind:'ok' }); }
+          catch (err){ Toast.show('Could not reach the clipboard.', { kind:'warn' }); }
+        });
+        th.appendChild(copy);
+
+        if (Sheet.pinned(th)) return;
+
+        const grip = document.createElement('span');
+        grip.className = 'colgrip'; grip.title = 'Drag to change the width';
+        grip.addEventListener('click', e => { e.stopPropagation(); });
+        grip.addEventListener('mousedown', e => {
+          e.preventDefault(); e.stopPropagation();
+          const x0 = e.clientX, w0 = th.getBoundingClientRect().width;
+          document.body.classList.add('col-resizing');
+          const onMove = ev => { col.style.width = Math.max(40, Math.round(w0 + ev.clientX - x0)) + 'px'; };
+          const onUp = () => {
+            document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp);
+            document.body.classList.remove('col-resizing');
+            const next = Sheet.read(k); next.w = next.w || {};
+            next.w[label] = parseInt(col.style.width, 10); Sheet.write(k, next);
+          };
+          document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp);
+        });
+        th.appendChild(grip);
+
+        th.draggable = true;
+        th.addEventListener('dragstart', e => { e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', String(th.cellIndex)); th.classList.add('col-dragging'); });
+        th.addEventListener('dragend', () => th.classList.remove('col-dragging'));
+        th.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; th.classList.add('col-over'); });
+        th.addEventListener('dragleave', () => th.classList.remove('col-over'));
+        th.addEventListener('drop', e => {
+          e.preventDefault(); e.stopPropagation(); th.classList.remove('col-over');
+          const from = Number(e.dataTransfer.getData('text/plain')), to = th.cellIndex;
+          if (!Number.isInteger(from) || from === to) return;
+          if (Sheet.pinned(table.tHead.rows[0].cells[from])) return;
+          Sheet.move(table, from, to);
+          const next = Sheet.read(k);
+          next.order = [...table.tHead.rows[0].cells].map(Sheet.label); Sheet.write(k, next);
+        });
+      });
+    });
+  },
+
+  /** Put one screen's columns back to how the app ships them. */
+  reset(view){
+    for (let i = 0; i < 8; i++){ try { localStorage.removeItem(Sheet.key(view, i)); } catch (e) { /* private window */ } }
+  },
+};
+
 /** Tick boxes in a list behave like a sheet's: press one and drag across the
     rows to set them all the same way, or Shift-click to set the range from the
     last one pressed. apply(map of id -> checked) saves the change once. */
@@ -2952,17 +3298,79 @@ function filterBar({ compact=false, extra='', search='' } = {}){
   /* One bar of filters, rounded at its two ends; the search box, where a page
      has one, is a second rounded bar beside it on the same line. */
   return `<div class="fbar-row"><div class="filters fbar" role="group" aria-label="Filters">
-    ${sel('period','Period', Metrics.PERIODS.map(p => ({ value:p.key, label:p.label })))}
-    ${f.period === 'custom' ? `<label class="sr-only" for="flt-from">From</label><input type="date" id="flt-from" data-filter="from" value="${esc(f.from)}" title="From date" style="min-width:150px">
-       <label class="sr-only" for="flt-to">To</label><input type="date" id="flt-to" data-filter="to" value="${esc(f.to)}" title="To date" style="min-width:150px">` : ''}
+    ${dateRange(f, r)}
     ${stateFilter()}
     ${sel('segment','Segment', segOptions)}
     ${sel('channel','Channel', [{value:'All',label:'All channels'}, ...CHANNELS.map(c => ({ value:c.code, label:c.name }))])}
+    ${sel('credit','Which channel gets the credit', [
+      { value:'converting', label:'Credit: what converted them' },
+      { value:'first', label:'Credit: how we first met' }])}
     ${sel('stage','Stage', [{value:'All',label:'All stages'}, ...STAGES.map(x => ({ value:x.code, label:x.label }))])}
     ${extra}
     ${sel('group','Segment group', [{value:'All',label:'All segment groups'}, ...SEGMENT_GROUPS])}
     ${Metrics.isActive(f) ? `<button class="btn btn-sm" type="button" id="flt-clear">Clear all</button>` : ''}
   </div>${search ? `<div class="fbar-search">${search}</div>` : ''}</div>`;
+}
+/** The date range: a named stretch, a quarter of any year, or two dates
+    typed or picked from the calendar. Whatever is chosen, every number on
+    the page is counted between those two points. */
+function dateRange(f, r){
+  const open = UI.openPick === 'period';
+  const y = UI.rangeYear || (UI.rangeYear = new Date().getFullYear());
+  const thisQ = Math.floor(new Date().getMonth() / 3) + 1, thisY = new Date().getFullYear();
+  const on = (k) => f.period === k ? 'is-on' : '';
+  return `<div class="multi pick range-pick">
+    <button class="btn range-btn" type="button" id="flt-period" data-pick-btn="period" aria-haspopup="true" aria-expanded="${open}" title="Choose the period every number is counted over">
+      <svg class="cal" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      ${esc(r.label)}${r.from && f.period !== 'custom' ? `<span class="range-dates">${esc(fmtDate(r.from, { month:'short', day:'numeric' }))} to ${esc(fmtDate(r.to, { month:'short', day:'numeric', year:'numeric' }))}</span>` : ''}
+      <span class="caret">${open ? '&#9652;' : '&#9662;'}</span></button>
+    ${open ? `<div class="multi-menu range-menu" role="dialog" aria-label="Period">
+      <div class="range-cols">
+        <div class="range-presets">
+          ${Metrics.PERIODS.map(p => `<button class="pick-opt ${on(p.key)}" type="button" data-period="${p.key}">${esc(p.label)}</button>`).join('')}
+        </div>
+        <div class="range-quarters">
+          <div class="range-year">
+            <button class="btn btn-xs" type="button" data-qy="-1" aria-label="Previous year">&#8249;</button>
+            <b>${y}</b>
+            <button class="btn btn-xs" type="button" data-qy="1" aria-label="Next year" ${y >= thisY ? 'disabled' : ''}>&#8250;</button>
+          </div>
+          <div class="range-qgrid">
+            ${[1,2,3,4].map(n => { const ahead = y > thisY || (y === thisY && n > thisQ);
+              const picked = f.period === 'quarter' && Number(f.qy) === y && Number(f.qn) === n;
+              return `<button class="pick-opt ${picked ? 'is-on' : ''}" type="button" data-quarter="${n}" ${ahead ? 'disabled title="Not here yet"' : ''}>Q${n}</button>`; }).join('')}
+          </div>
+          <p class="muted small">${esc(String(y))} by quarter</p>
+        </div>
+      </div>
+      <div class="range-custom">
+        <label class="f"><span>From</span><input type="date" id="flt-from" value="${esc(f.from)}" max="${esc(f.to || '')}"></label>
+        <label class="f"><span>To</span><input type="date" id="flt-to" value="${esc(f.to)}" min="${esc(f.from || '')}"></label>
+        <button class="btn btn-sm btn-primary" type="button" id="flt-apply">Done</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+/** Wire the range control to whichever object holds the period. The shared
+    filter bar passes UI.filters; the dashboard passes its own state. */
+function bindDateRange(root, f, rerender){
+  root.querySelector('[data-pick-btn="period"]')?.addEventListener('click', e => { e.stopPropagation();
+    UI.openPick = UI.openPick === 'period' ? null : 'period'; UI.openState = false;
+    if (UI.openPick === 'period' && f.period === 'quarter' && f.qy) UI.rangeYear = Number(f.qy);
+    rerender(); });
+  root.querySelectorAll('[data-period]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
+    f.period = b.dataset.period; f.from = ''; f.to = ''; UI.openPick = null; rerender(); }));
+  /* Stepping the year leaves the panel open: nothing is chosen until a quarter is. */
+  root.querySelectorAll('[data-qy]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
+    UI.rangeYear = (UI.rangeYear || new Date().getFullYear()) + Number(b.dataset.qy); rerender(); }));
+  root.querySelectorAll('[data-quarter]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
+    f.period = 'quarter'; f.qy = UI.rangeYear; f.qn = Number(b.dataset.quarter);
+    f.from = ''; f.to = ''; UI.openPick = null; rerender(); }));
+  /* Typing or picking either date is what makes it a custom range. The panel
+     stays open so the second date can be set without reopening it. */
+  ['from', 'to'].forEach(k => root.querySelector('#flt-' + k)?.addEventListener('change', e => {
+    f[k] = e.target.value; f.period = 'custom'; rerender(); }));
+  root.querySelector('#flt-apply')?.addEventListener('click', e => { e.stopPropagation(); UI.openPick = null; rerender(); });
 }
 function bindFilters(root, rerender){
   const setFilter = (key, value) => {
@@ -2972,7 +3380,7 @@ function bindFilters(root, rerender){
     if (key === 'from' || key === 'to') UI.filters.period = 'custom';
   };
   root.querySelectorAll('[data-filter]').forEach(el => el.addEventListener('change', () => { setFilter(el.dataset.filter, el.value); rerender(); }));
-  root.querySelectorAll('[data-pick-btn]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
+  root.querySelectorAll('[data-pick-btn]:not([data-pick-btn="period"])').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
     UI.openPick = UI.openPick === b.dataset.pickBtn ? null : b.dataset.pickBtn; UI.openState = false; rerender(); }));
   root.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', e => { e.stopPropagation();
     setFilter(b.dataset.pick, b.dataset.value); UI.openPick = null; rerender(); }));
@@ -2985,6 +3393,7 @@ function bindFilters(root, rerender){
   root.querySelector('#flt-state-none')?.addEventListener('click', () => { UI.filters.state = 'All'; rerender(); });
   root.querySelector('#flt-state-close')?.addEventListener('click', () => { UI.openState = false; rerender(); });
   root.querySelector('#flt-more')?.addEventListener('click', () => { UI.moreFilters = !UI.moreFilters; rerender(); });
+  bindDateRange(root, UI.filters, rerender);
   root.querySelector('#flt-clear')?.addEventListener('click', () => { UI.filters = Metrics.empty(); rerender(); });
 }
 
@@ -3099,8 +3508,9 @@ Views.dashboard = { title:'Dashboard',
      before, then charts. The work itself is on Follow-ups and the detailed
      tables are on KPIs; notices sit under the bell. */
   render(){
-    const st = UI.dash || (UI.dash = { period:'ytd' });
-    const f = { ...Metrics.empty(), period: st.period }, r = Metrics.range(f), back = Metrics.shiftBack(f);
+    const st = UI.dash || (UI.dash = { period:'ytd', from:'', to:'', qy:'', qn:'' });
+    const f = { ...Metrics.empty(), period: st.period, from: st.from || '', to: st.to || '', qy: st.qy || '', qn: st.qn || '' };
+    const r = Metrics.range(f), back = Metrics.shiftBack(f);
     const rems = Metrics.reminders(Metrics.empty());
     const toContact = rems.filter(x => ['overdue', 'today'].includes(Repo.reminders.bucket(x))).length;
     const overdue = rems.filter(x => Repo.reminders.bucket(x) === 'overdue').length;
@@ -3132,8 +3542,7 @@ Views.dashboard = { title:'Dashboard',
 
     return `<div class="dash-page">
     <div class="page-head"><div><h1>Welcome back, ${esc((Repo.teamName(Repo.settings().default_owner_id) || 'there').split(' ')[0])}</h1></div>
-      <div class="page-actions">${demoTag}<label class="sr-only" for="dash-period">Period</label>
-        <select id="dash-period" class="dash-period">${Metrics.PERIODS.filter(p => p.key !== 'custom').map(p => `<option value="${p.key}" ${p.key === st.period ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div></div>
+      <div class="page-actions">${demoTag}${dateRange(f, r)}</div></div>
 
     <div class="dash-tiles">
       ${tile('To contact', fmtInt(toContact), overdue ? `${fmtInt(overdue)} overdue · open Follow-ups` : 'open Follow-ups', href('reminders'), '', overdue ? 'alert' : '')}
@@ -3166,7 +3575,7 @@ Views.dashboard = { title:'Dashboard',
   },
   mount(root){
     bindGo(root); bindTips(root);
-    root.querySelector('#dash-period')?.addEventListener('change', e => { UI.dash.period = e.target.value; render(); });
+    bindDateRange(root, UI.dash, render);
   }
 };
 
@@ -3191,6 +3600,18 @@ Views.kpis = { title:'KPIs',
     const closedPrev = back ? Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, back) && Metrics.happenedIn(x.funded_on, back)) : [];
     const aumNow = sum(closedNow, x => x.funded_aum || 0), aumPrev = sum(closedPrev, x => x.funded_aum || 0);
     const laneTotal = k => sum(lanes, x => x[k] || 0);
+    /* Everything except the period is kept, so a state or segment filter
+       applies to all four columns the same way. */
+    const period = p => Metrics.summary({ ...f, period:p, from:'', to:'' });
+    const sbs = { qtd: period('qtd'), q_last: period('q_last'), ytd: period('ytd'), y_last: period('y_last') };
+    const sbsRow = (label, pick, fmt) => {
+      const cellOf = (a, b) => { const now = pick(a), was = pick(b);
+        const d = was ? (now - was) / Math.abs(was) : null;
+        return `<td class="num">${fmt(now)}${d != null && isFinite(d) && Math.abs(d) >= 0.005
+          ? ` <span class="delta ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : ''}${(d * 100).toFixed(0)}%</span>` : ''}</td>`; };
+      return `<tr><th scope="row">${esc(label)}</th>${cellOf(sbs.qtd, sbs.q_last)}<td class="num">${fmt(pick(sbs.q_last))}</td>`
+        + `${cellOf(sbs.ytd, sbs.y_last)}<td class="num">${fmt(pick(sbs.y_last))}</td></tr>`;
+    };
     const headline = (label, value, note) => `<section class="card col-4"><div class="card-body">
       <div class="muted small" style="text-transform:uppercase;letter-spacing:.07em;font-weight:600">${esc(label)}</div>
       <div style="font-size:34px;font-weight:600;letter-spacing:-.025em;margin:6px 0 2px">${value}</div>
@@ -3240,6 +3661,23 @@ Views.kpis = { title:'KPIs',
       ${headline('Active pipeline potential', fmtUSD(potential) || '$0',
         `Across ${fmtInt(openOpps.length)} open opportunit${openOpps.length === 1 ? 'y' : 'ies'}, as it stands today`)}
     </div>
+    <section class="card col-12" style="margin-bottom:16px"><div class="card-head">
+      <h2>This quarter and this year, side by side</h2>
+      <span class="sub">Against the same span a quarter and a year ago. Every other filter still applies.</span></div>
+      <div class="table-wrap auto"><table class="grid sbs">
+        <thead><tr><th scope="col">&nbsp;</th>
+          <th class="num" scope="col">This quarter</th><th class="num" scope="col">Last quarter</th>
+          <th class="num" scope="col">This year</th><th class="num" scope="col">Last year</th></tr></thead>
+        <tbody>
+          ${sbsRow('Emails sent', x => x.emails, fmtInt)}
+          ${sbsRow('Dials', x => x.dials, fmtInt)}
+          ${sbsRow('Replies', x => x.responded, fmtInt)}
+          ${sbsRow('Calls booked', x => x.calls, fmtInt)}
+          ${sbsRow('Next steps', x => x.hot, fmtInt)}
+          ${sbsRow('Onboarding', x => x.onboarding, fmtInt)}
+          ${sbsRow('Clients funded', x => x.funded, fmtInt)}
+          ${sbsRow('AUM funded', x => x.funded_aum, v => fmtUSD(v) || '$0')}
+        </tbody></table></div></section>
 
     <section class="card" style="margin-bottom:16px"><div class="card-head"><h2>What happened in this period</h2><span class="sub">By lane. Click a row for the detail</span></div>
       <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr>
@@ -3587,29 +4025,45 @@ function whenLabel(v){
 }
 /* The outcome list, grouped so the common answers come first, and only the
    outcomes that fit the kind of activity. */
-const OUTCOME_GROUPS = [
-  ['Their reply', ['INTERESTED', 'NOT_NOW', 'NOT_INTERESTED', 'BOUNCED', 'OUT_OF_OFFICE', 'UNSUBSCRIBE']],
-  ['No reply yet', ['NO_RESPONSE', 'NO_ANSWER', 'VOICEMAIL', 'WRONG_NUMBER']],
-  ['After a call or meeting', ['CALL_HELD', 'HOT', 'READY_TO_ONBOARD', 'NOT_A_FIT', 'REVIEW_HELD', 'MET_AT_EVENT', 'MEETING_AT_EVENT', 'INTRO_MADE']],
-  ['Other', ['WRONG_PERSON', 'REFERRED_INTERNALLY', 'HAS_ADVISOR', 'RFP_SUBMITTED', 'RFP_FINALIST', 'RFP_WON', 'RFP_LOST']],
-];
 /* Every activity has an outcome, so the numbers count it. What each kind of
    activity starts on before anyone chooses. */
 const DEFAULT_OUTCOME = { email:'NO_RESPONSE', check_in:'NO_RESPONSE', call:'NO_ANSWER', event:'MET_AT_EVENT', meeting:'CALL_HELD', intro:'INTRO_MADE', rfp:'RFP_SUBMITTED' };
 const outcomeFits = (code, type) => (OUT.get(code)?.applies || []).includes(type);
 function outcomeOptions(type, current){
-  const fits = code => (OUT.get(code)?.applies || []).includes(type);
-  const opt = code => `<option value="${code}" ${code === current ? 'selected' : ''}>${esc(outLabel(code))}</option>`;
-  const seen = new Set();
-  let html = '';
-  for (const [label, codes] of OUTCOME_GROUPS){
-    const list = codes.filter(fits); list.forEach(x => seen.add(x));
-    if (list.length) html += `<optgroup label="${esc(label)}">${list.map(opt).join('')}</optgroup>`;
-  }
-  const rest = OUTCOMES.filter(o => fits(o.code) && !seen.has(o.code)).map(o => o.code);
-  if (rest.length) html += `<optgroup label="More">${rest.map(opt).join('')}</optgroup>`;
-  if (current && !fits(current)) html += opt(current);
+  const fits = code => !type || (OUT.get(code)?.applies || []).includes(type);
+  const opt = (code, label, on) => `<option value="${code}" ${on ? 'selected' : ''}>${esc(label)}</option>`;
+  /* The five Jon records, always all five, whatever the touch was. */
+  let html = FIVE_OUTCOMES.map(o => opt(o.code, o.label, o.code === current)).join('');
+  /* Anything logged before the list was shortened keeps its own wording. */
+  if (current && !FIVE_OUTCOMES.some(o => o.code === current) && !DELIVERY_OUTCOMES.includes(current))
+    html += `<optgroup label="Recorded earlier">${opt(current, outLabel(current), true)}</optgroup>`;
+  /* Not a choice between five, the mail coming back. Each one raises a reminder. */
+  const probs = DELIVERY_OUTCOMES.filter(c => fits(c) || c === current);
+  if (probs.length) html += `<optgroup label="Could not reach them">${probs.map(c => opt(c, outLabel(c), c === current)).join('')}</optgroup>`;
   return html;
+}
+/** One entry on its own, in a window that closes from the X in its corner. */
+function openCorrespondence(tpId){
+  const t = Store.state.touchpoints.find(x => x.id === tpId); if (!t) return;
+  const c = Repo.contacts.byId(t.contact_id);
+  const mail = Repo.touchpoints.emails(t.id)[0] || null;
+  const who = t.direction === 'inbound' ? (t.from_email || (c && c.email)) : (c && c.email);
+  const ev = t.event_id != null ? Repo.events.byId(t.event_id) : null;
+  const body = String((mail && mail.body_text) || t.notes || '').trim();
+  Modal.open({
+    wide: true,
+    title: t.subject || (TT.get(t.touch_type)?.name || 'Correspondence'),
+    body: `<dl class="kv" style="grid-template-columns:120px 1fr;margin-bottom:14px">
+        <dt>${t.direction === 'inbound' ? 'From' : 'To'}</dt><dd>${c ? esc(c.full_name) : 'Unknown'}${who ? ` <span class="muted">&lt;${esc(who)}&gt;</span>` : ''}</dd>
+        <dt>When</dt><dd>${esc(fmtDate(t.touched_at, { weekday:'long', month:'long', day:'numeric', year:'numeric' }))}</dd>
+        <dt>Kind</dt><dd>${esc(TT.get(t.touch_type)?.name || t.touch_type)}, ${t.direction === 'inbound' ? 'inbound' : 'outbound'}</dd>
+        <dt>Outcome</dt><dd>${outcomePill(t.outcome_code)}</dd>
+        ${ev ? `<dt>Event</dt><dd>${esc(ev.name)}</dd>` : ''}</dl>
+      ${body ? `<div class="corr-body">${esc(body)}</div>` : '<p class="muted">Nothing was written down for this one.</p>'}
+      ${t.response_excerpt ? `<div class="corr-body reply"><b>Their reply</b><br>${esc(t.response_excerpt)}</div>` : ''}`,
+    foot: c ? `<a class="btn" href="${href('contacts/' + c.id)}" data-modal-go>Open the full record</a>` : '',
+  });
+  document.querySelector('[data-modal-go]')?.addEventListener('click', () => Modal.close());
 }
 async function openLogTouch(contactId, preset = {}){ return openActivity(contactId, null, preset); }
 /** Log an activity, or edit or delete one (tp). The person logging is the
@@ -3828,7 +4282,19 @@ Views.touchpoints = { title:'Correspondence',
     if (params.review) rows = rows.filter(x => x.t.outcome_status === 'needs_review');
     if (st.q.trim()){ const q = st.q.trim().toLowerCase(); rows = rows.filter(x => [x.t.notes, x.t.subject, x.lead.contact.full_name, outLabel(x.t.outcome_code)].join(' ').toLowerCase().includes(q)); }
     rows = sortRows(rows, st.sort, st.dir, { touched_at: x => x.t.touched_at, contact: x => x.lead.contact.full_name.toLowerCase(),
-      touch_type: x => x.t.touch_type, outcome: x => outLabel(x.t.outcome_code), owner: x => Repo.teamName(x.t.owner_id) });
+      touch_type: x => x.t.touch_type, outcome: x => outLabel(x.t.outcome_code), owner: x => Repo.teamName(x.t.owner_id),
+      email: x => String((x.t.direction === 'inbound' ? x.t.from_email : null) || x.lead.contact.email || '').toLowerCase(),
+      org: x => { const c = x.lead.contact; const o = c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null;
+        return (o ? o.name : '').toLowerCase(); },
+      direction: x => x.t.direction || '',
+      subject: x => (x.t.subject || '').toLowerCase(),
+      notes: x => (x.t.notes || '').toLowerCase(),
+      reply: x => (x.t.response_excerpt || '').toLowerCase(),
+      evcam: x => { const e = x.t.event_id != null ? Repo.events.byId(x.t.event_id) : null;
+        const cam = x.t.campaign_id != null ? Repo.campaigns.byId(x.t.campaign_id) : null;
+        return (e ? e.name : cam ? cam.name : '').toLowerCase(); },
+      state: x => (x.lead.contact.state || '').toLowerCase(),
+      segment: x => segName(x.lead.contact.segment_code).toLowerCase() });
     const total = rows.length, page = rows.slice(st.page*st.pageSize, (st.page+1)*st.pageSize);
     const queue = Repo.touchpoints.reviewQueue();
     const ev = params.event ? Repo.events.byId(Number(params.event)) : null;
@@ -3851,10 +4317,10 @@ Views.touchpoints = { title:'Correspondence',
         <button class="btn btn-sm" type="button" data-zoom="1" aria-label="Zoom in" ${st.zoom>=110?'disabled':''}>+</button></span>
       <span class="count">${fmtInt(total)} touchpoints</span></div>
     <div class="table-wrap sheet-wrap"><table class="grid sheet ss tpsheet" style="zoom:${st.zoom/100}">
-      <colgroup><col style="width:42px"><col style="width:78px"><col style="width:150px"><col style="width:180px"><col style="width:120px"><col style="width:84px"><col style="width:150px"><col style="width:220px"><col style="width:260px"><col style="width:260px"><col style="width:160px"><col style="width:44px"><col style="width:120px"></colgroup>
+      <colgroup><col style="width:42px"><col style="width:78px"><col style="width:150px"><col style="width:190px"><col style="width:180px"><col style="width:120px"><col style="width:84px"><col style="width:150px"><col style="width:220px"><col style="width:260px"><col style="width:260px"><col style="width:160px"><col style="width:44px"><col style="width:120px"><col style="width:54px"></colgroup>
       <thead><tr>
       <th class="rn pin1" scope="col"><span class="sr-only">Row</span></th>
-      ${thSort('Date','touched_at',st,'pin2')}${thSort('Contact','contact',st,'pin3')}<th>Organization</th>${thSort('Type','touch_type',st)}<th>Direction</th>${thSort('Outcome','outcome',st)}<th>Subject</th><th>Notes</th><th>Their reply</th><th>Event or campaign</th><th>State</th><th>Segment</th></tr></thead>
+      ${thSort('Date','touched_at',st,'pin2')}${thSort('Contact','contact',st,'pin3')}${thSort('Their email address','email',st)}${thSort('Organization','org',st)}${thSort('Type','touch_type',st)}${thSort('Direction','direction',st)}${thSort('Outcome','outcome',st)}${thSort('Subject','subject',st)}${thSort('Notes','notes',st)}${thSort('Their reply','reply',st)}${thSort('Event or campaign','evcam',st)}${thSort('State','state',st)}${thSort('Segment','segment',st)}<th><span class="sr-only">Open</span></th></tr></thead>
       <tbody>${page.length ? page.map((x,i) => { const c = x.lead.contact, org = c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null;
         const e = x.t.event_id != null ? Repo.events.byId(x.t.event_id) : null, cam = x.t.campaign_id != null ? Repo.campaigns.byId(x.t.campaign_id) : null;
         const cell = (v, field) => `<td class="${field ? 'ed' : ''}" ${field ? `data-tedit="${field}" data-id="${x.t.id}"` : ''} title="${esc(String(v ?? '').replace(/<[^>]*>/g,''))}">${v || '<span class="muted">-</span>'}</td>`;
@@ -3862,6 +4328,7 @@ Views.touchpoints = { title:'Correspondence',
           <td class="rn pin1">${st.page*st.pageSize + i + 1}</td>
           <td class="pin2 ed" data-tedit="touched_at" data-id="${x.t.id}">${fmtDate(x.t.touched_at, { month:'numeric', day:'numeric', year:'2-digit' })}</td>
           <td class="pin3" title="Open the full record for ${esc(c.full_name)}"><span class="name">${esc(c.full_name)}</span></td>
+          <td title="${esc(x.t.from_email || c.email || '')}">${(x.t.direction === 'inbound' ? x.t.from_email : null) || c.email ? esc((x.t.direction === 'inbound' ? x.t.from_email : null) || c.email) : '<span class="muted">-</span>'}</td>
           <td title="${esc(org ? org.name : 'Individual')}">${org ? esc(org.name) : '<span class="muted">Individual</span>'}</td>
           <td>${esc(TT.get(x.t.touch_type)?.name || x.t.touch_type)}</td>
           <td><span class="pill dir-${x.t.direction === 'inbound' ? 'Inbound' : 'Outbound'}">${x.t.direction === 'inbound' ? 'In' : 'Out'}</span></td>
@@ -3871,10 +4338,12 @@ Views.touchpoints = { title:'Correspondence',
           <td title="${esc(x.t.response_excerpt || '')}">${x.t.response_excerpt ? esc(x.t.response_excerpt) : '<span class="muted">-</span>'}</td>
           <td title="${esc(e ? e.name : cam ? cam.name : '')}">${e ? esc(e.name) : cam ? esc(cam.name) : '<span class="muted">-</span>'}</td>
           <td>${esc(c.state || '')}</td>
-          <td title="${esc(segName(c.segment_code))}">${esc(segName(c.segment_code))}</td></tr>`; }).join('')
-        : `<tr><td colspan="13">${emptyState('No touchpoints match','Clear a filter or widen the dates.')}</td></tr>`}</tbody></table></div>${pager(st,total,'below')}`;
+          <td title="${esc(segName(c.segment_code))}">${esc(segName(c.segment_code))}</td>
+          <td class="num"><button class="btn btn-xs" type="button" data-open-tp="${x.t.id}" title="Read the whole entry">Open</button></td></tr>`; }).join('')
+        : `<tr><td colspan="15">${emptyState('No touchpoints match','Clear a filter or widen the dates.')}</td></tr>`}</tbody></table></div>${pager(st,total,'below')}`;
   },
   mount(root){ const st = UI.touches; bindSort(root, st, render); bindPager(root, st, render); bindRowNav(root); bindFilters(root, render);
+    root.querySelectorAll('[data-open-tp]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); openCorrespondence(Number(b.dataset.openTp)); }));
     root.querySelectorAll('[data-zoom]').forEach(b => b.addEventListener('click', () => {
       st.zoom = clamp(st.zoom + Number(b.dataset.zoom) * 10, 60, 110);
       try { localStorage.setItem('gaard_sheet_zoom', String(st.zoom)); } catch (e) { /* private window */ }
@@ -3925,15 +4394,20 @@ Views.touchpoints = { title:'Correspondence',
    the others under Columns, and the choice is remembered in their browser. */
 const SHEET_COLS = [
   { label:'Date', w:78, fixed:true }, { label:'Contact Name', w:150, fixed:true }, { label:'First Name', w:84 },
-  { label:'Email', w:190 }, { label:'Organization', w:176 }, { label:'Website', w:150 }, { label:'LinkedIn', w:150 },
-  { label:'AUM', w:84 }, { label:'Notes', w:180 }, { label:'Initial Outcome', w:300 },
-  { label:'Status', w:96 }, { label:'Next Reach out Date', w:76 }, { label:'Newsletter', w:74 }, { label:'Active/Dorm', w:74 },
-  { label:'Title', w:140 }, { label:'Segment', w:120 }, { label:'State', w:44 }, { label:'First reached', w:82 },
-  { label:'Last touch', w:82 }, { label:'Touches', w:52 }, { label:'Channel', w:92 }, { label:'Flags', w:150 } ];
+  { label:'Email', w:190 }, { label:'Organization', w:176 },
+  { label:'AUM', w:84 }, { label:'Notes', w:180 }, { label:'Latest email', w:260 }, { label:'Initial Outcome', w:190 },
+  { label:'Status', w:96 }, { label:'Stage', w:104 }, { label:'Next Reach out Date', w:76 }, { label:'Newsletter', w:74 },
+  { label:'Source Event', w:150 }, { label:'Segment', w:120 }, { label:'State', w:44 }, { label:'First reached', w:82 },
+  { label:'Last touch', w:82 }, { label:'Touches', w:52 }, { label:'Channel', w:92 } ];
 const SHEET_COLS_KEY = 'gaard_sheet_cols';
+/* Five columns, the ones on Jon's own newsletter sheet and no others. The
+   pinned date column carries the day they joined the list rather than the
+   day they were sourced, because that is the date this page is about. */
+const NEWSLETTER_COLS = ['Date', 'Contact Name', 'First Name', 'Email', 'Organization'];
 function sheetCols(news){
+  if (news) return SHEET_COLS.filter(c => NEWSLETTER_COLS.includes(c.label)).map(c => ({ ...c, shown: true }));
   let saved = null; try { saved = JSON.parse(localStorage.getItem(SHEET_COLS_KEY) || 'null'); } catch (e) { /* private window */ }
-  return SHEET_COLS.map(c => ({ ...c, shown: !!(c.fixed || (news && c.label === 'Newsletter') || (Array.isArray(saved) ? saved.includes(c.label) : true)) }));
+  return SHEET_COLS.map(c => ({ ...c, shown: !!(c.fixed || (Array.isArray(saved) ? saved.includes(c.label) : true)) }));
 }
 
 Views.contacts = { title:'Contacts',
@@ -3963,7 +4437,25 @@ Views.contacts = { title:'Contacts',
       stage: c => { const l = leadBy.get(c.id); return l && l.stage ? STAGES.findIndex(x => x.code === l.stage) : -1; },
       next: c => Repo.contacts.nextReminder(c.id)?.due_on || '',
       touches: c => leadBy.get(c.id)?.touches || 0,
-      aum: c => { const l = leadBy.get(c.id); return (l && (l.funded_aum ?? l.expected_aum)) ?? c.prospect_aum ?? -1; } };
+      aum: c => { const l = leadBy.get(c.id); return (l && (l.funded_aum ?? l.expected_aum)) ?? c.prospect_aum ?? -1; },
+      first_name: c => (c.first_name || '').toLowerCase(),
+      email: c => (c.email || '').toLowerCase(),
+      notes: c => (c.notes || '').toLowerCase(),
+      /* The quoted line, sorted by what it says rather than when it arrived. */
+      summary: c => latestEmailSummary(c).full.toLowerCase(),
+      /* Outcomes sort in the order Jon reads them, not alphabetically. */
+      outcome: c => { const tps = Repo.contacts.touchpoints(c.id);
+        const t = tps.filter(x => TT.get(x.touch_type)?.outreach).slice(-1)[0] || tps[tps.length-1];
+        if (!t) return 99;
+        const at = FIVE_OUTCOMES.findIndex(o => o.code === t.outcome_code);
+        return at >= 0 ? at : 5 + DELIVERY_OUTCOMES.indexOf(t.outcome_code); },
+      /* Active, then Dormant, then Dead. */
+      status: c => ['active', 'dormant', 'dead'].indexOf(Repo.contacts.statusOf(c.id)),
+      newsletter: c => ['subscribed', 'not_subscribed', 'unsubscribed'].indexOf(c.newsletter_status),
+      source_event: c => sourceEventName(c).toLowerCase(),
+      segment: c => segName(c.segment_code).toLowerCase(),
+      state: c => (c.state || '').toLowerCase(),
+      channel: c => chName(leadBy.get(c.id)?.source_channel_code || c.source_channel_code).toLowerCase() };
     rows = sortRows(rows, st.sort, st.dir, getters);
     const total = rows.length, page = rows.slice(st.page*st.pageSize, (st.page+1)*st.pageSize);
     const org = params.org ? Repo.organizations.byId(Number(params.org)) : null;
@@ -3997,46 +4489,45 @@ Views.contacts = { title:'Contacts',
     /* The column order follows Jon's own sheet: the date, who they are, how to
        reach them, the money, then the outcome, the status and the next date.
        What this application adds sits to the right of all of that. */
+    const news = params.mode === 'newsletter';
     const row = (c, nth) => {
       const l = leadBy.get(c.id) || { touches: 0, source_channel_code: c.source_channel_code }, a2 = latest.get(c.id), n = Repo.contacts.nextReminder(c.id);
       const open = st.expanded.has(c.id);
       const tps = Repo.contacts.touchpoints(c.id);
       const firstTouch = tps.filter(t => TT.get(t.touch_type)?.outreach).slice(-1)[0] || tps[tps.length-1];
-      const snippet = a2 ? (a2.notes || a2.subject || (Repo.touchpoints.emails(a2.id)[0] || {}).body_text || '') : '';
+      const summary = latestEmailSummary(c, tps);
+      const status = Repo.contacts.statusOf(c.id);
       const aum = (l && (l.funded_aum ?? l.expected_aum)) ?? c.prospect_aum;
       const orgRec = c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null;
-      const active = (l && l.stage && !STG.get(l.stage)?.closed) || n ? 'A' : 'D';
       const shortDate = v => v ? fmtDate(v, { month:'numeric', day:'numeric', year:'2-digit' }) : '<span class="muted">-</span>';
       const link = u => !blankish(u) ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//,''))}</a>` : '';
       const cell = (v, field) => `<td class="${field ? 'ed' : ''}" ${field ? `data-edit="${field}" data-id="${c.id}"` : ''} title="${esc(String(v ?? '').replace(/<[^>]*>/g,''))}">${v || '<span class="muted">-</span>'}</td>`;
       return `<tr class="row-link ${open ? 'is-open' : ''} ${st.sel.has(c.id) ? 'is-sel' : ''}" data-href="${href('contacts/'+c.id)}">
         <td class="rn pin1"><span class="n">${nth}</span><input type="checkbox" data-sel="${c.id}" ${st.sel.has(c.id) ? 'checked' : ''} aria-label="Select ${esc(c.full_name)}"></td>
-        <td class="pin2" title="The day this person was added">${shortDate(c.sourced_on || dayOf(c.created_at))}</td>
+        <td class="pin2" title="${news ? 'The day they joined the newsletter' : 'The day this person was added'}">${shortDate(news ? c.newsletter_added_on : (c.sourced_on || dayOf(c.created_at)))}</td>
         <td class="pin3" title="Open the full record for ${esc(c.full_name)}"><span class="name">${esc(c.full_name)}</span></td>
         ${cell(esc(c.first_name || ''), 'first_name')}
         ${cell(esc(c.email || ''), 'email')}
         ${cell(orgNameOf(c) ? esc(orgNameOf(c)) : '<span class="muted">Individual</span>', 'org')}
-        ${cell(link(orgRec && orgRec.website) || '&nbsp;')}
-        ${cell(link(c.linkedin_url) || '&nbsp;')}
-        <td class="num ed" data-edit="aum" data-id="${c.id}" ${aum == null && orgRec && orgRec.reported_aum != null ? 'title="Reported by the organization"' : ''}>${aum != null ? fmtUSD(aum) : orgRec && orgRec.reported_aum != null ? `<span class="muted">${fmtUSD(orgRec.reported_aum)}</span>` : '<span class="muted">-</span>'}</td>
+        ${news ? '' : `<td class="num ed" data-edit="aum" data-id="${c.id}" ${aum == null && orgRec && orgRec.reported_aum != null ? 'title="Reported by the organization"' : ''}>${aum != null ? fmtUSD(aum) : orgRec && orgRec.reported_aum != null ? `<span class="muted">${fmtUSD(orgRec.reported_aum)}</span>` : '<span class="muted">-</span>'}</td>
         ${cell(esc(c.notes || ''), 'notes')}
-        <td title="${esc(firstTouch ? outLabel(firstTouch.outcome_code) + ', ' + fmtDate(firstTouch.touched_at) : '')}">${firstTouch ? outcomePill(firstTouch.outcome_code) : '<span class="muted">-</span>'}</td>
-        <td class="${l.stage ? 'ed' : ''}" ${l.stage ? `data-edit="stage" data-id="${c.id}"` : 'title="A status appears once an outcome opens an opportunity"'}>${l.stage ? stagePill(l.stage) : '<span class="muted">-</span>'}</td>
+        <td class="corr-cell" title="${esc(summary.full)}">${summary.html}</td>
+        <td class="ed" data-edit="outcome" data-id="${c.id}" title="${esc(firstTouch ? outLabel(firstTouch.outcome_code) + ', ' + fmtDate(firstTouch.touched_at) : 'No outreach recorded yet')}">${firstTouch ? outcomePill(firstTouch.outcome_code) : '<span class="muted">-</span>'}</td>
+        <td class="ed" data-edit="status" data-id="${c.id}" title="${esc(statusNote(c))}">${statusPill(status)}</td>
+        <td class="${l.stage ? 'ed' : ''}" ${l.stage ? `data-edit="stage" data-id="${c.id}"` : 'title="A stage appears once an outcome opens an opportunity"'}>${l.stage ? stagePill(l.stage) : '<span class="muted">-</span>'}</td>
         <td class="ed" data-edit="next" data-id="${c.id}">${n ? `<span class="pill st-${Repo.reminders.bucket(n)}">${fmtShort(n.due_on)}</span>` : '<span class="muted">-</span>'}</td>
         <td class="ed" data-edit="newsletter" data-id="${c.id}" title="${esc(NEWSLETTER_LABEL[c.newsletter_status] || '')}">${c.newsletter_status === 'subscribed' ? 'Y' : c.newsletter_status === 'unsubscribed' ? '<span class="muted">Out</span>' : '<span class="muted">N</span>'}</td>
-        <td title="A while an opportunity or a follow-up is open, D when nothing is scheduled">${active === 'A' ? 'A' : '<span class="muted">D</span>'}</td>
-        ${cell(esc(c.title || ''), 'title')}
+        ${cell(esc(sourceEventName(c)), 'source_event')}
         ${cell(esc(segName(c.segment_code)), 'segment')}
         ${cell(esc(c.state || ''), 'state')}
         <td class="${l.first_outreach_on ? 'ed' : ''}" ${l.first_outreach_on ? `data-edit="first" data-id="${c.id}"` : 'title="Set when the first outreach is recorded"'}>${shortDate(l.first_outreach_on)}</td>
         <td class="${a2 ? 'ed' : ''}" ${a2 ? `data-edit="last" data-id="${c.id}"` : ''}>${shortDate(a2 && dayOf(a2.touched_at))}</td>
         <td class="num" title="Counted from the touchpoints, not typed">${fmtInt(l.touches)}</td>
-        <td class="ed" data-edit="channel" data-id="${c.id}">${esc(chName(l.source_channel_code))}</td>
-        <td title="Set from the record or by an outcome rule">${contactFlags(c) || '<span class="muted">-</span>'}</td></tr>
-      ${open ? `<tr class="threadrow"><td colspan="23">${threadPanel(c)}</td></tr>` : ''}`;
+        <td class="ed" data-edit="channel" data-id="${c.id}">${esc(chName(l.source_channel_code))}</td>`}</tr>
+      ${open ? `<tr class="threadrow"><td colspan="${news ? 6 : 21}">${threadPanel(c)}</td></tr>` : ''}`;
     };
 
-    const news = params.mode === 'newsletter', cols = sheetCols(news);
+    const cols = sheetCols(news);
     return `<div class="page-head" style="align-items:center;margin-bottom:12px"><div><h1 style="font-size:22px">${news ? 'Newsletter' : 'Contacts'}</h1>
       <p style="margin-top:2px">${news
         ? `${fmtInt(total)} people are on the newsletter. The Newsletter column turns anybody on or off, and an outcome that counts as interest adds them on its own.`
@@ -4045,7 +4536,8 @@ Views.contacts = { title:'Contacts',
     ${filterBar({ compact:true, extra: news ? '' : flagPick,
       search: `<label class="sr-only" for="c-q">Search</label><input type="search" id="c-q" placeholder="Search name, email, organization, LinkedIn" value="${esc(st.q)}">` })}
     <div class="filters">
-      ${st.sel.size ? `<span class="selbar"><b>${fmtInt(st.sel.size)} selected</b><button class="btn btn-sm btn-primary" type="button" id="c-merge">Mail merge</button><button class="btn btn-sm" type="button" id="c-selclear">Clear selection</button></span>` : ''}
+      ${st.sel.size ? `<span class="selbar"><b>${fmtInt(st.sel.size)} selected</b><button class="btn btn-sm btn-primary" type="button" id="c-merge">Mail merge</button><button class="btn btn-sm" type="button" id="c-copyrows" title="Copy these rows in the shape the Google Sheets merge sheet expects">Copy for the merge sheet</button><button class="btn btn-sm" type="button" id="c-selclear">Clear selection</button></span>` : ''}
+      ${!news ? `<span class="selbar"><b>Take the next</b>${[50, 100, 250].map(n => `<button class="btn btn-sm" type="button" data-takenext="${n}" title="Tick the ${n} oldest clean contacts nobody has written to yet">${n}</button>`).join('')}</span>` : ''}
       ${!news && params.org ? `<a class="btn btn-sm" href="${href('contacts')}">Show everyone</a>` : ''}
       ${st.expanded.size ? `<button class="btn btn-sm" type="button" id="c-collapse">Collapse ${st.expanded.size} open</button>` : ''}
       <span class="spacer"></span>
@@ -4059,11 +4551,13 @@ Views.contacts = { title:'Contacts',
       <colgroup><col style="width:42px">${cols.map(x => x.shown ? `<col style="width:${x.w}px">` : '').join('')}</colgroup>
       <thead><tr>
       <th class="rn pin1" scope="col"><input type="checkbox" id="c-selpage" ${page.length && page.every(c => st.sel.has(c.id)) ? 'checked' : ''} aria-label="Select every row on this page" title="Select every row on this page"></th>
-      ${thSort('Date','added',st,'pin2')}${thSort('Contact Name','full_name',st,'pin3')}<th>First Name</th><th>Email</th>${thSort('Organization','org',st)}<th>Website</th><th>LinkedIn</th>${thSort('AUM','aum',st,'num')}<th>Notes</th>
-      <th>Initial Outcome</th>${thSort('Status','stage',st)}${thSort('Next Reach out Date','next',st)}<th>Newsletter</th><th>Active/Dorm</th>
-      <th>Title</th><th>Segment</th><th>State</th>${thSort('First reached','first_out',st)}${thSort('Last touch','last',st)}${thSort('Touches','touches',st,'num')}<th>Channel</th><th>Flags</th></tr></thead>
-      <tbody>${page.length ? page.map((c,i) => row(c, st.page*st.pageSize + i + 1)).join('') : `<tr><td colspan="23">${emptyState('No contacts match', st.q.trim() ? 'Nothing matches "' + st.q.trim() + '".' : 'Try clearing a filter.')}</td></tr>`}</tbody></table></div>${pager(st,total,'below')}
-    <datalist id="sheet-orgs">${Repo.organizations.all().map(o => `<option value="${esc(o.name)}"></option>`).join('')}</datalist>`;
+      ${thSort(news ? 'Date Added to Newsletter' : 'Date','added',st,'pin2')}${thSort('Contact Name','full_name',st,'pin3')}${thSort('First Name','first_name',st)}${thSort('Email','email',st)}${thSort('Organization','org',st)}${news ? '' : `${thSort('AUM','aum',st,'num')}${thSort('Notes','notes',st)}`}
+      ${news ? '' : `${thSort('Latest email','summary',st)}
+      ${thSort('Initial Outcome','outcome',st)}${thSort('Status','status',st)}${thSort('Stage','stage',st)}${thSort('Next Reach out Date','next',st)}${thSort('Newsletter','newsletter',st)}
+      ${thSort('Source Event','source_event',st)}${thSort('Segment','segment',st)}${thSort('State','state',st)}${thSort('First reached','first_out',st)}${thSort('Last touch','last',st)}${thSort('Touches','touches',st,'num')}${thSort('Channel','channel',st)}`}</tr></thead>
+      <tbody>${page.length ? page.map((c,i) => row(c, st.page*st.pageSize + i + 1)).join('') : `<tr><td colspan="${news ? 6 : 21}">${emptyState('No contacts match', st.q.trim() ? 'Nothing matches "' + st.q.trim() + '".' : 'Try clearing a filter.')}</td></tr>`}</tbody></table></div>${pager(st,total,'below')}
+    <datalist id="sheet-orgs">${Repo.organizations.all().map(o => `<option value="${esc(o.name)}"></option>`).join('')}</datalist>
+    <datalist id="sheet-events">${Repo.events.all().map(e => `<option value="${esc(e.name)}"></option>`).join('')}</datalist>`;
   },
   mount(root, params){
     const st = UI.contacts;
@@ -4081,6 +4575,24 @@ Views.contacts = { title:'Contacts',
       const ids = [...root.querySelectorAll('[data-sel]')].map(cb => Number(cb.dataset.sel));
       ids.forEach(id => e.target.checked ? sel.add(id) : sel.delete(id)); render(); });
     root.querySelector('#c-selclear')?.addEventListener('click', () => { sel.clear(); render(); });
+    /* Step 3 and 4 of the weekly loop: the oldest clean names nobody has
+       written to, in the order they were added, ticked in one press. */
+    root.querySelectorAll('[data-takenext]').forEach(b => b.addEventListener('click', () => {
+      const n = Number(b.dataset.takenext);
+      const queue = Repo.contacts.neverContacted()
+        .filter(c => !c.do_not_contact && c.email && c.email_status !== 'bounced')
+        .sort((a, b2) => String(a.sourced_on || a.created_at || '').localeCompare(String(b2.sourced_on || b2.created_at || '')));
+      if (!queue.length) return Toast.show('Everyone on file has been written to at least once.', { kind:'ok' });
+      sel.clear(); queue.slice(0, n).forEach(c => sel.add(c.id));
+      Toast.show(`${fmtInt(Math.min(n, queue.length))} ticked, oldest first. ${fmtInt(Math.max(0, queue.length - n))} still waiting.`, { kind:'ok' });
+      render();
+    }));
+    root.querySelector('#c-copyrows')?.addEventListener('click', async () => {
+      const text = mergeSheetRows([...sel]);
+      try { await navigator.clipboard.writeText(text);
+        Toast.show(`${fmtInt(sel.size)} rows copied. Paste them straight into the merge sheet.`, { kind:'ok' }); }
+      catch (e){ Toast.show('Could not reach the clipboard.', { kind:'warn' }); }
+    });
     root.querySelector('#c-merge')?.addEventListener('click', () => {
       UI.merge.picked = [...sel]; UI.merge.source = 'picked'; UI.merge.appliedSource = 'picked'; UI.merge.selected = null; UI.merge.previewId = null; UI.merge.pickedFor = null;
       go('mailmerge', { source:'picked' }); });
@@ -4116,6 +4628,11 @@ Views.contacts = { title:'Contacts',
         case 'segment': return `<select>${SEGMENTS.map(x => opt(x.code, segName(x.code), c.segment_code === x.code)).join('')}</select>`;
         case 'channel': return `<select>${opt('','Not recorded', !c.source_channel_code)}${CHANNELS.map(x => opt(x.code, x.name, c.source_channel_code === x.code)).join('')}</select>`;
         case 'stage':   return `<select>${STAGES.map(x => opt(x.code, x.label, l && l.stage === x.code)).join('')}</select>`;
+        case 'outcome': { const tps = Repo.contacts.touchpoints(c.id);
+          const t = tps.filter(x => TT.get(x.touch_type)?.outreach).slice(-1)[0] || tps[tps.length-1];
+          return `<select>${outcomeOptions(t ? t.touch_type : 'email', t ? t.outcome_code : '')}</select>`; }
+        case 'status':  return `<select>${CONTACT_STATUS.map(x => opt(x.code, x.label, Repo.contacts.statusOf(c.id) === x.code)).join('')}${opt('auto','Work it out automatically', !c.status_override)}</select>`;
+        case 'source_event': return `<input type="text" list="sheet-events" value="${esc(sourceEventName(c))}">`;
         case 'sourced': return `<input type="date" value="${esc(c.sourced_on || dayOf(c.created_at) || '')}">`;
         case 'newsletter': return `<select>${['subscribed','not_subscribed','unsubscribed'].map(x => opt(x, NEWSLETTER_LABEL[x], c.newsletter_status === x)).join('')}</select>`;
         case 'first':   return `<input type="date" value="${esc(l && l.first_outreach_on || '')}">`;
@@ -4219,6 +4736,19 @@ function phoneAsTyped(raw){
   if (d.length > 10) return s;
   return d.length > 6 ? `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}` : d.length > 3 ? `${d.slice(0, 3)}-${d.slice(3)}` : d;
 }
+/** The picked contacts as the merge sheet wants them: one header row, then
+    one row each, tab separated. Nothing here is written back; marking them
+    as sent is the separate step on the merge screen. */
+function mergeSheetRows(ids){
+  const head = ['First name', 'Last name', 'Email', 'Organization', 'AUM', 'State', 'Notes'];
+  const clean = v => String(v ?? '').replace(/[\t\r\n]+/g, ' ').trim();
+  const rows = ids.map(id => Repo.contacts.byId(id)).filter(Boolean).map(c => {
+    const opp = Repo.contacts.opportunity(c.id);
+    const aum = (opp && (opp.funded_aum ?? opp.expected_aum)) ?? c.prospect_aum;
+    return [c.first_name, c.last_name, c.email, orgNameOf(c), aum ?? '', c.state, c.notes].map(clean).join('\t');
+  });
+  return [head.join('\t'), ...rows].join('\n');
+}
 function saveCell(id, field, raw){
   const c = Repo.contacts.byId(id); if (!c) return;
   const v = String(raw ?? '').trim();
@@ -4255,6 +4785,31 @@ function saveCell(id, field, raw){
         if (o.stage === 'funded') o.funded_aum = num; else o.expected_aum = num; });
     }
     case 'stage': { const opp = Repo.contacts.opportunity(id); if (opp && v) Repo.opportunities.setStage(opp.id, v); return; }
+    /* Changing the outcome re-runs the rule behind it, so the follow-up, the
+       stage and the newsletter all move the way they would have at the time. */
+    case 'outcome': {
+      const tps = Repo.contacts.touchpoints(id);
+      const tp = tps.filter(t => TT.get(t.touch_type)?.outreach).slice(-1)[0] || tps[tps.length-1];
+      if (!tp || !v || tp.outcome_code === v) return;
+      Store.commit('Outcome set to ' + outLabel(v), st => {
+        const t = st.touchpoints.find(x => x.id === tp.id); if (!t) return;
+        t.outcome_code = v; t.outcome_status = 'confirmed';
+        Rules.applyOutcome(st, t);
+      });
+      return;
+    }
+    case 'status': {
+      if (Store.live && !Live.has('contacts', 'status_override'))
+        return Toast.show('Setting the status by hand needs db/009 to have been run in Supabase. Until then the status is worked out automatically.', { kind:'warn', ms:9000 });
+      if (v === 'auto') return Repo.contacts.update(id, { status_override: null }, 'Status back to automatic');
+      return Repo.contacts.update(id, { status_override: v }, 'Status set to ' + v);
+    }
+    case 'source_event': {
+      if (!v) return Repo.contacts.update(id, { source_event_id: null }, 'Source event cleared');
+      const ev = Repo.events.all().find(e => e.name.toLowerCase() === v.toLowerCase());
+      if (!ev) return Toast.show(`No event called "${v}" is on file. Add it on the Events page first.`, { kind:'warn' });
+      return Repo.contacts.update(id, { source_event_id: ev.id }, 'Met at ' + ev.name);
+    }
     case 'first': case 'last': {
       const tps = Repo.contacts.touchpoints(id);
       const tp = field === 'last' ? tps[0] : tps.filter(t => TT.get(t.touch_type)?.outreach).slice(-1)[0];
@@ -4335,6 +4890,7 @@ Views.contact = { title:'Contact',
           <dt>Email</dt><dd class="ed" data-edit="email" title="Click beside the address to change it">${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '<span class="muted">None</span>'}</dd>
           <dt>LinkedIn</dt><dd class="ed" data-edit="linkedin" title="Click to change">${!blankish(c.linkedin_url) ? `<a href="${esc(/^https?:/i.test(c.linkedin_url) ? c.linkedin_url : 'https://' + c.linkedin_url)}" target="_blank" rel="noopener">${esc(c.linkedin_url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '<span class="muted">None</span>'}</dd>
           <dt>How we met</dt><dd class="ed" data-edit="channel" title="Click to change">${esc(chName(c.source_channel_code))}${detail ? ` <span class="muted">${esc(detail)}</span>` : ''}${ev ? `<span class="sub">At <a href="${href('events')}">${esc(ev.name)}</a></span>` : ''}${referrer ? `<span class="sub">Referred by <a href="${href('contacts/'+referrer.id)}">${esc(referrer.full_name)}</a></span>` : ''}</dd>
+          ${Repo.contacts.path(c.id) ? `<dt>The path in</dt><dd title="Read from the touchpoints, in order. The conversion is credited to whichever one opened the opportunity, not the first.">${esc(Repo.contacts.path(c.id))}${(() => { const o = Repo.contacts.opportunity(c.id); return o && o.converting_channel_code ? `<span class="sub">Conversion credited to ${esc(chName(o.converting_channel_code))}</span>` : ''; })()}</dd>` : ''}
           <dt>Newsletter</dt><dd class="ed" data-edit="newsletter" title="Click to change">${esc(NEWSLETTER_LABEL[c.newsletter_status] || c.newsletter_status || 'Not recorded')}${via ? `<span class="sub">${esc(via)}</span>` : ''}</dd>
           </dl>
           <h3 class="rec-sub">Organization</h3>
@@ -4448,7 +5004,15 @@ Views.organizations = { title:'Organizations',
       aum: o => { const x = Repo.organizations.opportunity(o.id); return (x && (x.funded_aum ?? x.expected_aum)) ?? o.reported_aum ?? -1; },
       reported_aum: o => o.reported_aum || 0,
       touches: o => (Repo._tpByOrg().get(o.id) || []).length,
-      next: o => { const r = Repo.organizations.contacts(o.id).map(c => Repo.contacts.nextReminder(c.id)).filter(Boolean).sort((x,y) => String(x.due_on).localeCompare(String(y.due_on)))[0]; return r ? r.due_on : ''; } };
+      next: o => { const r = Repo.organizations.contacts(o.id).map(c => Repo.contacts.nextReminder(c.id)).filter(Boolean).sort((x,y) => String(x.due_on).localeCompare(String(y.due_on)))[0]; return r ? r.due_on : ''; },
+      org_type: o => (o.org_type || '').toLowerCase(),
+      segment: o => segName(o.segment_code).toLowerCase(),
+      city: o => (o.city || '').toLowerCase(),
+      state: o => (o.state || '').toLowerCase(),
+      website: o => (o.website || '').toLowerCase(),
+      phone: o => (o.phone || ''),
+      notes: o => (o.notes || '').toLowerCase(),
+      flags: o => [o.do_not_contact ? 'a' : '', o.is_university_affiliated ? 'b' : ''].join('') };
     rows = sortRows(rows, st.sort, st.dir, getters);
     const total = rows.length, page = rows.slice(st.page*st.pageSize, (st.page+1)*st.pageSize);
 
@@ -4515,8 +5079,8 @@ Views.organizations = { title:'Organizations',
       <colgroup><col style="width:42px"><col style="width:78px"><col style="width:230px"><col style="width:150px"><col style="width:126px"><col style="width:110px"><col style="width:44px"><col style="width:190px"><col style="width:124px"><col style="width:260px"><col style="width:104px"><col style="width:92px"><col style="width:72px"><col style="width:58px"><col style="width:220px"><col style="width:150px"></colgroup>
       <thead><tr>
       <th class="rn pin1" scope="col"><span class="sr-only">Row</span></th>
-      ${thSort('Date','added',st,'pin2')}${thSort('Organization','name',st,'pin3')}<th>Type</th><th>Segment</th><th>City</th><th>State</th><th>Website</th><th>Phone</th>
-      <th>People</th>${thSort('Status','stage',st)}${thSort('AUM','aum',st,'num')}<th>Next</th>${thSort('Touches','touches',st,'num')}<th>Notes</th><th>Flags</th></tr></thead>
+      ${thSort('Date','added',st,'pin2')}${thSort('Organization','name',st,'pin3')}${thSort('Type','org_type',st)}${thSort('Segment','segment',st)}${thSort('City','city',st)}${thSort('State','state',st)}${thSort('Website','website',st)}${thSort('Phone','phone',st)}
+      ${thSort('People','contacts',st,'num')}${thSort('Status','stage',st)}${thSort('AUM','aum',st,'num')}${thSort('Next','next',st)}${thSort('Touches','touches',st,'num')}${thSort('Notes','notes',st)}${thSort('Flags','flags',st)}</tr></thead>
       <tbody>${page.length ? page.map((o,i) => row(o, st.page*st.pageSize + i + 1)).join('') : `<tr><td colspan="16">${emptyState('No organizations match', st.q.trim() ? 'Nothing matches "' + st.q.trim() + '".' : 'Try clearing a filter.')}</td></tr>`}</tbody></table></div>${pager(st,total,'below')}`;
   },
   mount(root){
@@ -4614,7 +5178,17 @@ Views.partners = { title:'Partners',
     if (st.q.trim()){ const q = st.q.trim().toLowerCase();
       rows = rows.filter(o => [o.name, o.city, o.state, o.services, o.org_type, o.notes].filter(Boolean).join(' ').toLowerCase().includes(q)); }
     const getters = { name: o => (o.name||'').toLowerCase(), added: o => dayOf(o.created_at) || '',
-      people: o => Repo.organizations.contacts(o.id).length, services: o => (o.services||'').toLowerCase() };
+      people: o => Repo.organizations.contacts(o.id).length, services: o => (o.services||'').toLowerCase(),
+      org_type: o => (o.org_type || '').toLowerCase(),
+      city: o => (o.city || '').toLowerCase(),
+      state: o => (o.state || '').toLowerCase(),
+      website: o => (o.website || '').toLowerCase(),
+      phone: o => (o.phone || ''),
+      who: o => (Repo.organizations.contacts(o.id)[0]?.full_name || '').toLowerCase(),
+      last: o => { const t = (Repo._tpByOrg().get(o.id) || [])[0]; return t ? t.touched_at : ''; },
+      next: o => { const r = Repo.organizations.contacts(o.id).map(c => Repo.contacts.nextReminder(c.id)).filter(Boolean)
+        .sort((x,y) => String(x.due_on).localeCompare(String(y.due_on)))[0]; return r ? r.due_on : ''; },
+      notes: o => (o.notes || '').toLowerCase() };
     rows = sortRows(rows, st.sort, st.dir, getters);
     const total = rows.length, page = rows.slice(st.page*st.pageSize, (st.page+1)*st.pageSize);
     const tab = k => `<a class="btn" href="${href('partners',{kind:k.key})}" aria-pressed="${k.key===kind.key}">${esc(k.label)} <span class="muted">${fmtInt(Repo.organizations.all().filter(o => o.segment_code === k.seg).length)}</span></a>`;
@@ -4656,8 +5230,8 @@ Views.partners = { title:'Partners',
       <colgroup><col style="width:42px"><col style="width:78px"><col style="width:230px"><col style="width:250px"><col style="width:140px"><col style="width:110px"><col style="width:44px"><col style="width:190px"><col style="width:124px"><col style="width:58px"><col style="width:200px"><col style="width:200px"><col style="width:72px"><col style="width:220px"></colgroup>
       <thead><tr>
       <th class="rn pin1" scope="col"><span class="sr-only">Row</span></th>
-      ${thSort('Date','added',st,'pin2')}${thSort('Partner','name',st,'pin3')}${thSort('Services','services',st)}<th>Type</th><th>City</th><th>State</th><th>Website</th><th>Phone</th>
-      ${thSort('People','people',st,'num')}<th>Who</th><th>Last correspondence</th><th>Next</th><th>Notes</th></tr></thead>
+      ${thSort('Date','added',st,'pin2')}${thSort('Partner','name',st,'pin3')}${thSort('Services','services',st)}${thSort('Type','org_type',st)}${thSort('City','city',st)}${thSort('State','state',st)}${thSort('Website','website',st)}${thSort('Phone','phone',st)}
+      ${thSort('People','people',st,'num')}${thSort('Who','who',st)}${thSort('Last correspondence','last',st)}${thSort('Next','next',st)}${thSort('Notes','notes',st)}</tr></thead>
       <tbody>${page.length ? page.map((o,i) => row(o, st.page*st.pageSize + i + 1)).join('')
         : `<tr><td colspan="14">${emptyState('No ' + kind.label.toLowerCase() + ' on file yet',
             kind.key === 'benefit' ? 'Set an organization\'s category to Benefit group, or import the benefit groups sheet, and they appear here.' : 'Add one with the button above.')}</td></tr>`}</tbody></table></div>${pager(st,total,'below')}
@@ -5051,6 +5625,79 @@ const impSteps = n => `<ol class="imp-steps" aria-label="Import steps">${['Add d
   `<li class="${i + 1 < n ? 'done' : i + 1 === n ? 'on' : ''}" ${i + 1 === n ? 'aria-current="step"' : ''}><span>${i + 1 < n ? '✓' : i + 1}</span>${l}</li>`).join('<li class="sep" aria-hidden="true"></li>')}</ol>`;
 const STATUS_LABEL = { existing_contact:'Already on file', new_contact_existing_org:'New person, organization we know', needs_review:'Needs review', new_contact:'New contact', error:'Cannot import' };
 const STATUS_PILL = { existing_contact:'g-definite', new_contact_existing_org:'g-probable', needs_review:'g-probable', new_contact:'g-new', error:'g-definite' };
+
+/* ===== Typed or dictated notes ======================================
+   "Met Sarah Rodgers at the Jackson Hole retreat, she is keen." One line,
+   and the CRM finds the record she already has, keeps the cold email that
+   went unanswered, logs the event as its own touchpoint and lets the
+   outcome rule move her on. Nothing is overwritten: this adds a touch.
+   ===================================================================== */
+const Note = {
+  /** Does this read like a sentence about somebody, rather than a list? */
+  looksLikeNote(text){
+    const s = String(text || '').trim();
+    if (!s || s.length > 400) return false;
+    if (/\n\s*\n/.test(s) || s.split('\n').length > 3) return false;
+    if (/^(from|to|subject|sent|date)\s*:/im.test(s)) return false;
+    if (s.includes('\t') || (s.match(/@/g) || []).length > 1) return false;
+    return /\b(met|spoke|called|talked|saw|ran into|caught up|introduced)\b/i.test(s) && !!Note.read(s).contact;
+  },
+
+  /** Pull the person, the event and the mood out of one sentence. */
+  read(text){
+    const s = String(text || '');
+    const low = s.toLowerCase();
+    /* The longest name that appears wins, so "Sarah Rodgers" beats "Sarah". */
+    let contact = null;
+    for (const c of Repo.contacts.all()){
+      const full = String(c.full_name || '').toLowerCase();
+      if (full.length > 3 && low.includes(full) && (!contact || full.length > contact.full_name.length)) contact = c;
+    }
+    let event = null;
+    for (const e of Repo.events.all()){
+      const n = String(e.name || '').toLowerCase();
+      if (n.length > 4 && low.includes(n)){ event = e; break; }
+      /* "the Jackson Hole retreat" matches "Jackson Hole Philanthropy Retreat". */
+      const words = n.split(/\W+/).filter(w => w.length > 3);
+      if (words.length >= 2 && words.filter(w => low.includes(w)).length >= 2){ event = e; break; }
+    }
+    let code = null;
+    if (/\b(not interested|no thank|not a fit|passed|declined)\b/i.test(s)) code = 'NOT_INTERESTED';
+    else if (/\b(not now|next year|circle back|check back|too early)\b/i.test(s)) code = 'NOT_NOW';
+    else if (/\b(keen|excited|interested|wants|eager|enthusiastic|asked for|follow up with)\b/i.test(s)) code = 'INTERESTED';
+    else if (/\b(call|meeting|met with|sat down)\b/i.test(s) && !event) code = 'CALL_HELD';
+    else if (event) code = 'MET_AT_EVENT';
+    return { contact, event, code: code || 'MET_AT_EVENT', text: s.trim() };
+  },
+
+  /** Show what it understood, and write it only once that is confirmed. */
+  async confirm(text){
+    const r = Note.read(text);
+    if (!r.contact){ Toast.show('No contact on file matches a name in that note.', { kind:'warn' }); return false; }
+    const ok = await Modal.confirm({
+      title: 'Log this against ' + r.contact.full_name,
+      message: `${r.event ? 'At ' + r.event.name + '. ' : ''}Outcome: ${outLabel(r.code)}. `
+        + `Everything already on the record stays as it is; this is added as one more touchpoint, and the outcome rule schedules the follow-up.`,
+      okLabel: 'Log it',
+    });
+    if (!ok) return false;
+    const today = new Date().toISOString().slice(0, 10);
+    Store.commit('Note logged for ' + r.contact.full_name, st => {
+      const c = st.contacts.find(x => x.id === r.contact.id); if (!c) return;
+      if (r.event && c.source_event_id == null) c.source_event_id = r.event.id;
+      const tp = { id: Math.max(0, ...st.touchpoints.map(t => t.id)) + 1, contact_id: c.id, organization_id: c.organization_id,
+        touch_type: r.event ? 'event' : 'meeting', direction:'inbound', touched_at: today + 'T12:00:00',
+        event_id: r.event ? r.event.id : null, subject: r.event ? r.event.name : 'Note', notes: r.text,
+        outcome_code: r.code, outcome_status:'confirmed', owner_id: st.settings.default_owner_id,
+        created_at: new Date().toISOString().slice(0, 19) };
+      st.touchpoints.push(tp);
+      Rules.applyOutcome(st, tp, () => {});
+    });
+    Toast.show(`Logged against ${r.contact.full_name}.`, { kind:'ok', action:'Undo', onAction: () => { Store.undo(); render(); } });
+    return true;
+  },
+};
+
 Views.import = { title:'Import',
   render(){
     const st = UI.import || (UI.import = { step:1, text:'', parsed:null, mapping:[], analysis:null, result:null, defaults:{ segment:'ORG_NONPROFIT', channel:'COLD_EMAIL' } });
@@ -5140,7 +5787,7 @@ Views.import = { title:'Import',
         </div></td></tr>`;
       const order = a.map((r, i) => i).sort((x, y) => rank(a[x]) - rank(a[y]) || x - y);
       const colsRead = st.parsed.headers.map((h, i) => st.mapping[i] ? (Intelligence.TARGETS.find(t => t.key === st.mapping[i]) || {}).label : null).filter(Boolean);
-      const KINDS = [['new','New people'], ['event','People met at an event'], ['newsletter','Newsletter sign-ups'], ['benefit','Benefit group partners'], ['referral','Referral partners']];
+      const KINDS = [['new','New people'], ['event','People met at an event'], ['newsletter','Newsletter sign-ups'], ['benefit','Benefit group partners'], ['referral','Referral partners'], ['rfp','RFPs']];
       const opt = (v, l, on) => `<option value="${esc(v)}" ${on ? 'selected' : ''}>${esc(l)}</option>`;
       const done = st.result;
       const result = (r, i) => {
@@ -5158,7 +5805,7 @@ Views.import = { title:'Import',
         const p = problem(r);
         return `<span class="pill g-new">New</span>${p ? `<span class="sub imp-why">${esc(p)}</span>` : ''}${r.badEmail ? '<span class="sub">Added without an email</span>' : ''}${toggle(r, i)}`;
       };
-      if (done) return `<div class="page-head"><div><h1>Imported</h1><p>${fmtDateTime(new Date(done.at))}. ${done.contacts} added, ${done.merged} updated. Undo is in the message at the bottom, or on the contact's page.</p></div>
+      if (done) return `<div class="page-head"><div><h1>Imported</h1><p>${fmtDateTime(new Date(done.at))}. ${done.contacts} added, ${done.merged} updated${done.rfps ? ', ' + done.rfps + ' RFP' + (done.rfps === 1 ? '' : 's') + ' opened' : ''}. Undo is in the message at the bottom, or on the contact's page.</p></div>
         <div class="page-actions"><button class="btn btn-done" type="button" disabled>✓ ${[done.contacts ? done.contacts + ' added' : '', done.merged ? done.merged + ' updated' : ''].filter(Boolean).join(' · ') || 'Saved'}</button>
           <button class="btn btn-primary" type="button" id="im-again">Import more</button></div></div>
       ${impSteps(4)}
@@ -5234,6 +5881,7 @@ Views.import = { title:'Import',
           ${String(st.text || '').trim() || (st.shots || []).length || st.sheets ? '<button class="btn" type="button" id="im-clear">Clear</button>' : ''}
           <span class="spacer"></span>
           <button class="btn btn-primary imp-go" type="button" id="im-read">Continue <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+        <p class="muted small" style="margin-top:6px">Everything pasted here is read on this computer. Nothing is sent anywhere.</p>
       </section>
       <aside class="imp-side">
         <section class="card"><div class="card-head"><h2>What you can import</h2></div><div class="card-body imp-kinds">
@@ -5330,14 +5978,18 @@ Views.import = { title:'Import',
     root.querySelector('#im-commit')?.addEventListener('click', () => {
       st.result = commitBatch(st.analysis, { ...st.defaults, kind: st.kind || 'new', event_id: st.event_id || null }); st.result.at = Date.now(); window.scrollTo(0, 0); render();
       Toast.show(`Imported ${st.result.contacts} new and added to ${st.result.merged} already on file`, { kind:'ok', action:'Undo', onAction: () => { Store.undo(); UI.import = null; render(); } }); });
-    /* One box takes both: rows go to column mapping, anything else is read as replies. */
+    /* One box takes all three: rows go to column mapping, a sentence about
+       somebody is logged against them, anything else is read as replies. */
     const readReplies = text => { st.text = text; const list = Replies.read(text);
       if (!list.length){ Toast.show('No reply found. Paste the email text, including the From line if you can.', { kind:'warn' }); return; }
       st.replies = list; st.ocrMsg = ''; st.step = 'replies'; render(); };
     const readAny = (text, fromShots) => {
       if (!fromShots && (st.readShots || []).length){ st.readShots.forEach(s => URL.revokeObjectURL(s.url)); st.readShots = []; }
-      if (!String(text || '').trim()){ Toast.show('Paste rows, replies or a screenshot first.', { kind:'warn' }); return; }
-      return Replies.looksLikeRows(text) ? read(text) : readReplies(text); };
+      if (!String(text || '').trim()){ Toast.show('Paste rows, replies, a note or a screenshot first.', { kind:'warn' }); return; }
+      if (Replies.looksLikeRows(text)) return read(text);
+      if (Note.looksLikeNote(text)) return Note.confirm(text).then(done => {
+        if (done){ st.text = ''; st.shots = []; UI.import = null; go('contacts'); } });
+      return readReplies(text); };
     root.querySelector('#im-read')?.addEventListener('click', () => (st.shots || []).length ? readShots() : readAny(root.querySelector('#im-text').value));
     root.querySelector('#im-example')?.addEventListener('click', () => { root.querySelector('#im-text').value = DEMO_BATCH_CSV; read(DEMO_BATCH_CSV); });
     root.querySelector('#im-demo-replies')?.addEventListener('click', () => { const text = Replies.demo();
@@ -5435,7 +6087,7 @@ function zoomImage(src, alt){
 /** process_import_batch: one approved row becomes an organization, a contact, a
     touchpoint and the reminder that touchpoint's outcome schedules. */
 function commitBatch(analysis, defaults){
-  const out = { contacts:0, orgs:0, touchpoints:0, reminders:0, merged:0, skipped:0, extras:0, awaiting_first:0, in_person:0, newsletter:0 };
+  const out = { contacts:0, orgs:0, touchpoints:0, reminders:0, merged:0, skipped:0, extras:0, awaiting_first:0, in_person:0, newsletter:0, rfps:0 };
   /* What the list is (defaults.kind): new people, people met at an event, newsletter
      sign-ups, or partners (their segment comes in through defaults.segment). */
   const kind = defaults.kind || 'new', event = kind === 'event' && defaults.event_id ? Repo.events.byId(defaults.event_id) : null;
@@ -5504,6 +6156,18 @@ function commitBatch(analysis, defaults){
       if (!contact){ out.skipped++; continue; }
       if (kind === 'newsletter' && !contact.do_not_contact && contact.newsletter_status !== 'subscribed'){
         contact.newsletter_status = 'subscribed'; contact.newsletter_added_on = today; contact.newsletter_added_via = 'import'; out.newsletter++; }
+      if (kind === 'rfp'){
+        const title = (v.rfp_title || v.notes || (contact.organization_id != null && st.organizations.find(o => o.id === contact.organization_id)?.name) || contact.full_name) + ' RFP';
+        const already = st.rfps.some(x => x.title === title && x.organization_id === contact.organization_id);
+        if (!already){
+          st.rfps.push({ id: nextId(st.rfps), organization_id: contact.organization_id, contact_id: contact.id,
+            title, mandate_type: null, found_via: 'Import ' + today, est_mandate_aum: v.aum && v.aum.amount != null ? v.aum.amount : null,
+            released_on: null, questions_due_on: null, due_on: v.rfp_due_on || v.touched_at || null,
+            submitted_on: null, status: 'open', decision_on: null, owner_id: st.settings.default_owner_id,
+            notes: v.notes || null, created_at: now });
+          out.rfps = (out.rfps || 0) + 1;
+        }
+      }
       // Met at an event: the meeting itself is the first activity, and its rule schedules the follow-up
       const metAtEvent = !!event && !(v.touched_at || v.outcome_code || v.outcome_raw);
       if (metAtEvent){
@@ -5580,6 +6244,15 @@ Views.settings = { title:'Settings',
           <td>${status(t)}</td>
           <td style="white-space:nowrap">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-copy="${t.id}">Copy invite</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-restore="${t.id}">Add back</button>` : ''}</td></tr>`).join('')}
         </tbody></table></div></section>`; })() : ''}
+      <section class="card col-12" id="sheet-housekeeping"><div class="card-head"><h2>Columns and tidying up</h2></div>
+        <div class="card-body">
+          <p class="muted" style="margin-bottom:12px">Job title no longer has a column of its own on the contacts sheet. The values are still on each record; this moves them into Notes, where Jon asked for them, and it can be run more than once without writing anything twice.</p>
+          <div class="actions">
+            <button class="btn" type="button" id="hk-titles">Move job titles into Notes</button>
+            <button class="btn" type="button" id="hk-cols">Put every sheet's columns back</button>
+          </div>
+          <p class="muted small" style="margin-top:10px" id="hk-note">${(() => { const n = Repo.contacts.all().filter(c => c.title && !String(c.notes || '').includes(c.title)).length; return n ? `${fmtInt(n)} contacts have a job title that is not in their notes yet.` : 'Every job title on file is already in its contact\'s notes.'; })()}</p>
+        </div></section>
       <section class="card col-12" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
         <div class="card-body">
         <table class="edit fr"><colgroup><col class="fr-domain"><col class="fr-rule"><col><col class="fr-on"><col class="fr-del"></colgroup>
@@ -5634,6 +6307,27 @@ The first time, it asks you to set up a 6-digit code with an authenticator app (
       if (await Modal.confirm({ title:'Remove ' + (t.full_name || t.email), message:'They can no longer see anything in the CRM. Their past activity stays, with their name on it. You can invite them again later.', okLabel:'Remove', danger:true }))
         Store.commit('Removed from the team', st => { const x = st.team_members.find(y => y.id === t.id); if (x) x.is_active = false; });
     }));
+    root.querySelector('#hk-titles')?.addEventListener('click', async () => {
+      const todo = Repo.contacts.all().filter(c => c.title && !String(c.notes || '').includes(c.title));
+      if (!todo.length) return Toast.show('Nothing to move: every job title is already in its notes.', { kind:'ok' });
+      const ok = await Modal.confirm({ title: `Move ${todo.length} job titles into Notes`,
+        message: `Each one is added to the end of that contact's notes. The title stays on the record as well, so nothing is lost, and running this again changes nothing. Undo takes it all off.`,
+        okLabel: 'Move them' });
+      if (!ok) return;
+      Store.commit(`${todo.length} job titles moved into Notes`, st => {
+        const ids = new Set(todo.map(c => c.id));
+        st.contacts.forEach(c => { if (!ids.has(c.id) || !c.title) return;
+          c.notes = c.notes ? c.notes.trim() + ' ' + c.title : c.title; });
+      });
+      Toast.show(`${todo.length} moved.`, { kind:'ok', action:'Undo', onAction: () => { Store.undo(); render(); } });
+      render();
+    });
+    root.querySelector('#hk-cols')?.addEventListener('click', () => {
+      ['contacts', 'newsletter', 'organizations', 'touchpoints', 'partners', 'reminders', 'events', 'rfps'].forEach(Sheet.reset);
+      try { localStorage.removeItem(SHEET_COLS_KEY); } catch (e) { /* private window */ }
+      Toast.show('Every sheet is back to the columns it ships with.', { kind:'ok' });
+      render();
+    });
     root.querySelector('#fr-add').addEventListener('click', async () => {
       const out = await Modal.form({ title:'Add a domain', okLabel:'Add', fields:[
         { key:'pattern', label:'Email ending', placeholder:'utah.edu, or .edu for every school' },
@@ -5813,6 +6507,7 @@ function render(){
     const liveNote = '';   // the save state shows in the top bar instead
     main.innerHTML = tabStrip(name) + liveNote + view.render(params);
     view.mount(main, params);
+    Sheet.enhance(main, name);
   } catch (err){
     console.error(err);
     main.innerHTML = `<div class="banner danger"><b>This view could not be drawn.</b> ${esc(err.message)}</div><a class="btn" href="${href('dashboard')}">Back to the dashboard</a>`;
@@ -5945,6 +6640,12 @@ const Live = {
   /* Tables added by a later db/ file. Until that file has been run, the app
      carries on without them instead of failing to open. */
   OPTIONAL: ['email_templates'], missing: new Set(),
+  /** Whether a column exists on the rows the database actually returned. A
+      column added by a later db/ file is absent until that file has been run. */
+  has(table, column){
+    const rows = Store.state[table] || [];
+    return rows.length ? Object.prototype.hasOwnProperty.call(rows[0], column) : true;
+  },
   shadow: null, queue: Promise.resolve(), saving: 0, lastSaved: null,
   /** What each row looked like at the last save, as JSON. */
   takeShadow(){ const s = {}; for (const t of this.TABLES) s[t] = new Map((Store.state[t] || []).map(r => [r.id, JSON.stringify(r)])); this.shadow = s; },
