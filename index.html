@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-30.6">
+<meta name="build-version" content="2026-10-30.7">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -5331,10 +5331,16 @@ function saveCell(id, field, raw){
     case 'sourced': return Repo.contacts.update(id, { sourced_on: day || null }, 'Date updated');
     case 'first_name': return Repo.contacts.update(id, { first_name: v }, 'First name updated');
     case 'notes':   return Repo.contacts.update(id, { notes: v || null }, 'Notes updated');
-    case 'newsletter': return Repo.contacts.update(id, { newsletter_status: v,
-      newsletter_added_on: v === 'subscribed' ? (c.newsletter_added_on || new Date().toISOString().slice(0,10)) : c.newsletter_added_on,
-      newsletter_added_via: v === 'subscribed' ? (c.newsletter_added_via || 'Added by hand') : c.newsletter_added_via },
-      'Newsletter: ' + (NEWSLETTER_LABEL[v] || v).toLowerCase());
+    case 'newsletter': {
+      if (v === c.newsletter_status) return;
+      /* Joining counts from today whenever they were not on the list a moment
+         ago, so a rejoin does not keep the date they first signed up. */
+      const joining = v === 'subscribed';
+      return Repo.contacts.update(id, { newsletter_status: v,
+        newsletter_added_on: joining ? new Date().toISOString().slice(0,10) : c.newsletter_added_on,
+        newsletter_added_via: joining ? 'Added by hand' : c.newsletter_added_via },
+        'Newsletter: ' + (NEWSLETTER_LABEL[v] || v).toLowerCase());
+    }
     case 'state':   return Repo.contacts.update(id, { state: v.toUpperCase().slice(0,2) || null }, 'State updated');
     case 'email':   return Repo.contacts.update(id, { email: v || null, email_key: v.toLowerCase() || null }, 'Email updated');
     case 'segment': return Repo.contacts.update(id, { segment_code: v }, 'Category changed to ' + segName(v));
@@ -5735,6 +5741,7 @@ Views.contact = { title:'Contact',
       ? c.source_detail : null;
     const via = !c.newsletter_added_via ? null
       : /^auto:/i.test(c.newsletter_added_via) ? 'Added automatically when the outcome was "' + c.newsletter_added_via.replace(/^auto:\s*/i,'') + '"'
+      : /^added\b/i.test(c.newsletter_added_via) ? c.newsletter_added_via.charAt(0).toUpperCase() + c.newsletter_added_via.slice(1)
       : 'Added ' + c.newsletter_added_via;
     /* An activity can hold the letter, their replies and our answers; when it holds more
        than one, a link inside it turns their order (one choice for every activity). Anything longer than two lines shows two until opened. */
@@ -5787,7 +5794,7 @@ Views.contact = { title:'Contact',
           <dt>How we met</dt><dd class="ed" data-edit="channel" title="Click to change">${esc(chName(c.source_channel_code))}${detail ? ` <span class="muted">${esc(detail)}</span>` : ''}${ev ? `<span class="sub">At <a href="${href('events')}">${esc(ev.name)}</a></span>` : ''}${referrer ? `<span class="sub">Referred by <a href="${href('contacts/'+referrer.id)}">${esc(referrer.full_name)}</a></span>` : ''}</dd>
           ${Repo.contacts.path(c.id) ? `<dt>The path in</dt><dd title="Read from the touchpoints, in order. The conversion is credited to whichever one opened the opportunity, not the first.">${esc(Repo.contacts.path(c.id))}${(() => { const o = Repo.contacts.opportunity(c.id); return o && o.converting_channel_code ? `<span class="sub">Conversion credited to ${esc(chName(o.converting_channel_code))}</span>` : ''; })()}</dd>` : ''}
           <dt>Status</dt><dd class="ed" data-edit="status" title="${esc(statusNote(c))}">${statusPill(Repo.contacts.statusOf(c.id))}${c.status_override ? '<span class="sub">Set by hand</span>' : '<span class="sub">Worked out automatically</span>'}</dd>
-          <dt>Newsletter</dt><dd class="ed" data-edit="newsletter" title="Click to change">${esc(NEWSLETTER_LABEL[c.newsletter_status] || c.newsletter_status || 'Not recorded')}${via ? `<span class="sub">${esc(via)}</span>` : ''}</dd>
+          <dt>Newsletter</dt><dd class="ed" data-edit="newsletter" title="Click to change">${esc(NEWSLETTER_LABEL[c.newsletter_status] || c.newsletter_status || 'Not recorded')}${c.newsletter_status === 'subscribed' && (via || c.newsletter_added_on) ? `<span class="sub">${esc([via, c.newsletter_added_on ? 'joined ' + fmtDate(c.newsletter_added_on) : ''].filter(Boolean).join(', '))}</span>` : ''}</dd>
           </dl>
           <h3 class="rec-sub">Organization</h3>
           <dl class="kv two rec-fields">
@@ -7702,7 +7709,9 @@ function tabStrip(name){
   const group = TABS.find(([,list]) => list.some(([n]) => n === name));
   if (!group) return '';
   const counts = { contacts: Repo.contacts.all().length, organizations: Repo.organizations.all().length,
-    touchpoints: Repo.touchpoints.all().length, pipeline: Repo.opportunities.all().length };
+    touchpoints: Repo.touchpoints.all().length, pipeline: Repo.opportunities.all().length,
+    newsletter: Repo.contacts.all().filter(c => c.newsletter_status === 'subscribed').length,
+    partners: Repo.organizations.all().filter(o => PARTNER_KINDS.some(k => k.seg === o.segment_code)).length };
   return `<nav class="tabs" aria-label="Section">${group[1].map(([n,l]) =>
     `<a class="tab" href="${href(n)}" ${n===name?'aria-current="page"':''}>${esc(l)}${counts[n] != null ? `<span class="n">${fmtInt(counts[n])}</span>` : ''}</a>`).join('')}</nav>`;
 }
