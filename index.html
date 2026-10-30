@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-30.3">
+<meta name="build-version" content="2026-10-30.4">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -844,11 +844,23 @@ table.sheet input[list]::-webkit-calendar-picker-indicator{display:none !importa
 @keyframes tpflash{0%,40%{background:var(--accent-soft)}100%{background:transparent}}
 .cols-menu .cols-all{border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px;font-weight:600}
 .mm-book{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);white-space:nowrap}
-.mm-inbox{margin-top:10px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 14px}
-.mm-inbox > span{display:block;margin-bottom:6px}
-.mm-html{color:#222;max-height:260px;overflow:auto}
+.mm-under{display:flex;align-items:center;gap:12px;margin-top:8px} .mm-under .mm-edited{margin:0}
+.mm-html{color:#222;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;max-height:60vh;overflow:auto}
+.acct-form{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:12px;align-items:center;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.af-l{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--ink-2)} .af-l label{white-space:nowrap}
+.af-f{min-width:0} .af-f > input{width:100%}
+.af-top{align-self:start;padding-top:10px}
+.af-two{display:flex;gap:8px} .af-two input{flex:1 1 0;min-width:0}
+.af-span{grid-column:2 / span 2;display:flex;align-items:center;gap:8px} .af-span.s-sig{display:block}
+.s-sig-foot{display:flex;justify-content:flex-end;margin-top:8px}
+.s-logo-wrap img{height:48px;width:auto;max-width:none}
+.s-logo-wrap{position:relative;flex:none;display:flex;align-items:center}
+.s-logo-edit{position:absolute;top:-14px;right:-18px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--ink-3);display:grid;place-items:center;cursor:pointer;opacity:.55;padding:0}
+.s-logo-edit svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.s-logo-wrap:hover .s-logo-edit,.s-logo-edit:focus-visible{opacity:1;color:var(--accent);border-color:var(--accent)}
+.s-sig #s-logo{margin-top:8px;width:100%}
+@media (max-width:640px){ .acct-form{grid-template-columns:1fr} .af-span{grid-column:auto} .af-top{padding-top:0} }
 table.grid.onb td{vertical-align:middle} table.grid.onb input{width:100%;min-width:240px}
-#s-invite{max-width:220px}
 .bell-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .bell-menu .who{padding:8px 12px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:13px;color:var(--ink)}
 .bell-menu a{display:flex;gap:10px;align-items:baseline;padding:9px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:13px;line-height:1.45}
@@ -3906,8 +3918,7 @@ Views.mailmerge = { title:'Mass Email',
             <dt>To</dt><dd>${esc(preview.contact.email || 'no address')}</dd>
             <dt>Subject</dt><dd><label class="sr-only" for="mm-subj">Subject</label><input id="mm-subj" type="text" class="mm-subj" value="${esc(letterFor(preview.contact).subject)}"></dd></dl>
           <label class="sr-only" for="mm-body">Letter</label><textarea id="mm-body" class="mergebody mm-body" rows="16">${esc(letterFor(preview.contact).body)}</textarea>
-          <div class="mm-inbox"><span class="muted small">As it arrives in their inbox</span><div class="mm-html">${Gmail.html(letterFor(preview.contact).body)}</div></div>
-          <p class="muted small mm-edited">${(st.edits || {})[preview.contact.id] ? `Changed for ${esc(preview.contact.full_name)} only; the template stays as it is. <button class="linkish" type="button" id="mm-undo">Undo my changes</button>` : 'Type in the letter to change it for this person only.'}</p>
+          <div class="mm-under"><button class="btn btn-sm" type="button" id="mm-preview" title="The email as it arrives in their inbox, with your signature and logo">Preview</button><p class="muted small mm-edited">${(st.edits || {})[preview.contact.id] ? `Changed for ${esc(preview.contact.full_name)} only; the template stays as it is. <button class="linkish" type="button" id="mm-undo">Undo my changes</button>` : 'Type in the letter to change it for this person only.'}</p></div>
 
           <div class="stephead" style="margin:20px 0 12px"><span class="stepnum">3</span><h2>Send them</h2></div>
           ${(() => { const why = Gmail.blocker(), busy = !!st.sending;
@@ -3933,6 +3944,10 @@ Views.mailmerge = { title:'Mass Email',
       st.edits = st.edits || {}; st.edits[c.id] = { subject: root.querySelector('#mm-subj').value, body: root.querySelector('#mm-body').value }; };
     root.querySelector('#mm-subj')?.addEventListener('input', keep);
     root.querySelector('#mm-body')?.addEventListener('input', keep);
+    root.querySelector('#mm-preview')?.addEventListener('click', () => {
+      const m = Modal.open({ title: 'As it arrives in their inbox', wide: true, body: `<p class="muted small" style="margin-bottom:8px">To ${esc(root.querySelector('.mm-head dd')?.textContent || '')} · ${esc(root.querySelector('#mm-subj')?.value || '')}</p><div class="mm-html">${Gmail.html(root.querySelector('#mm-body').value)}</div>`,
+        foot: '<button class="btn btn-primary" type="button" data-ok>Close</button>' });
+      m.querySelector('[data-ok]').onclick = () => Modal.close(); });
     root.querySelector('#mm-book')?.addEventListener('change', e => { st.book = e.target.checked; st.edits = {}; render(); });
     root.querySelector('#mm-subj')?.addEventListener('change', render);
     root.querySelector('#mm-body')?.addEventListener('change', render);
@@ -6695,28 +6710,23 @@ Views.settings = { title:'Settings',
       <section class="card col-6"><div class="card-head"><h2>Account</h2></div><div class="card-body">
         ${who ? `<dl class="kv"><dt>Name</dt><dd>${esc(who.name || '')}</dd><dt>Email</dt><dd>${esc(Live.email || '')}</dd>
           <dt>Role</dt><dd>${who.role === 'admin' ? 'Admin' : 'Member'}</dd></dl>
-          <div class="s-book-row"><label for="s-book">Your Google booking link:</label>
-            <div class="info-pop"><button class="info-btn" type="button" aria-label="About the booking link" aria-describedby="s-book-info">i</button>
-              <div class="info-panel" role="tooltip" id="s-book-info"><div class="info-card"><p>Your Google Calendar booking page (Calendar → Create → Appointment schedule → Copy link). Letters that use {{booking_link}} put it in for whoever sends them.</p></div></div></div>
-            <input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
-          <div class="s-book-row"><label for="s-zoom">Calls:</label>
-            <div class="info-pop"><button class="info-btn" type="button" aria-label="About calls" aria-describedby="s-zoom-info">i</button>
-              <div class="info-panel" role="tooltip" id="s-zoom-info"><div class="info-card"><p>Schedule a call (on a contact's page) puts your Zoom link in the invitation and the confirmation email, and invites these people too (for example Dr. Brogaard).</p></div></div></div>
-            <input id="s-zoom" type="url" placeholder="Your Zoom link (https://…)" value="${esc(myRow().zoom_link || '')}"><input id="s-invite" type="text" placeholder="Always invite (emails, commas)" value="${esc(myRow().invite_also || '')}"><button class="btn btn-sm" type="button" id="s-zoom-save">Save</button></div>
-          <div class="s-book-row s-sig-row"><label for="s-sig">Your email signature:</label>
-            <div class="info-pop"><button class="info-btn" type="button" aria-label="About the signature" aria-describedby="s-sig-info">i</button>
-              <div class="info-panel" role="tooltip" id="s-sig-info"><div class="info-card"><p>Goes at the foot of the letters you send from the CRM, in place of your name and the firm. The Gaard logo goes beside it, as in Gaard's own emails; a logo link (an image on the web, starting with https://) uses another picture instead.</p></div></div></div>
-            ${(() => { const me = (Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {};
+          <div class="acct-form">
+            <div class="af-l"><label for="s-book">Booking link</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About the booking link" aria-describedby="s-book-info">i</button><div class="info-panel" role="tooltip" id="s-book-info"><div class="info-card"><p>Your Google Calendar booking page (Calendar → Create → Appointment schedule → Copy link). Letters that use {{booking_link}} put it in for whoever sends them.</p></div></div></div></div>
+            <div class="af-f"><input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"></div>
+            <div class="af-b"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
+            <div class="af-l"><label for="s-zoom">Calls</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About calls" aria-describedby="s-zoom-info">i</button><div class="info-panel" role="tooltip" id="s-zoom-info"><div class="info-card"><p>Schedule a call (on a contact's page) puts your Zoom link in the invitation and the confirmation email, and invites these people too (for example Dr. Brogaard).</p></div></div></div></div>
+            <div class="af-f af-two"><input id="s-zoom" type="url" placeholder="Zoom link (https://…)" value="${esc(myRow().zoom_link || '')}" aria-label="Your Zoom link"><input id="s-invite" type="text" placeholder="Always invite (emails)" value="${esc(myRow().invite_also || '')}" aria-label="Always invite"></div>
+            <div class="af-b"><button class="btn btn-sm" type="button" id="s-zoom-save">Save</button></div>
+            <div class="af-l af-top"><label for="s-sig">Signature</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About the signature" aria-describedby="s-sig-info">i</button><div class="info-panel" role="tooltip" id="s-sig-info"><div class="info-card"><p>Goes at the foot of the letters you send from the CRM, in place of your name and the firm, with the Gaard logo beside it as in Gaard's own emails. The pencil on the logo uses another picture instead.</p></div></div></div></div>
+            ${(() => { const me = myRow();
               /* laid out as it reads in the email: the lines on the left, a rule, the logo on the right */
-              return `<div class="s-sig"><div class="s-sig-card"><textarea id="s-sig" rows="4" wrap="off" aria-label="Your email signature" placeholder="Your name&#10;Your title&#10;Phone&#10;www.gaard.capital">${esc(me.email_signature || '')}</textarea>
-                <img id="s-sig-logo" src="${esc(me.email_logo_url || FIRM_LOGO)}" alt="Logo beside the signature"></div>
-                <button class="linkish small" type="button" id="s-logo-toggle" ${me.email_logo_url ? 'hidden' : ''}>Use another logo</button>
-                <input id="s-logo" type="url" placeholder="Link to another logo (https://…); empty uses the Gaard logo" value="${esc(me.email_logo_url || '')}" ${me.email_logo_url ? '' : 'hidden'}></div>`; })()}
-            <button class="btn btn-sm" type="button" id="s-sig-save">Save</button></div>
-          <div class="s-book-row"><label>Your Claude:</label>
-            <div class="info-pop"><button class="info-btn" type="button" aria-label="About connecting Claude" aria-describedby="cl-info">i</button>
-              <div class="info-panel" role="tooltip" id="cl-info"><div class="info-card"><p>Lets your own Claude (claude.ai, with Gmail connected) find replies in your mailbox and put them in the CRM. Claude can list who has not replied, look people up, and store a reply with the outcome it suggests. It sets the closest outcome, as the CRM does with replies it reads itself, and cannot delete or send anything. Each reply shows under the bell, and Change on the activity puts a wrong outcome right.</p></div></div></div>
-            <div id="cl-body" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0"><span class="muted small">Checking…</span></div></div>
+              return `<div class="af-f af-span s-sig"><div class="s-sig-card"><textarea id="s-sig" rows="4" wrap="off" aria-label="Your email signature" placeholder="Your name&#10;Your title&#10;Phone&#10;www.gaard.capital">${esc(me.email_signature || '')}</textarea>
+                <div class="s-logo-wrap"><img id="s-sig-logo" src="${esc(me.email_logo_url || FIRM_LOGO)}" alt="Logo beside the signature">
+                  <button class="s-logo-edit" type="button" id="s-logo-toggle" title="Use another logo" aria-label="Use another logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg></button></div></div>
+                <input id="s-logo" type="url" placeholder="Link to another logo (https://…); empty uses the Gaard logo" value="${esc(me.email_logo_url || '')}" ${me.email_logo_url ? '' : 'hidden'}><div class="s-sig-foot"><button class="btn btn-sm" type="button" id="s-sig-save">Save</button></div></div>`; })()}
+            <div class="af-l"><label>Your Claude</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About connecting Claude" aria-describedby="cl-info">i</button><div class="info-panel" role="tooltip" id="cl-info"><div class="info-card"><p>Lets your own Claude (claude.ai, with Gmail connected) find replies in your mailbox and put them in the CRM, and add events from the Event Finder. It cannot delete or send anything; a reply it records shows under the bell, and Change on the activity puts a wrong outcome right.</p></div></div></div></div>
+            <div class="af-f af-span" id="cl-body"><span class="muted small">Checking…</span></div>
+          </div>
           <div class="page-actions" style="margin-top:14px"><button class="btn btn-sm" type="button" id="s-mfa">Use a new authenticator app</button><button class="btn btn-sm" type="button" id="s-pass">Change password</button><button class="btn btn-sm" type="button" id="s-out">Sign out</button></div>`
         : `<p class="muted">You are looking at the demo data. Nothing here is the live database.</p>
           <div class="page-actions" style="margin-top:12px"><button class="btn btn-sm btn-primary" type="button" id="s-in">Sign in to the live database</button></div>`}
@@ -6789,7 +6799,7 @@ Views.settings = { title:'Settings',
       }
       Store.commit('Call settings saved', st => { const row = st.team_members.find(t => t.id === id); if (row){ row.zoom_link = zoom || null; row.invite_also = invite || null; } });
     });
-    root.querySelector('#s-logo-toggle')?.addEventListener('click', e => { e.target.hidden = true; const i = root.querySelector('#s-logo'); i.hidden = false; i.focus(); });
+    root.querySelector('#s-logo-toggle')?.addEventListener('click', () => { const i = root.querySelector('#s-logo'); i.hidden = !i.hidden; if (!i.hidden) i.focus(); });
     root.querySelector('#s-logo')?.addEventListener('input', e => { const v = e.target.value.trim(); root.querySelector('#s-sig-logo').src = /^https:\/\/\S+$/i.test(v) ? v : FIRM_LOGO; });
     root.querySelector('#s-sig-save')?.addEventListener('click', async () => {
       const sig = root.querySelector('#s-sig').value.trim(), logo = root.querySelector('#s-logo').value.trim();

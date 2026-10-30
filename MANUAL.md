@@ -191,7 +191,7 @@ Google asks your permission the first time (a Google window: allow sending). Peo
 
 **Organization names read naturally.** In a letter, the organization's name is tidied for the sentence ("I am curious how ____ manages its investments."): Inc., LLC and Corp. are dropped, an acronym in brackets is dropped, "Of" and "And" become lowercase, and "the" is added to a bare name such as "Community Center" (not to Foundation, Alliance, Association, Trust and the like). Change any one letter by typing in it.
 
-**As it arrives in their inbox**, under the letter, shows the email the way the person will see it, with your signature and logo.
+**Preview**, under the letter, shows the email the way the person will see it, with your signature and logo.
 
 ### Templates (Mass Email > Email templates)
 
@@ -201,7 +201,7 @@ The letters everyone shares. The list is on the left; the chosen letter on the r
 
 - **Your Google booking link**: your Google Calendar appointment page (Calendar > Create > Appointment schedule > Copy link). It fills `{{booking_link}}` in letters you send.
 - **Calls**: your Zoom link, and who is always invited to your calls (for example Dr. Brogaard). Schedule a call uses both.
-- **Your email signature**: what goes at the foot of every letter you send from the CRM (mass email, replies, RFP letters), in place of your name and the firm. Type it line by line. The Gaard logo is placed beside it, as in Gaard's own emails. **Logo link** (optional): another picture on the web (a link starting with `https://`) to use instead.
+- **Your email signature**: what goes at the foot of every letter you send from the CRM (mass email, replies, RFP letters), in place of your name and the firm. Type it line by line. The Gaard logo is placed beside it, as in Gaard's own emails. To use another picture, press the pencil on the logo and paste its link (starting with `https://`).
 
 ### Replies come in by themselves
 
