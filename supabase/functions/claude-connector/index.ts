@@ -245,7 +245,7 @@ async function listEvents(db: Db, a: { from?: string; to?: string }) {
   if (!data?.length) return `No events on the CRM's Events page between ${from} and ${to}.`;
   const { data: tps } = await db.from('touchpoints').select('event_id, contact_id').in('event_id', data.map((e: Db) => e.id)).limit(5000);
   const met = (id: number) => new Set((tps ?? []).filter((t: Db) => t.event_id === id).map((t: Db) => t.contact_id)).size;
-  return data.map((e: Db) => `- ${e.start_on} ${e.name} (${e.format === 'virtual' ? 'online' : [e.city, e.state].filter(Boolean).join(', ') || 'in person'}): ${e.attendance || 'going'}, ${met(e.id)} people met`).join('\n');
+  return data.map((e: Db) => `- ${e.start_on} ${e.name} (${e.format === 'virtual' ? 'online' : [e.city, e.state].filter(Boolean).join(', ') || 'in person'}): ${met(e.id)} people met, ${e.attendance || 'going'}`).join('\n');
 }
 
 async function recordEvent(db: Db, me: string, a: Record<string, unknown>) {

@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-10-30.5">
+<meta name="build-version" content="2026-10-30.6">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -369,7 +369,6 @@ tr.mm-blocked:hover td{background:transparent}
 .pill.st-overdue{background:var(--danger-soft);color:var(--danger)}
 .pill.st-today{background:var(--warn-soft);color:var(--warn)}
 .pill.st-upcoming{background:var(--surface-3);color:var(--ink-2)}
-.ev-act{margin-left:auto;display:flex;align-items:center;gap:6px} .ev-act select{width:auto} .ev-when{margin-left:auto} .ev-when .btn[aria-pressed="true"]{background:var(--surface);font-weight:600}
 /* Settings > Data health (db/013) */
 .dh-sum{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .dh-sum .pill{font-size:12px}
@@ -3105,7 +3104,7 @@ function stateFilter(){
       <div class="multi-foot"><button class="btn btn-sm" type="button" id="flt-state-none">All states</button><span class="spacer"></span><button class="btn btn-sm" type="button" id="flt-state-close">Done</button></div>
     </div>` : ''}</div>`;
 }
-function filterBar({ compact=false, extra='', search='' } = {}){
+function filterBar({ compact=false, extra='', search='', hide=[] } = {}){
   const f = UI.filters;
   const r = Metrics.range(f);
   /* A single-choice filter: a pill button and a rounded menu, like the states. */
@@ -3126,8 +3125,8 @@ function filterBar({ compact=false, extra='', search='' } = {}){
        <label class="sr-only" for="flt-to">To</label><input type="date" id="flt-to" data-filter="to" value="${esc(f.to)}" title="To date" style="min-width:150px">` : ''}
     ${stateFilter()}
     ${sel('segment','Segment', segOptions)}
-    ${sel('channel','Channel', [{value:'All',label:'All channels'}, ...CHANNELS.map(c => ({ value:c.code, label:c.name }))])}
-    ${sel('stage','Stage', [{value:'All',label:'All stages'}, ...STAGES.map(x => ({ value:x.code, label:x.label }))])}
+    ${hide.includes('channel') ? '' : sel('channel','Channel', [{value:'All',label:'All channels'}, ...CHANNELS.map(c => ({ value:c.code, label:c.name }))])}
+    ${hide.includes('stage') ? '' : sel('stage','Stage', [{value:'All',label:'All stages'}, ...STAGES.map(x => ({ value:x.code, label:x.label }))])}
     ${extra}
     ${sel('group','Segment group', [{value:'All',label:'All segment groups'}, ...SEGMENT_GROUPS])}
     ${Metrics.isActive(f) ? `<button class="btn btn-sm" type="button" id="flt-clear">Clear all</button>` : ''}
@@ -3927,9 +3926,8 @@ Views.mailmerge = { title:'Mass Email',
           ${(() => { const why = Gmail.blocker(), busy = !!st.sending;
             return `<div class="page-actions">
             <button class="btn btn-primary btn-xl" type="button" id="mm-gsend" ${chosen.length && !why && !busy ? '' : 'disabled'}>${busy ? 'Sending ' + st.sending.done + ' of ' + st.sending.total + '…' : 'Send ' + chosen.length + ' from my Gmail'}</button>
-            ${busy ? '<button class="btn btn-xl" type="button" id="mm-stop">Stop after this one</button>' : ''}
             <button class="btn btn-xl" type="button" id="mm-gtest" ${why || busy ? 'disabled' : ''}>Send a test to myself</button></div>
-          <p class="muted small" style="margin-top:10px">${why ? esc(why) : `Each letter goes out from your own Gmail${Gmail.email ? ' (' + esc(Gmail.email) + ')' : ''}, one about every half minute (keep this page open), with the signature you set up in Gmail, and shows up in your Sent folder; replies come back to you. Every person sent to is marked <b>No response</b> and their next follow-up is set.`}</p>
+          <p class="muted small" style="margin-top:10px">${why ? esc(why) : `Each letter goes out from your own Gmail${Gmail.email ? ' (' + esc(Gmail.email) + ')' : ''}, one at a time, with the signature you set up in Gmail, and shows up in your Sent folder; replies come back to you. Every person sent to is marked <b>No response</b> and their next follow-up is set.`}</p>
           <details class="mm-manual"><summary>Or send from your own email by hand</summary>
             <div class="page-actions" style="margin-top:10px"><button class="btn" type="button" id="mm-copy-all" ${chosen.length?'':'disabled'}>Copy all ${chosen.length} into my email</button>
               <button class="btn" type="button" id="mm-send" ${chosen.length?'':'disabled'}>Mark ${chosen.length} as sent</button>
@@ -3997,18 +3995,14 @@ Views.mailmerge = { title:'Mass Email',
         Toast.show('Test sent to ' + Gmail.email + ', filled in as for ' + c.full_name, { kind:'ok' }); render();
       } catch (err){ Toast.show('Test not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
     });
-    root.querySelector('#mm-stop')?.addEventListener('click', () => { st.stop = true; Toast.show('Stopping after the letter being sent', { kind:'ok' }); });
     root.querySelector('#mm-gsend')?.addEventListener('click', async () => {
       const rows = build(); if (!rows.length) return;
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];
       if (!Store.live) return Toast.show('This is the demo data: the addresses are made up. Use "Send a test to myself" to try it.', { kind:'warn', ms: 8000 });
       try { await Gmail.prepare(); } catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
       const other = Live.email && Gmail.email && Live.email.toLowerCase() !== Gmail.email.toLowerCase();
-      const today = new Date().toISOString().slice(0, 10), mine = Gmail.email.toLowerCase();
-      const sentToday = (Store.state.email_messages || []).filter(m => m.direction === 'outbound' && String(m.mailbox || '').toLowerCase() === mine && String(m.sent_at).slice(0, 10) === today).length;
-      const mins = Math.max(1, Math.round((rows.length - 1) * 32 / 60));
       const ok = await Modal.confirm({ title: `Send ${rows.length} email${rows.length === 1 ? '' : 's'} now?`,
-        message: `They go out from ${Gmail.email}, one about every half minute, so this takes about ${mins} minute${mins === 1 ? '' : 's'}: keep this page open.${other ? ' This is not the account you signed in to the CRM with (' + Live.email + ').' : ''}${!Gmail.me.signature ? ' You have no signature set up in Gmail, so your name and the firm go at the foot.' : ''}${sentToday + rows.length > 50 ? ' That makes ' + (sentToday + rows.length) + ' emails from this address today. More than about 50 cold emails a day raises the risk of landing in spam; consider sending the rest tomorrow.' : ''} Each person is marked No response and their next follow-up is set.`,
+        message: `They go out from ${Gmail.email}, one at a time${other ? ' (not the account you signed in to the CRM with, ' + Live.email + ')' : ''}.${!Gmail.me.signature ? ' You have no signature set up in Gmail, so your name and the firm go at the foot.' : ''} Each person is marked No response and their next follow-up is set.`,
         okLabel: `Send ${rows.length}` });
       if (!ok) return;
       st.sendLog = st.sendLog || {}; st.sending = { done: 0, total: rows.length, queue: rows.map(r => r.contact.id), current: null }; render();
@@ -4018,12 +4012,9 @@ Views.mailmerge = { title:'Mass Email',
         try { r.gmail = await Gmail.send({ to: r.contact.email, subject: r.subject, text: r.body }); r.mailbox = Gmail.email.toLowerCase(); st.sendLog[r.contact.id] = 'sent'; sent.push(r); }
         catch (err){ st.sendLog[r.contact.id] = err.message; }
         st.sending.done++; st.sending.queue = st.sending.queue.filter(id => id !== r.contact.id); st.sending.current = null; render();
-        if (st.stop || !st.sending.queue.length) break;
-        // a person's pace: a burst of near-identical letters is what spam filters look for
-        await new Promise(res => setTimeout(res, 20000 + Math.random() * 25000));
-        if (st.stop) break;
+        await new Promise(res => setTimeout(res, 1200));   // a steady pace, as a person sending would
       }
-      st.sending = null; st.stop = false;
+      st.sending = null;
       if (sent.length){ Merge.send(sent, tpl.name); sent.forEach(r => { st.selected.delete(r.contact.id); if (UI.contacts.sel) UI.contacts.sel.delete(r.contact.id); }); }
       const failed = rows.length - sent.length;
       Toast.show(`Sent ${sent.length}${failed ? ', ' + failed + ' not sent (see the names marked Not sent)' : ''}`, { kind: failed ? 'warn' : 'ok', ms: 8000 });
@@ -5643,6 +5634,46 @@ Views.organization = { title:'Organization',
   }
 };
 
+/* ===== Event record ================================================== */
+const FINDER_URL = 'https://claude.ai/artifact/UV7sCKMc56UKQubKaA7hsK';
+Views.event = { title: 'Event',
+  render(params){
+    const id = Number(params.id), ev = Repo.events.byId(id), r = Metrics.events(Metrics.empty()).find(x => x.event.id === id);
+    if (!ev || !r) return `<div class="page-head"><h1>Event not found</h1></div>${emptyState('It may have been taken off')}<a class="btn" href="${href('events')}">Back to events</a>`;
+    const today = new Date().toISOString().slice(0, 10), status = ev.attendance || (r.upcoming || (ev.end_on || ev.start_on) >= today ? 'going' : 'attended');
+    const url = ev.source_url || (String(ev.notes || '').match(/https?:\/\/\S+/) || [])[0] || '';
+    const notes = String(ev.notes || '').split('\n').filter(l => !/^Event Finder: /.test(l) && !/^gcal:/.test(l) && l.trim() !== url).join('\n').trim();
+    const ids = uniq([...Repo.events.people(id), ...Repo.events.sourced(id).map(c => c.id)]), people = ids.map(x => Repo.contacts.byId(x)).filter(Boolean).sort((a, b) => a.full_name.localeCompare(b.full_name));
+    const dates = fmtDate(ev.start_on) + (ev.end_on && ev.end_on !== ev.start_on ? ' to ' + fmtDate(ev.end_on) : '');
+    const kv = (l, v) => v ? `<dt>${esc(l)}</dt><dd>${esc(v)}</dd>` : '';
+    return `<div class="page-head"><div><a href="${href('events')}" class="small">All events</a><h1 style="margin-top:2px">${esc(ev.name)}</h1>
+        <p>${esc(dates)}${ev.host_org ? ' · ' + esc(ev.host_org) : ''}</p></div>
+      <div class="page-actions">${url ? `<a class="btn" href="${esc(url)}" target="_blank" rel="noopener">Event page</a>` : ''}<a class="btn" href="${FINDER_URL}" target="_blank" rel="noopener">Event Finder</a>
+        <label class="sr-only" for="ev-att">Status</label><select id="ev-att" style="width:auto">${[['going', 'Going'], ['maybe', 'Maybe'], ['attended', 'Attended'], ['not_going', 'Not going']].map(([v, l]) => `<option value="${v}" ${status === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <button class="btn" type="button" id="ev-del">Delete</button></div></div>
+    <div class="dash-grid">
+      <section class="card col-6"><div class="card-head"><h2>Details</h2></div><div class="card-body"><dl class="kv">
+        ${kv('When', dates)}${kv('Where', [ev.city, ev.state].filter(Boolean).join(', ') || (ev.format === 'virtual' ? 'Online' : ''))}${kv('Format', ev.format === 'virtual' ? 'Virtual' : 'In person')}${kv('Kind', ev.event_type)}${kv('Host', ev.host_org)}${kv('Cost', fmtUSD(ev.cost_usd) || '$0')}
+        </dl>${notes ? `<p class="muted" style="margin-top:12px;white-space:pre-wrap">${esc(notes)}</p>` : ''}</div></section>
+      <section class="card col-6"><div class="card-head"><h2>Results</h2></div><div class="card-body"><dl class="kv">
+        ${kv('People met', fmtInt(people.length) + (ev.people_met_reported != null ? ' on file, ' + fmtInt(ev.people_met_reported) + ' reported' : ''))}${kv('Calls booked', fmtInt(r.calls))}${kv('Funded clients', fmtInt(r.funded))}${kv('Funded AUM', fmtUSD(r.funded_aum) || '$0')}
+        </dl></div></section>
+      <section class="card col-12"><div class="card-head"><h2>People met</h2><span class="sub">${fmtInt(people.length)}</span></div>
+        ${people.length ? `<ul class="ev-people">${people.map(c => `<li><a href="${href('contacts/' + c.id)}"><b>${esc(c.full_name)}</b></a><span class="muted">${esc([c.title, orgNameOf(c)].filter(Boolean).join(', '))}</span></li>`).join('')}</ul>`
+          : `<div class="card-body">${emptyState('Nobody logged yet', 'In Import, write "Met at ' + ev.name + '" on the first line, then the people or their business cards.')}</div>`}</section>
+    </div>`;
+  },
+  mount(root, params){
+    const id = Number(params.id);
+    root.querySelector('#ev-att')?.addEventListener('change', e => Repo.events.update(id, { attendance: e.target.value }));
+    root.querySelector('#ev-del')?.addEventListener('click', async () => { const ev = Repo.events.byId(id); if (!ev) return;
+      if (Repo.events.people(id).length || Repo.events.sourced(id).length || Store.state.opportunities.some(o => o.source_event_id === id))
+        return Toast.show('People were met at this event, so it stays with their history. Set it to Not going instead.', { kind:'warn', ms: 8000 });
+      if (!await Modal.confirm({ title: 'Delete ' + ev.name, message: 'This removes the event from the CRM for everyone. If the Event Finder still has it marked, it can come back: unmark it there too.', okLabel: 'Delete' })) return;
+      Repo.events.remove(id); go('events'); });
+  }
+};
+
 /* ===== Events, campaigns and RFPs ==================================== */
 /* ===== Events > Bring in events ======================================
    Two ways in, each a check on the other: the events on the signed-in
@@ -5718,7 +5749,7 @@ const EventSync = {
   list: [],
   open(){
     this.list = [];
-    const m = Modal.open({ title: 'Bring in events', wide: true, body: `
+    const m = Modal.open({ title: 'Import events', wide: true, body: `
       <p>Events from your Google Calendar, or from your Event ROI Tracker (Excel or CSV). Each one is checked against the Events page: one already there is matched, not added twice.</p>
       <div class="page-actions" style="margin:12px 0 4px;justify-content:flex-start"><button class="btn btn-sm btn-primary" type="button" id="es-cal">From my Google Calendar</button>
         <label class="btn btn-sm" for="es-file">From my event tracker file</label><input type="file" id="es-file" accept=".xlsx,.xls,.csv,.tsv,.txt" class="sr-only"></div>
@@ -5779,7 +5810,7 @@ Views.events = { title:'Events',
      the same touchpoints as the rest of the application. */
   render(params){
     const st = UI.events || (UI.events = { q:'', format:'All' });
-    const f = UI.filters, fmt = st.format;
+    const f = { ...UI.filters, channel: 'All', stage: 'All' }, fmt = st.format;   // no channel or stage here, whatever another page set
     const today = new Date().toISOString().slice(0, 10), everyEv = Metrics.events(f).filter(r => fmt === 'All' || r.event.format === fmt);
     const all = everyEv.filter(r => r.event.attendance !== 'not_going');
     const isNow = r => (r.event.start_on || '') <= today && (r.event.end_on || r.event.start_on || '') >= today;
@@ -5797,9 +5828,8 @@ Views.events = { title:'Events',
     const q = st.q.trim().toLowerCase();
     const personHits = q ? [...eventsOf.keys()].map(id => Repo.contacts.byId(id)).filter(c => c && [c.full_name, c.email, orgNameOf(c)].some(v => String(v || '').toLowerCase().includes(q))) : [];
     const hitEvents = new Set(personHits.flatMap(c => eventsOf.get(c.id)));
-    const when = st.when || 'all', WHEN = [['all', 'All', all], ['past', 'Past', all.filter(r => !r.upcoming && !isNow(r))], ['now', 'Today', all.filter(isNow)],
-      ['next', 'Coming up', all.filter(r => r.upcoming)], ['off', 'Not going', everyEv.filter(r => r.event.attendance === 'not_going')]];
-    const shown = (WHEN.find(w => w[0] === when) || WHEN[0])[2];
+    const stKey = r => r.event.attendance || (r.upcoming || isNow(r) ? 'going' : 'attended');
+    const pickSt = st.status || 'All', shown = pickSt === 'All' ? all : everyEv.filter(r => stKey(r) === pickSt);
     const rows = q ? shown.filter(r => r.event.name.toLowerCase().includes(q) || hitEvents.has(r.event.id)) : shown;
     const statusOf = r => { const a = r.event.attendance; return a === 'not_going' ? ['Not going', 'st-lost'] : a === 'maybe' ? ['Maybe', 'st-upcoming'] : isNow(r) ? ['Today', 'st-today'] : r.upcoming ? ['Going', 'st-upcoming'] : ['Attended', 'st-funded']; };
     const selId = Number(params && params.ev) || (rows.find(r => !r.upcoming) || rows[0] || {}).event?.id;
@@ -5826,20 +5856,21 @@ Views.events = { title:'Events',
            return `<a class="tag" href="${href('events', { ev: id })}" data-ev="${id}">${esc(e.name)}${e.start_on ? ' · ' + esc(fmtDate(e.start_on, { month:'short', year:'numeric' })) : ''}</a>`; }).join('')}</span>`)).join('')}</ul>`
       : sel ? (() => { const ids = peopleAt(sel.event.id), list = ids.map(id => Repo.contacts.byId(id)).filter(Boolean).sort((a, b) => a.full_name.localeCompare(b.full_name));
           const atEvent = id => Store.state.touchpoints.filter(t => t.event_id === sel.event.id && t.contact_id === id).sort((a, b) => String(b.touched_at).localeCompare(String(a.touched_at)))[0];
-          return `<div class="card-head"><h2>Met at ${esc(sel.event.name)}</h2><span class="sub">${fmtInt(list.length)} ${list.length === 1 ? 'person' : 'people'}</span>
-              <span class="ev-act"><select id="ev-att" data-id="${sel.event.id}" aria-label="Attendance">${[['going', 'Going'], ['maybe', 'Maybe'], ['attended', 'Attended'], ['not_going', 'Not going']].map(([v, l]) => `<option value="${v}" ${(sel.event.attendance || (sel.upcoming ? 'going' : 'attended')) === v ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="btn btn-sm" type="button" id="ev-del" data-id="${sel.event.id}" data-people="${list.length}">Delete</button></span></div>
+          return `<div class="card-head"><h2>Met at <a class="ev-open" href="${href('events/' + sel.event.id)}">${esc(sel.event.name)}</a></h2><span class="sub">${fmtInt(list.length)} ${list.length === 1 ? 'person' : 'people'}</span></div>
             ${list.length ? `<ul class="ev-people" id="ev-people">${list.map(c => { const t = atEvent(c.id);
               return personLine(c, `<span class="ev-out">${t && t.outcome_code ? outcomePill(t.outcome_code) : c.source_event_id === sel.event.id ? '<span class="tag">Added from this event</span>' : ''}</span>`); }).join('')}</ul>`
               : `<div class="card-body">${emptyState(sel.upcoming ? 'Not held yet' : 'Nobody logged at this event', sel.upcoming ? 'People met here will show once they are logged.' : 'Log a Met at event activity on a contact, or import the list with "People met at an event".')}</div>`}`; })()
       : `<div class="card-body">${emptyState(q ? 'Nobody found' : 'No events in this filter')}</div>`;
 
     return `<div class="ev-page">
-    <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}<a class="btn btn-sm" href="https://claude.ai/artifact/UV7sCKMc56UKQubKaA7hsK" target="_blank" rel="noopener" title="Jon's Gaard Event Finder on claude.ai">Event Finder</a><button class="btn btn-sm" type="button" id="ev-sync">Bring in events</button></div></div>
-    ${filterBar({ compact:true,
+    <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}<a class="btn btn-sm" href="https://claude.ai/artifact/UV7sCKMc56UKQubKaA7hsK" target="_blank" rel="noopener" title="Jon's Gaard Event Finder on claude.ai">Event Finder</a><button class="btn btn-sm" type="button" id="ev-sync" title="Add events from your Google Calendar or your Event ROI Tracker file, for anything the Event Finder did not send">Import events</button></div></div>
+    ${filterBar({ compact:true, hide:['channel', 'stage'],
       // The format is one pick like the other filters: All formats, In person or Virtual
-      extra: (() => { const FM = [['All','All formats'], ['in_person','In person'], ['virtual','Virtual']], cur = FM.find(([v]) => v === fmt) || FM[0];
+      extra: (() => { const SS = [['All','All statuses'], ['attended','Attended'], ['going','Going'], ['maybe','Maybe'], ['not_going','Not going']], cs = SS.find(([v]) => v === pickSt) || SS[0];
+        const stPick = `<div class="multi pick"><button class="btn" type="button" id="ev-st-btn" aria-haspopup="true" aria-expanded="${UI.openPick === 'evst'}" title="Status">${cs[1]}<span class="caret">${UI.openPick === 'evst' ? '&#9652;' : '&#9662;'}</span></button>${UI.openPick === 'evst' ? `<div class="multi-menu" role="menu" aria-label="Status">${SS.map(([v, l]) => `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${v === pickSt}" data-evst="${v}">${l}</button>`).join('')}</div>` : ''}</div>`;
+        return stPick + (() => { const FM = [['All','All formats'], ['in_person','In person'], ['virtual','Virtual']], cur = FM.find(([v]) => v === fmt) || FM[0];
         return `<div class="multi pick"><button class="btn" type="button" id="ev-fmt-btn" aria-haspopup="true" aria-expanded="${!!(UI.openPick === 'evfmt')}" title="Format">${cur[1]}<span class="caret">${(UI.openPick === 'evfmt') ? '&#9652;' : '&#9662;'}</span></button>
-          ${(UI.openPick === 'evfmt') ? `<div class="multi-menu" role="menu" aria-label="Format">${FM.map(([v, l]) => `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${v === fmt}" data-evfmt="${v}">${l}</button>`).join('')}</div>` : ''}</div>`; })(),
+          ${(UI.openPick === 'evfmt') ? `<div class="multi-menu" role="menu" aria-label="Format">${FM.map(([v, l]) => `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${v === fmt}" data-evfmt="${v}">${l}</button>`).join('')}</div>` : ''}</div>`; })(); })(),
       search: `<label class="sr-only" for="ev-q">Find a person or an event</label><input type="search" id="ev-q" placeholder="Find a person or an event" value="${esc(st.q)}">` })}
 
     <div class="ev-tiles">
@@ -5873,11 +5904,10 @@ Views.events = { title:'Events',
     </div>
 
     <div class="ev-bottom">
-      <section class="card ev-box"><div class="card-head"><h2>${q ? 'Events matching "' + esc(st.q.trim()) + '"' : 'Every event'}</h2><span class="sub">${fmtInt(rows.length)}</span>
-          <span class="btn-group ev-when">${WHEN.map(([k, l, list]) => `<button class="btn btn-sm" type="button" data-when="${k}" aria-pressed="${when === k}">${l} ${fmtInt(list.length)}</button>`).join('')}</span></div>
+      <section class="card ev-box"><div class="card-head"><h2>${q ? 'Events matching "' + esc(st.q.trim()) + '"' : 'Every event'}</h2><span class="sub">${fmtInt(rows.length)}</span></div>
         <div class="ev-scroll" id="ev-list"><table class="grid ev-list"><thead><tr><th>Event</th><th>Date</th><th class="num">Met</th><th class="num">Calls</th><th class="num">Funded</th><th class="num">Cost</th><th class="num">Per call</th></tr></thead><tbody>
         ${rows.map(r => `<tr class="row-link ${sel && sel.event.id === r.event.id ? 'is-sel' : ''}" data-ev="${r.event.id}">
-          <td><b>${esc(r.event.name)}</b><span class="sub">${esc([r.event.format === 'in_person' ? 'In person' : 'Virtual', r.event.event_type, [r.event.city, r.event.state].filter(Boolean).join(', ')].filter(Boolean).join(' · '))}${r.event.hosted_by_us ? ' · hosted by us' : ''}</span></td>
+          <td><a class="ev-open" href="${href('events/' + r.event.id)}"><b>${esc(r.event.name)}</b></a><span class="sub">${esc([r.event.format === 'in_person' ? 'In person' : 'Virtual', r.event.event_type, [r.event.city, r.event.state].filter(Boolean).join(', ')].filter(Boolean).join(' · '))}${r.event.hosted_by_us ? ' · hosted by us' : ''}</span></td>
           <td>${fmtDate(r.event.start_on)} <span class="pill ${statusOf(r)[1]}">${statusOf(r)[0]}</span></td>
           <td class="num">${r.upcoming ? '' : fmtInt(r.people_met)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.calls)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.funded)}</td>
           <td class="num">${fmtUSD(r.event.cost_usd) || '-'}</td><td class="num">${r.cost_per_call != null ? fmtUSD(r.cost_per_call) : '-'}</td></tr>`).join('') || `<tr><td colspan="7">${emptyState(q ? 'No event matches' : 'No events in this filter')}</td></tr>`}
@@ -5890,13 +5920,8 @@ Views.events = { title:'Events',
     const st = UI.events;
     bindRowNav(root); bindGo(root); bindTips(root); bindFilters(root, render);
     root.querySelector('#ev-sync')?.addEventListener('click', () => EventSync.open());
-    root.querySelectorAll('[data-when]').forEach(b => b.addEventListener('click', () => { st.when = b.dataset.when; render(); }));
-    root.querySelector('#ev-att')?.addEventListener('change', e => Repo.events.update(Number(e.target.dataset.id), { attendance: e.target.value }));
-    root.querySelector('#ev-del')?.addEventListener('click', async e => { const id = Number(e.target.dataset.id), ev = Repo.events.byId(id); if (!ev) return;
-      if (Number(e.target.dataset.people) > 0 || Store.state.touchpoints.some(t => t.event_id === id) || Store.state.opportunities.some(o => o.source_event_id === id))
-        return Toast.show('People were met at this event, so it stays with their history. Set it to Not going instead.', { kind:'warn', ms: 8000 });
-      if (!await Modal.confirm({ title: 'Delete ' + ev.name, message: 'This removes the event from the CRM for everyone. If the Event Finder still has it marked Going, it can come back: unmark it there too.', okLabel: 'Delete' })) return;
-      Repo.events.remove(id); go('events'); });
+    root.querySelector('#ev-st-btn')?.addEventListener('click', e => { e.stopPropagation(); UI.openPick = UI.openPick === 'evst' ? null : 'evst'; UI.openState = false; render(); });
+    root.querySelectorAll('[data-evst]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); st.status = b.dataset.evst; UI.openPick = null; render(); }));
     root.querySelector('#ev-fmt-btn')?.addEventListener('click', e => { e.stopPropagation(); UI.openPick = UI.openPick === 'evfmt' ? null : 'evfmt'; UI.openState = false; render(); });
     root.querySelectorAll('[data-evfmt]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); st.format = b.dataset.evfmt; UI.openPick = null; render(); }));
     root.querySelector('#ev-q')?.addEventListener('input', debounce(e => { st.q = e.target.value; render(); }, 220));
@@ -5907,7 +5932,7 @@ Views.events = { title:'Events',
       Router.current.params = { ...Router.current.params, ev: String(id) };
       history.replaceState(null, '', href('events', { ev: id })); render(); };
     root.querySelectorAll('[data-ev]').forEach(el => {
-      el.addEventListener('click', e => { if (e.target.closest('a') && !e.target.closest('[data-ev]')) return; e.preventDefault(); e.stopPropagation(); pick(el.dataset.ev, !!el.closest('.ev-chips')); });
+      el.addEventListener('click', e => { if (e.target.closest('a.ev-open') || (e.target.closest('a') && !e.target.closest('[data-ev]'))) return; e.preventDefault(); e.stopPropagation(); pick(el.dataset.ev, !!el.closest('.ev-chips')); });
       el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); pick(el.dataset.ev, !!el.closest('.ev-chips')); } });
     });
   }
@@ -6978,7 +7003,7 @@ const NAV = [
   ['kpis','KPIs','<svg viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>'],
 ];
 /* Which sidebar entry owns each screen, and the tabs that screen sits in. */
-const NAV_OF = { contact:'contacts', organization:'contacts', organizations:'contacts', touchpoints:'contacts',
+const NAV_OF = { event:'events', contact:'contacts', organization:'contacts', organizations:'contacts', touchpoints:'contacts',
   templates:'mailmerge', reviews:'reminders', loyalty:'reminders', pipeline:'kpis',
   partners:'contacts', newsletter:'contacts' };
 const TABS = [
@@ -6995,7 +7020,7 @@ function tabStrip(name){
   return `<nav class="tabs" aria-label="Section">${group[1].map(([n,l]) =>
     `<a class="tab" href="${href(n)}" ${n===name?'aria-current="page"':''}>${esc(l)}${counts[n] != null ? `<span class="n">${fmtInt(counts[n])}</span>` : ''}</a>`).join('')}</nav>`;
 }
-const ALIAS = { organizations:'organization', contacts:'contact' };
+const ALIAS = { organizations:'organization', contacts:'contact', events:'event' };
 function parseHash(){
   const h = (location.hash || '#/dashboard').replace(/^#\/?/, '');
   const [path, qs] = h.split('?'); const parts = path.split('/').filter(Boolean);

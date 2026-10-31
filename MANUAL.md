@@ -117,7 +117,7 @@ Click a line to open the person. The search box finds a name.
 
 ### Events
 
-A one-page dashboard of events that everyone on the team sees: totals, people met per event, in person against virtual, events against cold email, and every event beside the people met there. The list has **All, Past, Today, Coming up** and **Not going**, and each event shows Attended, Today, Going, Maybe or Not going. Choose an event to set its status or delete it. An event people were met at cannot be deleted, because it is part of their history: set it to Not going, which takes it out of the totals. Search a name to see every event that person was met at. **Bring in events** adds events from your Google Calendar or your Event ROI Tracker file. See section 6.
+A one-page dashboard of events that everyone on the team sees: totals, people met per event, in person against virtual, events against cold email, and every event beside the people met there. Filter by period, state, segment, **status** (Attended, Going, Maybe, Not going) and format. Not going events show only under that status and leave the totals. Click an event to see who was met there; click its **name** to open its own page, with its details, results, the event's web page and the Event Finder, where you set its status or delete it. An event people were met at cannot be deleted, because it is part of their history: set it to Not going. Search a name to see every event that person was met at. **Import events** is the fallback for anything the Event Finder did not send: your Google Calendar or your Event ROI Tracker file (section 6).
 
 ### RFPs
 
@@ -185,7 +185,7 @@ The six reply outcomes: **Interested, Not now, Not interested, Bounced (wrong em
 3. Read the letter on the right, filled in for each person. **Type in it to change it for that person only** ("Undo my changes" puts it back).
 4. **Add my booking link**: tick it to put the line "If it is easier, pick a time here: (your booking link)" in every letter of the batch. It is off to begin with, because a link in a first cold email makes spam filters more suspicious. It is greyed out until you save a booking link in Settings.
 5. **Send a test to myself** sends the letter on screen to you first.
-6. **Send N from my Gmail** sends the letters from your own Gmail, one every 20 to 45 seconds, with your Gmail signature. Keep the page open while it runs (**Stop after this one** ends it early). Each is marked Sent or Not sent, appears in your Gmail Sent folder and is logged as an email with outcome No response, and its follow-up is scheduled.
+6. **Send N from my Gmail** sends the letters from your own Gmail, one at a time, with your Gmail signature. Each is marked Sent or Not sent, appears in your Gmail Sent folder and is logged as an email with outcome No response, and its follow-up is scheduled.
 
 Google asks your permission the first time (a Google window: allow the CRM to send, and to read your email settings and replies). People on the do-not-contact list, with a bounced address, or on the No cold email list are greyed out and never sent to. **Or send from your own email by hand** copies the letters instead and **Mark as sent** logs them.
 
@@ -205,7 +205,7 @@ The letters everyone shares. The list is on the left; the chosen letter on the r
 
 ### Staying out of spam
 
-Nobody can promise the inbox: Google and each mailbox decide. What the CRM does: it sends plain letters as Gmail itself writes them, from your own address under your own name, one every 20 to 45 seconds, never to bounced or do-not-contact people, and it warns past about 50 emails a day from one address. What helps most from your side: send from your @gaard.capital address; keep cold letters short and personal, with few links; send a steady number every day rather than a large batch now and then; stop writing to addresses that bounce. Replies are the strongest signal of all. To check a letter, open it in Gmail, press the three dots, then Show original: SPF, DKIM and DMARC should each say PASS.
+Nobody can promise the inbox: Google and each mailbox decide. What the CRM does: it sends plain letters as Gmail itself writes them, from your own address under your own name, never to bounced or do-not-contact people. What helps most from your side: send from your @gaard.capital address; keep cold letters short and personal, with few links; send a steady number every day rather than a large batch now and then, since sending fast in one burst is what filters look for; stop writing to addresses that bounce. Replies are the strongest signal of all. To check a letter, open it in Gmail, press the three dots, then Show original: SPF, DKIM and DMARC should each say PASS.
 
 ### Replies come in by themselves
 
@@ -234,9 +234,9 @@ RFPs have an **Email** button that writes a single letter the same way (section 
 
 Totals for past events (events, cost, people met, calls, clients and AUM won), the people met per event, in person against virtual, events against cold email, then every event with the people met there. People "met at" an event are those with an activity at it, plus those whose record says they came from it.
 
-### Bring in events
+### Import events
 
-**Events > Bring in events** has two sources. Each one checks the other: an event already on the page (the same name, or a close one within three days) is matched, never added twice.
+The Event Finder sends your events by itself; **Events > Import events** is for anything it did not send. It has two sources. Each one checks the other: an event already on the page (the same name, or a close one within three days) is matched, never added twice.
 
 - **From my Google Calendar**: reads your calendar for four months back and six months ahead and lists what looks like an event (an event word in the title, many guests, or a place and all day or two hours or more). Events the **Gaard Event Finder** put on your calendar are recognized and marked "From your Event Finder". Google asks permission to see your calendar the first time.
 - **From my event tracker file**: your Event ROI Tracker (Excel or CSV, as you keep it): date, cost, event name, type, state, number of contacts, responses, meetings, clients won.
@@ -251,8 +251,8 @@ Jon's Event Finder (a page on claude.ai that searches for Utah events twice a we
 
    > *In this Gaard Event Finder artifact: whenever I mark an event Going, Maybe or Attended, or save its cost and contacts, send it to my "Gaard CRM" connector, and whenever I take that mark off, send the same event with status not_going: `const mcp = await window.claude.use("mcp"); await mcp.callTool("Gaard CRM", "record_event", { finder_id: the event's id, name, date: "YYYY-MM-DD", end_date, status: "going" | "maybe" | "attended" | "not_going", format: "in_person" | "virtual" | "hybrid", kind: "conference" | "networking" | "webinar" | "workshop" | "other", host, city, state: two letters, cost_usd, people_met, url, notes })`. Do it quietly; if the connector is not there, carry on as before. Add a small "Send to CRM" button on each Going or Attended event too, and show "In the CRM" once it is sent. Use the connector's `list_events` to mark events the CRM already has.*
 
-   Use the connector name exactly as it appears in claude.ai > Settings > Connectors. An event already in the CRM is updated, never added twice. Taking the mark off removes it from the CRM within a minute, or, if people were met there, marks it Not going.
-2. **Through Google Calendar.** When you put an event from the Finder on your calendar, the Finder writes "From the Gaard Event Finder" in it. **Events > Bring in events > From my Google Calendar** picks those up (one click; it is not a background sync).
+   Use the connector name exactly as it appears in claude.ai > Settings > Connectors. To also catch up by itself, ask: *"Each time this Event Finder opens, compare my Going, Maybe and Attended events with list_events and send any the CRM does not have."* An event already in the CRM is updated, never added twice. Taking the mark off removes it from the CRM within a minute, or, if people were met there, marks it Not going.
+2. **Through Google Calendar.** When you put an event from the Finder on your calendar, the Finder writes "From the Gaard Event Finder" in it. **Events > Import events > From my Google Calendar** picks those up (one click; it is not a background sync).
 3. **Through your Claude, by asking.** With the connector added, ask in claude.ai: *"Look at my Gaard Event Finder and put every event I marked Going or Attended on the Gaard CRM Events page."* Claude uses the CRM's `record_event` tool.
 
 ### People met at an event
