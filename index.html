@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-01.1">
+<meta name="build-version" content="2026-11-01.2">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -329,6 +329,19 @@ table.grid th.col-h:hover .colcopy,.colcopy:focus-visible{opacity:1}
 /* The "what is this" chooser sits with Continue at the foot of the box. */
 .imp-what{margin:0}
 .imp-what select{height:38px;border-radius:var(--radius-pill);padding:0 32px 0 14px}
+/* A short find box beside the count on the Mass Email list. */
+.mm-q{margin-left:auto;max-width:190px;height:34px;border-radius:var(--radius-pill);padding:0 14px;font-size:13px}
+/* Fixing a row the reader got wrong, before any of it is saved. */
+.imp-res{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}
+.imp-pencil{flex:none;width:26px;height:26px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink-3);cursor:pointer;opacity:.45;transition:opacity .12s}
+.imp-pencil svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.9;fill:none;stroke-linejoin:round}
+table.imp tr:hover .imp-pencil,.imp-pencil:focus-visible{opacity:1}
+.imp-pencil:hover{background:var(--accent-soft);color:var(--accent-strong);border-color:var(--accent-line);opacity:1}
+.imp-edit{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 14px;padding:14px 4px 4px}
+.imp-edit .f{display:grid;gap:4px;margin:0}
+.imp-edit .f span{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.imp-edit-foot{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
+@media (max-width:760px){.imp-edit{grid-template-columns:1fr 1fr}}
 /* The same mark on a row, in the pinned name cell so it never scrolls away. */
 td.rowcopy-host{position:relative}
 .rowcopy{position:absolute;top:50%;right:4px;transform:translateY(-50%);width:20px;height:20px;display:grid;place-items:center;padding:0;border:0;border-radius:5px;background:var(--surface-3);color:var(--ink-3);cursor:pointer;opacity:0;transition:opacity .12s;z-index:4}
@@ -4406,6 +4419,11 @@ Views.mailmerge = { title:'Mass Email',
     const rows = candidates.map(x => ({ ...x, blocked: Merge.blocked(x.contact), gaps: Merge.gaps(tpl, x.contact) }));
     const sendable = rows.filter(r => !r.blocked);
     const blocked = rows.filter(r => r.blocked);
+    /* Searching narrows what is listed, never what is ticked. */
+    const mq = String(st.q || '').trim().toLowerCase();
+    const hit = r => { const c = r.contact;
+      return [c.full_name, c.email, orgNameOf(c), c.state].filter(Boolean).join(' ').toLowerCase().includes(mq); };
+    const shown = mq ? rows.filter(hit) : rows;
     if (!st.selected) st.selected = new Set(sendable.map(r => r.contact.id));
     const chosen = sendable.filter(r => st.selected.has(r.contact.id));
     const preview = chosen.find(r => r.contact.id === st.previewId) || chosen[0] || sendable[0] || null;
@@ -4439,10 +4457,13 @@ Views.mailmerge = { title:'Mass Email',
     <div class="split mm-split">
       <section class="card"><div class="card-head"><div class="title-row"><h2>${fmtInt(sendable.length)} ${sendable.length === 1 ? 'person' : 'people'}</h2>
           <div class="info-pop"><button class="info-btn" type="button" aria-label="How this list works" aria-describedby="mm-list-info">i</button>
-            <div class="info-panel" role="tooltip" id="mm-list-info"><div class="info-card"><p>Click a name to read the letter they will get.</p></div></div></div></div></div>
+            <div class="info-panel" role="tooltip" id="mm-list-info"><div class="info-card"><p>Click a name to read the letter they will get.</p></div></div></div></div>
+        <label class="sr-only" for="mm-q">Find someone on this list</label>
+        <input type="search" id="mm-q" class="mm-q" placeholder="Find a name" value="${esc(st.q || '')}" autocomplete="off">
+        ${mq ? `<span class="sub">${fmtInt(shown.length)} of ${fmtInt(rows.length)}</span>` : ''}</div>
         <div class="table-wrap auto" style="box-shadow:none;border:none;border-radius:0;max-height:520px">
         <table class="grid sheet" style="min-width:0"><thead><tr><th style="width:72px">${sendable.length ? `<input type="checkbox" id="mm-selall" ${chosen.length === sendable.length ? 'checked' : ''} ${st.sending ? 'disabled' : ''} aria-label="Tick or untick everyone" title="Tick or untick everyone">` : ''}</th><th>Name</th><th>Why now</th><th>Last correspondence</th></tr></thead><tbody>
-        ${rows.length ? rows.map(r => { const c = r.contact; const on = st.selected.has(c.id);
+        ${shown.length ? shown.map(r => { const c = r.contact; const on = st.selected.has(c.id);
           return `<tr class="${r.blocked ? 'mm-blocked' : ''} ${on && !r.blocked ? 'is-sel' : ''} ${preview && preview.contact.id === c.id ? 'is-open' : ''}" data-preview="${c.id}">
             <td>${(() => { const log = (st.sendLog || {})[c.id], now = st.sending && st.sending.current === c.id, queued = st.sending && st.sending.queue.includes(c.id);
               return r.blocked ? '<span class="muted" title="' + esc(r.blocked) + '">&#183;</span>'
@@ -4457,7 +4478,7 @@ Views.mailmerge = { title:'Mass Email',
               ${r.gaps.length ? `<span class="sub" style="color:var(--warn)">Missing ${esc(r.gaps.join(', '))}</span>` : ''}</td>
             <td>${(() => { const last = Repo.contacts.latestTouch().get(c.id);
               return last ? `${outcomePill(last.outcome_code)}<span class="sub">${fmtDate(last.touched_at, { month:'short', day:'numeric' })}, ${esc(TT.get(last.touch_type)?.name || last.touch_type)}</span>` : '<span class="muted">Never contacted</span>'; })()}</td></tr>`; }).join('')
-          : `<tr><td colspan="4">${emptyState('Nobody is due','Switch the list above to Everyone, or widen the filters.')}</td></tr>`}
+          : `<tr><td colspan="4">${mq ? emptyState('Nobody here matches "' + mq + '"','Clear the search to see the whole list.') : emptyState('Nobody is due','Switch the list above to Everyone, or widen the filters.')}</td></tr>`}
         </tbody></table></div>
         ${blocked.length ? (() => { const inPerson = blocked.filter(r => r.blocked === 'No cold email (in person only)').length, other = blocked.length - inPerson;
           return `<div class="card-foot">${[
@@ -4573,6 +4594,7 @@ Views.mailmerge = { title:'Mass Email',
       Toast.show(`Sent ${sent.length}${failed ? ', ' + failed + ' not sent (see the names marked Not sent)' : ''}`, { kind: failed ? 'warn' : 'ok', ms: 8000 });
       render();
     });
+    root.querySelector('#mm-q')?.addEventListener('input', debounce(e => { UI.merge.q = e.target.value; render(); }, 200));
     root.querySelector('#mm-send')?.addEventListener('click', async () => {
       const rows = build(); if (!rows.length) return;
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];
@@ -7063,11 +7085,23 @@ Views.import = { title:'Import',
       <div class="table-wrap"><table class="grid imp"><thead><tr><th>Name</th><th>Email</th><th>Organization</th><th>Result</th></tr></thead><tbody>
         ${order.map(i => { const r = a[i], v = r.values;
           const open = r.open && r.match && r.cmp && r.cmp.length;
+          if (r.editing) return `<tr class="flagrow imp-editing"><td colspan="4"><div class="imp-edit">
+            <label class="f"><span>Name</span><input type="text" data-ef="contact_name" data-ei="${i}" value="${esc(v.contact_name || '')}" placeholder="First and last name"></label>
+            <label class="f"><span>Email</span><input type="email" data-ef="email" data-ei="${i}" value="${esc(v.email || r.badEmail || '')}" placeholder="name@example.com"></label>
+            <label class="f"><span>Organization</span><input type="text" data-ef="organization" data-ei="${i}" list="sheet-orgs" value="${esc(v.organization || '')}" placeholder="Leave empty for an individual"></label>
+            <label class="f"><span>Title</span><input type="text" data-ef="title" data-ei="${i}" value="${esc(v.title || '')}"></label>
+            <label class="f"><span>Phone</span><input type="text" data-ef="phone" data-ei="${i}" value="${esc(v.phone || '')}"></label>
+            <label class="f"><span>Website</span><input type="text" data-ef="website" data-ei="${i}" value="${esc(v.website || '')}"></label>
+            <div class="imp-edit-foot"><button class="btn btn-sm" type="button" data-ecancel="${i}">Cancel</button>
+              <button class="btn btn-sm btn-primary" type="button" data-esave="${i}">Save this row</button></div>
+          </div></td></tr>`;
           return `<tr class="${!r.decided ? 'flagrow' : r.decision === 'skip' ? 'imp-out' : ''} ${open ? 'has-cmp' : ''}">
           <td><b>${esc(v.contact_name || '(no name)')}</b>${v.title ? `<span class="sub">${esc(v.title)}</span>` : ''}</td>
           <td>${r.badEmail ? `<s class="muted">${esc(r.badEmail)}</s>` : esc(v.email || '')}</td>
           <td>${esc(v.organization || '') || '<span class="muted">Individual</span>'}</td>
-          <td>${result(r, i)}</td></tr>${open ? compare(r, i) : ''}`; }).join('')}
+          <td><div class="imp-res">${result(r, i)}
+            <button class="imp-pencil" type="button" data-eedit="${i}" title="Fix this row by hand" aria-label="Fix this row by hand"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14.5 6.5l3 3"/></svg></button>
+          </div></td></tr>${open ? compare(r, i) : ''}`; }).join('')}
       </tbody></table></div>`;
     }
 
@@ -7202,6 +7236,36 @@ Views.import = { title:'Import',
     root.querySelectorAll('[data-map]').forEach(sel => sel.addEventListener('change', () => { st.mapping[Number(sel.dataset.map)] = sel.value; analyzeNow(); render(); }));
     root.querySelectorAll('[data-decide]').forEach(sel => sel.addEventListener('change', () => {
       const r = st.analysis[Number(sel.dataset.decide)]; if (!sel.value) return; r.decision = sel.value; r.decided = true; render(); }));
+    /* Fixing a row by hand. The correction is written back into the pasted
+       data, not onto the result, so re-reading the list keeps it and the
+       duplicate and organization checks run again on the corrected values.
+       The form's field names are the screen's; the data uses its own. */
+    const EDIT_FIELD = { contact_name:'contact', email:'email', organization:'organization', title:'title', phone:'phone', website:'website' };
+    const setCell = (rowIdx, field, value) => {
+      const key = EDIT_FIELD[field] || field;
+      let col = st.mapping.indexOf(key);
+      if (col < 0){
+        /* The list never had that column. Add one, blank for everybody else. */
+        st.parsed.headers.push((Intelligence.TARGETS.find(t => t.key === key) || {}).label || key);
+        st.mapping.push(key);
+        st.parsed.rows.forEach(rw => rw.cells.push(''));
+        col = st.mapping.length - 1;
+      }
+      st.parsed.rows[rowIdx].cells[col] = value;
+    };
+    root.querySelectorAll('[data-eedit]').forEach(b => b.addEventListener('click', () => {
+      st.analysis.forEach(r => { r.editing = false; });
+      st.analysis[Number(b.dataset.eedit)].editing = true; render(); }));
+    root.querySelectorAll('[data-ecancel]').forEach(b => b.addEventListener('click', () => {
+      st.analysis[Number(b.dataset.ecancel)].editing = false; render(); }));
+    root.querySelectorAll('[data-esave]').forEach(b => b.addEventListener('click', () => {
+      const i = Number(b.dataset.esave);
+      root.querySelectorAll(`[data-ei="${i}"]`).forEach(el => setCell(i, el.dataset.ef, el.value.trim()));
+      analyzeNow();
+      if (st.analysis[i]) st.analysis[i].editing = false;
+      Toast.show('Row corrected. The checks were run again on it.', { kind:'ok' });
+      render();
+    }));
     root.querySelectorAll('[data-cmp]').forEach(b => b.addEventListener('click', () => { const r = st.analysis[Number(b.dataset.cmp)]; r.open = !r.open; render(); }));
     root.querySelectorAll('[data-pick]').forEach(cb => cb.addEventListener('change', () => { const r = st.analysis[Number(cb.dataset.pick)];
       r.picks = (r.picks || []).filter(k => k !== cb.value).concat(cb.checked ? [cb.value] : []); render(); }));
