@@ -248,6 +248,26 @@ async function listEvents(db: Db, a: { from?: string; to?: string }) {
   return data.map((e: Db) => `- ${e.start_on} ${e.name} (${e.format === 'virtual' ? 'online' : [e.city, e.state].filter(Boolean).join(', ') || 'in person'}): ${met(e.id)} people met, ${e.attendance || 'going'}`).join('\n');
 }
 
+/** The notes on an event, said once each. The Event Finder reports an event
+    on every status change and repeats what it already said, so the same line
+    arrives again, sometimes as the start of the earlier one. The fullest
+    wording of each is kept, in the order they arrived. */
+function mergeNotes(...parts: (string | null | undefined)[]) {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const kept: string[] = [];
+  for (const part of parts) {
+    for (const raw of String(part ?? '').split('\n')) {
+      const line = raw.trim();
+      if (!line) continue;
+      const n = norm(line);
+      const at = kept.findIndex((k) => { const m = norm(k); return m === n || m.startsWith(n) || n.startsWith(m); });
+      if (at < 0) kept.push(line);
+      else if (line.length > kept[at].length) kept[at] = line;
+    }
+  }
+  return kept.join('\n');
+}
+
 async function recordEvent(db: Db, me: string, a: Record<string, unknown>) {
   const name = String(a.name ?? '').trim().slice(0, 300), status = String(a.status || 'going'), finder = a.finder_id ? String(a.finder_id) : null;
   if (!name || !isDay(a.date)) return { text: 'An event needs a name and a date (YYYY-MM-DD).', error: true };
@@ -258,10 +278,10 @@ async function recordEvent(db: Db, me: string, a: Record<string, unknown>) {
   const format = a.format === 'virtual' ? 'virtual' : 'in_person', url = a.url ? String(a.url).slice(0, 1000) : null;
   // the same event already on the page: its Finder id, or the same or a close name within three days
   let same: Db = null;
-  if (finder) { const { data, error } = await db.from('events').select('id, name, cost_usd, state, city').eq('finder_id', finder).limit(1); if (error) throw new Error(error.message); same = data?.[0] ?? null; }
+  if (finder) { const { data, error } = await db.from('events').select('id, name, cost_usd, state, city, notes').eq('finder_id', finder).limit(1); if (error) throw new Error(error.message); same = data?.[0] ?? null; }
   if (!same) {
     const lo = new Date(new Date(start).getTime() - 3 * 864e5).toISOString().slice(0, 10), hi = new Date(new Date(start).getTime() + 3 * 864e5).toISOString().slice(0, 10);
-    const { data: near, error: e1 } = await db.from('events').select('id, name, cost_usd, state, city').gte('start_on', lo).lte('start_on', hi).limit(200);
+    const { data: near, error: e1 } = await db.from('events').select('id, name, cost_usd, state, city, notes').gte('start_on', lo).lte('start_on', hi).limit(200);
     if (e1) throw new Error(e1.message);
     const k = evKey(name), words = new Set(k.split(' '));
     same = (near ?? []).find((e: Db) => evKey(e.name) === k)
@@ -279,7 +299,9 @@ async function recordEvent(db: Db, me: string, a: Record<string, unknown>) {
   const counts = Number.isFinite(Number(a.people_met)) && a.people_met != null ? { people_met_reported: Math.round(Number(a.people_met)) } : {};
   const cost = a.cost_usd != null && Number.isFinite(Number(a.cost_usd)) ? Number(a.cost_usd) : null;
   if (same) {
+    const note = a.notes ? mergeNotes(same.notes, String(a.notes).slice(0, 1000)) : null;
     const { error } = await db.from('events').update({ attendance: status, start_on: start, end_on: end, ...counts, ...(finder ? { finder_id: finder } : {}), ...(url ? { source_url: url } : {}),
+      ...(note != null && note !== (same.notes ?? '') ? { notes: note } : {}),
       ...(cost != null && (same.cost_usd == null || Number(same.cost_usd) === 0) ? { cost_usd: cost } : {}),
       ...(!same.state && state ? { state } : {}), ...(!same.city && a.city ? { city: String(a.city) } : {}) }).eq('id', same.id);
     if (error) throw new Error(error.message);
@@ -287,7 +309,7 @@ async function recordEvent(db: Db, me: string, a: Record<string, unknown>) {
   }
   const { error } = await db.from('events').insert({ name, event_type: kind, format, hosted_by_us: false, host_org: a.host ? String(a.host) : null, start_on: start, end_on: end,
     city: a.city ? String(a.city) : null, state, cost_usd: cost ?? 0, attendance: status, finder_id: finder, source_url: url, ...counts,
-    notes: [a.notes ? String(a.notes).slice(0, 1000) : '', 'Added by Claude, for ' + me].filter(Boolean).join('\n') });
+    notes: mergeNotes(a.notes ? String(a.notes).slice(0, 1000) : '', 'Added by Claude, for ' + me) });
   if (error) throw new Error(error.message);
   return { text: `Added "${name}" (${start}) to the Events page, ${status}.` };
 }

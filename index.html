@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-01.3">
+<meta name="build-version" content="2026-11-01.4">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -6423,13 +6423,37 @@ Views.organization = { title:'Organization',
 
 /* ===== Event record ================================================== */
 const FINDER_URL = 'https://claude.ai/artifact/UV7sCKMc56UKQubKaA7hsK';
+/** A stored code shown as words: networking becomes Networking. */
+function titleCase(v){
+  const s = String(v || '').replace(/[_-]+/g, ' ').trim();
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+}
+/** The notes on an event, said once each. The Event Finder reports an event
+    every time its status changes and can repeat what it already said, so the
+    same line arrives several times, sometimes shortened. A line that is the
+    start of a longer one is the same note, and only the fullest is kept. */
+function tidyNotes(raw, url){
+  const lines = String(raw || '').split('\n')
+    .map(l => l.trim())
+    .filter(l => l && !/^Event Finder: /.test(l) && !/^gcal:/.test(l) && l !== url);
+  const kept = [];
+  for (const l of lines){
+    const norm = s => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const n = norm(l);
+    const at = kept.findIndex(k => { const m = norm(k); return m === n || m.startsWith(n) || n.startsWith(m); });
+    if (at < 0) kept.push(l);
+    else if (l.length > kept[at].length) kept[at] = l;    // keep the fullest wording
+  }
+  return kept.join('\n');
+}
+
 Views.event = { title: 'Event',
   render(params){
     const id = Number(params.id), ev = Repo.events.byId(id), r = Metrics.events(Metrics.empty()).find(x => x.event.id === id);
     if (!ev || !r) return `<div class="page-head"><h1>Event not found</h1></div>${emptyState('It may have been taken off')}<a class="btn" href="${href('events')}">Back to events</a>`;
     const today = new Date().toISOString().slice(0, 10), status = ev.attendance || (r.upcoming || (ev.end_on || ev.start_on) >= today ? 'going' : 'attended');
     const url = ev.source_url || (String(ev.notes || '').match(/https?:\/\/\S+/) || [])[0] || '';
-    const notes = String(ev.notes || '').split('\n').filter(l => !/^Event Finder: /.test(l) && !/^gcal:/.test(l) && l.trim() !== url).join('\n').trim();
+    const notes = tidyNotes(ev.notes, url);
     const ids = uniq([...Repo.events.people(id), ...Repo.events.sourced(id).map(c => c.id)]), people = ids.map(x => Repo.contacts.byId(x)).filter(Boolean).sort((a, b) => a.full_name.localeCompare(b.full_name));
     const dates = fmtDate(ev.start_on) + (ev.end_on && ev.end_on !== ev.start_on ? ' to ' + fmtDate(ev.end_on) : '');
     const kv = (l, v) => v ? `<dt>${esc(l)}</dt><dd>${esc(v)}</dd>` : '';
@@ -6440,7 +6464,7 @@ Views.event = { title: 'Event',
         <button class="btn" type="button" id="ev-del">Delete</button></div></div>
     <div class="dash-grid">
       <section class="card col-6"><div class="card-head"><h2>Details</h2></div><div class="card-body"><dl class="kv">
-        ${kv('When', dates)}${kv('Where', [ev.city, ev.state].filter(Boolean).join(', ') || (ev.format === 'virtual' ? 'Online' : ''))}${kv('Format', ev.format === 'virtual' ? 'Virtual' : 'In person')}${kv('Kind', ev.event_type)}${kv('Host', ev.host_org)}${kv('Cost', fmtUSD(ev.cost_usd) || '$0')}
+        ${kv('When', dates)}${kv('Where', [ev.city, ev.state].filter(Boolean).join(', ') || (ev.format === 'virtual' ? 'Online' : ''))}${kv('Format', ev.format === 'virtual' ? 'Virtual' : 'In person')}${kv('Kind', titleCase(ev.event_type))}${kv('Host', ev.host_org)}${kv('Cost', fmtUSD(ev.cost_usd) || '$0')}
         </dl>${notes ? `<p class="muted" style="margin-top:12px;white-space:pre-wrap">${esc(notes)}</p>` : ''}</div></section>
       <section class="card col-6"><div class="card-head"><h2>Results</h2></div><div class="card-body"><dl class="kv">
         ${kv('People met', fmtInt(people.length) + (ev.people_met_reported != null ? ' on file, ' + fmtInt(ev.people_met_reported) + ' reported' : ''))}${kv('Calls booked', fmtInt(r.calls))}${kv('Funded clients', fmtInt(r.funded))}${kv('Funded AUM', fmtUSD(r.funded_aum) || '$0')}
@@ -6559,7 +6583,7 @@ const EventSync = {
     const L = this.list, box = m.querySelector('#es-list');
     box.innerHTML = !L.length ? '' : `<div class="table-wrap auto" style="box-shadow:none;max-height:46vh"><table class="grid"><thead><tr><th></th><th>Date</th><th>Event</th><th>Where</th><th>On the Events page</th></tr></thead><tbody>
       ${L.map((c, i) => `<tr><td>${c.match ? '' : `<input type="checkbox" data-es="${i}" ${c.on ? 'checked' : ''} aria-label="Add ${esc(c.name)}">`}</td>
-        <td>${esc(fmtDate(c.start_on) || '')}</td><td><b>${esc(c.name)}</b><span class="sub">${esc(c.format === 'virtual' ? 'Virtual' : 'In person')} · ${esc(c.event_type)}</span></td>
+        <td>${esc(fmtDate(c.start_on) || '')}</td><td><b>${esc(c.name)}</b><span class="sub">${esc(c.format === 'virtual' ? 'Virtual' : 'In person')} · ${esc(titleCase(c.event_type))}</span></td>
         <td>${esc(c.where || '')}${c.source === 'Event Finder' ? '<span class="sub">From your Event Finder</span>' : ''}</td><td>${c.match ? `<span class="pill st-funded">Already there</span><span class="sub">${esc(c.match.name)}${c.counts ? ', counts updated' : ''}</span>` : '<span class="muted">New</span>'}</td></tr>`).join('')}
       </tbody></table></div>`;
     box.querySelectorAll('[data-es]').forEach(cb => cb.addEventListener('change', () => { L[Number(cb.dataset.es)].on = cb.checked; this.count(m); }));
@@ -6583,7 +6607,8 @@ const EventSync = {
         st.events.push({ id: Math.max(0, ...st.events.map(x => x.id)) + 1, name: c.name, event_type: c.event_type, format: c.format, hosted_by_us: false,
           start_on: c.start_on, end_on: c.end_on && c.end_on !== c.start_on ? c.end_on : null, city: c.city, state: c.state, cost_usd: c.cost_usd ?? 0,
           owner_id: st.settings.default_owner_id, created_at: now, attendance: c.start_on > now.slice(0, 10) ? 'going' : 'attended', ...counts,
-          notes: [c.notes, c.source === 'Event Finder' ? 'From the Gaard Event Finder (Google Calendar)' : c.source === 'Calendar' ? 'From Google Calendar' : 'From the event tracker', c.gcal_id ? 'gcal:' + c.gcal_id : ''].filter(Boolean).join('\n') });
+          notes: [tidyNotes([c.notes, c.source === 'Event Finder' ? 'From the Gaard Event Finder (Google Calendar)' : c.source === 'Calendar' ? 'From Google Calendar' : 'From the event tracker'].filter(Boolean).join('\n')),
+            c.gcal_id ? 'gcal:' + c.gcal_id : ''].filter(Boolean).join('\n') });
       }
     });
   },
@@ -6694,7 +6719,7 @@ Views.events = { title:'Events',
       <section class="card ev-box"><div class="card-head"><h2>${q ? 'Events matching "' + esc(st.q.trim()) + '"' : 'Every event'}</h2><span class="sub">${fmtInt(rows.length)}</span></div>
         <div class="ev-scroll" id="ev-list"><table class="grid ev-list"><thead><tr><th>Event</th><th>Date</th><th class="num">Met</th><th class="num">Calls</th><th class="num">Funded</th><th class="num">Cost</th><th class="num">Per call</th></tr></thead><tbody>
         ${rows.map(r => `<tr class="row-link ${sel && sel.event.id === r.event.id ? 'is-sel' : ''}" data-ev="${r.event.id}">
-          <td><a class="ev-open" href="${href('events/' + r.event.id)}"><b>${esc(r.event.name)}</b></a><span class="sub">${esc([r.event.format === 'in_person' ? 'In person' : 'Virtual', r.event.event_type, [r.event.city, r.event.state].filter(Boolean).join(', ')].filter(Boolean).join(' · '))}${r.event.hosted_by_us ? ' · hosted by us' : ''}</span></td>
+          <td><a class="ev-open" href="${href('events/' + r.event.id)}"><b>${esc(r.event.name)}</b></a><span class="sub">${esc([r.event.format === 'in_person' ? 'In person' : 'Virtual', titleCase(r.event.event_type), [r.event.city, r.event.state].filter(Boolean).join(', ')].filter(Boolean).join(' · '))}${r.event.hosted_by_us ? ' · hosted by us' : ''}</span></td>
           <td>${fmtDate(r.event.start_on)} <span class="pill ${statusOf(r)[1]}">${statusOf(r)[0]}</span></td>
           <td class="num">${r.upcoming ? '' : fmtInt(r.people_met)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.calls)}</td><td class="num">${r.upcoming ? '' : fmtInt(r.funded)}</td>
           <td class="num">${fmtUSD(r.event.cost_usd) || '-'}</td><td class="num">${r.cost_per_call != null ? fmtUSD(r.cost_per_call) : '-'}</td></tr>`).join('') || `<tr><td colspan="7">${emptyState(q ? 'No event matches' : 'No events in this filter')}</td></tr>`}
