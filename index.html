@@ -326,6 +326,9 @@ body.col-resizing{cursor:col-resize;user-select:none}
 .colcopy svg{width:12px;height:12px;stroke:currentColor;stroke-width:2;fill:none}
 table.grid th.col-h:hover .colcopy,.colcopy:focus-visible{opacity:1}
 .colcopy:hover{background:var(--accent-soft);color:var(--accent-strong)}
+/* The "what is this" chooser sits with Continue at the foot of the box. */
+.imp-what{margin:0}
+.imp-what select{height:38px;border-radius:var(--radius-pill);padding:0 32px 0 14px}
 /* The same mark on a row, in the pinned name cell so it never scrolls away. */
 td.rowcopy-host{position:relative}
 .rowcopy{position:absolute;top:50%;right:4px;transform:translateY(-50%);width:20px;height:20px;display:grid;place-items:center;padding:0;border:0;border-radius:5px;background:var(--surface-3);color:var(--ink-3);cursor:pointer;opacity:0;transition:opacity .12s;z-index:4}
@@ -2861,6 +2864,73 @@ const Replies = (() => {
    Tesseract.js reads the text in an image inside the browser: the image is
    never uploaded. The library is fetched from the CDN the first time someone
    adds a screenshot, not when the page loads. */
+
+/* ===== What did they just give us? ==================================
+   One place decides whether a paste or a photo is a list of people, a
+   business card, or email replies. It used to be decided by elimination:
+   anything that did not parse as rows was treated as replies, so a card
+   whose photo came out badly was filed as an email from nobody, with the
+   reader's noise as its text.
+
+   Two rules keep that from happening again. A photo is only ever read as
+   replies when it actually carries reply wording, because nobody
+   photographs their own inbox to import it. And when nothing fits, the
+   answer is "unclear", which stops and asks, rather than guessing.
+   ===================================================================== */
+const Shape = {
+  KINDS: [
+    { key:'auto',    label:'Work it out' },
+    { key:'rows',    label:'A list of people' },
+    { key:'cards',   label:'Business cards' },
+    { key:'replies', label:'Email replies' },
+  ],
+  /* Wording only an email carries. A card never says "Subject:". */
+  REPLY: /^\s*(?:from|to|cc|bcc|subject|sent|date)\s*:/im,
+  REPLY2: /\bwrote:\s*$|-{3,}\s*original message|^\s*>|\bon\s+\w+\s+\d{1,2},?\s+\d{4}.*\bwrote\b|sent from my (?:iphone|ipad|android)/im,
+  TITLE: /\b(director|president|ceo|cfo|coo|cto|chief|manager|officer|partner|founder|vp|head|advis[eo]r|analyst|associate|principal|executive|consultant|owner|designer|engineer|agent|broker)\b/i,
+  ORG:   /\b(inc|llc|corp|corporation|company|group|foundation|fund|trust|capital|partners|bank|university|college|association|society|institute|advisors|wealth|financial|investments?|management|services|studio|agency)\b/i,
+
+  /** How much of this reads like words rather than reader noise, 0 to 1. */
+  legible(text){
+    const toks = String(text || '').split(/\s+/).filter(Boolean);
+    if (!toks.length) return 0;
+    const good = toks.filter(t =>
+      /^[A-Za-z][A-Za-z'’.,-]{2,}$/.test(t) ||
+      /^[\w.+-]+@[\w.-]+\.\w{2,}$/.test(t) ||
+      /^\+?[\d().-]{7,}$/.test(t) ||
+      /^(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+\.[a-z]{2,}/i.test(t)).length;
+    return good / toks.length;
+  },
+
+  /** 'rows' | 'cards' | 'replies' | 'unclear', and why, for the person to read. */
+  read(text, { fromImage = false } = {}){
+    const s = String(text || '').trim();
+    if (!s) return { kind:'unclear', why:'Nothing to read yet.' };
+    const lines = s.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const hasReplyWords = Shape.REPLY.test(s) || Shape.REPLY2.test(s);
+
+    if (hasReplyWords) return { kind:'replies', why:'It carries email wording, so it is read as replies.' };
+    if (Replies.looksLikeRows(s)) return { kind:'rows', why:'Several columns across several lines, so it is read as a list.' };
+
+    const emails = (s.match(/[\w.+-]+@[\w.-]+\.\w{2,}/g) || []).length;
+    const phones = (s.match(/\+?\d[\d().\s-]{7,}\d/g) || []).length;
+    if (lines.length >= 2 && emails >= 2 && emails >= lines.length - 1)
+      return { kind:'rows', why:'An address on nearly every line, so it is read as a list.' };
+
+    const cardish = lines.length <= 14
+      && (emails === 1 || phones >= 1 || Shape.TITLE.test(s) || Shape.ORG.test(s));
+    if (cardish) return { kind:'cards', why:'A few lines with contact details, so it is read as a business card.' };
+
+    /* A photo is never filed as an email without email wording in it. */
+    if (fromImage) return { kind:'unclear', why:'The photo came out hard to read, so it is not clear what it is. Choose what you are adding and press Continue again, or try a sharper photo.' };
+    const letterish = /^\s*(?:hi|hello|hey|dear|good (?:morning|afternoon))\b/im.test(s)
+      || /\b(?:regards|thanks|thank you|sincerely|best|cheers)\b[\s,]*$/im.test(s);
+    if (lines.length > 3 && (emails >= 1 || letterish))
+      return { kind:'replies', why:'Prose with a sender in it, so it is read as replies.' };
+    return { kind:'unclear', why:'This does not read as a list, a card or an email. Choose what you are adding and press Continue again.' };
+  },
+};
+
 const Ocr = {
   lib: null,
   load(){
@@ -2894,7 +2964,7 @@ const Ocr = {
     if (!email && !phone) return null;
     const web = (all.split(/\s+/).find(w => !w.includes('@') && /^(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|edu|gov|us|co|io|capital|biz|info|example)(?:\/\S*)?$/i.test(w)) || '');
     const plain = lines.filter(l => !/@|\d{3}\D{0,3}\d{3}\D?\d{4}|www\.|https?:|\.(?:com|org|net|edu)\b|^\d+\s+\w+.*\b(?:st|street|ave|avenue|rd|road|blvd|suite|ste|dr|drive|way|ln)\b/i.test(l));
-    const TITLE = /\b(director|president|ceo|cfo|coo|cio|cto|chief|manager|officer|partner|founder|vice|vp|head|treasurer|trustee|chair|chairman|advis[eo]r|analyst|associate|principal|executive|board|secretary|controller|consultant|owner|administrator|coordinator|specialist|lead)\b/i;
+    const TITLE = /\b(director|president|ceo|cfo|coo|cio|cto|chief|manager|officer|partner|founder|vice|vp|head|treasurer|trustee|chair|chairman|advis[eo]r|analyst|associate|principal|executive|board|secretary|controller|consultant|owner|administrator|coordinator|specialist|lead|designer|engineer|developer|architect|agent|broker|realtor|attorney|accountant|cpa|planner|strategist|representative|rep|sales|marketing|recruiter|writer|editor|photographer)\b/i;
     const ORG = /\b(inc|llc|l\.l\.c|corp|corporation|company|group|foundation|fund|trust|capital|partners|bank|university|college|school|association|council|society|church|hospital|health|institute|benefits|advisors|wealth|financial|investments?|management|endowment|plan|services)\b/i;
     const isName = l => /^[A-Z][A-Za-z'’.-]+(?:\s+[A-Z][A-Za-z'’.-]*){1,3}$/.test(l) && !TITLE.test(l) && !ORG.test(l);
     const cap = l => l === l.toUpperCase() ? l.toLowerCase().replace(/\b[a-z]/g, m => m.toUpperCase()) : l;
@@ -2951,7 +3021,8 @@ const Ocr = {
     onStatus('Getting the screenshot reader ready. The first time takes a few seconds.');
     const T = await this.load();
     const worker = await T.createWorker('eng', 1, { logger: m => { if (m.status === 'recognizing text') onStatus(`Reading the screenshot: ${Math.round(m.progress * 100)}%`); } });
-    try { const { data } = await worker.recognize(await this.sharpen(image)); return data.text || ''; }
+    try { const { data } = await worker.recognize(await this.sharpen(image));
+      return { text: data.text || '', confidence: typeof data.confidence === 'number' ? data.confidence : null }; }
     finally { await worker.terminate(); }
   },
 };
@@ -7028,9 +7099,12 @@ Views.import = { title:'Import',
         <label class="sr-only" for="im-text">Paste rows, replies or a screenshot</label><div class="im-box"><textarea id="im-text" rows="9" wrap="${String(st.text || '').includes(String.fromCharCode(9)) ? 'off' : 'soft'}" placeholder="Rows copied from a sheet, the text of client replies, or a screenshot (Ctrl+V). People met at an event: start with a line such as Met at Utah Nonprofits Summit">${esc(st.text)}</textarea>
         ${(st.shots || []).length ? `<div class="im-shots">${st.shots.map((s, i) => `<figure><img src="${s.url}" alt="Screenshot ${i + 1}" title="Read when you press Continue" data-shotview="${i}"><button class="x" type="button" data-shotrm="${i}" aria-label="Remove screenshot ${i + 1}">×</button></figure>`).join('')}</div>` : ''}</div>
         <p class="muted small" id="im-ocr" role="status" ${st.ocrMsg ? '' : 'hidden'} style="margin-top:8px">${esc(st.ocrMsg || '')}</p>
+        ${st.shapeWhy ? `<div class="banner warn" style="margin-top:10px"><b>Which is it?</b> ${esc(st.shapeWhy)}</div>` : ''}
         <div class="imp-actions">
           ${String(st.text || '').trim() || (st.shots || []).length || st.sheets ? '<button class="btn" type="button" id="im-clear">Clear</button>' : ''}
           <span class="spacer"></span>
+          <label class="imp-what"><span class="sr-only">What is this</span>
+            <select id="im-what" title="What you are adding. Left on Work it out, the CRM decides.">${Shape.KINDS.map(k => `<option value="${k.key}" ${(st.what || 'auto') === k.key ? 'selected' : ''}>${esc(k.label)}</option>`).join('')}</select></label>
           <button class="btn btn-primary imp-go" type="button" id="im-read">Continue <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
         <p class="muted small" style="margin-top:6px">Everything pasted here is read on this computer. Nothing is sent anywhere.</p>
       </section>
@@ -7155,11 +7229,46 @@ Views.import = { title:'Import',
         const name = met[1].replace(/\s+event$/i, '').trim(), key = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
         const evs = Repo.events.all(), ev = evs.find(e => key(e.name) === key(name)) || evs.find(e => key(e.name).includes(key(name)) || key(name).includes(key(e.name)));
         st.kind = 'event'; if (ev){ st.event_id = ev.id; st.newEvent = null; } else { st.event_id = null; st.newEvent = { name, start_on: new Date().toISOString().slice(0, 10) }; } }
-      if (!String(text || '').trim()){ Toast.show('Paste rows, replies, a note or a screenshot first.', { kind:'warn' }); return; }
-      if (Replies.looksLikeRows(text)) return read(text);
-      if (Note.looksLikeNote(text)) return Note.confirm(text).then(done => {
+      if (!String(text || '').trim()){ Toast.show('Paste rows, replies, a card, a note or a screenshot first.', { kind:'warn' }); return; }
+      /* What the person chose always wins. Only when it is left on "Work it
+         out" does the classifier decide, and an unclear answer asks rather
+         than falling through to replies, which is how a badly read business
+         card used to end up filed as an email from nobody. */
+      const picked = st.what && st.what !== 'auto' ? st.what : null;
+      const guess = Shape.read(text, { fromImage: !!fromShots });
+      const kind = picked || guess.kind;
+      if (kind === 'unclear'){
+        st.text = text; st.shapeWhy = guess.why; render();
+        Toast.show(guess.why, { kind:'warn', ms:9000 });
+        return;
+      }
+      st.shapeWhy = '';
+      if (kind === 'rows') return read(text);
+      if (kind === 'cards') return readCards(text);
+      if (!picked && Note.looksLikeNote(text)) return Note.confirm(text).then(done => {
         if (done){ st.text = ''; st.shots = []; UI.import = null; go('contacts'); } });
       return readReplies(text); };
+    /* A card the reader half-read still becomes a row, with the blanks left
+       for the check screen, instead of being thrown away. */
+    const readCards = text => {
+      const blocks = String(text).split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+      /* The fake number lets a card with no readable phone still be parsed;
+         a row is only kept if something real came out of it. */
+      const rows = blocks.map(b => Ocr.cardRow(b) || Ocr.cardRow(b + '\n(000) 000-0000'))
+        .filter(c => c && (c.name || c.email || (c.phone && !/^\(000\)/.test(c.phone))));
+      if (!rows.length){
+        st.text = text;
+        st.shapeWhy = 'That card could not be read well enough to fill a row. Type what you can read into the box and press Continue, or try a sharper photo.';
+        render(); Toast.show(st.shapeWhy, { kind:'warn', ms:10000 }); return;
+      }
+      const tsv = ['Name\tTitle\tOrganization\tEmail\tPhone\tWebsite',
+        ...rows.map(c => [c.name, c.title, c.org, c.email, /^\(000\)/.test(c.phone) ? '' : c.phone, c.website].join('\t'))].join('\n');
+      st.fromCards = true; st.text = tsv;
+      const box = root.querySelector('#im-text'); if (box) box.value = tsv;
+      read(tsv);
+    };
+    root.querySelector('#im-what')?.addEventListener('change', e => {
+      st.text = root.querySelector('#im-text').value; st.what = e.target.value; st.shapeWhy = ''; render(); });
     root.querySelector('#im-read')?.addEventListener('click', () => (st.shots || []).length ? readShots() : readAny(root.querySelector('#im-text').value));
     root.querySelector('#im-example')?.addEventListener('click', () => { root.querySelector('#im-text').value = DEMO_BATCH_CSV; read(DEMO_BATCH_CSV); });
     root.querySelector('#im-demo-replies')?.addEventListener('click', () => { const text = Replies.demo();
@@ -7177,8 +7286,13 @@ Views.import = { title:'Import',
       let text = box.value.trim();
       btn.disabled = true;
       try {
-        const texts = [];
-        for (const s of st.shots){ const t = Ocr.tidy(await Ocr.read(s.file, ocrMsg)).trim(); if (t) texts.push(t); }
+        const texts = []; const scores = [];
+        for (const s of st.shots){ const r = await Ocr.read(s.file, ocrMsg);
+          const t = Ocr.tidy(r.text).trim(); if (t) texts.push(t);
+          if (r.confidence != null) scores.push(r.confidence); }
+        /* The reader's own score. Below about 70 the words are mostly guesses,
+           which is exactly when a card used to be mistaken for an email. */
+        st.ocrScore = scores.length ? Math.round(Math.min(...scores)) : null;
         // photos of business cards: one row each, under a header row
         const cards = texts.map(t => Ocr.sheetRows(t) ? null : Ocr.cardRow(t));
         if (texts.length && cards.every(Boolean)){
@@ -7189,7 +7303,10 @@ Views.import = { title:'Import',
           if (!text){ ocrMsg('No text found in the screenshot. Try a sharper one.'); btn.disabled = false; return; }
           text = Ocr.sheetRows(text) || text;   // a screenshot of a sheet becomes rows
         }
-        (st.readShots || []).forEach(s => URL.revokeObjectURL(s.url)); st.readShots = st.shots; st.shots = []; st.ocrMsg = '';
+        (st.readShots || []).forEach(s => URL.revokeObjectURL(s.url)); st.readShots = st.shots; st.shots = [];
+        st.ocrMsg = st.ocrScore != null && st.ocrScore < 70
+          ? `The photo was hard to read (${st.ocrScore} out of 100), so check every field before saving. A straight-on photo in good light reads far better.`
+          : '';
         box.value = text; readAny(text, true);
       } catch (err){ ocrMsg(err.message || 'The screenshot could not be read.'); btn.disabled = false; }
     };
