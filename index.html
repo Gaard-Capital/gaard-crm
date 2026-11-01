@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-01.5">
+<meta name="build-version" content="2026-11-01.6">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -295,6 +295,7 @@ table.grid.sheet.ss{min-width:2794px;font-size:11.5px}
 table.grid.sheet.ss.orgsheet{min-width:2050px}
 table.grid.sheet.ss.tpsheet{min-width:1868px}
 table.grid.sheet.ss.partnersheet{min-width:1958px}
+table.grid.sheet.ss.rfpsheet{min-width:2412px}
 table.grid.sheet.ss.reviewsheet{min-width:1464px}
 table.grid.sheet.ss th{padding:6px 9px;background:var(--surface-3);border-right:1px solid var(--line);font-size:10px}
 table.grid.sheet.ss td{padding:3px 9px;height:24px;border-right:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
@@ -3243,6 +3244,8 @@ const UI = {
     zoom: (() => { try { return Number(localStorage.getItem('gaard_sheet_zoom')) || 100; } catch (e) { return 100; } })() },
   reviews: { q:'' },
   partners: { sort:'name', dir:'asc', page:0, pageSize:150, q:'',
+    zoom: (() => { try { return Number(localStorage.getItem('gaard_sheet_zoom')) || 100; } catch (e) { return 100; } })() },
+  rfplog: { sort:'due', dir:'desc', page:0, pageSize:150, q:'',
     zoom: (() => { try { return Number(localStorage.getItem('gaard_sheet_zoom')) || 100; } catch (e) { return 100; } })() },
   orgs: { sort:'added', dir:'asc', page:0, pageSize:150, q:'', expanded:new Set(),
     zoom: (() => { try { return Number(localStorage.getItem('gaard_sheet_zoom')) || 100; } catch (e) { return 100; } })() },
@@ -6792,19 +6795,71 @@ Views.rfps = { title:'RFPs',
       <div class="kpi good"><div class="kpi-head"><span class="lbl"><span class="kpi-icon">${ICONS.check}</span>Won</span><span class="row"><span class="val">${fmtInt(won.length)}</span></span></div><div class="kpi-body">${decided ? fmtPct(won.length/decided) + ' of the ones decided' : 'None decided yet'}</div></div>
       <div class="kpi"><div class="kpi-head"><span class="lbl"><span class="kpi-icon">${ICONS.calendar}</span>Due next</span><span class="row"><span class="val">${open.length ? fmtDate(open.slice().sort((x,y) => String(x.rfp.due_on).localeCompare(String(y.rfp.due_on)))[0].rfp.due_on, {month:'short', day:'numeric'}) : '-'}</span></span></div><div class="kpi-body">${fmtInt(n('submitted'))} submitted, ${fmtInt(n('finalist'))} at finalist</div></div>
     </div>
-    <section class="card"><div class="card-head"><h2>RFP log</h2><span class="sub">${rfps.length} on file, the same columns as the RFP Log sheet</span>
+    ${(() => {
+      const ls = UI.rfplog;
+      let rows = rfps.slice();
+      if (ls.q.trim()){ const q = ls.q.trim().toLowerCase();
+        rows = rows.filter(r => rfpLogRow(r.rfp).join(' ').toLowerCase().includes(q)); }
+      const g = {
+        name: r => (r.rfp.title || '').toLowerCase(),
+        ref: r => (r.rfp.reference_number || '').toLowerCase(),
+        due: r => r.rfp.submitted_on || r.rfp.due_on || '',
+        approved: r => r.rfp.approved_for_submission == null ? 2 : r.rfp.approved_for_submission ? 0 : 1,
+        reviewer: r => (r.rfp.reviewed_by || '').toLowerCase(),
+        reviewed: r => r.rfp.reviewed_on || '',
+        aum: r => r.rfp.est_mandate_aum ?? -1,
+        terms: r => (r.rfp.terms || '').toLowerCase(),
+        notes: r => (r.rfp.notes || '').toLowerCase(),
+        response: r => (r.rfp.response || '').toLowerCase(),
+        responded: r => r.rfp.decision_on || '',
+        corr: r => (r.rfp.correspondence || '').toLowerCase(),
+        won: r => r.rfp.status === 'won' ? 0 : r.rfp.status === 'lost' ? 1 : 2,
+        status: r => r.rfp.status || '',
+        winner: r => (r.rfp.winner || '').toLowerCase(),
+      };
+      rows = sortRows(rows, ls.sort, ls.dir, g);
+      const total = rows.length, page = rows.slice(ls.page * ls.pageSize, (ls.page + 1) * ls.pageSize);
+      return `<section class="card"><div class="card-head"><h2>RFP log</h2><span class="sub">${rfps.length} on file, the same columns as the RFP Log sheet</span>
       <button class="btn btn-sm" type="button" id="rfp-copy" style="margin-left:auto">Copy for the spreadsheet</button></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid rfp-log"><thead><tr>${RFP_LOG_HEAD.map(t => `<th>${esc(t)}</th>`).join('')}<th>Status</th><th>Who won / how we scored</th><th></th></tr></thead><tbody>
-      ${rfps.length ? rfps.map(r => { const log = rfpLogRow(r.rfp);
+      <div class="filters" style="padding:0 16px 12px">
+        <label class="sr-only" for="rl-q">Search the log</label><input type="search" id="rl-q" placeholder="Search name, issuer, reference, notes" value="${esc(ls.q)}">
+        <span class="spacer"></span>
+        <span class="zoomer"><button class="btn btn-sm" type="button" data-rlzoom="-1" aria-label="Zoom out" ${ls.zoom<=60?'disabled':''}>&minus;</button>
+          <b>${ls.zoom}%</b>
+          <button class="btn btn-sm" type="button" data-rlzoom="1" aria-label="Zoom in" ${ls.zoom>=110?'disabled':''}>+</button></span>
+        <span class="count">${fmtInt(total)} shown</span></div>
+      <div class="table-wrap sheet-wrap"><table class="grid sheet ss rfpsheet" style="zoom:${ls.zoom/100}">
+      <colgroup><col style="width:42px"><col style="width:300px"><col style="width:160px"><col style="width:120px"><col style="width:112px"><col style="width:130px"><col style="width:112px"><col style="width:104px"><col style="width:200px"><col style="width:240px"><col style="width:110px"><col style="width:120px"><col style="width:200px"><col style="width:62px"><col style="width:112px"><col style="width:200px"><col style="width:148px"></colgroup>
+      <thead><tr>
+      <th class="rn pin1" scope="col"><span class="sr-only">Row</span></th>
+      ${thSort('RFP Name / Issuer','name',ls,'pin2')}${thSort('RFP Reference Number','ref',ls)}${thSort('Final Submission Date','due',ls)}${thSort('Approved for Submission','approved',ls)}${thSort('Reviewed By','reviewer',ls)}${thSort('Date Reviewed','reviewed',ls)}${thSort('Size of AUM','aum',ls,'num')}
+      ${thSort('Conditions or Limitations','terms',ls)}${thSort('Notes','notes',ls)}${thSort('Response','response',ls)}${thSort('Date Responded','responded',ls)}${thSort('Correspondence','corr',ls)}${thSort('WON','won',ls)}
+      ${thSort('Status','status',ls)}${thSort('Who won / how we scored','winner',ls)}<th><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody>${page.length ? page.map((r, i) => { const log = rfpLogRow(r.rfp);
+        const cell = (v, n) => `<td class="${n ? 'num' : ''}" title="${esc(String(v ?? ''))}">${esc(String(v ?? '')) || '<span class="muted">-</span>'}</td>`;
         return `<tr class="row-link" data-href="${r.organization ? href('organizations/'+r.organization.id) : '#'}">
-        ${log.map((v, i) => `<td class="${i === 6 ? 'num' : ''}">${i === 0 ? '<span class="name">' + esc(v) + '</span>' : esc(i === 6 && v ? fmtUSD(v) : v)}</td>`).join('')}
+        <td class="rn pin1">${ls.page*ls.pageSize + i + 1}</td>
+        <td class="pin2" title="${esc(log[0])}"><span class="name">${esc(log[0])}</span></td>
+        ${cell(log[1])}${cell(log[2])}${cell(log[3])}${cell(log[4])}${cell(log[5])}
+        <td class="num" title="${esc(String(log[6] ?? ''))}">${log[6] ? esc(fmtUSD(log[6])) : '<span class="muted">-</span>'}</td>
+        ${cell(log[7])}${cell(log[8])}${cell(log[9])}${cell(log[10])}${cell(log[11])}${cell(log[12])}
         <td><span class="pill ${r.rfp.status === 'won' ? 'st-funded' : r.rfp.status === 'lost' ? 'st-lost' : 'st-upcoming'}">${esc(r.rfp.status)}</span></td>
-        <td>${esc(r.rfp.winner || '')}${r.rfp.decision_notes ? `<span class="sub">${esc(String(r.rfp.decision_notes).slice(0, 90))}</span>` : ''}</td>
-        <td style="white-space:nowrap">${['won','lost'].includes(r.rfp.status) ? `<button class="btn btn-sm" type="button" data-rfp-mail="${r.rfp.id}">Email</button> ` : ''}<button class="btn btn-sm" type="button" data-rfp="${r.rfp.id}">Update</button></td></tr>`; }).join('')
-        : `<tr><td colspan="16">${emptyState('No RFPs on file')}</td></tr>`}
-      </tbody></table></div></section>`;
+        <td title="${esc([r.rfp.winner, r.rfp.decision_notes].filter(Boolean).join(' · '))}">${esc(r.rfp.winner || '') || '<span class="muted">-</span>'}${r.rfp.decision_notes ? `<span class="sub">${esc(String(r.rfp.decision_notes).slice(0, 90))}</span>` : ''}</td>
+        <td style="white-space:nowrap">${['won','lost'].includes(r.rfp.status) ? `<button class="btn btn-xs" type="button" data-rfp-mail="${r.rfp.id}">Email</button> ` : ''}<button class="btn btn-xs" type="button" data-rfp="${r.rfp.id}">Update</button></td></tr>`; }).join('')
+        : `<tr><td colspan="17">${emptyState(ls.q.trim() ? 'Nothing in the log matches "' + ls.q.trim() + '"' : 'No RFPs on file')}</td></tr>`}
+      </tbody></table></div>${pager(ls,total,'below')}</section>`;
+    })()}`;
   },
   mount(root){ bindRowNav(root); bindGo(root); bindFilters(root, render);
+    /* The log behaves like the other sheets: every heading sorts, the pages
+       page, and the zoom is the one shared by Contacts. */
+    const ls = UI.rfplog;
+    bindSort(root, ls, render); bindPager(root, ls, render);
+    root.querySelector('#rl-q')?.addEventListener('input', debounce(e => { ls.q = e.target.value; ls.page = 0; render(); }, 220));
+    root.querySelectorAll('[data-rlzoom]').forEach(b => b.addEventListener('click', () => {
+      ls.zoom = clamp(ls.zoom + Number(b.dataset.rlzoom) * 10, 60, 110);
+      try { localStorage.setItem('gaard_sheet_zoom', String(ls.zoom)); } catch (e) { /* private window */ }
+      render(); }));
     root.querySelectorAll('[data-rfp]').forEach(b => b.addEventListener('click', async e => { e.stopPropagation();
       const r = Repo.rfps.all().find(x => x.id === Number(b.dataset.rfp)); if (!r) return;
       const S = [['identified','Identified'], ['intent_to_bid','Intend to bid'], ['submitted','Submitted'], ['finalist','Finalist'], ['won','Won'], ['lost','Lost'], ['declined','Declined to bid'], ['cancelled','Cancelled']];
