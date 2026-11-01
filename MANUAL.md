@@ -75,6 +75,24 @@ Tabs: **People**, **Organizations**, **Partners**, **Newsletter**.
 - **Editing in place**: click a cell, change it, press Enter (Escape cancels).
 - **Ticking rows**: hover the row number to see its tick box. Press and drag over boxes to tick a range, or Shift-click. The box in the heading ticks the whole page. Ticks survive paging and filters.
 - **Mail merge**: with people ticked, opens Mass Email with just those people.
+- **Take the next 50 / 100 / 250** ticks that many of the oldest people nobody has written to yet, skipping anyone on do-not-contact or with a bounced address. **Copy for the merge sheet** then copies those rows ready to paste into your Google Sheets merge sheet.
+- **Delete**, with people ticked, removes them. It is greyed out if any of them has anything logged (an activity, a deal, or an open follow-up); hover it and it tells you. Delete the activity first, or untick those people. Undo puts them back.
+
+**Every column sorts.** Click a heading to sort by it, click again to reverse. Four sort the way you read them rather than A to Z: Initial Outcome runs through the five, Status goes Active, Dormant, Dead, Stage follows the pipeline, and Newsletter goes subscribed to unsubscribed. Sort a column and then copy it and you get it in that order.
+
+**Three things every sheet can do** (Contacts, Organizations, Correspondence, Partners, Newsletter, RFPs):
+- **Widen a column**: drag the line between two headings.
+- **Move a column**: drag the heading sideways. The first columns stay put so you never lose your place.
+- **Copy**: hover a heading for a small copy mark that copies **that one column on its own**, nothing else, which is what you want for a list of addresses. Hover a row for the same mark beside the name to copy **the whole row**. Both copy only what you can see, so a column you have hidden is left out.
+
+Widths and column order are remembered per screen on your computer. Settings > Columns and tidying up puts them all back.
+
+**The columns.** Date (the day they were added), Contact Name, First Name, Email, Organization, AUM, Notes, Correspondence, Initial Outcome, Status, Stage, Next Reach out Date, Newsletter, Source Event, Segment, State, First reached, Last touch, Touches, Channel.
+- **Initial Outcome** is one of five: No Response, Call, Responded - Interested, Responded - Not Now, Responded - Not Interested. Click it to change it, and the follow-up and the pipeline move with it. Underneath those five sit the delivery problems (bounced, out of office, wrong person), because each of those raises its own reminder.
+- **Status** is Active, Dormant or Dead, worked out on its own: Dead when they said no, or when three follow-ups at least six months apart went unanswered; Active while a deal or a follow-up is open; Dormant otherwise. Click it to set it by hand, or back to automatic.
+- **Stage** is where they sit on the pipeline (Call, Next steps, Onboarding, Funded, Lost). It used to be called Status, which was confusing.
+- **Source Event** is the event where you met them.
+- **Correspondence** is a quoted line from their latest reply.
 
 **A person's page** (click a name):
 - the details card (name, title, phone, email, LinkedIn, how we met, newsletter, the organization's details, notes): click any value to change it;
@@ -82,6 +100,9 @@ Tabs: **People**, **Organizations**, **Partners**, **Newsletter**.
 - **Activity**: every email, call, meeting and reply, newest first. An email that has replies and answers shows them inside it, with a link to turn their order (newest or oldest message first). Long letters show two lines until you press **Show more**.
 - **Log activity** records a call, meeting or email by hand; the pencil on an activity edits or deletes it.
 - **Edit** (top) holds the name, email status, do not contact and the "in person only" flag.
+- **Status** sits above Newsletter on the details card: Active, Dormant or Dead, with a line saying whether it was worked out or set by hand. Changing it here changes the Status column on the list, and the other way round.
+- **Copy row** (top) copies this one person as a row with its headings, ready to paste into a sheet.
+- **Delete** (top) removes the person. It is greyed out while anything is logged against them, and hovering it says what: "Cannot be deleted while it has 3 logged activities. Delete the activity first." Clear those and it turns on. Undo puts them back.
 
 **Buttons at the top of a person's page:**
 - **Write an email**: one letter to this person from your Gmail. Start from any template (the merge fields fill in), change anything, attach files (for example the endowment overview PDF). It is logged on their activity and their reply is read like any other.
@@ -90,7 +111,9 @@ Tabs: **People**, **Organizations**, **Partners**, **Newsletter**.
 
 **Onboarding checklist** (on the Opportunity card, from the onboarding stage): the firm's 21 standard steps, each with a status note ("Delivered via email and documented, June 9, 2026", or "Not yet completed", "Awaiting settlement and processing", "To be determined"). The card shows how many are done. "Copy as a table" pastes into the workbook.
 
-**Organizations** lists organizations with their people; **Partners** the referral and benefit-group partners; **Newsletter** who is subscribed.
+**Organizations** lists organizations with their people; **Partners** the referral and benefit-group partners.
+
+**Newsletter** is who is subscribed, in five columns only, the way your own newsletter sheet reads: the date they joined the list, Contact Name, First Name, Email, Organization. Turning the Newsletter column on or off anywhere carries everywhere at once: the count on the tab, this list, the person's page and the numbers. Somebody who leaves and comes back is dated from the day they came back, not the first time.
 
 ### Import
 
@@ -123,13 +146,21 @@ A one-page dashboard of events that everyone on the team sees: totals, people me
 
 Every request for proposal: organization, mandate, estimated AUM, dates, status and what happened. It is the RFP Log, column for column, shared by everyone. **Add an RFP**, **Copy for the spreadsheet**, and **Update** and **Email** on each row. See section 8.
 
+The log reads like the Contacts list: one tight row per RFP with the name held on the left as you scroll sideways, every heading sorting, a search over name, issuer, reference and notes, the same zoom, and pages at the bottom. It can also widen, reorder and copy columns and rows like any other sheet.
+
 ### Dashboard
 
-One screen of headline numbers and charts: people to contact, new AUM funded, new clients, pipeline, response rate (each against the period before, with its own period choice), the pipeline by stage, AUM funded by month, new leads by channel, the funnel from email to client, and what is coming up in the next 14 days.
+One screen of headline numbers and charts: people to contact, new AUM funded, new clients, pipeline, response rate (each against the period before), the pipeline by stage, AUM funded by month, new leads by channel, the funnel from email to client, and what is coming up in the next 14 days.
+
+**Choosing the period.** The button at the top right shows the stretch being counted and its two dates. Press it for three ways to change it: the usual stretches (last 30 days, last 90 days, this quarter, last quarter, this year, last year, all time); **any quarter of any year**, with arrows to step the year and Q1 to Q4 beneath; and **From** and **To** dates with the calendar, for any two points you like. Picking either date makes it a custom range, and the panel stays open so you can set the second one. The same picker is on the other screens, in the filter bar.
 
 ### KPIs
 
 Tabs: **KPIs** (the detailed tables: by quarter, by channel, events, campaigns, and the other counts) and **Pipeline** (every open opportunity by stage). Every figure is counted from the activity, opportunities and follow-ups themselves; nothing is typed in twice.
+
+**This quarter and this year, side by side** is near the top: emails sent, dials, replies, calls booked, next steps, onboarding, clients funded and AUM, each against the same stretch a quarter ago and a year ago, with the change beside it. No toggling back and forth to compare.
+
+**Which channel gets the credit.** Somebody can be cold-emailed with no reply, then met at an event, then booked a call. The emails and the event are both still counted as activity, but the **conversion** is credited to whatever actually produced the call, which is the event. The filter bar has a switch between *what converted them* (the normal reading) and *how we first met* (the old one). A person's page shows the route in one line, for example "Cold email (no response), met at Jackson Hole, call."
 
 ### Settings (account menu, top right)
 
@@ -180,7 +211,7 @@ The six reply outcomes: **Interested, Not now, Not interested, Bounced (wrong em
 
 ### Sending to many people (Mass Email > Send as a batch)
 
-1. Choose who: tick people on Contacts and press **Mail merge**, or open Mass Email and tick them there (the box in the list heading ticks everyone).
+1. Choose who: tick people on Contacts and press **Mail merge**, or open Mass Email and tick them there (the box in the list heading ticks everyone). **Find a name** beside the count narrows the list to one person so you can read their letter; it never changes who is ticked, and clearing it brings everyone back.
 2. Choose the **letter** (template). The first cold introduction is chosen when none of them was written to before.
 3. Read the letter on the right, filled in for each person. **Type in it to change it for that person only** ("Undo my changes" puts it back).
 4. **Add my booking link**: tick it to put the line "If it is easier, pick a time here: (your booking link)" in every letter of the batch. It is off to begin with, because a link in a first cold email makes spam filters more suspicious. It is greyed out until you save a booking link in Settings.
@@ -243,6 +274,8 @@ The Event Finder sends your events by itself; **Events > Import events** is for 
 
 Tick what to add, press **Add**. Matched events get their blanks and the tracker's counts filled in.
 
+**Notes are said once.** The Event Finder tells the CRM about an event every time you change its status, and repeats its note each time. The CRM now keeps one copy of each note instead of stacking up the same line eight times, and the kind of event reads as a word (Networking, not networking).
+
 ### The Gaard Event Finder
 
 Jon's Event Finder (a page on claude.ai that searches for Utah events twice a week; **Event Finder** on the Events page opens it) connects to the CRM three ways. The CRM website cannot read the Finder's data itself: it lives inside claude.ai, which only the Finder page and its editors can reach. So the Finder (or Claude) sends events to the CRM:
@@ -265,10 +298,18 @@ Use Import (next section): write **Met at** and the event's name on the first li
 
 Three steps: **Add data, Check, Imported.**
 
+**Say what it is, if it guesses wrong.** Beside Continue is a box reading **Work it out**. Left alone, the CRM decides for itself whether you have given it a list of people, business cards or email replies. If it cannot tell, it stops and asks rather than guessing: *"Which is it? This does not read as a list, a card or an email."* Set the box to **A list of people**, **Business cards** or **Email replies** and it is read that way, no argument. Use that whenever a photo comes out badly.
+
+A photo is never filed as an email unless the words of an email are actually in it. Before, anything that did not read as a spreadsheet was treated as a reply, which is how a blurry business card once ended up as a message from nobody with gibberish as its text.
+
+**When a photo is hard to read** the CRM says so and gives it a score out of 100, so you know to check every field. A dark card with fancy lettering reads badly: a straight-on photo in good light is worth retaking.
+
 **The check.** Every row is compared with the people already in the CRM before anything is saved:
 - clear rows go in without a question;
 - someone **already on file** (same email or LinkedIn, or for a row without email the same full name) is matched, not added twice. **Compare with the contact on file** shows the row beside the person, line by line: *same*, *new* (ticked: it fills a blank), *different* (written only if you tick Replace);
 - only a **possible duplicate**, the same email under another name, or a missing or broken email asks you to choose.
+
+**Fixing a row the CRM got wrong.** Every row on the check screen has a pencil on the right. Press it and you can correct the name, email, organization, title, phone and website by hand, then **Save this row**. The checks run again on what you typed, so a row that said "Left out: no contact name in this row" becomes a proper new person once you give it a name. Do it here, before importing: afterwards the row is already saved or already lost.
 
 Messy values are cleaned on their own: capitals and spaces in emails, "NR", "no reply" and "no response" all become No response, "$11 million" and "$4.2M" become amounts, and so on.
 
@@ -370,7 +411,9 @@ Tien can do it with you.
 ## 13. Words used in the CRM
 
 - **Activity (touchpoint)**: one email, call, meeting, event conversation or check-in with a person.
-- **Outcome**: what came of an activity; it decides the next follow-up.
+- **Outcome**: what came of an activity; it decides the next follow-up. You pick from five: No Response, Call, Responded - Interested, Responded - Not Now, Responded - Not Interested. The delivery problems (bounced, out of office, wrong person) sit under them, because each raises its own reminder.
+- **Status**: whether a person is **Active**, **Dormant** or **Dead**. Worked out on its own unless you set it. Not the same as Stage.
+- **Stage**: where a person sits on the pipeline (Call, Next steps, Onboarding, Funded, Lost). This column used to be called Status.
 - **Follow-up (reminder)**: the next thing to do for a person, and when.
 - **Opportunity / pipeline**: a person or organization from first call to funded: call, hot, onboarding, funded, or lost.
 - **Segment**: the kind of prospect (nonprofit, 401(k), family office, affiliate, and so on).
