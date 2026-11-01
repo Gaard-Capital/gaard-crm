@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-01.2">
+<meta name="build-version" content="2026-11-01.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -1626,6 +1626,31 @@ const Repo = {
       const oldEmail = c.email; Object.assign(c, patch); c.full_name = [c.first_name, c.last_name].filter(Boolean).join(' ').trim();
       // A new address is checked against the flag rules; an unchanged one is left as edited
       if ('email' in patch && patch.email !== oldEmail){ applyFlagRules(c, st.flag_rules); addInPersonReminder(st, c); } } }),
+    /** Why this contact cannot be deleted, or null when they can be.
+        Anything written down about them is history worth keeping, and the
+        numbers are counted from it, so a contact with correspondence is kept
+        and the activity has to go first. */
+    blockingDelete(id){
+      const tps = Repo.contacts.touchpoints(id);
+      if (tps.length) return `${tps.length} logged ${tps.length === 1 ? 'activity' : 'activities'}`;
+      const opp = Repo.contacts.opportunity(id);
+      if (opp && opp.contact_id === id) return 'an opportunity on the pipeline';
+      const rem = Repo.contacts.reminders(id).filter(r => r.status === 'open' || r.status === 'snoozed');
+      if (rem.length) return `${rem.length} open follow-up${rem.length === 1 ? '' : 's'}`;
+      return null;
+    },
+    /** Delete a contact outright, with whatever is left that only points at
+        them. Refuses if anything is logged: the caller checks first. */
+    remove(id){
+      if (Repo.contacts.blockingDelete(id)) return false;
+      const c = Repo.contacts.byId(id);
+      Store.commit('Deleted ' + ((c && c.full_name) || 'contact'), st => {
+        st.contacts = st.contacts.filter(x => x.id !== id);
+        st.reminders = st.reminders.filter(r => r.contact_id !== id);
+        st.opportunities = st.opportunities.filter(o => o.contact_id !== id);
+      });
+      return true;
+    },
     create: (fields, { silent } = {}) => Store.commit('Contact created', st => {
       const c = { id: Math.max(0, ...st.contacts.map(x => x.id)) + 1, email_status:'unverified', newsletter_status:'not_subscribed',
         is_university_affiliated:false, do_not_contact:false, follow_up_style:'standard_check_in', owner_id: st.settings.default_owner_id,
@@ -3531,10 +3556,18 @@ function bindGo(root){ root.querySelectorAll('[data-go]').forEach(el => {
   if (el.tagName !== 'BUTTON' && el.tagName !== 'A'){ el.tabIndex = 0; el.addEventListener('keydown', e => { if (e.key === 'Enter') location.hash = el.dataset.go; }); } }); }
 
 // ---- charts ----
-function hbar({ rows, value, label, format, width=560, height=26, gap=9, colorFn, tipFn, goFn }){
+/** Shorten to a whole word and mark it, so nothing reads as a cut-off word. */
+function clipWords(text, max){
+  const s = String(text || '').trim();
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max - 1);
+  const at = cut.lastIndexOf(' ');
+  return (at > max * 0.5 ? cut.slice(0, at) : cut).replace(/[\s,.:;-]+$/, '') + '\u2026';
+}
+function hbar({ rows, value, label, format, width=560, height=26, gap=9, colorFn, tipFn, goFn, labelWidth=156 }){
   if (!rows.length) return emptyState('Nothing in this filter');
   const max = Math.max(1, ...rows.map(r => value(r)||0));
-  const lw = 156, vw = 82, bw = width - lw - vw - 10, H = rows.length*(height+gap);
+  const lw = labelWidth, vw = 82, bw = width - lw - vw - 10, H = rows.length*(height+gap);
   let s = `<svg class="chart" viewBox="0 0 ${width} ${H}" role="img" aria-label="Bar chart">`;
   rows.forEach((r,i) => { const y = i*(height+gap), v = value(r)||0, w = Math.max(0, v/max*bw), fill = colorFn ? colorFn(r,i) : 'var(--mark-1)';
     s += `<g class="bar" ${goFn ? `data-go="${goFn(r)}"` : ''} tabindex="0" data-tip="${esc(tipFn ? tipFn(r) : `<b>${label(r)}</b>${format(v)}`)}">`
@@ -5192,7 +5225,10 @@ Views.contacts = { title:'Contacts',
     ${filterBar({ compact:true, extra: news ? '' : flagPick,
       search: `<label class="sr-only" for="c-q">Search</label><input type="search" id="c-q" placeholder="Search name, email, organization, LinkedIn" value="${esc(st.q)}">` })}
     <div class="filters">
-      ${st.sel.size ? `<span class="selbar"><b>${fmtInt(st.sel.size)} selected</b><button class="btn btn-sm btn-primary" type="button" id="c-merge">Mail merge</button><button class="btn btn-sm" type="button" id="c-copyrows" title="Copy these rows in the shape the Google Sheets merge sheet expects">Copy for the merge sheet</button><button class="btn btn-sm" type="button" id="c-selclear">Clear selection</button></span>` : ''}
+      ${st.sel.size ? `<span class="selbar"><b>${fmtInt(st.sel.size)} selected</b><button class="btn btn-sm btn-primary" type="button" id="c-merge">Mail merge</button><button class="btn btn-sm" type="button" id="c-copyrows" title="Copy these rows in the shape the Google Sheets merge sheet expects">Copy for the merge sheet</button>${(() => { const ids = [...st.sel]; const blocked = ids.filter(id => Repo.contacts.blockingDelete(id));
+          return `<button class="btn btn-sm btn-danger" type="button" id="c-del-sel" ${blocked.length ? 'disabled' : ''} title="${blocked.length
+            ? esc(blocked.length + ' of the ' + ids.length + ' ticked ' + (blocked.length === 1 ? 'has' : 'have') + ' correspondence logged, so none are deleted. Untick them, or delete their activity first.')
+            : esc('Delete the ' + ids.length + ' ticked ' + (ids.length === 1 ? 'contact' : 'contacts'))}">Delete</button>`; })()}<button class="btn btn-sm" type="button" id="c-selclear">Clear selection</button></span>` : ''}
       ${!news ? `<span class="selbar"><b>Take the next</b>${[50, 100, 250].map(n => `<button class="btn btn-sm" type="button" data-takenext="${n}" title="Tick the ${n} oldest clean contacts nobody has written to yet">${n}</button>`).join('')}</span>` : ''}
       ${!news && params.org ? `<a class="btn btn-sm" href="${href('contacts')}">Show everyone</a>` : ''}
       ${st.expanded.size ? `<button class="btn btn-sm" type="button" id="c-collapse">Collapse ${st.expanded.size} open</button>` : ''}
@@ -5243,6 +5279,20 @@ Views.contacts = { title:'Contacts',
       Toast.show(`${fmtInt(Math.min(n, queue.length))} ticked, oldest first. ${fmtInt(Math.max(0, queue.length - n))} still waiting.`, { kind:'ok' });
       render();
     }));
+    root.querySelector('#c-del-sel')?.addEventListener('click', async () => {
+      const ids = [...sel];
+      const blocked = ids.filter(id => Repo.contacts.blockingDelete(id));
+      if (blocked.length) return Toast.show(`${blocked.length} of the ${ids.length} ticked have correspondence logged. Untick them, or delete their activity first.`, { kind:'warn', ms:9000 });
+      if (!ids.length) return;
+      const names = ids.slice(0, 3).map(id => Repo.contacts.byId(id)?.full_name).filter(Boolean).join(', ');
+      if (!await Modal.confirm({ title: `Delete ${ids.length} ${ids.length === 1 ? 'contact' : 'contacts'}`,
+        message: `${names}${ids.length > 3 ? ' and ' + (ids.length - 3) + ' more' : ''}. Nothing is logged against any of them, so nothing else is lost. Undo puts them back.`,
+        okLabel: 'Delete', danger: true })) return;
+      let gone = 0; ids.forEach(id => { if (Repo.contacts.remove(id)) gone++; });
+      sel.clear();
+      Toast.show(`${gone} deleted.`, { kind:'ok', action:'Undo', onAction: () => { for (let i = 0; i < gone; i++) Store.undo(); render(); } });
+      render();
+    });
     root.querySelector('#c-copyrows')?.addEventListener('click', async () => {
       const text = mergeSheetRows([...sel]);
       try { await navigator.clipboard.writeText(text);
@@ -5874,7 +5924,11 @@ Views.contact = { title:'Contact',
             <dt>Added</dt><dd>${fmtDate(c.sourced_on || dayOf(c.created_at)) || 'Unknown'}</dd>
           </dl></div></div></div></div>
       <p class="keep">${esc(c.title||'')}${org ? ` at <a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : ' <span class="muted">Individual investor</span>'}${c.state ? ' &middot; ' + esc([c.city,c.state].filter(Boolean).join(', ')) : ''}</p></div>
-      <div class="page-actions"><button class="btn" type="button" id="c-mail">Write an email</button><button class="btn" type="button" id="c-sched">Schedule a call</button><button class="btn" type="button" id="c-brief">Call brief</button><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}</div></div>
+      <div class="page-actions"><button class="btn" type="button" id="c-mail">Write an email</button><button class="btn" type="button" id="c-sched">Schedule a call</button><button class="btn" type="button" id="c-brief">Call brief</button><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}
+        <button class="btn" type="button" id="c-copyone" title="Copy this contact as one row, ready to paste into a sheet">Copy row</button>
+        ${(() => { const why = Repo.contacts.blockingDelete(c.id);
+          return `<button class="btn btn-danger" type="button" id="c-del" ${why ? 'disabled' : ''} title="${why ? esc('Cannot be deleted while it has ' + why + '. Delete the activity first.') : 'Delete this contact'}">Delete</button>`;
+        })()}</div></div>
     ${c.do_not_contact ? `<div class="banner danger"><b>Do not contact.</b> ${esc(c.dnc_reason || 'Asked not to be contacted')}${c.dnc_on ? ' (' + fmtDate(c.dnc_on) + ')' : ''}. The database refuses outreach to this contact.</div>` : ''}
     ${c.email_status === 'bounced' ? `<div class="banner warn"><b>Email bounced.</b> ${esc(c.email||'')} is on the wrong-email list. Fixing the address clears this and the reminder together.</div>` : ''}
     ${c.email_status === 'wrong_person' ? `<div class="banner warn"><b>Wrong person.</b> They are no longer at this organization. Find someone else with leadership authority.</div>` : ''}
@@ -5976,6 +6030,19 @@ Views.contact = { title:'Contact',
       el.addEventListener('blur', () => { if (!live) return; const was = field === 'notes' ? (c.notes || '') : el.defaultValue ?? '';
         if (el.tagName !== 'SELECT' && el.value !== was) save(); else close(); });
     }));
+    root.querySelector('#c-copyone')?.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(mergeSheetRows([c.id]));
+        Toast.show('Copied as a row with its header, ready to paste.', { kind:'ok' }); }
+      catch (e){ Toast.show('Could not reach the clipboard.', { kind:'warn' }); }
+    });
+    root.querySelector('#c-del')?.addEventListener('click', async () => {
+      const why = Repo.contacts.blockingDelete(c.id);
+      if (why) return Toast.show(`${c.full_name} has ${why}, so the record stays. Delete the activity first.`, { kind:'warn', ms:8000 });
+      if (!await Modal.confirm({ title: 'Delete ' + c.full_name,
+        message: 'This removes them from the CRM for everyone. Nothing is logged against them, so nothing else is lost. Undo puts them back.',
+        okLabel: 'Delete', danger: true })) return;
+      if (Repo.contacts.remove(c.id)) go('contacts');
+    });
     root.querySelector('#c-edit').addEventListener('click', async () => {
       const out = await Modal.form({ title:'Edit ' + c.full_name, wide:true, okLabel:'Save', fields:[
         { key:'first_name', label:'First name', value:c.first_name }, { key:'last_name', label:'Last name', value:c.last_name },
@@ -6561,7 +6628,7 @@ Views.events = { title:'Events',
       return `<svg viewBox="0 0 120 120" class="ev-donut" role="img" aria-label="People met in person against virtual">
         <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--mark-4)" stroke-width="16"/>
         <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--navy)" stroke-width="16" stroke-dasharray="${(a * c).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 60 60)"/>
-        <text x="60" y="58" text-anchor="middle" class="big">${total ? pct(metIn, total) + '%' : '-'}</text><text x="60" y="76" text-anchor="middle" class="small">met in person</text></svg>`; })();
+        <text x="60" y="58" text-anchor="middle" class="big">${total ? pct(metIn, total) + '%' : '-'}</text><text x="60" y="77" text-anchor="middle" class="small">in person</text></svg>`; })();
     const fmtLine = (label, list, met, color) => { const cost = sum(list, r => r.event.cost_usd), calls = sum(list, r => r.calls);
       return `<div class="ev-fmt"><i style="background:${color}"></i><div><b>${esc(label)}</b><span>${fmtInt(list.length)} event${list.length === 1 ? '' : 's'} · ${fmtInt(met)} met · ${fmtInt(calls)} call${calls === 1 ? '' : 's'}</span>
         <span>${calls && cost ? fmtUSD(cost / calls) + ' a call' : cost ? fmtUSD(cost) + ' spent, no calls yet' : 'No cost recorded'}</span></div></div>`; };
@@ -6584,7 +6651,7 @@ Views.events = { title:'Events',
 
     return `<div class="ev-page">
     <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}<a class="btn btn-sm" href="https://claude.ai/artifact/UV7sCKMc56UKQubKaA7hsK" target="_blank" rel="noopener" title="Jon's Gaard Event Finder on claude.ai">Event Finder</a><button class="btn btn-sm" type="button" id="ev-sync" title="Add events from your Google Calendar or your Event ROI Tracker file, for anything the Event Finder did not send">Import events</button></div></div>
-    ${filterBar({ compact:true, hide:['channel', 'stage'],
+    ${filterBar({ compact:true, hide:['channel', 'stage', 'credit'],
       // The format is one pick like the other filters: All formats, In person or Virtual
       extra: (() => { const SS = [['All','All statuses'], ['attended','Attended'], ['going','Going'], ['maybe','Maybe'], ['not_going','Not going']], cs = SS.find(([v]) => v === pickSt) || SS[0];
         const stPick = `<div class="multi pick"><button class="btn" type="button" id="ev-st-btn" aria-haspopup="true" aria-expanded="${UI.openPick === 'evst'}" title="Status">${cs[1]}<span class="caret">${UI.openPick === 'evst' ? '&#9652;' : '&#9662;'}</span></button>${UI.openPick === 'evst' ? `<div class="multi-menu" role="menu" aria-label="Status">${SS.map(([v, l]) => `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${v === pickSt}" data-evst="${v}">${l}</button>`).join('')}</div>` : ''}</div>`;
@@ -6604,7 +6671,7 @@ Views.events = { title:'Events',
 
     <div class="ev-mid">
       <section class="card ev-box"><div class="card-head"><h2>People met per event</h2>${legend([{ name:'In person', color:'var(--navy)' }, { name:'Virtual', color:'var(--mark-4)' }])}</div>
-        <div class="ev-scroll" id="ev-bars">${hbar({ rows: past, value: r => r.people_met, label: r => r.event.name.replace(/\s*20\d\d$/, '').slice(0, 24), format: fmtInt, height: 24, gap: 6,
+        <div class="ev-scroll" id="ev-bars">${hbar({ rows: past, value: r => r.people_met, label: r => clipWords(r.event.name.replace(/\s*20\d\d$/, ''), 26), labelWidth: 188, format: fmtInt, height: 24, gap: 6,
           colorFn: r => r.event.format === 'virtual' ? 'var(--mark-4)' : 'var(--navy)', goFn: r => r.event.id,
           tipFn: r => `<b>${esc(r.event.name)}</b>${fmtInt(r.people_met)} met, ${fmtInt(r.calls)} calls, ${fmtInt(r.funded)} funded<br>Cost ${fmtUSD(r.event.cost_usd) || '$0'}` }).replace(/data-go="/g, 'data-ev="')}</div></section>
       <section class="card ev-box"><div class="card-head"><h2>In person against virtual</h2></div>
