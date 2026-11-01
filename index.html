@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-01.4">
+<meta name="build-version" content="2026-11-01.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -1096,16 +1096,16 @@ const REFERENCE = {
      follow-up interval; sets_stage moves the opportunity; the flags mirror the
      columns on public.outcomes. */
   outcomes: [
-    { code:'NO_RESPONSE',        label:'No response',                       applies:['email','call','event','intro','rfp','meeting','check_in'], sentiment:'none',     response:false, next_days:90,  reminder:'follow_up',          stage:null,        newsletter:false, dnc:false, bad_email:false },
+    { code:'NO_RESPONSE',        label:'No response',                       applies:['email','intro','check_in'],              sentiment:'none',     response:false, next_days:90,  reminder:'follow_up',          stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'OUT_OF_OFFICE',      label:'Out of office (auto-reply)',        applies:['email','check_in'],                      sentiment:'none',     response:false, next_days:14,  reminder:'ooo_follow_up',      stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'BOUNCED',            label:'Bounced / wrong email',             applies:['email','check_in'],                      sentiment:'none',     response:false, next_days:2,   reminder:'fix_contact_info',   stage:null,        newsletter:false, dnc:false, bad_email:true },
     { code:'WRONG_PERSON',       label:'No longer there / wrong person',    applies:['email','call','check_in'],               sentiment:'neutral',  response:true,  next_days:7,   reminder:'find_new_contact',   stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'REFERRED_INTERNALLY',label:'Pointed us to a colleague',         applies:['email','call','event'],                  sentiment:'neutral',  response:true,  next_days:3,   reminder:'referral_follow_up', stage:null,        newsletter:false, dnc:false, bad_email:false },
-    { code:'NOT_NOW',            label:'Not now, check back later',         applies:['email','call','event','intro','rfp','meeting','check_in'], sentiment:'neutral', response:true, next_days:90, reminder:'follow_up',       stage:null,        newsletter:false, dnc:false, bad_email:false },
+    { code:'NOT_NOW',            label:'Not now, check back later',         applies:['email','call','event','meeting','check_in'], sentiment:'neutral', response:true, next_days:90, reminder:'follow_up',       stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'HAS_ADVISOR',        label:'Already has an advisor',            applies:['email','call','event','check_in'],       sentiment:'negative', response:true,  next_days:180, reminder:'follow_up',          stage:'lost',      newsletter:false, dnc:false, bad_email:false },
-    { code:'NOT_INTERESTED',     label:'Not interested / no thank you',     applies:['email','call','event','intro','rfp','meeting','check_in'], sentiment:'negative', response:true,  next_days:null,reminder:null,                 stage:'lost',      newsletter:false, dnc:false, bad_email:false },
+    { code:'NOT_INTERESTED',     label:'Not interested / no thank you',     applies:['email','call','event','check_in'],       sentiment:'negative', response:true,  next_days:null,reminder:null,                 stage:'lost',      newsletter:false, dnc:false, bad_email:false },
     { code:'UNSUBSCRIBE',        label:'Asked not to be contacted',         applies:['email','call','check_in'],               sentiment:'negative', response:true,  next_days:null,reminder:null,                 stage:'lost',      newsletter:false, dnc:true,  bad_email:false },
-    { code:'INTERESTED',         label:'Interested, call scheduled',        applies:['email','call','event','intro','rfp','meeting','check_in'],sentiment:'positive',response:true,  next_days:7,   reminder:'post_call',          stage:'call',      newsletter:true,  dnc:false, bad_email:false },
+    { code:'INTERESTED',         label:'Interested, call scheduled',        applies:['email','call','event','intro','check_in'],sentiment:'positive',response:true,  next_days:7,   reminder:'post_call',          stage:'call',      newsletter:true,  dnc:false, bad_email:false },
     { code:'NO_ANSWER',          label:'No answer',                         applies:['call'],                                  sentiment:'none',     response:false, next_days:7,   reminder:'follow_up',          stage:null,        newsletter:false, dnc:false, bad_email:false, retry_limit:3, after_limit_days:90 },
     { code:'VOICEMAIL',          label:'Left voicemail',                    applies:['call'],                                  sentiment:'none',     response:false, next_days:7,   reminder:'follow_up',          stage:null,        newsletter:false, dnc:false, bad_email:false, retry_limit:3, after_limit_days:90 },
     { code:'WRONG_NUMBER',       label:'Wrong number',                      applies:['call'],                                  sentiment:'none',     response:false, next_days:2,   reminder:'fix_contact_info',   stage:null,        newsletter:false, dnc:false, bad_email:false },
@@ -1113,7 +1113,7 @@ const REFERENCE = {
     { code:'MEETING_AT_EVENT',   label:'Had a meeting at the event',        applies:['event'],                                 sentiment:'positive', response:true,  next_days:5,   reminder:'event_follow_up',    stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'INTRO_MADE',         label:'Introduction made',                 applies:['intro'],                                 sentiment:'neutral',  response:false, next_days:3,   reminder:'referral_follow_up', stage:null,        newsletter:false, dnc:false, bad_email:false },
     { code:'REVIEW_HELD',        label:'Portfolio review held',             applies:['meeting','check_in'],                    sentiment:'positive', response:true,  next_days:null,reminder:null,                 stage:null,        newsletter:false, dnc:false, bad_email:false },
-    { code:'CALL_HELD',          label:'Call',                             applies:['email','call','event','intro','rfp','meeting','check_in'], sentiment:'positive', response:true,  next_days:14,  reminder:'post_call',          stage:'call',      newsletter:true,  dnc:false, bad_email:false },
+    { code:'CALL_HELD',          label:'Call',                             applies:['meeting'],                               sentiment:'positive', response:true,  next_days:14,  reminder:'post_call',          stage:'call',      newsletter:true,  dnc:false, bad_email:false },
     { code:'HOT',                label:'Ready for a proposal',             applies:['meeting','email','check_in'],        sentiment:'positive', response:true,  next_days:7,   reminder:'post_call',          stage:'hot',       newsletter:true,  dnc:false, bad_email:false },
     { code:'READY_TO_ONBOARD',   label:'Wants to hire us, start onboarding',applies:['meeting','email','check_in'],            sentiment:'positive', response:true,  next_days:14,  reminder:'onboarding_task',    stage:'onboarding',newsletter:true,  dnc:false, bad_email:false },
     { code:'NOT_A_FIT',          label:'Not a fit after the call',          applies:['meeting','email','check_in'],            sentiment:'negative', response:true,  next_days:null,reminder:null,                 stage:'lost',      newsletter:false, dnc:false, bad_email:false },
@@ -4714,6 +4714,23 @@ function whenLabel(v){
    activity starts on before anyone chooses. */
 const DEFAULT_OUTCOME = { email:'NO_RESPONSE', check_in:'NO_RESPONSE', call:'NO_ANSWER', event:'MET_AT_EVENT', meeting:'CALL_HELD', intro:'INTRO_MADE', rfp:'RFP_SUBMITTED' };
 const outcomeFits = (code, type) => (OUT.get(code)?.applies || []).includes(type);
+/* What each of the five means on a kind of touch that does not take it.
+   First entry that fits wins, so "Call" on an email is "Interested, call
+   scheduled" and on an RFP it is the finalist step: both move the
+   opportunity to Call, which is what Jon means by it. */
+const OUTCOME_FOR_TYPE = {
+  NO_RESPONSE:    ['NO_RESPONSE', 'NO_ANSWER', 'RFP_SUBMITTED'],
+  CALL_HELD:      ['CALL_HELD', 'INTERESTED', 'RFP_FINALIST', 'MEETING_AT_EVENT'],
+  INTERESTED:     ['INTERESTED', 'HOT', 'RFP_FINALIST', 'MET_AT_EVENT'],
+  NOT_NOW:        ['NOT_NOW'],
+  NOT_INTERESTED: ['NOT_INTERESTED', 'NOT_A_FIT', 'RFP_LOST', 'HAS_ADVISOR'],
+};
+/** The code to store for this choice on this kind of touch, or null when
+    there is none, which is said out loud rather than refused by the database. */
+function outcomeForType(code, type){
+  if (!code || !type || outcomeFits(code, type)) return code;
+  return (OUTCOME_FOR_TYPE[code] || []).find(c => outcomeFits(c, type)) || null;
+}
 function outcomeOptions(type, current){
   const fits = code => !type || (OUT.get(code)?.applies || []).includes(type);
   const opt = (code, label, on) => `<option value="${code}" ${on ? 'selected' : ''}>${esc(label)}</option>`;
@@ -4800,7 +4817,11 @@ async function openActivity(contactId, tp = null, preset = {}){
       Repo.touchpoints.remove(tp.id);
   });
   m.querySelector('[data-ok]').onclick = () => {
-    const code = $('la-out').value || null, r = code ? OUT.get(code) : null, wantsFu = !$('la-fu-wrap').hidden;
+    /* The five are offered whatever the activity is; this turns the choice
+       into the code the database takes for that kind of touch. */
+    const picked = $('la-out').value || null, type = $('la-type').value;
+    const code = outcomeForType(picked, type), r = code ? OUT.get(code) : null, wantsFu = !$('la-fu-wrap').hidden;
+    if (picked && !code) return Toast.show(`"${outLabel(picked)}" cannot be recorded against ${(TT.get(type)?.name || type).toLowerCase()}. Pick another outcome, or change the kind of activity.`, { kind:'warn', ms:8000 });
     if (wantsFu && (!$('la-fu').value || $('la-fu').value < tomorrow)) return Toast.show('Pick a follow-up date from tomorrow on.', { kind:'warn' });
     const fields = { touch_type: $('la-type').value, direction: $('la-dir').value, outcome_code: code, outcome_status: 'confirmed',
       ...(isLatest ? { follow_up_on: wantsFu ? $('la-fu').value : null } : {}),
@@ -5513,16 +5534,21 @@ function saveCell(id, field, raw){
       const tps = Repo.contacts.touchpoints(id);
       const tp = tps.filter(t => TT.get(t.touch_type)?.outreach).slice(-1)[0] || tps[tps.length-1];
       if (!tp || !v || tp.outcome_code === v) return;
-      Store.commit('Outcome set to ' + outLabel(v), st => {
+      /* The database only takes certain outcomes on certain kinds of touch,
+         so the choice becomes the code for this one before it is written. */
+      const code = outcomeForType(v, tp.touch_type);
+      if (!code) return Toast.show(`"${outLabel(v)}" cannot be recorded against ${(TT.get(tp.touch_type)?.name || tp.touch_type).toLowerCase()}. Log a new activity instead.`, { kind:'warn', ms:8000 });
+      if (code === tp.outcome_code) return;
+      Store.commit('Outcome set to ' + outLabel(code), st => {
         const t = st.touchpoints.find(x => x.id === tp.id); if (!t) return;
-        t.outcome_code = v; t.outcome_status = 'confirmed';
+        t.outcome_code = code; t.outcome_status = 'confirmed';
         Rules.applyOutcome(st, t);
       });
       return;
     }
     case 'status': {
       if (Store.live && !Live.has('contacts', 'status_override'))
-        return Toast.show('Setting the status by hand needs db/009 to have been run in Supabase. Until then the status is worked out automatically.', { kind:'warn', ms:9000 });
+        return Toast.show('Setting the status by hand needs db/020 to have been run in Supabase. Until then the status is worked out automatically.', { kind:'warn', ms:9000 });
       if (v === 'auto') return Repo.contacts.update(id, { status_override: null }, 'Status back to automatic');
       return Repo.contacts.update(id, { status_override: v }, 'Status set to ' + v);
     }
