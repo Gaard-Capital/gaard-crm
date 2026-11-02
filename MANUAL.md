@@ -274,6 +274,8 @@ The Event Finder sends your events by itself; **Events > Import events** is for 
 
 Tick what to add, press **Add**. Matched events get their blanks and the tracker's counts filled in.
 
+**Not decided.** The CRM holds every dated event of the Event Finder. One you have not marked shows as **Not decided**: it is in the list and under that status, and stays out of the totals, the KPIs and Coming up. Hiding an event in the Finder takes it off the CRM.
+
 **Notes are said once.** The Event Finder tells the CRM about an event every time you change its status, and repeats its note each time. The CRM now keeps one copy of each note instead of stacking up the same line eight times, and the kind of event reads as a word (Networking, not networking).
 
 ### The Gaard Event Finder

@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-01.7">
+<meta name="build-version" content="2026-11-01.9">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -1514,6 +1514,9 @@ const Store = {
 };
 const memo = fn => { let v = -1, cache = new Map(); return (...a) => { if (v !== Store.version){ v = Store.version; cache = new Map(); } const k = a.length ? JSON.stringify(a) : ''; if (!cache.has(k)) cache.set(k, fn(...a)); return cache.get(k); }; };
 
+/* What counts as an event of ours: one marked Not going, or one the Finder found and nobody has decided on, stays out of the totals. */
+const evCounts = e => e.attendance !== 'not_going' && e.attendance !== 'undecided';
+
 /* Activities newest first, to the minute; two at the same moment, the one entered last first. */
 const newestFirst = (x, y) => (storedTime(y.touched_at) - storedTime(x.touched_at)) || (y.id - x.id);
 const storedTime = v => { const s = String(v || ''); const d = new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? s : s + 'Z'); return isNaN(d) ? 0 : d.getTime(); };
@@ -2184,7 +2187,7 @@ const Metrics = {
     const scope = Metrics.funnel().filter(r => Metrics.matchesExceptDates(r, f));
     const laneBy = new Map(scope.map(r => [r.contact_id, Metrics.laneOf(r)]));
     const touches = Repo.touchpoints.all().filter(t => laneBy.has(t.contact_id) && Metrics.inRange(dayOf(t.touched_at), f));
-    const evs = Repo.events.all().filter(e => Metrics.inRange(e.start_on, f));
+    const evs = Repo.events.all().filter(e => evCounts(e) && Metrics.inRange(e.start_on, f));
     const blank = () => ({ rfps:0, events:0, emails:0, dials:0, meetings:0, touches:0, replies:0, email_replies:0, next_steps:0, onboarding:0, clients:0, funded_aum:0,
       warm:0, warm_aum:0, dormant:0, dormant_aum:0, leads:0 });
     const by = new Map(Metrics.LANES.map(l => [l.key, { ...l, ...blank() }]));
@@ -4149,7 +4152,7 @@ Views.dashboard = { title:'Dashboard',
     const iso = d => d.toISOString().slice(0, 10), from = iso(Rules.startOfDay(new Date())), to = iso(Rules.addDays(new Date(), 14));
     const inWindow = d => d && d >= from && d <= to;
     const soon = [
-      ...Repo.events.all().filter(e => inWindow(e.start_on)).map(e => ({ on: e.start_on, kind: 'Event', name: e.name, go: href('events', { ev: e.id }) })),
+      ...Repo.events.all().filter(e => evCounts(e) && inWindow(e.start_on)).map(e => ({ on: e.start_on, kind: 'Event', name: e.name, go: href('events', { ev: e.id }) })),
       ...Repo.rfps.all().filter(x => inWindow(x.due_on) && !['submitted', 'won', 'lost', 'declined', 'cancelled'].includes(x.status)).map(x => ({ on: x.due_on, kind: 'RFP due', name: x.title, go: href('rfps') })),
       ...Repo.reviews.all().filter(x => inWindow(x.next_review_on)).map(x => ({ on: x.next_review_on, kind: 'Client review', name: x.name, go: href('reviews') })),
     ].sort((a, b) => a.on.localeCompare(b.on));
@@ -6489,7 +6492,7 @@ Views.event = { title: 'Event',
     return `<div class="page-head"><div><a href="${href('events')}" class="small">All events</a><h1 style="margin-top:2px">${esc(ev.name)}</h1>
         <p>${esc(dates)}${ev.host_org ? ' · ' + esc(ev.host_org) : ''}</p></div>
       <div class="page-actions">${url ? `<a class="btn" href="${esc(url)}" target="_blank" rel="noopener">Event page</a>` : ''}<a class="btn" href="${FINDER_URL}" target="_blank" rel="noopener">Event Finder</a>
-        <label class="sr-only" for="ev-att">Status</label><select id="ev-att" style="width:auto">${[['going', 'Going'], ['maybe', 'Maybe'], ['attended', 'Attended'], ['not_going', 'Not going']].map(([v, l]) => `<option value="${v}" ${status === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <label class="sr-only" for="ev-att">Status</label><select id="ev-att" style="width:auto">${[['going', 'Going'], ['maybe', 'Maybe'], ['attended', 'Attended'], ['undecided', 'Not decided'], ['not_going', 'Not going']].map(([v, l]) => `<option value="${v}" ${status === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
         <button class="btn" type="button" id="ev-del">Delete</button></div></div>
     <div class="dash-grid">
       <section class="card col-6"><div class="card-head"><h2>Details</h2></div><div class="card-body"><dl class="kv">
@@ -6653,7 +6656,7 @@ Views.events = { title:'Events',
     const st = UI.events || (UI.events = { q:'', format:'All' });
     const f = { ...UI.filters, channel: 'All', stage: 'All' }, fmt = st.format;   // no channel or stage here, whatever another page set
     const today = new Date().toISOString().slice(0, 10), everyEv = Metrics.events(f).filter(r => fmt === 'All' || r.event.format === fmt);
-    const all = everyEv.filter(r => r.event.attendance !== 'not_going');
+    const all = everyEv.filter(r => evCounts(r.event));
     const isNow = r => (r.event.start_on || '') <= today && (r.event.end_on || r.event.start_on || '') >= today;
     const past = all.filter(r => !r.upcoming);
     const tot = { n: past.length, cost: sum(past, r => r.event.cost_usd), met: sum(past, r => r.people_met), calls: sum(past, r => r.calls),
@@ -6670,9 +6673,9 @@ Views.events = { title:'Events',
     const personHits = q ? [...eventsOf.keys()].map(id => Repo.contacts.byId(id)).filter(c => c && [c.full_name, c.email, orgNameOf(c)].some(v => String(v || '').toLowerCase().includes(q))) : [];
     const hitEvents = new Set(personHits.flatMap(c => eventsOf.get(c.id)));
     const stKey = r => r.event.attendance || (r.upcoming || isNow(r) ? 'going' : 'attended');
-    const pickSt = st.status || 'All', shown = pickSt === 'All' ? all : everyEv.filter(r => stKey(r) === pickSt);
+    const pickSt = st.status || 'All', shown = pickSt === 'All' ? everyEv.filter(r => r.event.attendance !== 'not_going') : everyEv.filter(r => stKey(r) === pickSt);
     const rows = q ? shown.filter(r => r.event.name.toLowerCase().includes(q) || hitEvents.has(r.event.id)) : shown;
-    const statusOf = r => { const a = r.event.attendance; return a === 'not_going' ? ['Not going', 'st-lost'] : a === 'maybe' ? ['Maybe', 'st-upcoming'] : isNow(r) ? ['Today', 'st-today'] : r.upcoming ? ['Going', 'st-upcoming'] : ['Attended', 'st-funded']; };
+    const statusOf = r => { const a = r.event.attendance; return a === 'not_going' ? ['Not going', 'st-lost'] : a === 'undecided' ? ['Not decided', 'st-upcoming'] : a === 'maybe' ? ['Maybe', 'st-upcoming'] : isNow(r) ? ['Today', 'st-today'] : r.upcoming ? ['Going', 'st-upcoming'] : ['Attended', 'st-funded']; };
     const selId = Number(params && params.ev) || (rows.find(r => !r.upcoming) || rows[0] || {}).event?.id;
     const sel = everyEv.find(r => r.event.id === selId) || null;
 
@@ -6707,7 +6710,7 @@ Views.events = { title:'Events',
     <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}<a class="btn btn-sm" href="https://claude.ai/artifact/UV7sCKMc56UKQubKaA7hsK" target="_blank" rel="noopener" title="Jon's Gaard Event Finder on claude.ai">Event Finder</a><button class="btn btn-sm" type="button" id="ev-sync" title="Add events from your Google Calendar or your Event ROI Tracker file, for anything the Event Finder did not send">Import events</button></div></div>
     ${filterBar({ compact:true, hide:['channel', 'stage', 'credit'],
       // The format is one pick like the other filters: All formats, In person or Virtual
-      extra: (() => { const SS = [['All','All statuses'], ['attended','Attended'], ['going','Going'], ['maybe','Maybe'], ['not_going','Not going']], cs = SS.find(([v]) => v === pickSt) || SS[0];
+      extra: (() => { const SS = [['All','All statuses'], ['attended','Attended'], ['going','Going'], ['maybe','Maybe'], ['undecided','Not decided'], ['not_going','Not going']], cs = SS.find(([v]) => v === pickSt) || SS[0];
         const stPick = `<div class="multi pick"><button class="btn" type="button" id="ev-st-btn" aria-haspopup="true" aria-expanded="${UI.openPick === 'evst'}" title="Status">${cs[1]}<span class="caret">${UI.openPick === 'evst' ? '&#9652;' : '&#9662;'}</span></button>${UI.openPick === 'evst' ? `<div class="multi-menu" role="menu" aria-label="Status">${SS.map(([v, l]) => `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${v === pickSt}" data-evst="${v}">${l}</button>`).join('')}</div>` : ''}</div>`;
         return stPick + (() => { const FM = [['All','All formats'], ['in_person','In person'], ['virtual','Virtual']], cur = FM.find(([v]) => v === fmt) || FM[0];
         return `<div class="multi pick"><button class="btn" type="button" id="ev-fmt-btn" aria-haspopup="true" aria-expanded="${!!(UI.openPick === 'evfmt')}" title="Format">${cur[1]}<span class="caret">${(UI.openPick === 'evfmt') ? '&#9652;' : '&#9662;'}</span></button>
@@ -8485,8 +8488,9 @@ const Live = {
     try { this.enter(await this.load(s => Gate.status(s))); route(); Toast.show('Reloaded from the database', { kind:'ok' }); }
     catch (e){ Gate.show('error', e.message); } },
   async signOut(){
-    try { await (await this.sb()).auth.signOut(); } catch (e) { /* signed out anyway */ }
-    try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ }
+    try { const sb = await this.sb(); await Promise.race([sb.auth.signOut({ scope:'local' }), new Promise(ok => setTimeout(ok, 3000))]); } catch (e) { /* signed out anyway */ }
+    // Whatever Supabase answered, this browser forgets the session
+    try { Object.keys(localStorage).filter(k => /^sb-.*-auth-token/.test(k)).forEach(k => localStorage.removeItem(k)); localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ }
     location.hash = ''; location.reload(); },
 };
 
@@ -8525,10 +8529,10 @@ const Gate = {
       verify: `<h1>Enter your code</h1><p>Open your authenticator app and type the 6-digit code for Gaard CRM.</p>
         <form id="g-form">${field('g-code', '6-digit code', 'text', 'inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"')}${note}<button class="btn btn-primary" type="submit">Continue</button></form>
         ${links(link('g-out', 'Sign out'))}`,
-      loading: `<h1>Opening the CRM</h1><p id="g-status" role="status">Connecting</p>`,
+      loading: `<h1>Opening the CRM</h1><p id="g-status" role="status">Connecting</p>${links(link('g-out', 'Use a different account'))}`,
       nomember: `<h1>Not on the team list yet</h1><p>You are signed in as <b>${esc(Live.email)}</b>, but this email is not on the Gaard team list, so the database shows nothing. Ask Jon to add you.</p>
         ${links(link('g-out', 'Sign out'), link('g-demo', 'Use the demo data instead'))}`,
-      error: `<h1>Something went wrong</h1>${note}${links(link('g-to-signin', 'Try again'), link('g-demo', 'Use the demo data instead'))}`,
+      error: `<h1>Something went wrong</h1>${note}${links(link('g-out', 'Sign out and start again'), link('g-demo', 'Use the demo data instead'))}`,
     };
     this.el().innerHTML = `<div class="gate-wrap">
       <div class="gate-logo"><img src="https://gaard.capital/wp-content/uploads/logo-1.png" alt="Gaard Capital LLC" width="156" height="54"></div>
@@ -8546,7 +8550,7 @@ const Gate = {
     $('g-google')?.addEventListener('click', async () => {
       if (location.protocol === 'file:') return this.show('signin', 'Google sign-in works on the website or on localhost, not from a file opened directly.');
       const sb = await Live.sb();
-      const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: location.origin + location.pathname } });
+      const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: location.origin + location.pathname, queryParams:{ prompt:'select_account' } } });
       if (error) this.show('signin', error.message);
     });
     $('g-out')?.addEventListener('click', () => Live.signOut());
@@ -8605,6 +8609,10 @@ async function afterSignIn(){
   const { data: aal, error } = await withTimeout(sb.auth.mfa.getAuthenticatorAssuranceLevel(), 'Checking two-step sign-in');
   if (error) return Gate.show('signin', error.message);
   if (aal.currentLevel === 'aal2') return openLive();
+  // The saved session already says who has an authenticator, with no call over the network
+  const { data: saved } = await withTimeout(sb.auth.getSession(), 'Looking up your authenticator');
+  const known = (saved.session?.user?.factors || []).find(x => x.status === 'verified');
+  if (known){ Gate.factorId = known.id; return Gate.show('verify'); }
   Gate.status('Looking up your authenticator');
   const { data: f, error: e2 } = await withTimeout(sb.auth.mfa.listFactors(), 'Looking up your authenticator');
   if (e2) return Gate.show('signin', e2.message);
@@ -8651,6 +8659,8 @@ function renderSideFoot(){
   window.GaardCRM = { Store, Repo, Metrics, Intelligence, Rules, REFERENCE, DB_SNAPSHOT, Live };
   let mode = null; try { mode = localStorage.getItem(MODE_KEY); } catch (e) { /* private window */ }
   const recovering = /type=recovery/.test(location.hash);
+  // Coming back from Google: Supabase takes this off the address, so it is read first
+  const fromSignIn = /access_token=|[?&#]code=/.test(location.hash + location.search);
   const back = new URLSearchParams(location.hash.replace(/^#/, '') + '&' + location.search.replace(/^\?/, ''));
   // Supabase encodes the message twice, so it is decoded once more here
   let oauthError = back.get('error_description') || back.get('error');
@@ -8663,6 +8673,11 @@ function renderSideFoot(){
     sb.auth.onAuthStateChange(ev => { if (ev === 'PASSWORD_RECOVERY') Gate.show('newpassword'); });
     const { data: { session } } = await withTimeout(sb.auth.getSession(), 'Connecting');
     if (recovering) return;
+    if (session && !fromSignIn){
+      // Only a finished sign-in is remembered: one that stopped before the 6-digit code starts again from the sign-in page
+      const { data: aal } = await withTimeout(sb.auth.mfa.getAuthenticatorAssuranceLevel(), 'Connecting');
+      if (aal?.currentLevel !== 'aal2') return await Live.signOut();
+    }
     if (session) return await afterSignIn();   // await, so a step that times out lands in the catch below and shows on the screen
     Gate.show('signin', oauthError ? (/team list|not on/i.test(oauthError) ? oauthError : 'Google sign-in did not finish: ' + oauthError) : '');
   } catch (err){
