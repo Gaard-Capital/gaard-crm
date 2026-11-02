@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-01.6">
+<meta name="build-version" content="2026-11-01.7">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -8228,6 +8228,8 @@ document.addEventListener('click', () => { const m = document.getElementById('us
 document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const m = document.getElementById('user-menu');
   if (m && !m.hidden){ m.hidden = true; const b = document.getElementById('user-btn'); b?.setAttribute('aria-expanded', 'false'); b?.focus(); } });
 function render(){
+  // Before sign-in has finished there is nothing to draw; Google's return to the page changes the hash and lands here
+  if (!Store.state) return;
   const t0 = performance.now();
   const { name, params } = Router.current, view = Views[name], main = document.getElementById('main');
   const y = main.scrollTop;
@@ -8369,7 +8371,7 @@ const loadScript = src => new Promise((resolve, reject) => {
   document.head.appendChild(s); });
 
 const Live = {
-  client: null, member: null, email: '',
+  client: null, member: null, email: '', lockStuck: false,
   /* Parents before children, so a row is written after the rows it points at;
      deletes go the other way round. */
   TABLES: ['team_members','events','campaigns','organizations','contacts','rfps','touchpoints','opportunities','reminders','email_messages','flag_rules','email_templates'],
@@ -8425,8 +8427,17 @@ const Live = {
   async sb(){
     if (this.client) return this.client;
     if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js');
-    this.client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+    this.client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, lock: (name, wait, fn) => this.authLock(name, wait, fn) } });
     return this.client; },
+  /** Supabase's sign-in calls take a browser-wide lock and wait for it for ever, so a
+      frozen CRM tab would hang every other tab of that browser. After a few seconds
+      this page stops waiting for it and carries on without the lock. */
+  authLock(name, wait, fn){
+    if (this.lockStuck || !navigator.locks) return fn();
+    let began = false;
+    return window.supabase.navigatorLock(name, wait < 0 ? AUTH_LOCK_MS : wait, () => { began = true; return fn(); }).catch(e => {
+      if (began || wait >= 0) throw e;
+      console.warn('The sign-in lock is held elsewhere, going on without it'); this.lockStuck = true; return fn(); }); },
   /** select * from <table> order by id, a thousand rows at a time (the API's page size). */
   async fetchAll(table){
     const sb = await this.sb(), out = [];
@@ -8584,7 +8595,7 @@ const Gate = {
 };
 
 /** A sign-in step that gets no answer within the time stops waiting and says what to try. */
-const AUTH_WAIT_MS = 25000;
+const AUTH_WAIT_MS = 25000, AUTH_LOCK_MS = 5000;
 const withTimeout = (promise, what) => Promise.race([promise, new Promise((_, no) => setTimeout(() =>
   no(new Error(what + ' got no answer. Close any other tabs with the CRM open, reload this page (Ctrl+F5) and sign in again.')), AUTH_WAIT_MS))]);
 /** After the password: the second factor, set up the first time. */
@@ -8594,13 +8605,14 @@ async function afterSignIn(){
   const { data: aal, error } = await withTimeout(sb.auth.mfa.getAuthenticatorAssuranceLevel(), 'Checking two-step sign-in');
   if (error) return Gate.show('signin', error.message);
   if (aal.currentLevel === 'aal2') return openLive();
-  const { data: f, error: e2 } = await sb.auth.mfa.listFactors();
+  Gate.status('Looking up your authenticator');
+  const { data: f, error: e2 } = await withTimeout(sb.auth.mfa.listFactors(), 'Looking up your authenticator');
   if (e2) return Gate.show('signin', e2.message);
   const verified = (f.totp || []).find(x => x.status === 'verified');
   if (verified){ Gate.factorId = verified.id; return Gate.show('verify'); }
   // A setup that was started and never finished is cleared, then begun again
-  for (const x of (f.all || []).filter(x => x.status !== 'verified')) await sb.auth.mfa.unenroll({ factorId: x.id });
-  const { data: en, error: e3 } = await sb.auth.mfa.enroll({ factorType:'totp', friendlyName:'Gaard CRM' });
+  for (const x of (f.all || []).filter(x => x.status !== 'verified')) await withTimeout(sb.auth.mfa.unenroll({ factorId: x.id }), 'Clearing an unfinished setup');
+  const { data: en, error: e3 } = await withTimeout(sb.auth.mfa.enroll({ factorType:'totp', friendlyName:'Gaard CRM' }), 'Setting up two-step sign-in');
   if (e3) return Gate.show('signin', e3.message);
   Gate.factorId = en.id; Gate.qr = en.totp.qr_code; Gate.secret = en.totp.secret;
   return Gate.show('enroll');
@@ -8609,7 +8621,7 @@ async function afterSignIn(){
 async function openLive(){
   const sb = await Live.sb();
   Gate.show('loading'); Gate.status('Checking the team list');
-  const { data: { user } } = await sb.auth.getUser(); Live.email = user?.email || '';
+  const { data: { user } } = await withTimeout(sb.auth.getUser(), 'Checking the team list'); Live.email = user?.email || '';
   const { data: me, error } = await withTimeout(sb.rpc('my_access'), 'Checking the team list');
   if (error) return Gate.show('error', error.message);
   if (!me || !me.member) return Gate.show('nomember');
@@ -8649,9 +8661,9 @@ function renderSideFoot(){
     Gate.show('loading');
     const sb = await Live.sb();
     sb.auth.onAuthStateChange(ev => { if (ev === 'PASSWORD_RECOVERY') Gate.show('newpassword'); });
-    const { data: { session } } = await sb.auth.getSession();
+    const { data: { session } } = await withTimeout(sb.auth.getSession(), 'Connecting');
     if (recovering) return;
-    if (session) return afterSignIn();
+    if (session) return await afterSignIn();   // await, so a step that times out lands in the catch below and shows on the screen
     Gate.show('signin', oauthError ? (/team list|not on/i.test(oauthError) ? oauthError : 'Google sign-in did not finish: ' + oauthError) : '');
   } catch (err){
     console.error(err);
