@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-02.1">
+<meta name="build-version" content="2026-11-02.2">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -5256,7 +5256,6 @@ Views.contacts = { title:'Contacts',
           return `<button class="btn btn-sm btn-danger" type="button" id="c-del-sel" ${blocked.length ? 'disabled' : ''} title="${blocked.length
             ? esc(blocked.length + ' of the ' + ids.length + ' ticked ' + (blocked.length === 1 ? 'has' : 'have') + ' correspondence logged, so none are deleted. Untick them, or delete their activity first.')
             : esc('Delete the ' + ids.length + ' ticked ' + (ids.length === 1 ? 'contact' : 'contacts'))}">Delete</button>`; })()}<button class="btn btn-sm" type="button" id="c-selclear">Clear selection</button></span>` : ''}
-      ${!news ? `<span class="selbar"><b>Take the next</b>${[50, 100, 250].map(n => `<button class="btn btn-sm" type="button" data-takenext="${n}" title="Tick the ${n} oldest clean contacts nobody has written to yet">${n}</button>`).join('')}</span>` : ''}
       ${!news && params.org ? `<a class="btn btn-sm" href="${href('contacts')}">Show everyone</a>` : ''}
       ${st.expanded.size ? `<button class="btn btn-sm" type="button" id="c-collapse">Collapse ${st.expanded.size} open</button>` : ''}
       <span class="spacer"></span>
@@ -5294,18 +5293,6 @@ Views.contacts = { title:'Contacts',
       const ids = [...root.querySelectorAll('[data-sel]')].map(cb => Number(cb.dataset.sel));
       ids.forEach(id => e.target.checked ? sel.add(id) : sel.delete(id)); render(); });
     root.querySelector('#c-selclear')?.addEventListener('click', () => { sel.clear(); render(); });
-    /* Step 3 and 4 of the weekly loop: the oldest clean names nobody has
-       written to, in the order they were added, ticked in one press. */
-    root.querySelectorAll('[data-takenext]').forEach(b => b.addEventListener('click', () => {
-      const n = Number(b.dataset.takenext);
-      const queue = Repo.contacts.neverContacted()
-        .filter(c => !c.do_not_contact && c.email && c.email_status !== 'bounced')
-        .sort((a, b2) => String(a.sourced_on || a.created_at || '').localeCompare(String(b2.sourced_on || b2.created_at || '')));
-      if (!queue.length) return Toast.show('Everyone on file has been written to at least once.', { kind:'ok' });
-      sel.clear(); queue.slice(0, n).forEach(c => sel.add(c.id));
-      Toast.show(`${fmtInt(Math.min(n, queue.length))} ticked, oldest first. ${fmtInt(Math.max(0, queue.length - n))} still waiting.`, { kind:'ok' });
-      render();
-    }));
     root.querySelector('#c-del-sel')?.addEventListener('click', async () => {
       const ids = [...sel];
       const blocked = ids.filter(id => Repo.contacts.blockingDelete(id));

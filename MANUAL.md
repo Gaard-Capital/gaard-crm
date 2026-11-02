@@ -75,7 +75,7 @@ Tabs: **People**, **Organizations**, **Partners**, **Newsletter**.
 - **Editing in place**: click a cell, change it, press Enter (Escape cancels).
 - **Ticking rows**: hover the row number to see its tick box. Press and drag over boxes to tick a range, or Shift-click. The box in the heading ticks the whole page. Ticks survive paging and filters.
 - **Mail merge**: with people ticked, opens Mass Email with just those people.
-- **Take the next 50 / 100 / 250** ticks that many of the oldest people nobody has written to yet, skipping anyone on do-not-contact or with a bounced address. **Copy for the merge sheet** then copies those rows ready to paste into your Google Sheets merge sheet.
+- **Copy for the merge sheet**, with people ticked, copies those rows ready to paste into your Google Sheets merge sheet.
 - **Delete**, with people ticked, removes them. It is greyed out if any of them has anything logged (an activity, a deal, or an open follow-up); hover it and it tells you. Delete the activity first, or untick those people. Undo puts them back.
 
 **Every column sorts.** Click a heading to sort by it, click again to reverse. Four sort the way you read them rather than A to Z: Initial Outcome runs through the five, Status goes Active, Dormant, Dead, Stage follows the pipeline, and Newsletter goes subscribed to unsubscribed. Sort a column and then copy it and you get it in that order.
