@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-01.9">
+<meta name="build-version" content="2026-11-02.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -3633,7 +3633,7 @@ function filterBar({ compact=false, extra='', search='', hide=[] } = {}){
   /* One bar of filters, rounded at its two ends; the search box, where a page
      has one, is a second rounded bar beside it on the same line. */
   return `<div class="fbar-row"><div class="filters fbar" role="group" aria-label="Filters">
-    ${dateRange(f, r)}
+    ${hide.includes('period') ? '' : dateRange(f, r)}
     ${stateFilter()}
     ${sel('segment','Segment', segOptions)}
     ${hide.includes('channel') ? '' : sel('channel','Channel', [{value:'All',label:'All channels'}, ...CHANNELS.map(c => ({ value:c.code, label:c.name }))])}
@@ -4268,9 +4268,9 @@ Views.kpis = { title:'KPIs',
 
     return `
     <div class="page-head"><div><h1>KPIs</h1>
-      <p>${esc(r.label)}${r.from ? ` (${fmtDate(r.from)} to ${fmtDate(r.to)})` : ''}. Every number is counted from the touchpoints, opportunities and reminders underneath it, so there is no separate reporting sheet to keep up to date. Pick <b>Custom range</b> for any two dates.</p></div>
-      <div class="page-actions">${demoTag}</div></div>
-    ${filterBar()}
+      <p>Every number is counted from the touchpoints, opportunities and reminders underneath it, so there is no separate reporting sheet to keep up to date.</p></div>
+      <div class="page-actions">${demoTag}${dateRange(f, r)}</div></div>
+    ${filterBar({ hide:['period'] })}
     <div class="dash-grid" style="margin-bottom:16px">
       ${headline('New AUM funded', fmtUSD(aumNow) || '$0',
         prev ? `Previous ${esc(r.prev_label)}: ${fmtUSD(aumPrev) || '$0'}` : 'In this period')}
@@ -8136,6 +8136,32 @@ function parseHash(){
   if (!Views[name]) name = 'dashboard';
   return { name, params };
 }
+/* The notices already opened, so the bell counts only what is new to this
+   person. Kept in their own browser, because it is what they have read, not
+   a change to the CRM. A line whose id carries a number comes back by itself
+   when the number changes, so a growing pile of overdue follow-ups is never
+   hidden by a dismissal of the smaller pile. */
+const Notices = {
+  KEY: 'gaard_notices_seen',
+  _set: null,
+  all(){
+    if (this._set) return this._set;
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem(this.KEY) || '[]'); } catch (e) { /* private window */ }
+    return (this._set = new Set(Array.isArray(list) ? list : []));
+  },
+  seen(id){ return this.all().has(id); },
+  mark(id){
+    if (!id) return;
+    const s = this.all(); s.add(id);
+    /* Keep the last few hundred: ids with a count in them go stale quickly. */
+    const keep = [...s].slice(-400); this._set = new Set(keep);
+    try { localStorage.setItem(this.KEY, JSON.stringify(keep)); } catch (e) { /* private window */ }
+  },
+  clear(){ this._set = new Set();
+    try { localStorage.removeItem(this.KEY); } catch (e) { /* private window */ } },
+};
+
 function renderNav(){
   const open = Repo.reminders.open(); const today = Rules.startOfDay(new Date()).getTime();
   const due = open.filter(r => Rules.startOfDay(r.due_on + 'T12:00:00').getTime() <= today).length;
@@ -8155,22 +8181,22 @@ function renderNav(){
   const plural = (n, one, many) => fmtInt(n) + ' ' + (n === 1 ? one : many);
   const notes = [
     ...Repo.touchpoints.reviewQueue().slice(0, 6).map(t => { const c = Repo.contacts.byId(t.contact_id);
-      return { text: (c ? c.full_name : 'Someone') + ' replied: ' + (t.ai_suggested_outcome ? 'looks like ' + outLabel(t.ai_suggested_outcome) + '. Confirm?' : 'choose the outcome'), go: href('contacts/' + t.contact_id, { tp: t.id }) }; }),
+      return { id:'tp:' + t.id, text: (c ? c.full_name : 'Someone') + ' replied: ' + (t.ai_suggested_outcome ? 'looks like ' + outLabel(t.ai_suggested_outcome) + '. Confirm?' : 'choose the outcome'), go: href('contacts/' + t.contact_id, { tp: t.id }) }; }),
     // replies of the last three days whose outcome was set from the wording, to look over
     ...Repo.touchpoints.all().filter(t => t.outcome_status === 'confirmed' && t.responded_at && /^(Set from their reply|Claude, for)/.test(t.ai_reason || '')
         && Date.now() - new Date(t.responded_at).getTime() < 3 * 864e5).sort((a, b) => String(b.responded_at).localeCompare(String(a.responded_at))).slice(0, 6)
       .map(t => { const c = Repo.contacts.byId(t.contact_id);
-        return { text: (c ? c.full_name : 'Someone') + ' replied: ' + outLabel(t.outcome_code), go: href('contacts/' + t.contact_id, { tp: t.id }) }; }),
-    S.review_queue > 6 ? { text: plural(S.review_queue - 6, 'more reply', 'more replies') + ' to confirm', go: href('touchpoints', { review:'1' }) } : null,
-    stuck ? { text: plural(stuck, 'piece', 'pieces') + ' of outreach went nowhere and ' + (stuck === 1 ? 'is' : 'are') + ' on nobody\'s list', go: href('reminders', { bucket:'fixing' }) } : null,
-    late ? { text: plural(late, 'follow-up is', 'follow-ups are') + ' overdue', go: href('reminders', { bucket:'overdue' }) } : null,
-    rfpSoon ? { text: plural(rfpSoon, 'RFP is', 'RFPs are') + ' due in the next 7 days', go: href('rfps') } : null,
-  ].filter(Boolean);
+        return { id:'rep:' + t.id, text: (c ? c.full_name : 'Someone') + ' replied: ' + outLabel(t.outcome_code), go: href('contacts/' + t.contact_id, { tp: t.id }) }; }),
+    S.review_queue > 6 ? { id:'more:' + S.review_queue, text: plural(S.review_queue - 6, 'more reply', 'more replies') + ' to confirm', go: href('touchpoints', { review:'1' }) } : null,
+    stuck ? { id:'stuck:' + stuck, text: plural(stuck, 'piece', 'pieces') + ' of outreach went nowhere and ' + (stuck === 1 ? 'is' : 'are') + ' on nobody\'s list', go: href('reminders', { bucket:'fixing' }) } : null,
+    late ? { id:'late:' + late, text: plural(late, 'follow-up is', 'follow-ups are') + ' overdue', go: href('reminders', { bucket:'overdue' }) } : null,
+    rfpSoon ? { id:'rfp:' + rfpSoon, text: plural(rfpSoon, 'RFP is', 'RFPs are') + ' due in the next 7 days', go: href('rfps') } : null,
+  ].filter(Boolean).filter(n => !Notices.seen(n.id));
   const bell = `<div class="bell-wrap"><button class="bell-btn" type="button" id="bell-btn" aria-haspopup="menu" aria-expanded="${bellOpen}" aria-controls="bell-menu" aria-label="Notifications: ${notes.length}">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>${notes.length ? `<span class="badge">${notes.length}</span>` : ''}</button>
     <div class="bell-menu" id="bell-menu" role="menu" ${bellOpen ? '' : 'hidden'}><div class="who bell-head"><b>Needs attention</b>${Store.live ? `<button class="linkish small" type="button" id="bell-check" ${Inbox.checking ? 'disabled' : ''}>${Inbox.checking ? 'Checking Gmail…' : 'Check Gmail for replies'}</button>` : ''}</div>
       ${Inbox.last ? `<p class="muted small" style="padding:0 12px 4px">Last checked ${esc(Inbox.last.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }))}</p>` : ''}
-      ${notes.length ? notes.map(n => `<a role="menuitem" href="${n.go}"><span class="dot" aria-hidden="true"></span>${esc(n.text)}</a>`).join('') : '<p class="muted small" style="padding:8px 12px">Nothing needs you right now.</p>'}</div></div>`;
+      ${notes.length ? notes.map(n => `<a role="menuitem" href="${n.go}" data-nid="${esc(n.id)}"><span class="dot" aria-hidden="true"></span>${esc(n.text)}</a>`).join('') : '<p class="muted small" style="padding:8px 12px">Nothing needs you right now.</p>'}</div></div>`;
   box.innerHTML = bell + `<div class="user-wrap"><button class="user-btn" type="button" id="user-btn" aria-haspopup="menu" aria-expanded="${wasOpen}" aria-controls="user-menu">
       <span><b>${esc(who)}</b><br><span class="muted" style="font-size:11.5px">${esc(Repo.settings().firm_name)}</span></span><span class="avatar" aria-hidden="true">${esc(initials)}</span></button>
     <div class="user-menu" id="user-menu" role="menu" ${wasOpen ? '' : 'hidden'}>
@@ -8188,7 +8214,14 @@ function renderNav(){
   menu.querySelector('[data-um="out"]')?.addEventListener('click', () => Live.signOut());
   const bBtn = box.querySelector('#bell-btn'), bMenu = box.querySelector('#bell-menu');
   bBtn.addEventListener('click', e => { e.stopPropagation(); const open = bMenu.hidden; bMenu.hidden = !open; bBtn.setAttribute('aria-expanded', String(open)); menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); });
-  bMenu.addEventListener('click', e => { e.stopPropagation(); if (e.target.closest('a')){ bMenu.hidden = true; bBtn.setAttribute('aria-expanded', 'false'); } });
+  bMenu.addEventListener('click', e => { e.stopPropagation();
+    const a = e.target.closest('a');
+    if (a){
+      /* Opening a notice takes it off the list and off the count. */
+      Notices.mark(a.dataset.nid);
+      bMenu.hidden = true; bBtn.setAttribute('aria-expanded', 'false');
+      setTimeout(renderNav, 0);
+    } });
   box.querySelector('#bell-check')?.addEventListener('click', e => { e.stopPropagation(); Inbox.check(); });
   menu.querySelector('[data-um="in"]')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
 }
