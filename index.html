@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-02.2">
+<meta name="build-version" content="2026-11-02.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -3463,6 +3463,10 @@ const Sheet = {
         const label = Sheet.label(th), col = cg.children[th.cellIndex];
         if (cfg.w && cfg.w[label]) col.style.width = cfg.w[label] + 'px';
         if (th.querySelector('.colgrip')) return;
+        /* The row-number column holds the tick boxes and the count, not data.
+           A copy mark there sat on top of the select-all box and copied
+           nothing, so it gets neither the mark nor the grip. */
+        if (th.classList.contains('rn')) return;
         th.classList.add('col-h');
 
         const copy = document.createElement('button');
