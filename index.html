@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-02.3">
+<meta name="build-version" content="2026-11-02.4">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -5016,7 +5016,7 @@ Views.touchpoints = { title:'Correspondence',
     const ev = params.event ? Repo.events.byId(Number(params.event)) : null;
     return `<div class="page-head"><div><h1>Correspondence</h1><p>Every email, dial, event conversation, introduction, RFP step and meeting, each one its own row. Nothing overwrites earlier outreach.${ev ? ' Showing ' + esc(ev.name) + '.' : ''}</p></div>
       <div class="page-actions">${demoTag}${params.channel||params.event||params.campaign||params.review ? `<a class="btn btn-sm" href="${href('touchpoints')}">Clear</a>` : ''}</div></div>
-    ${filterBar()}
+    ${filterBar({ hide:['credit'] })}
     ${queue.length && !params.review ? `<div class="banner warn"><b>${queue.length} replies are waiting for confirmation.</b> <a href="${href('touchpoints',{review:'1'})}">Review them</a>, or confirm each below.</div>` : ''}
     ${params.review ? `<section class="card" style="margin-bottom:14px"><div class="card-head"><h2>Waiting for confirmation</h2><span class="sub">The assistant read the reply and suggested an outcome. A person confirms before anything moves.</span></div>
       <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Date</th><th>Contact</th><th>Reply</th><th>Suggested outcome</th><th>Confidence</th><th>Why</th><th class="num">Action</th></tr></thead><tbody>
@@ -5253,7 +5253,7 @@ Views.contacts = { title:'Contacts',
         ? `${fmtInt(total)} people are on the newsletter. The Newsletter column turns anybody on or off, and an outcome that counts as interest adds them on its own.`
         : `The master list, every year of it${org ? ', showing ' + esc(org.name) : ''}, oldest first. Click a cell to change it, a heading to sort, or a correspondence cell to read the thread. The name opens the full record.`}</p></div>
       <div class="page-actions">${demoTag}<button class="btn btn-primary" type="button" id="new-contact">New contact</button></div></div>
-    ${filterBar({ compact:true, extra: news ? '' : flagPick,
+    ${filterBar({ compact:true, extra: news ? '' : flagPick, hide:['credit'],
       search: `<label class="sr-only" for="c-q">Search</label><input type="search" id="c-q" placeholder="Search name, email, organization, LinkedIn" value="${esc(st.q)}">` })}
     <div class="filters">
       ${st.sel.size ? `<span class="selbar"><b>${fmtInt(st.sel.size)} selected</b><button class="btn btn-sm btn-primary" type="button" id="c-merge">Mail merge</button><button class="btn btn-sm" type="button" id="c-copyrows" title="Copy these rows in the shape the Google Sheets merge sheet expects">Copy for the merge sheet</button>${(() => { const ids = [...st.sel]; const blocked = ids.filter(id => Repo.contacts.blockingDelete(id));
@@ -6171,7 +6171,7 @@ Views.organizations = { title:'Organizations',
     return `<div class="page-head" style="align-items:center;margin-bottom:12px"><div><h1 style="font-size:22px">Organizations</h1>
       <p style="margin-top:2px">One organization holds its people, its outreach and at most one open opportunity. Click a cell to change it, or the people cell to see who is there.</p></div>
       <div class="page-actions">${demoTag}<button class="btn btn-primary" type="button" id="new-org">New organization</button></div></div>
-    ${filterBar({ compact:true, search: `<label class="sr-only" for="o-q">Search</label><input type="search" id="o-q" placeholder="Search organization, city, state, type" value="${esc(st.q)}">` })}
+    ${filterBar({ compact:true, hide:['credit'], search: `<label class="sr-only" for="o-q">Search</label><input type="search" id="o-q" placeholder="Search organization, city, state, type" value="${esc(st.q)}">` })}
     <div class="filters">
       ${st.expanded.size ? `<button class="btn btn-sm" type="button" id="o-collapse">Collapse ${st.expanded.size} open</button>` : ''}
       <span class="spacer"></span>
