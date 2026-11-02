@@ -61,7 +61,7 @@ On every page. It lists:
 - outreach that went nowhere and is on nobody's follow-up list;
 - overdue follow-ups; RFPs due within a week.
 
-Click a line to go straight to it: a reply opens the person's page, scrolled to that email. **Check Gmail for replies** at the top of the bell looks for new replies now (see section 5).
+Click a line to go straight to it: a reply opens the person's page, scrolled to that email. **Opening a line takes it off the bell** and lowers the count, so what is left is what you have not looked at. The lines that count something ("36 follow-ups are overdue") come back on their own as soon as the number changes, so clearing one never hides a problem that is still growing. What you have opened is remembered in your own browser, not shared with the team. **Check Gmail for replies** at the top of the bell looks for new replies now (see section 5).
 
 ### Contacts
 
@@ -158,9 +158,11 @@ One screen of headline numbers and charts: people to contact, new AUM funded, ne
 
 Tabs: **KPIs** (the detailed tables: by quarter, by channel, events, campaigns, and the other counts) and **Pipeline** (every open opportunity by stage). Every figure is counted from the activity, opportunities and follow-ups themselves; nothing is typed in twice.
 
+**Choosing the period** works the same here as on the Dashboard: the button at the top right of the page shows the stretch being counted and its two dates, and opens the presets, any quarter of any year, and From and To with the calendar.
+
 **This quarter and this year, side by side** is near the top: emails sent, dials, replies, calls booked, next steps, onboarding, clients funded and AUM, each against the same stretch a quarter ago and a year ago, with the change beside it. No toggling back and forth to compare.
 
-**Which channel gets the credit.** Somebody can be cold-emailed with no reply, then met at an event, then booked a call. The emails and the event are both still counted as activity, but the **conversion** is credited to whatever actually produced the call, which is the event. The filter bar has a switch between *what converted them* (the normal reading) and *how we first met* (the old one). A person's page shows the route in one line, for example "Cold email (no response), met at Jackson Hole, call."
+**Which channel gets the credit.** Somebody can be cold-emailed with no reply, then met at an event, then booked a call. The emails and the event are both still counted as activity, but the **conversion** is credited to whatever actually produced the call, which is the event. The filter bar on KPIs and Pipeline has a switch between *what converted them* (the normal reading) and *how we first met* (the old one). It is only on those two screens, because it changes how figures are counted rather than which people are listed. A person's page shows the route in one line, for example "Cold email (no response), met at Jackson Hole, call."
 
 ### Settings (account menu, top right)
 
