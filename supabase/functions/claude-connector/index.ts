@@ -240,9 +240,15 @@ const evKey = (s: unknown) => String(s ?? '').toLowerCase().replace(/\b(the|annu
 async function listEvents(db: Db, a: { from?: string; to?: string }) {
   const from = isDay(a.from) ? a.from : new Date(Date.now() - 120 * 864e5).toISOString().slice(0, 10);
   const to = isDay(a.to) ? a.to : new Date(Date.now() + 180 * 864e5).toISOString().slice(0, 10);
-  const { data, error } = await db.from('events').select('id, name, start_on, format, city, state, attendance').gte('start_on', from).lte('start_on', to).order('start_on').limit(1000);
-  if (error) throw new Error(error.message);
-  if (!data?.length) return `No events on the CRM's Events page between ${from} and ${to}.`;
+  // a thousand rows at a time (the API's page size): the Finder holds more than that
+  const data: Db[] = [];
+  for (let at = 0; ; at += 1000) {
+    const { data: page, error } = await db.from('events').select('id, name, start_on, format, city, state, attendance').gte('start_on', from).lte('start_on', to).order('start_on').order('id').range(at, at + 999);
+    if (error) throw new Error(error.message);
+    data.push(...(page ?? []));
+    if ((page ?? []).length < 1000) break;
+  }
+  if (!data.length) return `No events on the CRM's Events page between ${from} and ${to}.`;
   const { data: tps } = await db.from('touchpoints').select('event_id, contact_id').not('event_id', 'is', null).limit(5000);
   const met = (id: number) => new Set((tps ?? []).filter((t: Db) => t.event_id === id).map((t: Db) => t.contact_id)).size;
   return data.map((e: Db) => `- ${e.start_on} ${e.name} (${e.format === 'virtual' ? 'online' : [e.city, e.state].filter(Boolean).join(', ') || 'in person'}): ${met(e.id)} people met, ${e.attendance || 'going'}`).join('\n');
