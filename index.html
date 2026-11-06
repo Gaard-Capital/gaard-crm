@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-06.2">
+<meta name="build-version" content="2026-11-06.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -5582,7 +5582,7 @@ async function scheduleCall(c){
     { key: 'time', label: 'Time (Mountain)', type: 'time', value: '10:00' },
     { key: 'mins', label: 'Minutes', type: 'number', value: '30' },
     { key: 'guests', label: 'Guests', hint: 'separated by commas', value: [c.email, me.invite_also].filter(Boolean).join(', '), span: true },
-    { key: 'zoom', label: 'Zoom link', value: me.zoom_link || '', span: true, placeholder: 'https://… (save yours in Settings)' } ] });
+    { key: 'zoom', label: 'Zoom link', value: me.zoom_link || '', span: true, placeholder: 'https://…' } ] });
   if (!out || !out.day || !out.time) return;
   const start = new Date(out.day + 'T' + out.time + ':00'), end = new Date(start.getTime() + (Number(out.mins) || 30) * 60000);
   window.open(gcalLink({ title: out.title, start, end, details: out.zoom ? 'ZOOM LINK:\n' + out.zoom : '', guests: out.guests }), '_blank', 'noopener');
@@ -7820,9 +7820,6 @@ Views.settings = { title:'Settings',
             <div class="af-l"><label for="s-book">Booking link</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About the booking link" aria-describedby="s-book-info">i</button><div class="info-panel" role="tooltip" id="s-book-info"><div class="info-card"><p>Your Google Calendar booking page (Calendar → Create → Appointment schedule → Copy link). Letters that use {{booking_link}} put it in for whoever sends them.</p></div></div></div></div>
             <div class="af-f"><input id="s-book" type="url" placeholder="https://calendar.app.google/…" value="${esc(myBookingLink())}"></div>
             <div class="af-b"><button class="btn btn-sm" type="button" id="s-book-save">Save</button></div>
-            <div class="af-l"><label for="s-zoom">Calls</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About calls" aria-describedby="s-zoom-info">i</button><div class="info-panel" role="tooltip" id="s-zoom-info"><div class="info-card"><p>Schedule a call (on a contact's page) puts your Zoom link in the invitation and the confirmation email, and invites these people too (for example Dr. Brogaard).</p></div></div></div></div>
-            <div class="af-f af-two"><input id="s-zoom" type="url" placeholder="Zoom link (https://…)" value="${esc(myRow().zoom_link || '')}" aria-label="Your Zoom link"><input id="s-invite" type="text" placeholder="Always invite (emails)" value="${esc(myRow().invite_also || '')}" aria-label="Always invite"></div>
-            <div class="af-b"><button class="btn btn-sm" type="button" id="s-zoom-save">Save</button></div>
             <div class="af-l"><label>Your Claude</label><div class="info-pop"><button class="info-btn" type="button" aria-label="About connecting Claude" aria-describedby="cl-info">i</button><div class="info-panel" role="tooltip" id="cl-info"><div class="info-card"><p>Lets your own Claude (claude.ai, with Gmail connected) find replies in your mailbox and put them in the CRM, and add events from the Event Finder. It cannot delete or send anything; a reply it records shows under the bell, and Change on the activity puts a wrong outcome right.</p></div></div></div></div>
             <div class="af-f af-span" id="cl-body"><span class="muted small">Checking…</span></div>
           </div>
@@ -7892,19 +7889,6 @@ Views.settings = { title:'Settings',
         Store.version++; render(); return Toast.show(v ? 'Booking link saved' : 'Booking link removed', { kind:'ok' });
       }
       Store.commit(v ? 'Booking link saved' : 'Booking link removed', st => { const row = st.team_members.find(t => t.id === id); if (row) row.booking_url = v || null; });
-    });
-    /* The Zoom link and who is always invited also live on the person's own team row (set_my_meeting_defaults, db/018). */
-    root.querySelector('#s-zoom-save')?.addEventListener('click', async () => {
-      const zoom = root.querySelector('#s-zoom').value.trim(), invite = root.querySelector('#s-invite').value.trim(), id = Repo.settings().default_owner_id;
-      if (zoom && !/^https:\/\/\S+$/i.test(zoom)) return Toast.show('The Zoom link should start with https://', { kind:'warn' });
-      if (Store.live){
-        const { error } = await (await Live.sb()).rpc('set_my_meeting_defaults', { p_zoom_link: zoom, p_invite_also: invite });
-        if (error) return Toast.show(/function|does not exist|schema cache/i.test(error.message) ? 'Not saved: the database needs db/018_jon_workflow.sql run first.' : 'Not saved: ' + error.message, { kind:'warn', ms: 9000 });
-        const row = (Store.state.team_members || []).find(t => t.id === id);
-        if (row){ row.zoom_link = zoom || null; row.invite_also = invite || null; if (Live.shadow && Live.shadow.team_members) Live.shadow.team_members.set(row.id, JSON.stringify(row)); }
-        Store.version++; render(); return Toast.show('Saved', { kind:'ok' });
-      }
-      Store.commit('Call settings saved', st => { const row = st.team_members.find(t => t.id === id); if (row){ row.zoom_link = zoom || null; row.invite_also = invite || null; } });
     });
     root.querySelector('#s-out')?.addEventListener('click', () => Live.signOut());
     root.querySelector('#s-in')?.addEventListener('click', () => { try { localStorage.removeItem(MODE_KEY); } catch (e) { /* private window */ } location.reload(); });
