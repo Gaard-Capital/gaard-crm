@@ -93,7 +93,7 @@ const TOOLS = [
   },
   {
     name: 'record_rfp',
-    description: "Add an RFP to the Gaard CRM's RFP log, or update it (matched on the reference number, then on issuer and name). The fields are the columns of Jon's RFP Log. Send what is known; anything left out stays as it is. Dates YYYY-MM-DD, AUM a plain number. A new RFP that has only been found and screened: status identified. Do not put staff names in notes.",
+    description: "Add an RFP to the Gaard CRM's RFP log, or update it (matched on the reference number, then on issuer and name). The fields are the columns of Jon's RFP Log. Send what is known; anything left out stays as it is. Dates YYYY-MM-DD, AUM a plain number. Only RFPs Gaard submitted go in: send one once it is submitted, then each later change (finalist, won, lost). An RFP that was only screened, passed on or not bid is refused and stays out. Do not put staff names in notes.",
     inputSchema: { type: 'object', properties: {
       rfp_name: { type: 'string' }, issuer: { type: 'string', description: 'The organization issuing it.' },
       reference_number: { type: 'string' }, final_submission_date: { type: 'string' },
@@ -107,12 +107,12 @@ const TOOLS = [
   },
   {
     name: 'record_event',
-    description: "Keep the Gaard CRM's Events page in step with the Gaard Event Finder. Call it for every dated event in the Finder: going, maybe or attended as marked, undecided for one nobody has marked yet or whose mark was taken off, and not_going for one that was hidden. An event already there (same finder_id, or the same or a close name within three days) is updated, not added twice. not_going deletes the event from the CRM, or, if people were met at it, keeps it marked Not going.",
+    description: "Keep the Gaard CRM's Events page in step with the Gaard Event Finder. Only events Gaard acts on go in: call it when an event is marked going or attended (or its cost or contacts change), and with not_going when that mark is taken off or the event is hidden. Events that are only found, or marked maybe, stay out of the CRM. An event already there (same finder_id, or the same or a close name within three days) is updated, not added twice. not_going deletes the event from the CRM, or, if people were met at it, keeps it marked Not going.",
     inputSchema: { type: 'object', properties: {
       name: { type: 'string' },
       date: { type: 'string', description: 'The day it starts, YYYY-MM-DD.' },
       end_date: { type: 'string', description: 'The last day, YYYY-MM-DD, for an event of several days.' },
-      status: { type: 'string', enum: ['going', 'maybe', 'attended', 'undecided', 'not_going'] },
+      status: { type: 'string', enum: ['going', 'attended', 'not_going'] },
       finder_id: { type: 'string', description: "The Event Finder's own id for this event." },
       format: { type: 'string', enum: ['in_person', 'virtual', 'hybrid'] },
       kind: { type: 'string', enum: ['conference', 'networking', 'webinar', 'workshop', 'other'] },
@@ -278,6 +278,8 @@ async function recordEvent(db: Db, me: string, a: Record<string, unknown>) {
   const name = String(a.name ?? '').trim().slice(0, 300), status = String(a.status || 'going'), finder = a.finder_id ? String(a.finder_id) : null;
   if (!name || !isDay(a.date)) return { text: 'An event needs a name and a date (YYYY-MM-DD).', error: true };
   if (!['going', 'maybe', 'attended', 'undecided', 'not_going'].includes(status)) return { text: 'Unknown status ' + status + '.', error: true };
+  // Jon keeps only what Gaard acts on (Nov 2026): a maybe or an unmarked event is not an event of ours, so it is taken off like not_going
+  const off = !['going', 'attended'].includes(status);
   const start = String(a.date), end = isDay(a.end_date) && String(a.end_date) > start ? String(a.end_date) : null;
   const state = /^[A-Za-z]{2}$/.test(String(a.state ?? '')) ? String(a.state).toUpperCase() : null;
   const kind = ['conference', 'networking', 'webinar', 'workshop', 'other'].includes(String(a.kind)) ? String(a.kind) : 'other';
@@ -295,8 +297,8 @@ async function recordEvent(db: Db, me: string, a: Record<string, unknown>) {
     same = (near ?? []).find((e: Db) => evKey(e.name) === k)
       || (near ?? []).find((e: Db) => { const w = evKey(e.name).split(' '); return w.filter((x) => words.has(x)).length >= Math.max(2, Math.ceil(Math.min(w.length, words.size) * 0.7)); }) || null;
   }
-  if (status === 'not_going') {
-    if (!same) return { text: `"${name}" is not on the Events page, so there is nothing to take off.` };
+  if (off) {
+    if (!same) return { text: `"${name}" is not on the Events page${status === 'not_going' ? ', so there is nothing to take off' : ': only events marked going or attended go to the CRM'}.` };
     // deleted, unless people were met there: then the foreign keys refuse and it stays, marked Not going
     const { error } = await db.from('events').delete().eq('id', same.id);
     if (!error) return { text: `Took "${same.name}" off the Events page.` };
@@ -339,18 +341,21 @@ async function recordRfp(db: Db, me: string, a: Record<string, unknown>) {
   const { data: orgs, error: e1 } = await db.from('organizations').select('id, name').ilike('name', issuer.replace(/[%_]/g, ' ')).limit(1);
   if (e1) throw new Error(e1.message);
   let org = orgs?.[0];
+  const ref = a.reference_number ? String(a.reference_number).trim() : null;
+  let same: Db = null;
+  if (ref) { const { data } = await db.from('rfps').select('id, status, submitted_on').eq('reference_number', ref).limit(1); same = data?.[0] ?? null; }
+  if (!same && org) { const { data } = await db.from('rfps').select('id, status, submitted_on').eq('organization_id', org.id).ilike('title', title.replace(/[%_]/g, ' ')).limit(1); same = data?.[0] ?? null; }
+  const given = (k: string) => a[k] !== undefined && a[k] !== null && a[k] !== '';
+  const final = given('final_submission_date') ? String(a.final_submission_date) : null, today = new Date().toISOString().slice(0, 10);
+  const status = a.won === 'Y' ? 'won' : a.won === 'N' ? 'lost' : given('status') ? String(a.status) : same ? same.status : final && final <= today && a.approved_for_submission === 'Y' ? 'submitted' : a.approved_for_submission === 'Y' ? 'intent_to_bid' : 'identified';
+  // Jon keeps only the RFPs Gaard submitted (Nov 2026): one screened, passed on or not bid stays out; one already in the log takes every later change
+  if (!same && !['submitted', 'finalist', 'won', 'lost'].includes(status))
+    return { text: `"${title}" (${issuer}) was not added: only RFPs Gaard submitted go to the CRM, and this one is ${status.replace(/_/g, ' ')}. Send it again once it is submitted.` };
   if (!org) {
     const { data, error } = await db.from('organizations').insert({ name: issuer, segment_code: /foundation|nonprofit|charit|trust|endowment|society|association/i.test(issuer) ? 'ORG_NONPROFIT' : 'ORG_OTHER', legacy_ref: 'RFP tracker' }).select('id, name').single();
     if (error) throw new Error(error.message);
     org = data;
   }
-  const ref = a.reference_number ? String(a.reference_number).trim() : null;
-  let same: Db = null;
-  if (ref) { const { data } = await db.from('rfps').select('id, status, submitted_on').eq('reference_number', ref).limit(1); same = data?.[0] ?? null; }
-  if (!same) { const { data } = await db.from('rfps').select('id, status, submitted_on').eq('organization_id', org.id).ilike('title', title.replace(/[%_]/g, ' ')).limit(1); same = data?.[0] ?? null; }
-  const given = (k: string) => a[k] !== undefined && a[k] !== null && a[k] !== '';
-  const final = given('final_submission_date') ? String(a.final_submission_date) : null, today = new Date().toISOString().slice(0, 10);
-  const status = a.won === 'Y' ? 'won' : a.won === 'N' ? 'lost' : given('status') ? String(a.status) : same ? same.status : final && final <= today && a.approved_for_submission === 'Y' ? 'submitted' : a.approved_for_submission === 'Y' ? 'intent_to_bid' : 'identified';
   const row: Db = { status, title, organization_id: org.id, tracker_synced_at: new Date().toISOString() };
   if (ref) row.reference_number = ref;
   if (final) { if (['submitted', 'finalist', 'won', 'lost'].includes(status)) row.submitted_on = final; row.due_on = final; }

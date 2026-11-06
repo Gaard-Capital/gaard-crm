@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-02.4">
+<meta name="build-version" content="2026-11-06.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -1514,8 +1514,9 @@ const Store = {
 };
 const memo = fn => { let v = -1, cache = new Map(); return (...a) => { if (v !== Store.version){ v = Store.version; cache = new Map(); } const k = a.length ? JSON.stringify(a) : ''; if (!cache.has(k)) cache.set(k, fn(...a)); return cache.get(k); }; };
 
-/* What counts as an event of ours: one marked Not going, or one the Finder found and nobody has decided on, stays out of the totals. */
-const evCounts = e => e.attendance !== 'not_going' && e.attendance !== 'undecided';
+/* What counts as an event of ours: Going or Attended, the only marks Jon sends from the Event Finder. Not going (kept because people
+   were met there), and a Maybe or Not decided left from before db/023, stay out of the totals. */
+const evCounts = e => !['not_going', 'maybe', 'undecided'].includes(e.attendance);
 
 /* Activities newest first, to the minute; two at the same moment, the one entered last first. */
 const newestFirst = (x, y) => (storedTime(y.touched_at) - storedTime(x.touched_at)) || (y.id - x.id);
@@ -3236,7 +3237,7 @@ function bindTips(root){ root.querySelectorAll('[data-tip]').forEach(el => {
   el.addEventListener('focus', () => { const r = el.getBoundingClientRect(); Tip.show(el.dataset.tip, r.left + r.width/2, r.top); });
   el.addEventListener('blur', () => Tip.hide()); }); }
 
-const Router = { current: { name:'dashboard', params:{} } };
+const Router = { current: { name:'kpis', params:{} } };
 const href = (name, params={}) => { const q = Object.entries(params).filter(([,v]) => v != null && v !== '' && v !== 'All').map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&'); return '#/' + name + (q ? '?' + q : ''); };
 const go = (name, params) => { location.hash = href(name, params); };
 
@@ -3691,7 +3692,7 @@ function dateRange(f, r){
   </div>`;
 }
 /** Wire the range control to whichever object holds the period. The shared
-    filter bar passes UI.filters; the dashboard passes its own state. */
+    filter bar passes UI.filters; another page may pass its own state. */
 function bindDateRange(root, f, rerender){
   root.querySelector('[data-pick-btn="period"]')?.addEventListener('click', e => { e.stopPropagation();
     UI.openPick = UI.openPick === 'period' ? null : 'period'; UI.openState = false;
@@ -3877,15 +3878,27 @@ const Gmail = {
   /** One message in the format Gmail takes: headers, a plain and an HTML part, base64url. */
   /** Ready to send: the permission, and the name and signature the person set up in Gmail (settings.sendAs,
       which needs the read permission). An account that refuses reading (Advanced Protection) can still send,
-      with their name and the firm at the foot instead. */
+      with their name and the firm at the foot instead.
+      Google gives one signature only: the one chosen under "For new emails use", whatever its name, so
+      a person with several picks it there. When there is none, me.why says why (sigNote words it). */
   async prepare(){
     try { await this.authorize(true); }
-    catch (err){ if (/closed before/i.test(err.message)) throw err; await this.authorize(); this.me = { signature: '', name: '', email: this.email }; return this.me; }
-    if (this.me && this.meToken === this.token) return this.me;
-    const r = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs', { headers: { Authorization: 'Bearer ' + this.token } }).then(x => x.ok ? x.json() : {}).catch(() => ({}));
+    catch (err){ if (/closed before/i.test(err.message)) throw err; await this.authorize(); this.me = { signature: '', name: '', email: this.email, why: 'refused' }; return this.me; }
+    // kept for the hour of the permission, unless there was no signature: then it is read again, so a fix in Gmail shows at once
+    if (this.me && this.meToken === this.token && this.me.signature) return this.me;
+    if (!this.canRead){ this.me = { signature: '', name: '', email: this.email, why: 'unticked' }; this.meToken = this.token; return this.me; }
+    const r = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs', { headers: { Authorization: 'Bearer ' + this.token } }).then(x => x.ok ? x.json() : { failed: x.status }).catch(() => ({ failed: 'network' }));
     const list = r.sendAs || [], d = list.find(x => x.isDefault) || list.find(x => x.isPrimary) || {};
-    this.me = { signature: d.signature || '', name: d.displayName || '', email: d.sendAsEmail || this.email }; this.meToken = this.token;
+    this.me = { signature: d.signature || '', name: d.displayName || '', email: d.sendAsEmail || this.email, why: r.failed ? 'failed' : d.signature ? '' : 'nodefault' }; this.meToken = this.token;
     return this.me;
+  },
+  /** Why the letter carries the name and the firm instead of the person's Gmail signature, in words, or '' when it carries the signature. */
+  sigNote(){
+    const why = this.me && !this.me.signature ? this.me.why : '';
+    return { refused: 'Google did not let the CRM read your Gmail settings (some accounts, under Advanced Protection, never allow it), so your Gmail signature cannot be added: your name and the firm go at the foot instead.',
+      unticked: 'Your Gmail signature is not added: in the Google window, the box for reading your Gmail ("View your email messages and settings") was left unticked. Press Preview again and tick it; the CRM only reads your signature and the replies to letters it sent.',
+      nodefault: 'Your Gmail signature is not added: Gmail has none chosen for new emails. In Gmail: Settings > See all settings > General > Signature defaults > For new emails use, pick your signature (for example Gaard), then Save Changes at the bottom of the page. Press Preview again to check.',
+      failed: 'Gmail did not answer when the CRM asked for your signature. Press Preview again in a moment.' }[why] || '';
   },
   /** The foot as plain text: the Gmail signature without its markup, or the name and the firm when none is set up. */
   footText(){
@@ -4097,11 +4110,11 @@ setInterval(() => Live.pollShared(), 60000);
 window.addEventListener('focus', () => Live.pollShared());
 setInterval(() => { if (Store.live && Gmail.token && Gmail.canRead && Date.now() < Gmail.expires - 60000) Inbox.check({ quiet: true }); }, 10 * 60 * 1000);
 
-/* ===== Dashboard =====================================================
-   Four headline numbers with their comparison, one chart that answers the
-   question people actually ask, and everything else one click away. The rest
-   of the reporting still exists: it sits below in plain cards, and the deeper
-   cuts live on their own screens.
+/* ===== KPIs ==========================================================
+   One page for how the business is doing (Jon, Nov 2026: the Dashboard and the
+   KPIs became one page). The headline numbers against the period before, where
+   the revenue comes from quarter by quarter, the side-by-side quarters and
+   years, then the detail by lane, channel, segment and state.
    ===================================================================== */
 const ICONS = {
   people:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"/><path d="M2.8 20a6.2 6.2 0 0 1 12.4 0"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16 14.6a5 5 0 0 1 5.5 5"/></svg>',
@@ -4124,83 +4137,6 @@ const deltaChip = (now, prev, { invert = false, pct = false } = {}) => {
   const arrow = rounded > 0 ? '↑' : '↓';
   return `<span class="delta ${good ? '' : 'down'}">${arrow} ${Math.abs(rounded).toFixed(rounded % 1 ? 1 : 0)}${pct ? ' pts' : '%'}</span>`;
 };
-Views.dashboard = { title:'Dashboard',
-  /* A picture of where things stand, on one screen, the way a Salesforce or
-     Power BI dashboard reads: five numbers with the change against the period
-     before, then charts. The work itself is on Follow-ups and the detailed
-     tables are on KPIs; notices sit under the bell. */
-  render(){
-    const st = UI.dash || (UI.dash = { period:'ytd', from:'', to:'', qy:'', qn:'' });
-    const f = { ...Metrics.empty(), period: st.period, from: st.from || '', to: st.to || '', qy: st.qy || '', qn: st.qn || '' };
-    const r = Metrics.range(f), back = Metrics.shiftBack(f);
-    const rems = Metrics.reminders(Metrics.empty());
-    const toContact = rems.filter(x => ['overdue', 'today'].includes(Repo.reminders.bucket(x))).length;
-    const overdue = rems.filter(x => Repo.reminders.bucket(x) === 'overdue').length;
-    const closedIn = g => Metrics.funnel().filter(x => Metrics.happenedIn(x.funded_on, g));
-    const closed = closedIn(f), closedPrev = back ? closedIn(back) : null;
-    const aum = sum(closed, x => x.funded_aum || 0), aumPrev = closedPrev ? sum(closedPrev, x => x.funded_aum || 0) : null;
-    const open = Metrics.funnel().filter(x => x.stage && !STG.get(x.stage)?.closed);
-    const potential = sum(open, x => x.expected_aum || 0);
-    const fn = Metrics.stageFunnel(f), fnPrev = back ? Metrics.stageFunnel(back) : null;
-
-    const tile = (label, value, sub, go, chip, tone) => `<button class="dash-tile ${tone || ''}" type="button" data-go="${go}"><span class="lbl">${esc(label)}</span><span class="row"><span class="val">${value}</span>${chip || ''}</span><span class="sub">${sub}</span></button>`;
-
-    /* Pipeline by stage: how many open opportunities sit at each stage. */
-    const stages = STAGES.filter(s => !s.closed).map(s => { const at = open.filter(x => x.stage === s.code); return { s, n: at.length, aum: sum(at, x => x.expected_aum || 0) }; });
-    /* Funded AUM by month, the last twelve months, in millions. */
-    const months = [...Array(12)].map((_, i) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 11 + i); return d.toISOString().slice(0, 7); });
-    const byMonth = months.map(m => ({ m, v: sum(Metrics.funnel().filter(x => String(x.funded_on || '').slice(0, 7) === m), x => x.funded_aum || 0) / 1e6 }));
-    /* Where the people came from in the period, by channel. */
-    const channels = Metrics.byChannel(f).filter(c => c.leads).sort((a, b) => b.leads - a.leads).slice(0, 7);
-    /* The next fourteen days. */
-    const iso = d => d.toISOString().slice(0, 10), from = iso(Rules.startOfDay(new Date())), to = iso(Rules.addDays(new Date(), 14));
-    const inWindow = d => d && d >= from && d <= to;
-    const soon = [
-      ...Repo.events.all().filter(e => evCounts(e) && inWindow(e.start_on)).map(e => ({ on: e.start_on, kind: 'Event', name: e.name, go: href('events', { ev: e.id }) })),
-      ...Repo.rfps.all().filter(x => inWindow(x.due_on) && !['submitted', 'won', 'lost', 'declined', 'cancelled'].includes(x.status)).map(x => ({ on: x.due_on, kind: 'RFP due', name: x.title, go: href('rfps') })),
-      ...Repo.reviews.all().filter(x => inWindow(x.next_review_on)).map(x => ({ on: x.next_review_on, kind: 'Client review', name: x.name, go: href('reviews') })),
-    ].sort((a, b) => a.on.localeCompare(b.on));
-    const steps = [['Emails sent', fn.emails], ['Replied', fn.replies], ['Next steps', fn.next], ['Onboarding', fn.onb], ['Funded', fn.clients]];
-
-    return `<div class="dash-page">
-    <div class="page-head"><div><h1>Welcome back, ${esc((Repo.teamName(Repo.settings().default_owner_id) || 'there').split(' ')[0])}</h1></div>
-      <div class="page-actions">${demoTag}${dateRange(f, r)}</div></div>
-
-    <div class="dash-tiles">
-      ${tile('To contact', fmtInt(toContact), overdue ? `${fmtInt(overdue)} overdue · open Follow-ups` : 'open Follow-ups', href('reminders'), '', overdue ? 'alert' : '')}
-      ${tile('New AUM funded', fmtUSD(aum) || '$0', back ? `vs ${fmtUSD(aumPrev) || '$0'} ${esc(r.prev_label)}` : esc(r.label), href('pipeline'), back ? deltaChip(aum, aumPrev) : '')}
-      ${tile('New clients', fmtInt(closed.length), back ? `vs ${fmtInt(closedPrev.length)} ${esc(r.prev_label)}` : esc(r.label), href('pipeline'), back ? deltaChip(closed.length, closedPrev.length) : '')}
-      ${tile('Pipeline', fmtUSD(potential) || '$0', `${fmtInt(open.length)} open opportunit${open.length === 1 ? 'y' : 'ies'}`, href('pipeline'))}
-      ${tile('Response rate', fmtPct(fn.email_to_reply || 0), `of ${fmtInt(fn.emails)} emails sent`, href('kpis'), fnPrev ? deltaChip(fn.email_to_reply || 0, fnPrev.email_to_reply || 0, { pct:true }) : '')}
-    </div>
-
-    <div class="dash-charts">
-      <section class="card dash-box" data-go="${href('pipeline')}"><div class="card-head"><h2>Pipeline by stage</h2><span class="sub">open today</span></div>
-        <div class="dash-chart">${hbar({ rows: stages, value: x => x.n, label: x => x.s.label, format: fmtInt, width: 380, height: 30, gap: 8,
-          colorFn: () => 'var(--accent)', tipFn: x => `<b>${esc(x.s.label)}</b>${fmtInt(x.n)} open, ${fmtUSD(x.aum) || '$0'} expected` })}</div></section>
-      <section class="card dash-box" data-go="${href('kpis')}"><div class="card-head"><h2>AUM funded by month</h2><span class="sub">last 12 months, $M</span></div>
-        <div class="dash-chart">${columns({ rows: byMonth, width: 380, height: 200, format: v => '$' + v.toFixed(1) + 'M', labelOf: x => new Date(x.m + '-15').toLocaleDateString('en-US', { month:'short' }),
-          series: [{ name:'AUM funded', color:'var(--accent)', value: x => Math.round(x.v * 10) / 10 }] })}</div></section>
-      <section class="card dash-box" data-go="${href('kpis')}"><div class="card-head"><h2>New leads by channel</h2><span class="sub">${esc(r.label.toLowerCase())}</span></div>
-        <div class="dash-chart">${hbar({ rows: channels, value: x => x.leads, label: x => x.label, format: fmtInt, width: 380, height: 28, gap: 6,
-          colorFn: () => 'var(--navy)', tipFn: x => `<b>${esc(x.label)}</b>${fmtInt(x.leads)} leads` })}</div></section>
-    </div>
-
-    <div class="dash-bottom">
-      <section class="card dash-box" data-go="${href('kpis')}"><div class="card-head"><h2>From email to client</h2><span class="sub">${esc(r.label.toLowerCase())}</span></div>
-        <div class="dash-steps">${steps.map(([l, n], i) => `<div class="dash-step"><b>${fmtInt(n)}</b><span>${esc(l)}</span>${i ? `<em>${steps[i - 1][1] ? fmtPct(n / steps[i - 1][1]) : '-'}</em>` : '<em>&nbsp;</em>'}</div>`).join('<i aria-hidden="true">→</i>')}</div></section>
-      <section class="card dash-box"><div class="card-head"><h2>Coming up</h2><span class="sub">next 14 days</span></div>
-        ${soon.length ? `<ul class="dash-soon" id="dash-soon">${soon.map(x => `<li data-go="${x.go}"><span class="d"><b>${esc(fmtDate(x.on, { day:'numeric' }))}</b>${esc(fmtDate(x.on, { month:'short' }))}</span><span><span class="tag">${esc(x.kind)}</span><b>${esc(x.name)}</b></span></li>`).join('')}</ul>`
-          : `<div class="card-body">${emptyState('Nothing in the next two weeks', 'Events, RFP deadlines and client reviews show here.')}</div>`}</section>
-    </div>
-    </div>`;
-  },
-  mount(root){
-    bindGo(root); bindTips(root);
-    bindDateRange(root, UI.dash, render);
-  }
-};
-
 Views.kpis = { title:'KPIs',
   render(){
     const f = UI.filters, s = Metrics.summary(f), r = Metrics.range(f);
@@ -4222,9 +4158,36 @@ Views.kpis = { title:'KPIs',
     const closedPrev = back ? Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, back) && Metrics.happenedIn(x.funded_on, back)) : [];
     const aumNow = sum(closedNow, x => x.funded_aum || 0), aumPrev = sum(closedPrev, x => x.funded_aum || 0);
     const laneTotal = k => sum(lanes, x => x[k] || 0);
+    const fn = Metrics.stageFunnel(f), fnPrev = back ? Metrics.stageFunnel(back) : null;
+    const tile = (label, value, sub, go, chip, tone) => `<button class="dash-tile ${tone || ''}" type="button" data-go="${go}"><span class="lbl">${esc(label)}</span><span class="row"><span class="val">${value}</span>${chip || ''}</span><span class="sub">${sub}</span></button>`;
+    /* Where the revenue comes from: the yearly fee on the AUM each lane funded, the last six quarters
+       up to the one in progress, then the period picked. Every filter but the period applies. */
+    const today0 = new Date(), quarters = [...Array(6)].map((_, i) => { const d = new Date(today0.getFullYear(), Math.floor(today0.getMonth() / 3) * 3 - (5 - i) * 3, 1);
+      return { y: d.getFullYear(), n: Math.floor(d.getMonth() / 3) + 1 }; })
+      .map(x => ({ ...x, lanes: Metrics.lanes({ ...f, period:'quarter', qy: String(x.y), qn: String(x.n), from:'', to:'' }) }));
+    const lanesPrev = back ? Metrics.lanes(back) : [];
+    const aumIn = (list, key) => (list.find(y => y.key === key) || {}).funded_aum || 0;
+    const revLanes = lanes.filter(x => x.funded_aum || aumIn(lanesPrev, x.key) || quarters.some(q => aumIn(q.lanes, x.key)));
+    const revCell = aum => aum ? `<td class="num">${fmtUSD(aum * fee)}<span class="sub">${fmtUSD(aum)} AUM</span></td>` : '<td class="num"><span class="muted">-</span></td>';
+    const revRow = (label, aumOf) => `<td>${label}</td>${quarters.map(q => revCell(aumOf(q.lanes))).join('')}${revCell(aumOf(lanes))}
+      <td class="num">${aumNow && aumOf(lanes) ? fmtPct(aumOf(lanes) / aumNow) : '<span class="muted">-</span>'}</td>
+      <td class="num">${back && (aumOf(lanes) || aumOf(lanesPrev)) ? deltaChip(aumOf(lanes), aumOf(lanesPrev)) || '<span class="muted">same</span>' : '<span class="muted">-</span>'}</td>`;
+    /* The next fourteen days. */
+    const iso = d => d.toISOString().slice(0, 10), from = iso(Rules.startOfDay(new Date())), to = iso(Rules.addDays(new Date(), 14));
+    const inWindow = d => d && d >= from && d <= to;
+    const soon = [
+      ...Repo.events.all().filter(e => evCounts(e) && inWindow(e.start_on)).map(e => ({ on: e.start_on, kind: 'Event', name: e.name, go: href('events', { ev: e.id }) })),
+      ...Repo.rfps.all().filter(x => inWindow(x.due_on) && !['submitted', 'won', 'lost', 'declined', 'cancelled'].includes(x.status)).map(x => ({ on: x.due_on, kind: 'RFP due', name: x.title, go: href('rfps') })),
+      ...Repo.reviews.all().filter(x => inWindow(x.next_review_on)).map(x => ({ on: x.next_review_on, kind: 'Client review', name: x.name, go: href('reviews') })),
+    ].sort((a, b) => a.on.localeCompare(b.on));
+    const steps = [['Emails sent', fn.emails], ['Replied', fn.replies], ['Next steps', fn.next], ['Onboarding', fn.onb], ['Funded', fn.clients]];
     /* Everything except the period is kept, so a state or segment filter
        applies to all four columns the same way. */
-    const period = p => Metrics.summary({ ...f, period:p, from:'', to:'' });
+    /* Clients and AUM funded are counted by the day they funded, like the numbers at the top and the
+       revenue by quarter, so the four columns say what came in during each span. */
+    const period = p => { const g = { ...f, period:p, from:'', to:'' };
+      const won = Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, g) && Metrics.happenedIn(x.funded_on, g));
+      return { ...Metrics.summary(g), funded: won.length, funded_aum: sum(won, x => x.funded_aum || 0) }; };
     const sbs = { qtd: period('qtd'), q_last: period('q_last'), ytd: period('ytd'), y_last: period('y_last') };
     const sbsRow = (label, pick, fmt) => {
       const cellOf = (a, b) => { const now = pick(a), was = pick(b);
@@ -4234,10 +4197,6 @@ Views.kpis = { title:'KPIs',
       return `<tr><th scope="row">${esc(label)}</th>${cellOf(sbs.qtd, sbs.q_last)}<td class="num">${fmt(pick(sbs.q_last))}</td>`
         + `${cellOf(sbs.ytd, sbs.y_last)}<td class="num">${fmt(pick(sbs.y_last))}</td></tr>`;
     };
-    const headline = (label, value, note) => `<section class="card col-4"><div class="card-body">
-      <div class="muted small" style="text-transform:uppercase;letter-spacing:.07em;font-weight:600">${esc(label)}</div>
-      <div style="font-size:34px;font-weight:600;letter-spacing:-.025em;margin:6px 0 2px">${value}</div>
-      <div class="muted small">${note}</div></div></section>`;
     const laneRow = x => { const open2 = UI.kpi.expanded.has(x.key);
       return `<tr class="row-link ${open2 ? 'is-open' : ''}" data-lane="${x.key}" style="cursor:pointer">
         <td><span class="corr-toggle" aria-hidden="true">${open2 ? '\u25be' : '\u25b8'}</span>${esc(x.label)}</td>
@@ -4272,17 +4231,26 @@ Views.kpis = { title:'KPIs',
 
     return `
     <div class="page-head"><div><h1>KPIs</h1>
-      <p>Every number is counted from the touchpoints, opportunities and reminders underneath it, so there is no separate reporting sheet to keep up to date.</p></div>
+      <p>How the business is doing, against the period before. Every number is counted from the touchpoints, opportunities and reminders underneath it.</p></div>
       <div class="page-actions">${demoTag}${dateRange(f, r)}</div></div>
     ${filterBar({ hide:['period'] })}
-    <div class="dash-grid" style="margin-bottom:16px">
-      ${headline('New AUM funded', fmtUSD(aumNow) || '$0',
-        prev ? `Previous ${esc(r.prev_label)}: ${fmtUSD(aumPrev) || '$0'}` : 'In this period')}
-      ${headline('Clients closed', fmtInt(closedNow.length),
-        prev ? `Previous ${esc(r.prev_label)}: ${fmtInt(closedPrev.length)}` : 'In this period')}
-      ${headline('Active pipeline potential', fmtUSD(potential) || '$0',
-        `Across ${fmtInt(openOpps.length)} open opportunit${openOpps.length === 1 ? 'y' : 'ies'}, as it stands today`)}
+    <div class="dash-tiles" style="margin-bottom:16px">
+      ${tile('New AUM funded', fmtUSD(aumNow) || '$0', back ? `vs ${fmtUSD(aumPrev) || '$0'} ${esc(r.prev_label)}` : esc(r.label), href('pipeline', { stage:'funded' }), back ? deltaChip(aumNow, aumPrev) : '')}
+      ${tile('Est. yearly revenue', fmtUSD(aumNow * fee) || '$0', back ? `vs ${fmtUSD(aumPrev * fee) || '$0'}, at ${fmtPct(fee, 2)} of AUM` : `at ${fmtPct(fee, 2)} of AUM`, href('pipeline', { stage:'funded' }), back ? deltaChip(aumNow, aumPrev) : '', 'good')}
+      ${tile('New clients', fmtInt(closedNow.length), back ? `vs ${fmtInt(closedPrev.length)} ${esc(r.prev_label)}` : esc(r.label), href('pipeline', { stage:'funded' }), back ? deltaChip(closedNow.length, closedPrev.length) : '')}
+      ${tile('Pipeline', fmtUSD(potential) || '$0', `${fmtInt(openOpps.length)} open opportunit${openOpps.length === 1 ? 'y' : 'ies'}, today`, href('pipeline'))}
+      ${tile('Response rate', fmtPct(fn.email_to_reply || 0), `of ${fmtInt(fn.emails)} emails sent`, href('touchpoints'), fnPrev ? deltaChip(fn.email_to_reply || 0, fnPrev.email_to_reply || 0, { pct:true }) : '')}
     </div>
+
+    <section class="card" style="margin-bottom:16px"><div class="card-head"><h2>Where the revenue comes from</h2>
+      <span class="sub">Estimated yearly fee (${fmtPct(fee, 2)} of the AUM funded), by lane and quarter</span></div>
+      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Lane</th>
+        ${quarters.map(q => `<th class="num">Q${q.n} ${q.y}</th>`).join('')}<th class="num">${esc(r.label)}</th><th class="num">Share</th><th class="num">${back ? 'vs ' + esc(r.prev_label) : 'Change'}</th></tr></thead>
+      <tbody>${revLanes.map(x => `<tr class="row-link" data-href="${href('pipeline', { stage:'funded' })}">${revRow(esc(x.label), list => aumIn(list, x.key))}</tr>`).join('')
+        || `<tr><td colspan="${quarters.length + 4}">${emptyState('No AUM funded in these quarters', 'A client counts here once their opportunity is marked funded, with the amount.')}</td></tr>`}</tbody>
+      ${revLanes.length ? `<tfoot><tr>${revRow('Total', list => sum(list, y => y.funded_aum || 0))}</tr></tfoot>` : ''}</table></div>
+      <div class="card-foot">Each client counts under the lane that brought them in, in the quarter they funded. The share is of the period picked above.</div></section>
+
     <section class="card col-12" style="margin-bottom:16px"><div class="card-head">
       <h2>This quarter and this year, side by side</h2>
       <span class="sub">Against the same span a quarter and a year ago. Every other filter still applies.</span></div>
@@ -4299,6 +4267,7 @@ Views.kpis = { title:'KPIs',
           ${sbsRow('Onboarding', x => x.onboarding, fmtInt)}
           ${sbsRow('Clients funded', x => x.funded, fmtInt)}
           ${sbsRow('AUM funded', x => x.funded_aum, v => fmtUSD(v) || '$0')}
+          ${sbsRow('Est. yearly revenue', x => x.funded_aum * fee, v => fmtUSD(v) || '$0')}
         </tbody></table></div></section>
 
     <section class="card" style="margin-bottom:16px"><div class="card-head"><h2>What happened in this period</h2><span class="sub">By lane. Click a row for the detail</span></div>
@@ -4313,6 +4282,14 @@ Views.kpis = { title:'KPIs',
         <td class="num">${laneTotal('touches') ? fmtPct(laneTotal('replies')/laneTotal('touches')) : '-'}</td>
         <td class="num">${laneTotal('touches') ? fmtPct(laneTotal('next_steps')/laneTotal('touches')) : '-'}</td></tr></tfoot></table></div>
       <div class="card-foot">A dash means the measure does not apply to that lane. Events count every event held in the period, whoever they brought in.</div></section>
+
+    <div class="dash-bottom" style="margin-bottom:16px">
+      <section class="card dash-box" data-go="${href('pipeline')}"><div class="card-head"><h2>From email to client</h2><span class="sub">${esc(r.label.toLowerCase())}</span></div>
+        <div class="dash-steps">${steps.map(([l, n], i) => `<div class="dash-step"><b>${fmtInt(n)}</b><span>${esc(l)}</span>${i ? `<em>${steps[i - 1][1] ? fmtPct(n / steps[i - 1][1]) : '-'}</em>` : '<em>&nbsp;</em>'}</div>`).join('<i aria-hidden="true">→</i>')}</div></section>
+      <section class="card dash-box"><div class="card-head"><h2>Coming up</h2><span class="sub">next 14 days</span></div>
+        ${soon.length ? `<ul class="dash-soon" id="dash-soon" style="max-height:220px">${soon.map(x => `<li data-go="${x.go}"><span class="d"><b>${esc(fmtDate(x.on, { day:'numeric' }))}</b>${esc(fmtDate(x.on, { month:'short' }))}</span><span><span class="tag">${esc(x.kind)}</span><b>${esc(x.name)}</b></span></li>`).join('')}</ul>`
+          : `<div class="card-body">${emptyState('Nothing in the next two weeks', 'Events, RFP deadlines and client reviews show here.')}</div>`}</section>
+    </div>
 
     <div class="dash-grid" style="margin-bottom:16px">
       <section class="card col-6"><div class="card-head"><h2>Where things stand now</h2><span class="sub">Open opportunities, today</span></div>
@@ -4336,20 +4313,10 @@ Views.kpis = { title:'KPIs',
         delta: prev ? deltaChip(s.leads, prev.leads) : '', sub: prevNote(prev && prev.leads, fmtInt, `${fmtInt(s.open_pipeline)} with an open opportunity`) })}
       ${card({ label:'Outreach touches', icon:ICONS.send, value: fmtInt(s.outreach), go: href('touchpoints'),
         delta: prev ? deltaChip(s.outreach, prev.outreach) : '', sub: prevNote(prev && prev.outreach, fmtInt, `${fmtInt(s.emails)} emails, ${fmtInt(s.dials)} dials, ${fmtInt(s.meetings)} meetings`) })}
-      ${card({ label:'Response rate', icon:ICONS.reply, value: fmtPct(s.response_rate), go: href('touchpoints'),
-        delta: prev ? deltaChip(s.response_rate, prev.response_rate, { pct:true }) : '', sub: prevNote(prev && prev.response_rate, fmtPct, `${fmtInt(s.responded)} of ${fmtInt(s.leads)} leads replied`) })}
       ${card({ label:'Calls booked', icon:ICONS.calendar, value: fmtInt(s.calls), go: href('pipeline'),
         delta: prev ? deltaChip(s.calls, prev.calls) : '', sub: prevNote(prev && prev.calls, fmtInt, `${fmtPct(s.lead_to_call)} of leads reached a call`) })}
-    </div>
-    <div class="kpis">
-      ${card({ label:'Reminders due', icon:ICONS.bell, value: fmtInt(s.reminders_due), tone: s.reminders_overdue ? 'alert' : '', go: href('reminders'),
-        sub: `${fmtInt(s.reminders_overdue)} overdue, ${fmtInt(s.reminders_open)} open in total` })}
       ${card({ label:'Onboarding', icon:ICONS.box, value: fmtInt(s.onboarding), tone:'warn', go: href('pipeline',{stage:'onboarding'}),
         sub: `${fmtUSD(s.onboarding_aum)} expected to fund` })}
-      ${card({ label:'Funded clients', icon:ICONS.check, value: fmtInt(s.funded), tone:'good', go: href('pipeline',{stage:'funded'}),
-        delta: prev ? deltaChip(s.funded, prev.funded) : '', sub:'Onboarding and funded are counted separately' })}
-      ${card({ label:'Funded AUM', icon:ICONS.dollar, value: fmtUSD(s.funded_aum), tone:'good', go: href('pipeline',{stage:'funded'}),
-        delta: prev ? deltaChip(s.funded_aum, prev.funded_aum) : '', sub:`Est. annual revenue ${fmtUSD(s.funded_aum*fee)} at ${fmtPct(fee,2)}` })}
     </div>
     <div class="dash-grid">
       <section class="card col-12"><div class="card-head"><h2>Outreach and what it turned into</h2><span class="sub">By quarter</span></div><div class="card-body">
@@ -4477,7 +4444,7 @@ Views.mailmerge = { title:'Mass Email',
     const dueAll = Merge.due().filter(x => inScope.has(x.contact.id));
 
     return `<div class="page-head"><div><h1>Emails to send</h1><p>Pick a letter, check who gets it, send. Nothing leaves this screen until you press the button yourself.</p></div>
-      <div class="page-actions">${demoTag}<a class="btn" href="${href('dashboard')}">Back to dashboard</a></div></div>
+      <div class="page-actions">${demoTag}<a class="btn" href="${href('kpis')}">Back to KPIs</a></div></div>
 
     <section class="card" style="margin-bottom:16px"><div class="card-body">
       <div class="stephead"><span class="stepnum">1</span><h2>Which letter are you sending?</h2></div>
@@ -4566,8 +4533,8 @@ Views.mailmerge = { title:'Mass Email',
     root.querySelector('#mm-preview')?.addEventListener('click', async () => {
       const body = root.querySelector('#mm-body').value, to = root.querySelector('.mm-head dd')?.textContent || '', subj = root.querySelector('#mm-subj')?.value || '';
       if (Store.live && !Gmail.blocker()){ try { await Gmail.prepare(); } catch (err){ return Toast.show(err.message, { kind:'warn', ms: 8000 }); } }
-      const noSig = Store.live && Gmail.me && !Gmail.me.signature;
-      const m = Modal.open({ title: 'As it arrives in their inbox', wide: true, body: `<p class="muted small" style="margin-bottom:8px">To ${esc(to)} · ${esc(subj)}</p><div class="mm-html">${Gmail.html(body)}</div>${noSig ? '<p class="muted small" style="margin-top:8px">No signature is set up in this Gmail account, or Google did not allow reading it: your name and the firm go at the foot. Gmail > Settings > See all settings > Signature.</p>' : !Store.live ? '<p class="muted small" style="margin-top:8px">Live, your Gmail signature goes here.</p>' : ''}`,
+      const noSig = Store.live && Gmail.sigNote();
+      const m = Modal.open({ title: 'As it arrives in their inbox', wide: true, body: `<p class="muted small" style="margin-bottom:8px">To ${esc(to)} · ${esc(subj)}</p><div class="mm-html">${Gmail.html(body)}</div>${noSig ? '<p class="banner warn" style="margin-top:8px">' + esc(noSig) + '</p>' : !Store.live ? '<p class="muted small" style="margin-top:8px">Live, your Gmail signature goes here.</p>' : ''}`,
         foot: '<button class="btn btn-primary" type="button" data-ok>Close</button>' });
       m.querySelector('[data-ok]').onclick = () => Modal.close(); });
     root.querySelector('#mm-book')?.addEventListener('change', e => { st.book = e.target.checked; st.edits = {}; render(); });
@@ -4609,7 +4576,8 @@ Views.mailmerge = { title:'Mass Email',
       try { await Gmail.prepare();
         const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book === true), c) };
         await Gmail.send({ to: Gmail.email, subject: '[Test] ' + L.subject, text: L.body });
-        Toast.show('Test sent to ' + Gmail.email + ', filled in as for ' + c.full_name, { kind:'ok' }); render();
+        const sn = Gmail.sigNote();
+        Toast.show('Test sent to ' + Gmail.email + ', filled in as for ' + c.full_name + (sn ? '. ' + sn : ''), { kind: sn ? 'warn' : 'ok', ms: sn ? 14000 : undefined }); render();
       } catch (err){ Toast.show('Test not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
     });
     root.querySelector('#mm-gsend')?.addEventListener('click', async () => {
@@ -4619,7 +4587,7 @@ Views.mailmerge = { title:'Mass Email',
       try { await Gmail.prepare(); } catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
       const other = Live.email && Gmail.email && Live.email.toLowerCase() !== Gmail.email.toLowerCase();
       const ok = await Modal.confirm({ title: `Send ${rows.length} email${rows.length === 1 ? '' : 's'} now?`,
-        message: `They go out from ${Gmail.email}, one at a time${other ? ' (not the account you signed in to the CRM with, ' + Live.email + ')' : ''}.${!Gmail.me.signature ? ' You have no signature set up in Gmail, so your name and the firm go at the foot.' : ''} Each person is marked No response and their next follow-up is set.`,
+        message: `They go out from ${Gmail.email}, one at a time${other ? ' (not the account you signed in to the CRM with, ' + Live.email + ')' : ''}.${Gmail.sigNote() ? ' ' + Gmail.sigNote() : ''} Each person is marked No response and their next follow-up is set.`,
         okLabel: `Send ${rows.length}` });
       if (!ok) return;
       st.sendLog = st.sendLog || {}; st.sending = { done: 0, total: rows.length, queue: rows.map(r => r.contact.id), current: null }; render();
@@ -4683,7 +4651,7 @@ Views.workflow = { title:'Workflow',
       <div class="flow" style="margin-top:10px">
         ${step(9,'Funded','Assets landed. The funded date and the funded AUM are stamped on the opportunity, which is what the AUM reporting reads.', `<span>${fmtInt(w.funded)} clients</span><b>${fmtUSD(w.funded_aum)}</b>`, href('pipeline',{stage:'funded'}), 'is-win')}
         ${arrow}
-        ${step(10,'Dashboard','Channel, segment, state, event and quarter reporting, all computed from the rows above rather than kept in a separate tab.', `<span>Closed as lost</span><b>${fmtInt(w.lost)}</b>`, href('dashboard'), 'is-win')}
+        ${step(10,'KPIs','Channel, segment, state, event and quarter reporting, all computed from the rows above rather than kept in a separate tab.', `<span>Closed as lost</span><b>${fmtInt(w.lost)}</b>`, href('kpis'), 'is-win')}
       </div></div></section>
     <div class="dash-grid">
       <section class="card col-6"><div class="card-head"><h2>Where each spreadsheet column goes</h2></div><div class="card-body">
@@ -6483,7 +6451,7 @@ Views.event = { title: 'Event',
     return `<div class="page-head"><div><a href="${href('events')}" class="small">All events</a><h1 style="margin-top:2px">${esc(ev.name)}</h1>
         <p>${esc(dates)}${ev.host_org ? ' · ' + esc(ev.host_org) : ''}</p></div>
       <div class="page-actions">${url ? `<a class="btn" href="${esc(url)}" target="_blank" rel="noopener">Event page</a>` : ''}<a class="btn" href="${FINDER_URL}" target="_blank" rel="noopener">Event Finder</a>
-        <label class="sr-only" for="ev-att">Status</label><select id="ev-att" style="width:auto">${[['going', 'Going'], ['maybe', 'Maybe'], ['attended', 'Attended'], ['undecided', 'Not decided'], ['not_going', 'Not going']].map(([v, l]) => `<option value="${v}" ${status === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <label class="sr-only" for="ev-att">Status</label><select id="ev-att" style="width:auto">${[['going', 'Going'], ['attended', 'Attended'], ['not_going', 'Not going']].map(([v, l]) => `<option value="${v}" ${status === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
         <button class="btn" type="button" id="ev-del">Delete</button></div></div>
     <div class="dash-grid">
       <section class="card col-6"><div class="card-head"><h2>Details</h2></div><div class="card-body"><dl class="kv">
@@ -6666,7 +6634,7 @@ Views.events = { title:'Events',
     const stKey = r => r.event.attendance || (r.upcoming || isNow(r) ? 'going' : 'attended');
     const pickSt = st.status || 'All', shown = pickSt === 'All' ? everyEv.filter(r => r.event.attendance !== 'not_going') : everyEv.filter(r => stKey(r) === pickSt);
     const rows = q ? shown.filter(r => r.event.name.toLowerCase().includes(q) || hitEvents.has(r.event.id)) : shown;
-    const statusOf = r => { const a = r.event.attendance; return a === 'not_going' ? ['Not going', 'st-lost'] : a === 'undecided' ? ['Not decided', 'st-upcoming'] : a === 'maybe' ? ['Maybe', 'st-upcoming'] : isNow(r) ? ['Today', 'st-today'] : r.upcoming ? ['Going', 'st-upcoming'] : ['Attended', 'st-funded']; };
+    const statusOf = r => { const a = r.event.attendance; return a === 'not_going' ? ['Not going', 'st-lost'] : isNow(r) ? ['Today', 'st-today'] : r.upcoming ? ['Going', 'st-upcoming'] : ['Attended', 'st-funded']; };
     const selId = Number(params && params.ev) || (rows.find(r => !r.upcoming) || rows[0] || {}).event?.id;
     const sel = everyEv.find(r => r.event.id === selId) || null;
 
@@ -6701,7 +6669,7 @@ Views.events = { title:'Events',
     <div class="page-head"><div><h1>Events</h1></div><div class="page-actions">${demoTag}<a class="btn btn-sm" href="https://claude.ai/artifact/UV7sCKMc56UKQubKaA7hsK" target="_blank" rel="noopener" title="Jon's Gaard Event Finder on claude.ai">Event Finder</a><button class="btn btn-sm" type="button" id="ev-sync" title="Add events from your Google Calendar or your Event ROI Tracker file, for anything the Event Finder did not send">Import events</button></div></div>
     ${filterBar({ compact:true, hide:['channel', 'stage', 'credit'],
       // The format is one pick like the other filters: All formats, In person or Virtual
-      extra: (() => { const SS = [['All','All statuses'], ['attended','Attended'], ['going','Going'], ['maybe','Maybe'], ['undecided','Not decided'], ['not_going','Not going']], cs = SS.find(([v]) => v === pickSt) || SS[0];
+      extra: (() => { const SS = [['All','All statuses'], ['attended','Attended'], ['going','Going'], ['not_going','Not going']], cs = SS.find(([v]) => v === pickSt) || SS[0];
         const stPick = `<div class="multi pick"><button class="btn" type="button" id="ev-st-btn" aria-haspopup="true" aria-expanded="${UI.openPick === 'evst'}" title="Status">${cs[1]}<span class="caret">${UI.openPick === 'evst' ? '&#9652;' : '&#9662;'}</span></button>${UI.openPick === 'evst' ? `<div class="multi-menu" role="menu" aria-label="Status">${SS.map(([v, l]) => `<button class="pick-opt" type="button" role="menuitemradio" aria-checked="${v === pickSt}" data-evst="${v}">${l}</button>`).join('')}</div>` : ''}</div>`;
         return stPick + (() => { const FM = [['All','All formats'], ['in_person','In person'], ['virtual','Virtual']], cur = FM.find(([v]) => v === fmt) || FM[0];
         return `<div class="multi pick"><button class="btn" type="button" id="ev-fmt-btn" aria-haspopup="true" aria-expanded="${!!(UI.openPick === 'evfmt')}" title="Format">${cur[1]}<span class="caret">${(UI.openPick === 'evfmt') ? '&#9652;' : '&#9662;'}</span></button>
@@ -8094,7 +8062,6 @@ const NAV = [
   ['reminders','Follow-ups','<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
   ['events','Events','<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'],
   ['rfps','RFPs','<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>'],
-  ['dashboard','Dashboard','<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="5"/><rect x="13" y="10" width="8" height="11"/><rect x="3" y="13" width="8" height="8"/></svg>'],
   ['kpis','KPIs','<svg viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>'],
 ];
 /* Which sidebar entry owns each screen, and the tabs that screen sits in. */
@@ -8119,12 +8086,12 @@ function tabStrip(name){
 }
 const ALIAS = { organizations:'organization', contacts:'contact', events:'event' };
 function parseHash(){
-  const h = (location.hash || '#/dashboard').replace(/^#\/?/, '');
+  const h = (location.hash || '#/kpis').replace(/^#\/?/, '');
   const [path, qs] = h.split('?'); const parts = path.split('/').filter(Boolean);
   const params = {}; if (qs) for (const kv of qs.split('&')){ const [k,v] = kv.split('='); if (k) params[decodeURIComponent(k)] = decodeURIComponent(v||''); }
-  let name = parts[0] || 'dashboard';
+  let name = parts[0] || 'kpis';
   if (parts[1] && ALIAS[name]){ params.id = parts[1]; name = ALIAS[name]; }
-  if (!Views[name]) name = 'dashboard';
+  if (!Views[name]) name = 'kpis';   // also an old #/dashboard link: the Dashboard is part of KPIs now
   return { name, params };
 }
 /* The notices already opened, so the bell counts only what is new to this
@@ -8275,13 +8242,13 @@ function render(){
     Sheet.enhance(main, name);
   } catch (err){
     console.error(err);
-    main.innerHTML = `<div class="banner danger"><b>This view could not be drawn.</b> ${esc(err.message)}</div><a class="btn" href="${href('dashboard')}">Back to the dashboard</a>`;
+    main.innerHTML = `<div class="banner danger"><b>This view could not be drawn.</b> ${esc(err.message)}</div><a class="btn" href="${href('kpis')}">Back to KPIs</a>`;
   }
   renderNav();
   const crumb = name === 'contact' ? (Repo.contacts.byId(Number(params.id))?.full_name || 'Contact')
     : name === 'organization' ? (Repo.organizations.byId(Number(params.id))?.name || 'Organization') : view.title;
   // the page's own heading names it; the top bar holds only search and the account
-  document.title = (name === 'dashboard' ? '' : crumb + ' | ') + 'GAARD Capital CRM';
+  document.title = (name === 'kpis' ? '' : crumb + ' | ') + 'GAARD Capital CRM';
   main.scrollTop = y;
   const wraps = main.querySelectorAll('.table-wrap, .ev-scroll');
   innerScroll.forEach((pos, i) => { if (wraps[i]){ wraps[i].scrollTop = pos.top; wraps[i].scrollLeft = pos.left; } });

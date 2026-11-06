@@ -28,7 +28,7 @@ The CRM replaces Gaard's outreach spreadsheets. It keeps, in one place:
 - every **email, call and meeting** with them (called *activity*), each with its **outcome** (interested, not now, no response, and so on);
 - the **follow-ups** each outcome schedules;
 - the **pipeline** from first call to funded client;
-- **events**, **RFPs**, portfolio **review** dates, and the **numbers** counted from all of it (Dashboard and KPIs).
+- **events**, **RFPs**, portfolio **review** dates, and the **numbers** counted from all of it (KPIs).
 
 | What | Where |
 |---|---|
@@ -52,7 +52,7 @@ The CRM works in any modern browser, on a computer or a phone. On a phone the me
 
 ## 3. The screens, one by one
 
-The menu, top to bottom: **Contacts, Import, Mass Email, Follow-ups, Events, RFPs, Dashboard, KPIs.** Settings and Sign out are in the account menu at the top right. The **bell** at the top right holds what needs attention.
+The menu, top to bottom: **Contacts, Import, Mass Email, Follow-ups, Events, RFPs, KPIs.** The CRM opens on KPIs. Settings and Sign out are in the account menu at the top right. The **bell** at the top right holds what needs attention.
 
 ### The bell (Needs attention)
 
@@ -140,7 +140,7 @@ Click a line to open the person. The search box finds a name.
 
 ### Events
 
-A one-page dashboard of events that everyone on the team sees: totals, people met per event, in person against virtual, events against cold email, and every event beside the people met there. Filter by period, state, segment, **status** (Attended, Going, Maybe, Not going) and format. Not going events show only under that status and leave the totals. Click an event to see who was met there; click its **name** to open its own page, with its details, results, the event's web page and the Event Finder, where you set its status or delete it. An event people were met at cannot be deleted, because it is part of their history: set it to Not going. Search a name to see every event that person was met at. **Import events** is the fallback for anything the Event Finder did not send: your Google Calendar or your Event ROI Tracker file (section 6).
+A one-page dashboard of events that everyone on the team sees: totals, people met per event, in person against virtual, events against cold email, and every event beside the people met there. Filter by period, state, segment, **status** (Attended, Going, Not going) and format. Only events you marked Going or Attended in the Event Finder come in (section 6). Not going events show only under that status and leave the totals. Click an event to see who was met there; click its **name** to open its own page, with its details, results, the event's web page and the Event Finder, where you set its status or delete it. An event people were met at cannot be deleted, because it is part of their history: set it to Not going. Search a name to see every event that person was met at. **Import events** is the fallback for anything the Event Finder did not send: your Google Calendar or your Event ROI Tracker file (section 6).
 
 ### RFPs
 
@@ -148,19 +148,19 @@ Every request for proposal: organization, mandate, estimated AUM, dates, status 
 
 The log reads like the Contacts list: one tight row per RFP with the name held on the left as you scroll sideways, every heading sorting, a search over name, issuer, reference and notes, the same zoom, and pages at the bottom. It can also widen, reorder and copy columns and rows like any other sheet.
 
-### Dashboard
+### KPIs
 
-One screen of headline numbers and charts: people to contact, new AUM funded, new clients, pipeline, response rate (each against the period before), the pipeline by stage, AUM funded by month, new leads by channel, the funnel from email to client, and what is coming up in the next 14 days.
+One page for how the business is doing (the Dashboard and the KPIs became one page in November 2026). Tabs: **KPIs** and **Pipeline** (every open opportunity by stage). Every figure is counted from the activity, opportunities and follow-ups themselves; nothing is typed in twice. From the top:
+
+- **Five numbers**, each against the period before: new AUM funded, estimated yearly revenue (0.45% of that AUM), new clients, the pipeline today, and the response rate.
+- **Where the revenue comes from**: the estimated yearly fee on the AUM funded, lane by lane (cold outreach, referrals, events, RFPs...), for each of the last six quarters, then the period you picked, its share of the total, and the change against the period before. This is where to see which kind of work is paying, and how that moves over time.
+- **This quarter and this year, side by side** (below).
+- **What happened in this period**, lane by lane, then **from email to client** (the funnel) and what is **coming up** in the next 14 days.
+- Where things stand now, emails by state, the counts by quarter and by channel, the pipeline, and **More reporting** (segment, state, events, campaigns).
 
 **Choosing the period.** The button at the top right shows the stretch being counted and its two dates. Press it for three ways to change it: the usual stretches (last 30 days, last 90 days, this quarter, last quarter, this year, last year, all time); **any quarter of any year**, with arrows to step the year and Q1 to Q4 beneath; and **From** and **To** dates with the calendar, for any two points you like. Picking either date makes it a custom range, and the panel stays open so you can set the second one. The same picker is on the other screens, in the filter bar.
 
-### KPIs
-
-Tabs: **KPIs** (the detailed tables: by quarter, by channel, events, campaigns, and the other counts) and **Pipeline** (every open opportunity by stage). Every figure is counted from the activity, opportunities and follow-ups themselves; nothing is typed in twice.
-
-**Choosing the period** works the same here as on the Dashboard: the button at the top right of the page shows the stretch being counted and its two dates, and opens the presets, any quarter of any year, and From and To with the calendar.
-
-**This quarter and this year, side by side** is near the top: emails sent, dials, replies, calls booked, next steps, onboarding, clients funded and AUM, each against the same stretch a quarter ago and a year ago, with the change beside it. No toggling back and forth to compare.
+**This quarter and this year, side by side**: emails sent, dials, replies, calls booked, next steps, onboarding, clients funded, AUM funded and estimated yearly revenue, each against the same stretch a quarter ago and a year ago, with the change beside it. Clients, AUM and revenue are counted by the day the client funded, like the numbers at the top. No toggling back and forth to compare.
 
 **Which channel gets the credit.** Somebody can be cold-emailed with no reply, then met at an event, then booked a call. The emails and the event are both still counted as activity, but the **conversion** is credited to whatever actually produced the call, which is the event. The filter bar on KPIs and Pipeline has a switch between *what converted them* (the normal reading) and *how we first met* (the old one). It is only on those two screens, because it changes how figures are counted rather than which people are listed. A person's page shows the route in one line, for example "Cold email (no response), met at Jackson Hole, call."
 
@@ -224,7 +224,7 @@ Google asks your permission the first time (a Google window: allow the CRM to se
 
 **Organization names read naturally.** In a letter, the organization's name is tidied for the sentence ("I am curious how ____ manages its investments."): Inc., LLC and Corp. are dropped, an acronym in brackets is dropped, "Of" and "And" become lowercase, and "the" is added to a bare name such as "Community Center" (not to Foundation, Alliance, Association, Trust and the like). Change any one letter by typing in it.
 
-**Preview**, under the letter, shows the email the way the person will see it, with your Gmail signature.
+**Preview**, under the letter, shows the email the way the person will see it, with your Gmail signature. When your signature cannot be added, Preview, the test and the send all say why in a yellow note, and how to fix it (see "Your signature" below).
 
 ### Templates (Mass Email > Email templates)
 
@@ -234,7 +234,11 @@ The letters everyone shares. The list is on the left; the chosen letter on the r
 
 - **Your Google booking link**: your Google Calendar appointment page (Calendar > Create > Appointment schedule > Copy link). It fills `{{booking_link}}` in letters you send.
 - **Calls**: your Zoom link, and who is always invited to your calls (for example Dr. Brogaard). Schedule a call uses both.
-- **Your signature** is the one you set up in Gmail (Gmail > Settings > See all settings > Signature, and choose it for new emails). The CRM reads it and adds it to every letter you send, so it is exactly what your own emails carry. With no signature in Gmail, your name and the firm go at the foot.
+- **Your signature** is the one you set up in Gmail. The CRM reads it and adds it to every letter you send, so it is exactly what your own emails carry. Two things must be true:
+  1. **Gmail has it chosen for new emails.** Google gives the CRM one signature only: the one under *For new emails use*, whatever its name. If you have several (say "Gaard" and a personal one), choose the one for the CRM there. In Gmail: the gear > **See all settings** > **General** > **Signature**, then under **Signature defaults** set **For new emails use** to your signature, and press **Save Changes** at the bottom of the page.
+  2. **You let the CRM read your Gmail settings.** The first time you press Preview or send, Google opens a window asking for two permissions: to send email for you, and to *view your email messages and settings*. **Tick both** (Google may show them as two boxes, or "Select all"). The second is how the CRM reads your signature, and the replies to letters it sent; it reads nothing else. If you left it unticked, press **Preview** again: Google asks again. To start over, remove "Gaard CRM" at myaccount.google.com > Security > Your connections to third-party apps, then press Preview.
+
+  Until both are true, your name and the firm go at the foot instead (for example "Jon Clifford / GAARD Capital"), and the yellow note under Preview says which of the two is missing. After fixing it, press **Preview** to check: the CRM reads the signature again.
 
 ### Staying out of spam
 
@@ -276,7 +280,7 @@ The Event Finder sends your events by itself; **Events > Import events** is for 
 
 Tick what to add, press **Add**. Matched events get their blanks and the tracker's counts filled in.
 
-**Not decided.** The CRM holds every dated event of the Event Finder. One you have not marked shows as **Not decided**: it is in the list and under that status, and stays out of the totals, the KPIs and Coming up. Hiding an event in the Finder takes it off the CRM.
+**Only what we act on.** The CRM holds the events you marked **Going** or **Attended** in the Event Finder, nothing else (Jon's rule, November 2026). An event that is only found, or marked Maybe, stays in the Finder. Taking the mark off, or hiding the event, takes it off the CRM; if people were met there, it stays, marked Not going. Past events count too: mark the ones you went to **Attended**, so you can record who you met there.
 
 **Notes are said once.** The Event Finder tells the CRM about an event every time you change its status, and repeats its note each time. The CRM now keeps one copy of each note instead of stacking up the same line eight times, and the kind of event reads as a word (Networking, not networking).
 
@@ -286,9 +290,9 @@ Jon's Event Finder (a page on claude.ai that searches for Utah events twice a we
 
 1. **Directly from the Finder (the best way, once set up).** The Finder page can already use your claude.ai connectors (it adds events to Google Calendar that way). With the Gaard CRM connector added to your claude.ai (section 9), the Finder can send an event to the CRM the moment you mark it Going or Attended. To set it up once, open the Finder in claude.ai and ask Claude:
 
-   > *In this Gaard Event Finder artifact: whenever I mark an event Going, Maybe or Attended, or save its cost and contacts, send it to my "Gaard CRM" connector, and whenever I take that mark off, send the same event with status not_going: `const mcp = await window.claude.use("mcp"); await mcp.callTool("Gaard CRM", "record_event", { finder_id: the event's id, name, date: "YYYY-MM-DD", end_date, status: "going" | "maybe" | "attended" | "not_going", format: "in_person" | "virtual" | "hybrid", kind: "conference" | "networking" | "webinar" | "workshop" | "other", host, city, state: two letters, cost_usd, people_met, url, notes })`. Do it quietly; if the connector is not there, carry on as before. Add a small "Send to CRM" button on each Going or Attended event too, and show "In the CRM" once it is sent. Use the connector's `list_events` to mark events the CRM already has.*
+   > *In this Gaard Event Finder artifact: whenever I mark an event Going or Attended, or save its cost and contacts, send it to my "Gaard CRM" connector, and whenever I take that mark off (or change it to Maybe), send the same event with status not_going: `const mcp = await window.claude.use("mcp"); await mcp.callTool("Gaard CRM", "record_event", { finder_id: the event's id, name, date: "YYYY-MM-DD", end_date, status: "going" | "attended" | "not_going", format: "in_person" | "virtual" | "hybrid", kind: "conference" | "networking" | "webinar" | "workshop" | "other", host, city, state: two letters, cost_usd, people_met, url, notes })`. Do it quietly; if the connector is not there, carry on as before. Add a small "Send to CRM" button on each Going or Attended event too, and show "In the CRM" once it is sent. Use the connector's `list_events` to mark events the CRM already has.*
 
-   Use the connector name exactly as it appears in claude.ai > Settings > Connectors. To also catch up by itself, ask: *"Each time this Event Finder opens, compare my Going, Maybe and Attended events with list_events and send any the CRM does not have."* An event already in the CRM is updated, never added twice. Taking the mark off removes it from the CRM within a minute, or, if people were met there, marks it Not going.
+   Use the connector name exactly as it appears in claude.ai > Settings > Connectors. To also catch up by itself, ask: *"Each time this Event Finder opens, compare my Going and Attended events with list_events and send any the CRM does not have."* An event already in the CRM is updated, never added twice. Taking the mark off removes it from the CRM within a minute, or, if people were met there, marks it Not going.
 2. **Through Google Calendar.** When you put an event from the Finder on your calendar, the Finder writes "From the Gaard Event Finder" in it. **Events > Import events > From my Google Calendar** picks those up (one click; it is not a background sync).
 3. **Through your Claude, by asking.** With the connector added, ask in claude.ai: *"Look at my Gaard Event Finder and put every event I marked Going or Attended on the Gaard CRM Events page."* Claude uses the CRM's `record_event` tool.
 
@@ -335,9 +339,9 @@ Messy values are cleaned on their own: capitals and spaces in emails, "NR", "no 
 
 **The RFP tracker** connects through the same connector as the Event Finder, so there is nothing new to connect: with Gaard CRM added to your claude.ai (section 9), your RFP agent can write to the log. Ask Claude to change the tracker or the agent once:
 
-> *Whenever an RFP is found and screened, and whenever anything about it changes, send it to my "Gaard CRM" connector with its `record_rfp` tool: rfp_name, issuer, reference_number, final_submission_date, approved_for_submission, reviewed_by, date_reviewed, size_of_aum, conditions_or_limitations, notes, response, date_responded, correspondence, won, plus status, arrangement, winner, how_we_scored and url. Dates are YYYY-MM-DD and AUM a plain number. Use `list_rfps` to see what the CRM already has.*
+> *Whenever we submit an RFP, and whenever anything about a submitted RFP changes (shortlisted, won, lost), send it to my "Gaard CRM" connector with its `record_rfp` tool: rfp_name, issuer, reference_number, final_submission_date, approved_for_submission, reviewed_by, date_reviewed, size_of_aum, conditions_or_limitations, notes, response, date_responded, correspondence, won, plus status, arrangement, winner, how_we_scored and url. Dates are YYYY-MM-DD and AUM a plain number. Use `list_rfps` to see what the CRM already has.*
 
-Everyone on the team sees the same log within a minute. **Copy for the spreadsheet** gives the 13 columns of the RFP Log with their headers.
+Only RFPs we **submit** go in (Jon's rule, November 2026), then each later change: shortlisted (finalist), won or lost. One that was only screened, passed on or not bid stays in the tracker; the connector refuses it and says why. Everyone on the team sees the same log within a minute. **Copy for the spreadsheet** gives the 13 columns of the RFP Log with their headers.
 
 Each RFP row has:
 - **Update**: every column of the log, the status (identified, intend to bid, submitted, finalist, won, lost, declined, cancelled), **who won**, and **how we scored and their feedback**.
