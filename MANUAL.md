@@ -150,17 +150,22 @@ The log reads like the Contacts list: one tight row per RFP with the name held o
 
 ### KPIs
 
-One page for how the business is doing (the Dashboard and the KPIs became one page in November 2026). Tabs: **KPIs** and **Pipeline** (every open opportunity by stage). Every figure is counted from the activity, opportunities and follow-ups themselves; nothing is typed in twice. From the top:
+One page for how the business is doing, read like a Power BI report (the Dashboard and the KPIs became one page in November 2026). Its first question is **which source brings the money in, and for how much effort**, so the firm can put more into what pays. Tabs: **KPIs** and **Pipeline** (every open opportunity by stage). Every figure is counted from the activity, opportunities and follow-ups themselves; nothing is typed in twice. It opens on **this quarter**, so every number has the quarter before to compare with. From the top:
 
-- **Five numbers**, each against the period before: new AUM funded, estimated yearly revenue (0.45% of that AUM), new clients, the pipeline today, and the response rate.
-- **Where the revenue comes from**: the estimated yearly fee on the AUM funded, lane by lane (cold outreach, referrals, events, RFPs...), for each of the last six quarters, then the period you picked, its share of the total, and the change against the period before. This is where to see which kind of work is paying, and how that moves over time.
-- **This quarter and this year, side by side** (below).
-- **What happened in this period**, lane by lane, then **from email to client** (the funnel) and what is **coming up** in the next 14 days.
-- Where things stand now, emails by state, the counts by quarter and by channel, the pipeline, and **More reporting** (segment, state, events, campaigns).
+- **Five numbers**, each against the period before: new AUM funded, estimated yearly revenue (0.45% of that AUM), clients closed, the **active pipeline** (warm opportunities only, with the dormant amount beside it), and the response rate.
+- **Where the money comes from**: one bar per source (cold outreach by segment, affiliates and referrals, events in person and virtual, speaking and workshops, the RFP database), longest first, with its revenue, its share and the change against the period before. The line beneath names the source that brought the most, and how long its clients took to close.
+- **Revenue by quarter**: the last six quarters, each column split by source, so you can see which source is growing and which is fading.
+- **Return by source**: one row per source, the numbers your old Marketing Dashboard tracked and what they lead to. *Effort* (emails and calls, events, or RFPs, whichever is that source's first step), replies and **reply rate**, next steps and **next-step rate** (the darker the cell, the better the source), clients, **revenue**, **cost** (what the events cost), **per $1** (a year's fee for each dollar spent), **days to close** (the middle client's time from first contact to funding) and the **warm pipeline** (the yearly fee the warm opportunities would bring). Click a row for the pipeline.
+- **Still to come**: the open opportunities by source, warm in blue and dormant in grey.
+- **This quarter and this year**: side by side with the same span a quarter and a year ago (below).
+- **From email to client** (the funnel) and what is **coming up** in the next 14 days.
+- **More reporting** (closed until you open it): by segment, by state, events and campaigns.
 
-**Choosing the period.** The button at the top right shows the stretch being counted and its two dates. Press it for three ways to change it: the usual stretches (last 30 days, last 90 days, this quarter, last quarter, this year, last year, all time); **any quarter of any year**, with arrows to step the year and Q1 to Q4 beneath; and **From** and **To** dates with the calendar, for any two points you like. Picking either date makes it a custom range, and the panel stays open so you can set the second one. The same picker is on the other screens, in the filter bar.
+**Speaking / workshops** is its own source: a person met at an event of the kind *workshop*, or at an event Gaard hosted, counts there rather than under Events.
 
-**This quarter and this year, side by side**: emails sent, dials, replies, calls booked, next steps, onboarding, clients funded, AUM funded and estimated yearly revenue, each against the same stretch a quarter ago and a year ago, with the change beside it. Clients, AUM and revenue are counted by the day the client funded, like the numbers at the top. No toggling back and forth to compare.
+**Choosing the period.** The button at the top right shows the stretch being counted and its two dates. The period on KPIs is its own: choosing one here does not filter the Contacts list. Press it for three ways to change it: the usual stretches (last 30 days, last 90 days, this quarter, last quarter, this year, last year, all time); **any quarter of any year**, with arrows to step the year and Q1 to Q4 beneath; and **From** and **To** dates with the calendar, for any two points you like. Picking either date makes it a custom range, and the panel stays open so you can set the second one. The same picker is on the other screens, in the filter bar.
+
+**This quarter and this year, side by side**: emails sent, replies, calls booked, next steps, clients funded, AUM funded and estimated yearly revenue, each against the same stretch a quarter ago and a year ago, with the change beside it. Clients, AUM and revenue are counted by the day the client funded, like the numbers at the top. No toggling back and forth to compare.
 
 **Which channel gets the credit.** Somebody can be cold-emailed with no reply, then met at an event, then booked a call. The emails and the event are both still counted as activity, but the **conversion** is credited to whatever actually produced the call, which is the event. The filter bar on KPIs and Pipeline has a switch between *what converted them* (the normal reading) and *how we first met* (the old one). It is only on those two screens, because it changes how figures are counted rather than which people are listed. A person's page shows the route in one line, for example "Cold email (no response), met at Jackson Hole, call."
 
@@ -388,13 +393,105 @@ The spreadsheet problem (log an email, sort or filter, move rows between tabs, a
 
 Until handover every row in the database is sample data. **The full step-by-step is in `CLAUDE.md`, section "Going live with real data".** In short:
 1. remove the build team (Settings > Team);
-2. make Google sign-in internal to Gaard's Workspace;
+2. make Google sign-in internal to Gaard's Workspace (the next part of this section, step by step);
 3. upgrade Supabase for daily backups;
 4. clear the sample data with `db/016_clear_demo_data.sql` (a guard line must be switched on first);
 5. load the real data through Import (or the SQL Editor for the whole workbook);
 6. run Data health.
 
 Tien can do it with you.
+
+### Moving Google sign-in to Gaard's Workspace (Internal)
+
+**Why.** Today the Google side of the CRM ("Sign in with Google", sending from Gmail, reading replies, reading the calendar) runs on a Google Cloud project the build team created, in *Testing* mode: only people on its test list can use it, and Google lets a test permission lapse after a week. Reading replies needs the *gmail.readonly* permission, which Google only allows without a long security review for an app that is **Internal** to a company's Google Workspace. Moving the project into Gaard's Workspace makes it Gaard's own, lets every gaard.capital account use all of it, and keeps everyone else out. Do it **before the build team is removed**, so someone can help if a step goes wrong.
+
+**What changes for staff.** Nothing they have to learn: the same buttons. Google's permission window shows "Gaard CRM" with no "unverified app" warning, and replies are read for everyone. Only gaard.capital accounts can sign in with Google afterwards; a personal Gmail can no longer.
+
+**Before you start** (about 30 minutes)
+- The person doing it signs in with a **gaard.capital account that is a Google Workspace super admin** (Jon, or whoever manages Gaard's Google Workspace).
+- Someone with the **Administrator** role in the Supabase organization "Gaard" (Tien today) is at hand for step 7.
+- Have three browser tabs ready: https://console.cloud.google.com , https://supabase.com/dashboard/project/fgweqsoflzvxkbxgozor , and the CRM.
+- Google renames menus from time to time. If a name below is not on your screen, use the search box at the top of the Google Cloud console and type the name in **bold**.
+
+**Step 1. Check that Gaard has a Google Cloud organization.**
+1. Open https://console.cloud.google.com signed in as the gaard.capital super admin (the picture at the top right shows which account; switch there if needed). Accept the terms if asked.
+2. Click the **project picker** at the top left (next to "Google Cloud"). A window opens; at its top, the box shows where you are. Open it: **gaard.capital** should be listed as an organization.
+3. If it is not, close the window, create any project once (step 2 below does that), and look again: Google creates the organization for a Workspace domain the first time an admin uses the console.
+
+**Step 2. Create the project inside Gaard's organization.**
+1. Project picker > **New project**.
+2. Project name: **Gaard CRM**. Organization: **gaard.capital**. Location: **gaard.capital**. Press **Create**.
+3. When the bell at the top right says it is ready, choose **Select project**. The name at the top now reads Gaard CRM. Every step below happens in this project.
+
+(We make a new project rather than moving the old one: the old one belongs to a builder's personal account, and a new one is Gaard's from the first day.)
+
+**Step 3. Turn on the two Google services the CRM uses.**
+1. Menu (the three lines at the top left) > **APIs & Services** > **Library**.
+2. Search **Gmail API**, open it, press **Enable**.
+3. Back to the Library, search **Google Calendar API**, open it, press **Enable**.
+
+**Step 4. Describe the app, and make it Internal.**
+1. Menu > **APIs & Services** > **OAuth consent screen** (on newer screens this opens **Google Auth Platform**). Press **Get started**.
+2. **App information**: App name **Gaard CRM**. User support email: a gaard.capital address (for example Jon's). **Next**.
+3. **Audience**: choose **Internal**. **Next**. (If Internal cannot be chosen, the project is not inside the gaard.capital organization: go back to step 2.)
+4. **Contact information**: a gaard.capital address. **Next**. Tick that you agree to the Google API Services User Data Policy, then **Create**.
+5. Optional, under **Branding**: the Gaard logo and the home page https://project-qp4en.vercel.app/ . This is what people see in Google's permission window.
+
+**Step 5. List the permissions the CRM asks for.**
+1. In Google Auth Platform, open **Data Access** > **Add or remove scopes**.
+2. Tick, or paste into "Manually add scopes" and press **Add to table**, these six:
+   - `openid`
+   - `.../auth/userinfo.email`
+   - `.../auth/userinfo.profile`
+   - `https://www.googleapis.com/auth/gmail.send` (send the letters)
+   - `https://www.googleapis.com/auth/gmail.readonly` (read your signature and the replies to letters the CRM sent)
+   - `https://www.googleapis.com/auth/calendar.readonly` (Events > Import events > From my Google Calendar)
+3. Press **Update**, then **Save** at the bottom of the page.
+
+**Step 6. Create the sign-in key the website uses (the OAuth client).**
+1. In Google Auth Platform, open **Clients** > **Create client**.
+2. Application type: **Web application**. Name: **Gaard CRM Web**.
+3. Under **Authorized JavaScript origins**, press **Add URI** three times and enter, one per line, exactly (no slash at the end):
+   - `https://project-qp4en.vercel.app`
+   - `https://gaard-capital.github.io`
+   - `http://localhost:8765`
+4. Under **Authorized redirect URIs**, press **Add URI** and enter exactly:
+   - `https://fgweqsoflzvxkbxgozor.supabase.co/auth/v1/callback`
+5. Press **Create**. A window shows the **Client ID** (it ends in `.apps.googleusercontent.com`) and the **Client secret**. Press **Download JSON** and keep the file somewhere private: Google may not show the secret again.
+   - The **Client ID** is public. It goes into the CRM's code (step 8).
+   - The **Client secret** is private. It goes **only** into Supabase (step 7). Never paste it in a chat, an email, the team chat or the repository.
+
+**Step 7. Point Supabase's "Sign in with Google" at the new client** (Supabase Administrator).
+1. Supabase dashboard > project **fgweqsoflzvxkbxgozor** > **Authentication** > **Sign In / Providers** > **Google**.
+2. Replace **Client IDs** with the new Client ID, and **Client Secret (for OAuth)** with the new secret. Leave the rest as it is. Press **Save**.
+3. Check under Authentication > **URL Configuration** that the Site URL and the redirect URLs still list the Vercel site and http://localhost:8765 (nothing should need changing).
+
+**Step 8. Put the new Client ID in the CRM** (do it the same day as step 7).
+1. Open Claude with this repository (Claude Code in the folder, or claude.ai with the GitHub repository).
+2. Say: *"Change GMAIL_CLIENT_ID in index.html to <the new Client ID>, bump the build-version, and update the Google sign-in row in CLAUDE.md: the OAuth client is now in the Gaard CRM project of Gaard's Workspace, Internal. Then pull, commit and push."*
+3. Wait a minute for the website to update, then reload the CRM.
+
+**Step 9. Let Workspace trust its own app** (Workspace super admin, https://admin.google.com).
+1. **Security** > **Access and data control** > **API controls**.
+2. Press **Settings** (in the "Domain wide delegation" area or at the top, depending on the screen) and make sure **Trust internal, domain-owned apps** is ticked. Save.
+3. Only if someone is enrolled in Google's **Advanced Protection**: under API controls > **Manage Third-Party App Access** > **Configure new app**, search the new Client ID, choose **Gaard CRM**, and set it to **Trusted**. Without this, Google refuses reading Gmail for that person (the CRM then sends with their name and the firm instead of their signature, and says so).
+
+**Step 10. Test, with one person, then everyone.**
+1. In the CRM: account menu > **Sign out**, then **Sign in with Google** with a gaard.capital account, and enter the 6-digit code as usual.
+2. **Mass Email** > pick anyone > **Preview**. Google's window opens and names **Gaard CRM** with no "unverified" warning. **Tick every box** (send email, and view your email messages and settings) > **Continue**. The preview shows your own Gmail signature. If a yellow note appears instead, it says what is missing (section 5, "Your signature").
+3. **Send a test to myself**: it arrives in your inbox with the signature.
+4. The **bell** > **Check Gmail for replies**: it runs without an error.
+5. **Events** > **Import events** > **From my Google Calendar**: Google asks once for the calendar, and the list appears.
+6. Ask each person to do 1 and 2 once. Anyone who sees "Access blocked" is either not on a gaard.capital account, or step 9 is not done.
+
+**Step 11. Tidy up, a week later.** Once everyone has used it for a week without trouble, the builder who owns the old project deletes the old OAuth client (or the whole old "Gaard CRM" project) in their own Google Cloud console. Until then, leave it: it costs nothing, and it is the way back if something was missed.
+
+**If something goes wrong**
+- *"Error 400: redirect_uri_mismatch"* when signing in: the redirect URI in step 6.4 is not exactly `https://fgweqsoflzvxkbxgozor.supabase.co/auth/v1/callback`.
+- *"Error 400: origin_mismatch"* or nothing happens when sending from Gmail: the site's address is missing from the JavaScript origins in step 6.3 (it must match the address bar, with https and no slash at the end).
+- *"Access blocked: this app's request is invalid"* or *"invalid_client"*: the Client ID in Supabase (step 7) or in the CRM (step 8) is the old one, or was copied with a space.
+- *"Access blocked: Gaard CRM can only be used within its organization"*: the person signed in with an account outside gaard.capital. That is Internal working as intended.
+- To go back: put the old Client ID and secret back in Supabase (step 7) and ask Claude to put the old `GMAIL_CLIENT_ID` back (it is in the repository's history).
 
 **Changing the CRM.** Give Claude this repository and describe the change in plain words ("send the follow-up after 60 days for Not now"). Claude reads `CLAUDE.md` first, makes the change, and explains it. Try it on your own computer before it goes live: a change pushed to GitHub is live on the website within a minute.
 

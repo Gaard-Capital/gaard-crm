@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-06.1">
+<meta name="build-version" content="2026-11-06.2">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -982,6 +982,30 @@ table.grid.onb td{vertical-align:middle} table.grid.onb input{width:100%;min-wid
 .dash-funnel i{color:var(--ink-4);font-style:normal}
 .dash-funnel b{font-size:15px}
 .dash-funnel .more{margin-left:auto;color:var(--accent);font-weight:500}
+/* KPIs: a report on one page, like Power BI */
+.kpi-page{display:flex;flex-direction:column;gap:16px}
+.kpi-page .page-head,.kpi-page .fbar-row{margin-bottom:0}
+.kpi-page .dash-grid{gap:16px}
+.kpi-box{margin:0;display:flex;flex-direction:column;min-width:0}
+.kpi-box .card-foot{margin-top:auto}
+.kbars{list-style:none;margin:0;padding:8px 18px 12px}
+.kbars li{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr) auto;gap:12px;align-items:center;padding:7px 0;cursor:pointer;font-size:13px}
+.kbars li:hover .kb-l{color:var(--accent)}
+.kb-l{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kb-track{display:flex;height:14px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.kb-track i{display:block;height:100%}
+.kb-v{display:flex;align-items:center;gap:8px;white-space:nowrap;min-width:150px;justify-content:flex-end}
+.kb-v b{font-weight:600} .kb-v em{font-style:normal;font-size:12px;color:var(--ink-3)}
+.kq-chart{display:flex;align-items:flex-end;gap:12px;height:210px;padding-top:6px;margin-bottom:12px}
+.kq-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.kq-stack{width:100%;max-width:46px;display:flex;flex-direction:column-reverse;border-radius:4px 4px 0 0;overflow:hidden;min-height:2px;background:var(--surface-2)}
+.kq-stack i{display:block;min-height:2px}
+.kq-tot{font-size:11.5px;font-weight:600;color:var(--ink-2);margin-bottom:4px;white-space:nowrap}
+.kq-lbl{font-size:11.5px;color:var(--ink-3);margin-top:6px;white-space:nowrap}
+table.kret td,table.kret th{white-space:nowrap;padding-left:9px;padding-right:9px;font-size:12.5px}
+table.kret th{font-size:10.5px}
+table.kret td:first-child{white-space:normal;min-width:150px;max-width:210px}
+@media (max-width:640px){ .kpi-page .dash-tiles{grid-template-columns:repeat(2,minmax(0,1fr))} .kbars li{grid-template-columns:1fr;gap:4px} .kb-v{justify-content:flex-start;min-width:0} .kq-chart{gap:6px} }
 @media (max-width:1180px){ .dash-page{height:auto} .dash-tiles{grid-template-columns:repeat(3,minmax(0,1fr))} .dash-mid{grid-template-columns:1fr} }
 .user-menu{position:absolute;right:0;top:calc(100% + 8px);width:240px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:6px;z-index:70;white-space:normal}
 .user-menu[hidden]{display:none}
@@ -2161,15 +2185,18 @@ const Metrics = {
     { key:'affiliates',     label:'Affiliates and referrals' },
     { key:'event_virtual',  label:'Events, virtual' },
     { key:'event_inperson', label:'Events, in person' },
+    { key:'speaking',       label:'Speaking / workshops' },
     { key:'rfp',            label:'RFP database' },
   ],
   SEG_LANE: { ORG_NONPROFIT:'cold_nonprofit', IND_OCIO:'cold_ocio', IND_ROBO:'cold_robo',
     RET_401K:'cold_401k', RET_BENEFIT:'cold_benefit', ORG_OTHER:'cold_other', AFFILIATE:'affiliates' },
+  /** The lane of an event: a workshop, or one we hosted (we spoke), is Speaking / workshops; the rest by format. */
+  eventLane: e => e.event_type === 'workshop' || e.hosted_by_us ? 'speaking' : e.format === 'virtual' ? 'event_virtual' : 'event_inperson',
   /** Which lane a lead belongs to. How we met them wins over what they are. */
   laneOf: l => {
     const ch = l.source_channel_code;
     if (ch === 'EVENT'){ const ev = l.source_event_id != null ? Repo.events.byId(l.source_event_id) : null;
-      return ev && ev.format === 'virtual' ? 'event_virtual' : 'event_inperson'; }
+      return ev ? Metrics.eventLane(ev) : 'event_inperson'; }
     if (ch === 'RFP') return 'rfp';
     if (ch === 'REFERRAL') return 'affiliates';
     return Metrics.SEG_LANE[l.segment_code] || 'cold_other';
@@ -2189,7 +2216,7 @@ const Metrics = {
     const laneBy = new Map(scope.map(r => [r.contact_id, Metrics.laneOf(r)]));
     const touches = Repo.touchpoints.all().filter(t => laneBy.has(t.contact_id) && Metrics.inRange(dayOf(t.touched_at), f));
     const evs = Repo.events.all().filter(e => evCounts(e) && Metrics.inRange(e.start_on, f));
-    const blank = () => ({ rfps:0, events:0, emails:0, dials:0, meetings:0, touches:0, replies:0, email_replies:0, next_steps:0, onboarding:0, clients:0, funded_aum:0,
+    const blank = () => ({ rfps:0, events:0, emails:0, dials:0, meetings:0, touches:0, replies:0, touch_replies:0, email_replies:0, next_steps:0, onboarding:0, clients:0, funded_aum:0,
       warm:0, warm_aum:0, dormant:0, dormant_aum:0, leads:0 });
     const by = new Map(Metrics.LANES.map(l => [l.key, { ...l, ...blank() }]));
     for (const t of touches){
@@ -2200,9 +2227,9 @@ const Metrics = {
       if (t.touch_type === 'call') row.dials++;
       if (t.touch_type === 'meeting') row.meetings++;
       if (tt && tt.outreach) row.touches++;
-      if (OUT.get(t.outcome_code)?.response){ row.replies++; if (t.touch_type === 'email') row.email_replies++; }
+      if (OUT.get(t.outcome_code)?.response){ row.replies++; if (t.touch_type === 'email') row.email_replies++; if (tt && tt.outreach) row.touch_replies++; }
     }
-    for (const e of evs){ const k = e.format === 'virtual' ? 'event_virtual' : 'event_inperson'; const row = by.get(k); if (row) row.events++; }
+    for (const e of evs){ const row = by.get(Metrics.eventLane(e)); if (row) row.events++; }
     for (const r of scope){
       const row = by.get(Metrics.laneOf(r)); if (!row) continue;
       if (Metrics.happenedIn(r.first_outreach_on, f)) row.leads++;
@@ -2217,7 +2244,8 @@ const Metrics = {
       }
     }
     return [...by.values()].map(r => ({ ...r,
-      rate_response: r.touches ? r.replies / r.touches : 0,
+      // replies to our own outreach over that outreach, so a meeting's good outcome cannot push it past 100%
+      rate_response: r.touches ? r.touch_replies / r.touches : 0,
       rate_next: r.touches ? r.next_steps / r.touches : 0 }));
   }),
   /** Email to reply to next steps to onboarding to funded, as percentages of
@@ -3259,7 +3287,7 @@ const UI = {
   pipeline: { view:'board' },
   import: null,
   merge: { templateId:null, source:'due', selected:null, previewId:null, appliedSource:null, pickedFor:null },
-  kpi: { expanded:new Set() },
+  kpiP: null,   // the KPIs page's own period (Views.kpis)
   moreFilters: false,
   moreReporting: false,
   openState: false,
@@ -4138,56 +4166,98 @@ const deltaChip = (now, prev, { invert = false, pct = false } = {}) => {
   return `<span class="delta ${good ? '' : 'down'}">${arrow} ${Math.abs(rounded).toFixed(rounded % 1 ? 1 : 0)}${pct ? ' pts' : '%'}</span>`;
 };
 Views.kpis = { title:'KPIs',
+  /* One page for how the business is doing, read like a Power BI report. Jon (Nov 2026): the Dashboard and
+     the KPIs are one page, and his Marketing Dashboard sheet is a reference for what is tracked, not the
+     design. The question it answers first is which source brings the money in, and for how much effort,
+     so the firm can do more of what pays: five numbers against the period before, the revenue by source
+     now and quarter by quarter, the return of each source, the pipeline still to come from each, then the
+     comparisons and the detail. The period is the page's own (UI.kpiP, this quarter to start), so every
+     number has something to be compared with, and choosing it here never filters Contacts. */
   render(){
-    const f = UI.filters, s = Metrics.summary(f), r = Metrics.range(f);
-    const back = Metrics.shiftBack(f), prev = back ? Metrics.summary(back) : null;
-    const ch = Metrics.byChannel(f), q = Metrics.quarterly(f), pipe = Metrics.pipeline(f);
+    const st = UI.kpiP || (UI.kpiP = { period:'qtd', from:'', to:'', qy:'', qn:'' });
+    const f = { ...UI.filters, period: st.period, from: st.from || '', to: st.to || '', qy: st.qy || '', qn: st.qn || '' };
+    const r = Metrics.range(f), back = Metrics.shiftBack(f), fee = Repo.settings().assumed_fee_rate;
     const bySeg = Metrics.groupBy(f, 'segment_code', SEGMENTS.map(x => x.code));
     const byState = Metrics.groupBy(f, 'state', uniq(Metrics.leads(f).map(l => l.state).filter(Boolean)).sort());
     const ev = Metrics.events(f).filter(e => !e.upcoming && e.people_met).slice(0,6);
-    const fee = Repo.settings().assumed_fee_rate;
-    const prevNote = (val, fmt, fallback) => prev ? `Previous ${r.prev_label}: ${fmt(val)}` : fallback;
-    const card = o => `<button class="kpi ${o.tone||''}" type="button" data-go="${o.go}">
-      <div class="kpi-head"><span class="lbl"><span class="kpi-icon">${o.icon}</span>${esc(o.label)}</span>
-      <span class="row"><span class="val">${o.value}</span>${o.delta||''}</span></div>
-      <div class="kpi-body">${o.sub}</div></button>`;
-    const lanes = Metrics.lanes(f), mailStates = Metrics.emailsByState(f);
-    const openOpps = Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, f) && x.stage && !STG.get(x.stage)?.closed);
-    const potential = sum(openOpps, x => x.expected_aum || 0);
-    const closedNow = Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, f) && Metrics.happenedIn(x.funded_on, f));
-    const closedPrev = back ? Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, back) && Metrics.happenedIn(x.funded_on, back)) : [];
-    const aumNow = sum(closedNow, x => x.funded_aum || 0), aumPrev = sum(closedPrev, x => x.funded_aum || 0);
-    const laneTotal = k => sum(lanes, x => x[k] || 0);
+    const lanes = Metrics.lanes(f), lanesPrev = back ? Metrics.lanes(back) : [];
+    const laneTotal = (list, k) => sum(list, x => x[k] || 0);
+    const prevOf = key => lanesPrev.find(y => y.key === key) || {};
     const fn = Metrics.stageFunnel(f), fnPrev = back ? Metrics.stageFunnel(back) : null;
+    const wonIn = g => Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, g) && Metrics.happenedIn(x.funded_on, g));
+    const won = wonIn(f), wonPrev = back ? wonIn(back) : [];
+    const aumNow = sum(won, x => x.funded_aum || 0), aumPrev = sum(wonPrev, x => x.funded_aum || 0);
+    const warmAum = laneTotal(lanes, 'warm_aum'), warmN = laneTotal(lanes, 'warm'), dormAum = laneTotal(lanes, 'dormant_aum');
+
+    /* The return of each source in the period: what it cost (events carry their cost), how long a client
+       took from the first outreach to funding (the median), and its yearly fee. */
+    const evIn = Repo.events.all().filter(e => evCounts(e) && Metrics.inRange(e.start_on, f));
+    const costOf = key => sum(evIn.filter(e => Metrics.eventLane(e) === key), e => Number(e.cost_usd) || 0);
+    const daysOf = key => { const d = won.filter(x => Metrics.laneOf(x) === key && x.first_outreach_on)
+        .map(x => Math.round((new Date(x.funded_on) - new Date(x.first_outreach_on)) / DAY)).filter(n => n >= 0).sort((a, b) => a - b);
+      return d.length ? d[Math.floor(d.length / 2)] : null; };
+    const effortOf = x => x.key === 'rfp' ? [x.rfps, 'RFP'] : /^event_|^speaking$/.test(x.key) ? [x.events, 'event'] : [x.emails + x.dials, 'email or call', 'emails and calls'];
+    const rows = lanes.map(x => ({ ...x, rev: x.funded_aum * fee, revPrev: (prevOf(x.key).funded_aum || 0) * fee, cost: costOf(x.key), days: daysOf(x.key), effort: effortOf(x) }));
+    const active = rows.filter(x => x.effort[0] || x.replies || x.next_steps || x.clients || x.warm || x.dormant || x.revPrev)
+      .sort((a, b) => (b.rev - a.rev) || (b.next_steps - a.next_steps) || (b.warm_aum - a.warm_aum));
+    const top = [...rows].sort((a, b) => b.rev - a.rev)[0];
+    const revTotal = aumNow * fee;
+
     const tile = (label, value, sub, go, chip, tone) => `<button class="dash-tile ${tone || ''}" type="button" data-go="${go}"><span class="lbl">${esc(label)}</span><span class="row"><span class="val">${value}</span>${chip || ''}</span><span class="sub">${sub}</span></button>`;
-    /* Where the revenue comes from: the yearly fee on the AUM each lane funded, the last six quarters
-       up to the one in progress, then the period picked. Every filter but the period applies. */
+    const vs = (now, was, fmt) => back ? `vs ${fmt(was)} ${esc(r.prev_label)}` : esc(r.label);
+    const dash = '<span class="muted">-</span>';
+    const SRC_COLORS = { cold:'var(--mark-1)', affiliates:'var(--mark-3)', events:'var(--mark-2)', speaking:'var(--mark-4)', rfp:'var(--navy)' };
+    const groupOf = key => /^cold_/.test(key) ? 'cold' : /^event_/.test(key) ? 'events' : key;
+    const GROUPS = [['cold', 'Cold outreach'], ['affiliates', 'Affiliates and referrals'], ['events', 'Events'], ['speaking', 'Speaking / workshops'], ['rfp', 'RFP database']];
+
+    /* Revenue by source, this period: a bar each, the longest the biggest. */
+    const maxRev = Math.max(1, ...rows.map(x => x.rev));
+    const revBars = rows.filter(x => x.rev || x.revPrev).sort((a, b) => b.rev - a.rev).map(x => `
+      <li data-go="${href('pipeline', { stage:'funded' })}"><span class="kb-l">${esc(x.label)}</span>
+        <span class="kb-track"><i style="width:${(x.rev / maxRev * 100).toFixed(1)}%;background:${SRC_COLORS[groupOf(x.key)]}"></i></span>
+        <span class="kb-v"><b>${fmtUSD(x.rev) || '$0'}</b>${revTotal ? `<em>${fmtPct(x.rev / revTotal, 0)}</em>` : ''}${back ? deltaChip(x.rev, x.revPrev) : ''}</span></li>`).join('');
+
+    /* Revenue by quarter, stacked by source: the last six quarters up to the one in progress. */
     const today0 = new Date(), quarters = [...Array(6)].map((_, i) => { const d = new Date(today0.getFullYear(), Math.floor(today0.getMonth() / 3) * 3 - (5 - i) * 3, 1);
       return { y: d.getFullYear(), n: Math.floor(d.getMonth() / 3) + 1 }; })
-      .map(x => ({ ...x, lanes: Metrics.lanes({ ...f, period:'quarter', qy: String(x.y), qn: String(x.n), from:'', to:'' }) }));
-    const lanesPrev = back ? Metrics.lanes(back) : [];
-    const aumIn = (list, key) => (list.find(y => y.key === key) || {}).funded_aum || 0;
-    const revLanes = lanes.filter(x => x.funded_aum || aumIn(lanesPrev, x.key) || quarters.some(q => aumIn(q.lanes, x.key)));
-    const revCell = aum => aum ? `<td class="num">${fmtUSD(aum * fee)}<span class="sub">${fmtUSD(aum)} AUM</span></td>` : '<td class="num"><span class="muted">-</span></td>';
-    const revRow = (label, aumOf) => `<td>${label}</td>${quarters.map(q => revCell(aumOf(q.lanes))).join('')}${revCell(aumOf(lanes))}
-      <td class="num">${aumNow && aumOf(lanes) ? fmtPct(aumOf(lanes) / aumNow) : '<span class="muted">-</span>'}</td>
-      <td class="num">${back && (aumOf(lanes) || aumOf(lanesPrev)) ? deltaChip(aumOf(lanes), aumOf(lanesPrev)) || '<span class="muted">same</span>' : '<span class="muted">-</span>'}</td>`;
-    /* The next fourteen days. */
-    const iso = d => d.toISOString().slice(0, 10), from = iso(Rules.startOfDay(new Date())), to = iso(Rules.addDays(new Date(), 14));
-    const inWindow = d => d && d >= from && d <= to;
-    const soon = [
-      ...Repo.events.all().filter(e => evCounts(e) && inWindow(e.start_on)).map(e => ({ on: e.start_on, kind: 'Event', name: e.name, go: href('events', { ev: e.id }) })),
-      ...Repo.rfps.all().filter(x => inWindow(x.due_on) && !['submitted', 'won', 'lost', 'declined', 'cancelled'].includes(x.status)).map(x => ({ on: x.due_on, kind: 'RFP due', name: x.title, go: href('rfps') })),
-      ...Repo.reviews.all().filter(x => inWindow(x.next_review_on)).map(x => ({ on: x.next_review_on, kind: 'Client review', name: x.name, go: href('reviews') })),
-    ].sort((a, b) => a.on.localeCompare(b.on));
-    const steps = [['Emails sent', fn.emails], ['Replied', fn.replies], ['Next steps', fn.next], ['Onboarding', fn.onb], ['Funded', fn.clients]];
-    /* Everything except the period is kept, so a state or segment filter
-       applies to all four columns the same way. */
-    /* Clients and AUM funded are counted by the day they funded, like the numbers at the top and the
-       revenue by quarter, so the four columns say what came in during each span. */
-    const period = p => { const g = { ...f, period:p, from:'', to:'' };
-      const won = Metrics.funnel().filter(x => Metrics.matchesExceptDates(x, g) && Metrics.happenedIn(x.funded_on, g));
-      return { ...Metrics.summary(g), funded: won.length, funded_aum: sum(won, x => x.funded_aum || 0) }; };
+      .map(q => { const ls = Metrics.lanes({ ...f, period:'quarter', qy: String(q.y), qn: String(q.n), from:'', to:'' });
+        const parts = GROUPS.map(([g, l]) => ({ g, l, v: sum(ls.filter(x => groupOf(x.key) === g), x => x.funded_aum || 0) * fee }));
+        return { ...q, parts, total: sum(parts, p => p.v) }; });
+    const maxQ = Math.max(1, ...quarters.map(q => q.total));
+    const qChart = `<div class="kq-chart" role="img" aria-label="Estimated yearly revenue by quarter and source">${quarters.map(q => `
+      <div class="kq-col" title="Q${q.n} ${q.y}: ${fmtUSD(q.total) || '$0'}${q.parts.filter(p => p.v).map(p => '\n' + p.l + ': ' + fmtUSD(p.v)).join('')}">
+        <span class="kq-tot">${q.total ? fmtUSD(q.total) : ''}</span>
+        <div class="kq-stack" style="height:${(q.total / maxQ * 100).toFixed(1)}%">${q.parts.filter(p => p.v).map(p => `<i style="flex:${p.v};background:${SRC_COLORS[p.g]}"></i>`).join('')}</div>
+        <span class="kq-lbl">Q${q.n} ${String(q.y).slice(2)}</span></div>`).join('')}</div>
+      ${legend(GROUPS.filter(([g]) => quarters.some(q => q.parts.find(p => p.g === g).v)).map(([g, l]) => ({ name: l, color: SRC_COLORS[g] })))}`;
+
+    /* Shading for a rate: the best source in the column is the darkest. */
+    const heat = (v, list) => { const m = Math.max(...list); return v && m ? `style="background:color-mix(in srgb, var(--accent) ${Math.round(v / m * 28)}%, transparent)"` : ''; };
+    const rRates = active.map(x => x.rate_response), nRates = active.map(x => x.rate_next);
+    const retRow = x => `<tr class="row-link" data-href="${href('pipeline')}">
+      <td>${esc(x.label)}</td>
+      <td class="num">${x.effort[0] ? fmtInt(x.effort[0]) + `<span class="sub">${esc(x.effort[0] === 1 ? x.effort[1] : (x.effort[2] || x.effort[1] + 's'))}</span>` : dash}</td>
+      <td class="num">${fmtInt(x.replies)}</td>
+      <td class="num" ${heat(x.rate_response, rRates)}>${x.touches ? fmtPct(x.rate_response) : dash}</td>
+      <td class="num">${fmtInt(x.next_steps)}</td>
+      <td class="num" ${heat(x.rate_next, nRates)}>${x.touches ? fmtPct(x.rate_next) : dash}</td>
+      <td class="num">${fmtInt(x.clients)}</td>
+      <td class="num">${x.rev ? `<b>${fmtUSD(x.rev)}</b><span class="sub">${fmtUSD(x.funded_aum)} AUM</span>` : dash}</td>
+      <td class="num">${x.cost ? fmtUSD(x.cost) : dash}</td>
+      <td class="num">${x.cost && x.rev ? '$' + (x.rev / x.cost).toFixed(1) : dash}</td>
+      <td class="num">${x.days != null ? fmtInt(x.days) : dash}</td>
+      <td class="num">${x.warm_aum ? `${fmtUSD(x.warm_aum * fee)}<span class="sub">${fmtInt(x.warm)} warm, ${fmtUSD(x.warm_aum)}</span>` : dash}</td></tr>`;
+
+    /* What is still to come, by source: warm and dormant open opportunities, by expected AUM. */
+    const pipeRows = rows.filter(x => x.warm_aum || x.dormant_aum).sort((a, b) => (b.warm_aum + b.dormant_aum) - (a.warm_aum + a.dormant_aum));
+    const maxPipe = Math.max(1, ...pipeRows.map(x => x.warm_aum + x.dormant_aum));
+    const pipeBars = pipeRows.map(x => `<li data-go="${href('pipeline')}"><span class="kb-l">${esc(x.label)}</span>
+      <span class="kb-track"><i style="width:${(x.warm_aum / maxPipe * 100).toFixed(1)}%;background:var(--accent)"></i><i style="width:${(x.dormant_aum / maxPipe * 100).toFixed(1)}%;background:var(--mark-5)"></i></span>
+      <span class="kb-v"><b>${fmtUSD(x.warm_aum) || '$0'}</b><em>${fmtInt(x.warm)} warm · ${fmtInt(x.dormant)} dormant</em></span></li>`).join('');
+
+    /* This quarter and this year against the same span before. Clients, AUM and revenue by the day they funded. */
+    const period = p => { const g = { ...f, period:p, from:'', to:'' }, w = wonIn(g);
+      return { ...Metrics.summary(g), funded: w.length, funded_aum: sum(w, x => x.funded_aum || 0) }; };
     const sbs = { qtd: period('qtd'), q_last: period('q_last'), ytd: period('ytd'), y_last: period('y_last') };
     const sbsRow = (label, pick, fmt) => {
       const cellOf = (a, b) => { const now = pick(a), was = pick(b);
@@ -4197,153 +4267,79 @@ Views.kpis = { title:'KPIs',
       return `<tr><th scope="row">${esc(label)}</th>${cellOf(sbs.qtd, sbs.q_last)}<td class="num">${fmt(pick(sbs.q_last))}</td>`
         + `${cellOf(sbs.ytd, sbs.y_last)}<td class="num">${fmt(pick(sbs.y_last))}</td></tr>`;
     };
-    const laneRow = x => { const open2 = UI.kpi.expanded.has(x.key);
-      return `<tr class="row-link ${open2 ? 'is-open' : ''}" data-lane="${x.key}" style="cursor:pointer">
-        <td><span class="corr-toggle" aria-hidden="true">${open2 ? '\u25be' : '\u25b8'}</span>${esc(x.label)}</td>
-        <td class="num">${x.rfps || '<span class="muted">-</span>'}</td>
-        <td class="num">${x.events || '<span class="muted">-</span>'}</td>
-        <td class="num">${fmtInt(x.emails)}</td>
-        <td class="num">${fmtInt(x.dials)}</td>
-        <td class="num">${fmtInt(x.replies)}</td>
-        <td class="num">${fmtInt(x.next_steps)}</td>
-        <td class="num">${fmtInt(x.onboarding)}</td>
-        <td class="num">${fmtInt(x.clients)}</td>
-        <td class="num">${fmtUSD(x.funded_aum) || '<span class="muted">-</span>'}</td>
-        <td class="num">${x.touches ? fmtPct(x.rate_response) : '<span class="muted">-</span>'}</td>
-        <td class="num">${x.touches ? fmtPct(x.rate_next) : '<span class="muted">-</span>'}</td></tr>
-      ${open2 ? `<tr class="threadrow"><td colspan="12"><div class="rowthread" style="width:auto;max-height:none">
-        <div class="rowthread-head"><b>${esc(x.label)}</b><span class="muted">${fmtInt(x.touches)} outreach touches in this period, ${fmtInt(x.leads)} new leads, ${fmtInt(x.meetings)} meetings held</span></div>
-        <div class="dash-grid">
-          <section class="col-6"><h3 style="margin-bottom:8px;font-size:12.5px">Where it stands today</h3>
-            <dl class="kv" style="grid-template-columns:150px 1fr;font-size:12.5px">
-              <dt>Warm</dt><dd>${fmtInt(x.warm)} open, ${fmtUSD(x.warm_aum) || '$0'} expected</dd>
-              <dt>Dormant</dt><dd>${fmtInt(x.dormant)} open, ${fmtUSD(x.dormant_aum) || '$0'} expected</dd>
-              <dt>Response rate</dt><dd>${fmtPct(x.rate_response)} of outreach drew a reply</dd>
-              <dt>To next steps</dt><dd>${fmtPct(x.rate_next)} of outreach reached a proposal or a board</dd>
-            </dl></section>
-          <section class="col-6"><h3 style="margin-bottom:8px;font-size:12.5px">Open it</h3>
-            <div class="page-actions">
-              <a class="btn btn-sm" href="${href('contacts')}">The people</a>
-              <a class="btn btn-sm" href="${href('touchpoints')}">The correspondence</a>
-              <a class="btn btn-sm" href="${href('pipeline')}">The pipeline</a></div>
-            <p class="muted small" style="margin-top:8px">Warm means something was touched in the last 90 days or something is booked in the next 90. Dormant is everything else still open.</p></section>
-        </div></div></td></tr>` : ''}`; };
 
-    return `
+    /* The next fourteen days. */
+    const iso = d => d.toISOString().slice(0, 10), from = iso(Rules.startOfDay(new Date())), to = iso(Rules.addDays(new Date(), 14));
+    const inWindow = d => d && d >= from && d <= to;
+    const soon = [
+      ...Repo.events.all().filter(e => evCounts(e) && inWindow(e.start_on)).map(e => ({ on: e.start_on, kind: 'Event', name: e.name, go: href('events', { ev: e.id }) })),
+      ...Repo.rfps.all().filter(x => inWindow(x.due_on) && !['submitted', 'won', 'lost', 'declined', 'cancelled'].includes(x.status)).map(x => ({ on: x.due_on, kind: 'RFP due', name: x.title, go: href('rfps') })),
+      ...Repo.reviews.all().filter(x => inWindow(x.next_review_on)).map(x => ({ on: x.next_review_on, kind: 'Client review', name: x.name, go: href('reviews') })),
+    ].sort((a, b) => a.on.localeCompare(b.on));
+    const steps = [['Emails sent', fn.emails], ['Replied', fn.replies], ['Next steps', fn.next], ['Onboarding', fn.onb], ['Funded', fn.clients]];
+
+    return `<div class="kpi-page">
     <div class="page-head"><div><h1>KPIs</h1>
-      <p>How the business is doing, against the period before. Every number is counted from the touchpoints, opportunities and reminders underneath it.</p></div>
+      <p>Where the money comes from, and how it compares with ${back ? esc(r.prev_label) : 'the period before'}. Every number is counted from the activity, opportunities and follow-ups underneath it.</p></div>
       <div class="page-actions">${demoTag}${dateRange(f, r)}</div></div>
     ${filterBar({ hide:['period'] })}
-    <div class="dash-tiles" style="margin-bottom:16px">
-      ${tile('New AUM funded', fmtUSD(aumNow) || '$0', back ? `vs ${fmtUSD(aumPrev) || '$0'} ${esc(r.prev_label)}` : esc(r.label), href('pipeline', { stage:'funded' }), back ? deltaChip(aumNow, aumPrev) : '')}
-      ${tile('Est. yearly revenue', fmtUSD(aumNow * fee) || '$0', back ? `vs ${fmtUSD(aumPrev * fee) || '$0'}, at ${fmtPct(fee, 2)} of AUM` : `at ${fmtPct(fee, 2)} of AUM`, href('pipeline', { stage:'funded' }), back ? deltaChip(aumNow, aumPrev) : '', 'good')}
-      ${tile('New clients', fmtInt(closedNow.length), back ? `vs ${fmtInt(closedPrev.length)} ${esc(r.prev_label)}` : esc(r.label), href('pipeline', { stage:'funded' }), back ? deltaChip(closedNow.length, closedPrev.length) : '')}
-      ${tile('Pipeline', fmtUSD(potential) || '$0', `${fmtInt(openOpps.length)} open opportunit${openOpps.length === 1 ? 'y' : 'ies'}, today`, href('pipeline'))}
+
+    <div class="dash-tiles">
+      ${tile('New AUM funded', fmtUSD(aumNow) || '$0', vs(aumNow, aumPrev, v => fmtUSD(v) || '$0'), href('pipeline', { stage:'funded' }), back ? deltaChip(aumNow, aumPrev) : '')}
+      ${tile('Est. yearly revenue', fmtUSD(revTotal) || '$0', back ? `vs ${fmtUSD(aumPrev * fee) || '$0'} · at ${fmtPct(fee, 2)} of AUM` : `at ${fmtPct(fee, 2)} of AUM`, href('pipeline', { stage:'funded' }), back ? deltaChip(aumNow, aumPrev) : '', 'good')}
+      ${tile('Clients closed', fmtInt(won.length), vs(won.length, wonPrev.length, fmtInt), href('pipeline', { stage:'funded' }), back ? deltaChip(won.length, wonPrev.length) : '')}
+      ${tile('Active pipeline', fmtUSD(warmAum) || '$0', `${fmtInt(warmN)} warm opportunit${warmN === 1 ? 'y' : 'ies'} · ${fmtUSD(dormAum) || '$0'} dormant`, href('pipeline'))}
       ${tile('Response rate', fmtPct(fn.email_to_reply || 0), `of ${fmtInt(fn.emails)} emails sent`, href('touchpoints'), fnPrev ? deltaChip(fn.email_to_reply || 0, fnPrev.email_to_reply || 0, { pct:true }) : '')}
     </div>
 
-    <section class="card" style="margin-bottom:16px"><div class="card-head"><h2>Where the revenue comes from</h2>
-      <span class="sub">Estimated yearly fee (${fmtPct(fee, 2)} of the AUM funded), by lane and quarter</span></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Lane</th>
-        ${quarters.map(q => `<th class="num">Q${q.n} ${q.y}</th>`).join('')}<th class="num">${esc(r.label)}</th><th class="num">Share</th><th class="num">${back ? 'vs ' + esc(r.prev_label) : 'Change'}</th></tr></thead>
-      <tbody>${revLanes.map(x => `<tr class="row-link" data-href="${href('pipeline', { stage:'funded' })}">${revRow(esc(x.label), list => aumIn(list, x.key))}</tr>`).join('')
-        || `<tr><td colspan="${quarters.length + 4}">${emptyState('No AUM funded in these quarters', 'A client counts here once their opportunity is marked funded, with the amount.')}</td></tr>`}</tbody>
-      ${revLanes.length ? `<tfoot><tr>${revRow('Total', list => sum(list, y => y.funded_aum || 0))}</tr></tfoot>` : ''}</table></div>
-      <div class="card-foot">Each client counts under the lane that brought them in, in the quarter they funded. The share is of the period picked above.</div></section>
+    <div class="dash-grid">
+      <section class="card col-7 kpi-box"><div class="card-head"><h2>Where the money comes from</h2><span class="sub">Est. yearly revenue by source, ${esc(r.label.toLowerCase())}</span></div>
+        ${revBars ? `<ul class="kbars">${revBars}</ul>
+          <div class="card-foot">${top && top.rev ? `<b>${esc(top.label)}</b> brought ${fmtPct(top.rev / (revTotal || 1), 0)} of the new revenue${top.days != null ? `, a client every ${fmtInt(top.days)} days from first contact` : ''}.` : ''} A client counts under the source that brought them in, in the period they funded.</div>`
+          : `<div class="card-body">${emptyState('No client funded in this period', 'Pick a longer period at the top right, or see the quarters beside this.')}</div>`}</section>
+      <section class="card col-5 kpi-box"><div class="card-head"><h2>Revenue by quarter</h2><span class="sub">Est. yearly revenue, by source</span></div>
+        <div class="card-body">${qChart}</div></section>
+    </div>
 
-    <section class="card col-12" style="margin-bottom:16px"><div class="card-head">
-      <h2>This quarter and this year, side by side</h2>
-      <span class="sub">Against the same span a quarter and a year ago. Every other filter still applies.</span></div>
-      <div class="table-wrap auto"><table class="grid sbs">
-        <thead><tr><th scope="col">&nbsp;</th>
-          <th class="num" scope="col">This quarter</th><th class="num" scope="col">Last quarter</th>
-          <th class="num" scope="col">This year</th><th class="num" scope="col">Last year</th></tr></thead>
-        <tbody>
-          ${sbsRow('Emails sent', x => x.emails, fmtInt)}
-          ${sbsRow('Dials', x => x.dials, fmtInt)}
-          ${sbsRow('Replies', x => x.responded, fmtInt)}
-          ${sbsRow('Calls booked', x => x.calls, fmtInt)}
-          ${sbsRow('Next steps', x => x.hot, fmtInt)}
-          ${sbsRow('Onboarding', x => x.onboarding, fmtInt)}
-          ${sbsRow('Clients funded', x => x.funded, fmtInt)}
-          ${sbsRow('AUM funded', x => x.funded_aum, v => fmtUSD(v) || '$0')}
-          ${sbsRow('Est. yearly revenue', x => x.funded_aum * fee, v => fmtUSD(v) || '$0')}
-        </tbody></table></div></section>
+    <section class="card kpi-box"><div class="card-head"><h2>Return by source</h2><span class="sub">${esc(r.label)}: the effort, what it turned into, and what is still to come</span></div>
+      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid kret"><thead><tr>
+        <th>Source</th><th class="num">Effort</th><th class="num">Replies</th><th class="num">Reply rate</th><th class="num">Next steps</th><th class="num">Next-step rate</th>
+        <th class="num">Clients</th><th class="num">Revenue</th><th class="num">Cost</th><th class="num" title="A year's fee for every dollar the source cost">Per $1</th><th class="num" title="The middle client's days from first contact to funding">Days to close</th><th class="num">Warm pipeline</th></tr></thead>
+      <tbody>${active.map(retRow).join('') || `<tr><td colspan="12">${emptyState('Nothing happened in this period')}</td></tr>`}</tbody>
+      ${active.length ? `<tfoot><tr><td>Total</td><td class="num">-</td><td class="num">${fmtInt(laneTotal(active, 'replies'))}</td>
+        <td class="num">${laneTotal(active, 'touches') ? fmtPct(laneTotal(active, 'touch_replies') / laneTotal(active, 'touches')) : '-'}</td><td class="num">${fmtInt(laneTotal(active, 'next_steps'))}</td>
+        <td class="num">${laneTotal(active, 'touches') ? fmtPct(laneTotal(active, 'next_steps') / laneTotal(active, 'touches')) : '-'}</td><td class="num">${fmtInt(laneTotal(active, 'clients'))}</td>
+        <td class="num">${fmtUSD(laneTotal(active, 'rev')) || '-'}</td><td class="num">${fmtUSD(laneTotal(active, 'cost')) || '-'}</td><td class="num">-</td><td class="num">-</td>
+        <td class="num">${fmtUSD(warmAum * fee) || '-'}</td></tr></tfoot>` : ''}</table></div>
+      <div class="card-foot">Effort is each source's own first step: emails and calls for cold outreach and referrals, events attended, RFPs submitted. The rates are replies and next steps (a proposal or a board) per outreach. Cost is what the events cost; Revenue per $1 is a year's fee for every dollar spent. Days to close is the middle client's time from first contact to funding. Warm pipeline is the yearly fee the warm opportunities would bring, with their AUM beneath.</div></section>
 
-    <section class="card" style="margin-bottom:16px"><div class="card-head"><h2>What happened in this period</h2><span class="sub">By lane. Click a row for the detail</span></div>
-      <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr>
-        <th>Lane</th><th class="num">RFPs</th><th class="num">Events</th><th class="num">Emails sent</th><th class="num">Dials</th><th class="num">Replies</th>
-        <th class="num">Next steps</th><th class="num">Onboarding</th><th class="num">Clients</th><th class="num">AUM funded</th>
-        <th class="num">Effort to reply</th><th class="num">Effort to next step</th></tr></thead>
-      <tbody>${lanes.map(laneRow).join('')}</tbody>
-      <tfoot><tr><td>Total</td><td class="num">${fmtInt(laneTotal('rfps'))}</td><td class="num">${fmtInt(laneTotal('events'))}</td><td class="num">${fmtInt(laneTotal('emails'))}</td>
-        <td class="num">${fmtInt(laneTotal('dials'))}</td><td class="num">${fmtInt(laneTotal('replies'))}</td><td class="num">${fmtInt(laneTotal('next_steps'))}</td>
-        <td class="num">${fmtInt(laneTotal('onboarding'))}</td><td class="num">${fmtInt(laneTotal('clients'))}</td><td class="num">${fmtUSD(laneTotal('funded_aum'))||'-'}</td>
-        <td class="num">${laneTotal('touches') ? fmtPct(laneTotal('replies')/laneTotal('touches')) : '-'}</td>
-        <td class="num">${laneTotal('touches') ? fmtPct(laneTotal('next_steps')/laneTotal('touches')) : '-'}</td></tr></tfoot></table></div>
-      <div class="card-foot">A dash means the measure does not apply to that lane. Events count every event held in the period, whoever they brought in.</div></section>
+    <div class="dash-grid">
+      <section class="card col-5 kpi-box"><div class="card-head"><h2>Still to come</h2><span class="sub">Open opportunities today: warm, then dormant</span></div>
+        ${pipeBars ? `<ul class="kbars">${pipeBars}</ul><div class="card-foot">Warm means touched in the last 90 days or something booked in the next 90. Dormant is everything else still open.</div>`
+          : `<div class="card-body">${emptyState('No open opportunities in this filter')}</div>`}</section>
+      <section class="card col-7 kpi-box"><div class="card-head"><h2>This quarter and this year</h2><span class="sub">Against the same span a quarter and a year ago</span></div>
+        <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid sbs kret">
+          <thead><tr><th scope="col">&nbsp;</th><th class="num" scope="col">This quarter</th><th class="num" scope="col">Last quarter</th><th class="num" scope="col">This year</th><th class="num" scope="col">Last year</th></tr></thead>
+          <tbody>
+            ${sbsRow('Emails sent', x => x.emails, fmtInt)}
+            ${sbsRow('Replies', x => x.responded, fmtInt)}
+            ${sbsRow('Calls booked', x => x.calls, fmtInt)}
+            ${sbsRow('Next steps', x => x.hot, fmtInt)}
+            ${sbsRow('Clients funded', x => x.funded, fmtInt)}
+            ${sbsRow('AUM funded', x => x.funded_aum, v => fmtUSD(v) || '$0')}
+            ${sbsRow('Est. yearly revenue', x => x.funded_aum * fee, v => fmtUSD(v) || '$0')}
+          </tbody></table></div></section>
+    </div>
 
-    <div class="dash-bottom" style="margin-bottom:16px">
-      <section class="card dash-box" data-go="${href('pipeline')}"><div class="card-head"><h2>From email to client</h2><span class="sub">${esc(r.label.toLowerCase())}</span></div>
+    <div class="dash-grid">
+      <section class="card col-7 kpi-box" data-go="${href('pipeline')}"><div class="card-head"><h2>From email to client</h2><span class="sub">${esc(r.label.toLowerCase())}</span></div>
         <div class="dash-steps">${steps.map(([l, n], i) => `<div class="dash-step"><b>${fmtInt(n)}</b><span>${esc(l)}</span>${i ? `<em>${steps[i - 1][1] ? fmtPct(n / steps[i - 1][1]) : '-'}</em>` : '<em>&nbsp;</em>'}</div>`).join('<i aria-hidden="true">→</i>')}</div></section>
-      <section class="card dash-box"><div class="card-head"><h2>Coming up</h2><span class="sub">next 14 days</span></div>
+      <section class="card col-5 kpi-box"><div class="card-head"><h2>Coming up</h2><span class="sub">next 14 days</span></div>
         ${soon.length ? `<ul class="dash-soon" id="dash-soon" style="max-height:220px">${soon.map(x => `<li data-go="${x.go}"><span class="d"><b>${esc(fmtDate(x.on, { day:'numeric' }))}</b>${esc(fmtDate(x.on, { month:'short' }))}</span><span><span class="tag">${esc(x.kind)}</span><b>${esc(x.name)}</b></span></li>`).join('')}</ul>`
           : `<div class="card-body">${emptyState('Nothing in the next two weeks', 'Events, RFP deadlines and client reviews show here.')}</div>`}</section>
     </div>
 
-    <div class="dash-grid" style="margin-bottom:16px">
-      <section class="card col-6"><div class="card-head"><h2>Where things stand now</h2><span class="sub">Open opportunities, today</span></div>
-        <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>Lane</th><th class="num">Warm</th><th class="num">Warm AUM</th><th class="num">Dormant</th><th class="num">Dormant AUM</th></tr></thead>
-        <tbody>${lanes.filter(x => x.warm || x.dormant).map(x => `<tr class="row-link" data-href="${href('pipeline')}"><td>${esc(x.label)}</td>
-          <td class="num">${fmtInt(x.warm)}</td><td class="num">${fmtUSD(x.warm_aum)||'-'}</td>
-          <td class="num">${fmtInt(x.dormant)}</td><td class="num">${fmtUSD(x.dormant_aum)||'-'}</td></tr>`).join('') || `<tr><td colspan="5">${emptyState('No open opportunities in this filter')}</td></tr>`}</tbody>
-        <tfoot><tr><td>Total</td><td class="num">${fmtInt(laneTotal('warm'))}</td><td class="num">${fmtUSD(laneTotal('warm_aum'))||'-'}</td>
-          <td class="num">${fmtInt(laneTotal('dormant'))}</td><td class="num">${fmtUSD(laneTotal('dormant_aum'))||'-'}</td></tr></tfoot></table></div></section>
-
-      <section class="card col-6"><div class="card-head"><h2>Emails by state</h2><span class="sub">Where the outreach went in this period</span></div>
-        <div class="table-wrap auto" style="box-shadow:none;border-radius:0"><table class="grid"><thead><tr><th>State</th><th class="num">Emails sent</th><th class="num">People</th><th class="num">Replies</th><th class="num">Reply rate</th><th class="num">Calls</th><th class="num">AUM funded</th></tr></thead>
-        <tbody>${mailStates.length ? mailStates.map(x => `<tr class="row-link" data-href="${href('contacts')}"><td>${esc(stateName(x.state))}</td>
-          <td class="num">${fmtInt(x.emails)}</td><td class="num">${fmtInt(x.people)}</td><td class="num">${fmtInt(x.replies)}</td>
-          <td class="num">${fmtPct(x.reply_rate)}</td><td class="num">${fmtInt(x.calls)}</td><td class="num">${fmtUSD(x.funded_aum)||'-'}</td></tr>`).join('')
-          : `<tr><td colspan="7">${emptyState('No emails sent in this period')}</td></tr>`}</tbody></table></div></section>
-    </div>
-
-    <div class="kpis">
-      ${card({ label:'Leads', icon:ICONS.people, value: fmtInt(s.leads), go: href('contacts'),
-        delta: prev ? deltaChip(s.leads, prev.leads) : '', sub: prevNote(prev && prev.leads, fmtInt, `${fmtInt(s.open_pipeline)} with an open opportunity`) })}
-      ${card({ label:'Outreach touches', icon:ICONS.send, value: fmtInt(s.outreach), go: href('touchpoints'),
-        delta: prev ? deltaChip(s.outreach, prev.outreach) : '', sub: prevNote(prev && prev.outreach, fmtInt, `${fmtInt(s.emails)} emails, ${fmtInt(s.dials)} dials, ${fmtInt(s.meetings)} meetings`) })}
-      ${card({ label:'Calls booked', icon:ICONS.calendar, value: fmtInt(s.calls), go: href('pipeline'),
-        delta: prev ? deltaChip(s.calls, prev.calls) : '', sub: prevNote(prev && prev.calls, fmtInt, `${fmtPct(s.lead_to_call)} of leads reached a call`) })}
-      ${card({ label:'Onboarding', icon:ICONS.box, value: fmtInt(s.onboarding), tone:'warn', go: href('pipeline',{stage:'onboarding'}),
-        sub: `${fmtUSD(s.onboarding_aum)} expected to fund` })}
-    </div>
-    <div class="dash-grid">
-      <section class="card col-12"><div class="card-head"><h2>Outreach and what it turned into</h2><span class="sub">By quarter</span></div><div class="card-body">
-        ${legend([{name:'Outreach touches',color:'var(--mark-2)'},{name:'Leads that replied',color:'var(--mark-1)'},{name:'Calls booked',color:'var(--mark-3)'}])}
-        <div style="margin-top:12px">${columns({ rows:q, labelOf: r2 => r2.label, height:230, series:[
-          { name:'Outreach touches', color:'var(--mark-2)', value: r2 => r2.outreach },
-          { name:'Leads that replied', color:'var(--mark-1)', value: r2 => r2.responded },
-          { name:'Calls booked', color:'var(--mark-3)', value: r2 => r2.calls } ] })}</div>
-        ${altTable('See the numbers', ['Quarter','Outreach','Emails','Dials','Replied','Calls','Onboarding','Funded','Funded AUM'],
-          q.map(r2 => [esc(r2.label), fmtInt(r2.outreach), fmtInt(r2.emails), fmtInt(r2.dials), fmtInt(r2.responded), fmtInt(r2.calls), fmtInt(r2.onboarding), fmtInt(r2.funded), fmtUSD(r2.funded_aum)||'-']))}</div></section>
-
-      <section class="card col-6"><div class="card-head"><h2>Which channel is working</h2><span class="sub">Leads that booked a call</span></div><div class="card-body">
-        ${hbar({ rows: ch.filter(x => x.leads), value: x => x.lead_to_call_rate*100, label: x => x.label, format: v => v.toFixed(1)+'%',
-          colorFn: x => x.funded ? 'var(--mark-1)' : 'var(--mark-4)', goFn: x => href('pipeline',{channel:x.key}),
-          tipFn: x => `<b>${esc(x.label)}</b>${fmtInt(x.leads)} leads, ${fmtInt(x.responded)} replied<br>${fmtInt(x.calls)} calls booked, ${fmtInt(x.funded)} funded<br>Funded AUM ${fmtUSD(x.funded_aum)||'$0'}` })}
-        ${altTable('See the numbers', ['Channel','Touches','Leads','Replied','Response rate','Calls','Lead to call','Funded','Funded AUM'],
-          ch.map(x => [esc(x.label), fmtInt(x.attempts), fmtInt(x.leads), fmtInt(x.responded), fmtPct(x.response_rate), fmtInt(x.calls), fmtPct(x.lead_to_call_rate), fmtInt(x.funded), fmtUSD(x.funded_aum)||'-']))}</div></section>
-
-      <section class="card col-6"><div class="card-head"><h2>Pipeline right now</h2><span class="sub">Click a stage to open it</span></div><div class="card-body">
-        ${hbar({ rows: pipe.filter(x => x.count), value: x => x.count, label: x => x.label, format: fmtInt, goFn: x => href('pipeline',{stage:x.key}),
-          colorFn: x => x.key === 'funded' ? 'var(--good)' : x.key === 'lost' ? 'var(--mark-5)' : 'var(--mark-2)',
-          tipFn: x => `<b>${esc(x.label)}</b>${fmtInt(x.count)} opportunities<br>${fmtUSD(x.aum)||'$0'} ${x.key === 'funded' ? 'funded' : 'expected'}` })}
-        ${altTable('See the numbers', ['Stage','Opportunities','AUM'], pipe.map(x => [esc(x.label), fmtInt(x.count), fmtUSD(x.aum)||'-']))}</div></section>
-    </div>
-
-
-    <details class="card" id="more-reporting" style="margin-top:16px" ${UI.moreReporting ? 'open' : ''}>
+    <details class="card" id="more-reporting" ${UI.moreReporting ? 'open' : ''}>
       <summary style="padding:15px 18px;cursor:pointer;font-weight:600;font-size:14px;list-style:none;display:flex;justify-content:space-between;align-items:center">
         <span>More reporting</span><span class="muted small">Segment, state, funded AUM and events</span></summary>
       <div class="card-body" style="border-top:1px solid var(--line)"><div class="dash-grid">
@@ -4375,14 +4371,14 @@ Views.kpis = { title:'KPIs',
         </tbody></table></div></section>` : ''; })()}
       <p class="muted small" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
         <b>How these are counted.</b> A lead is one contact that has been reached out to or has an opportunity. Response rate is leads with a reply that the outcome table counts as a response, divided by leads. A call is booked when an outcome opens an opportunity. Each lead is counted once under the channel it came in through, and people met at an event are counted once per event. Funded AUM is the sum on opportunities at the funded stage; onboarding is counted separately.</p>
-      </div></details>`;
+      </div></details>
+    </div>`;
   },
-  mount(root){ bindGo(root); bindTips(root); bindFilters(root, render); bindRowNav(root);
-    root.querySelectorAll('[data-lane]').forEach(tr => tr.addEventListener('click', e => {
-      if (e.target.closest('a, button')) return;
-      const k = tr.dataset.lane;
-      if (UI.kpi.expanded.has(k)) UI.kpi.expanded.delete(k); else UI.kpi.expanded.add(k);
-      render(); }));
+  mount(root){
+    bindGo(root); bindTips(root); bindRowNav(root);
+    // the filter bar holds every filter but the period, which is this page's own and sits in its heading
+    bindFilters(root.querySelector('.fbar-row') || root, render);
+    bindDateRange(root.querySelector('.page-head') || root, UI.kpiP, render);
     const d = root.querySelector('#more-reporting');
     if (d) d.addEventListener('toggle', () => { UI.moreReporting = d.open; }); }
 };
