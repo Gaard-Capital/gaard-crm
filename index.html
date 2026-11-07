@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-06.3">
+<meta name="build-version" content="2026-11-06.4">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -653,6 +653,12 @@ table.edit.tm{width:100%;min-width:0} table.edit.tm td.tm-acts{white-space:norma
 .imp-or::before,.imp-or::after{content:'';flex:1;height:1px;background:var(--line)}
 .imp-add .im-box textarea{min-height:200px}
 .imp-actions{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.voice{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.voice-btn{display:inline-flex;align-items:center;gap:6px}
+.voice-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.voice-btn.rec{background:#C0392B;border-color:#C0392B;color:#fff;animation:voicePulse 1.4s ease-in-out infinite}
+@keyframes voicePulse{50%{box-shadow:0 0 0 4px rgba(192,57,43,.25)}}
+@media (prefers-reduced-motion: reduce){.voice-btn.rec{animation:none}}
 .imp-actions .spacer{flex:1}
 .imp-go{display:inline-flex;align-items:center;gap:8px;padding-left:20px;padding-right:16px}
 .imp-go svg,.imp-sample > svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -3098,6 +3104,96 @@ const Ocr = {
   },
 };
 
+/* Speaking instead of typing (Import box, Log activity notes). The sound is
+   recorded and written out on this computer by Whisper, run in the browser
+   with transformers.js: nothing is uploaded. The browser's own dictation
+   (SpeechRecognition) was tried and taken out because Chrome sends the audio
+   to Google. The model (about 80 MB, English) is downloaded from Hugging Face
+   the first time and kept by the browser after that. */
+const Voice = {
+  MODEL: 'Xenova/whisper-base.en',
+  asr: null, active: null,
+  load(onProgress){
+    return this.asr || (this.asr = (async () => {
+      const T = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1/dist/transformers.min.js');
+      T.env.allowLocalModels = false;
+      const seen = {};
+      return T.pipeline('automatic-speech-recognition', this.MODEL, { progress_callback: p => {
+        if (p.status !== 'progress' || !p.total) return;
+        seen[p.file] = [p.loaded, p.total];
+        const v = Object.values(seen), done = v.reduce((s, x) => s + x[0], 0), all = v.reduce((s, x) => s + x[1], 0);
+        onProgress && onProgress(Math.round(done / 1e6), Math.round(all / 1e6));
+      } });
+    })().catch(e => { this.asr = null; throw new Error('The speech reader could not be downloaded. Check the internet connection and try again.'); }));
+  },
+  /** The recording as 16 kHz mono samples, which is what Whisper reads. */
+  async samples(blob){
+    const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    try { return (await ctx.decodeAudioData(await blob.arrayBuffer())).getChannelData(0); }
+    finally { ctx.close(); }
+  },
+  async transcribe(blob, onProgress){
+    const asr = await this.load(onProgress);
+    const out = await asr(await this.samples(blob), { chunk_length_s: 30, stride_length_s: 5 });
+    return String(out && out.text || '').replace(/\s+/g, ' ').replace(/\[(BLANK_AUDIO|MUSIC|NOISE)\]/gi, '').trim();
+  },
+  /** A Record button for the textarea with this id. */
+  button(target){
+    return `<span class="voice"><button class="btn btn-sm voice-btn" type="button" data-voice="${target}" title="Speak instead of typing. Written out on this computer; the sound is never uploaded."><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Record</span></button><span class="voice-msg muted small" role="status"></span></span>`;
+  },
+  /** Attaches every Record button in root. Called again after each render: a recording
+      in progress keeps going and its button shows it. */
+  bind(root){
+    root.querySelectorAll('[data-voice]').forEach(b => {
+      if (this.active && this.active.target === b.dataset.voice) this.show(b, this.active.state);
+      b.addEventListener('click', () => this.active && this.active.target === b.dataset.voice ? this.stop() : this.start(b.dataset.voice));
+    });
+  },
+  els(target){ const b = document.querySelector(`[data-voice="${target}"]`); return { b, msg: b && b.parentElement.querySelector('.voice-msg') }; },
+  show(b, state, note){
+    b = b || this.els(this.active && this.active.target).b; if (!b) return;
+    const msg = b.parentElement.querySelector('.voice-msg');
+    b.classList.toggle('rec', state === 'rec'); b.disabled = state === 'busy';
+    b.querySelector('span').textContent = state === 'rec' ? 'Stop' : state === 'busy' ? 'Writing it out…' : 'Record';
+    if (msg && note != null) msg.textContent = note;
+  },
+  async start(target){
+    if (this.active) return Toast.show('Another recording is still going. Stop it first.', { kind:'warn' });
+    if (!navigator.mediaDevices || !window.MediaRecorder) return Toast.show('This browser cannot record. Use Chrome, Edge or Safari.', { kind:'warn' });
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (e) { return Toast.show('The microphone is not allowed. Click the lock next to the address bar, allow the microphone, and try again.', { kind:'warn', ms:9000 }); }
+    const rec = new MediaRecorder(stream), chunks = [], t0 = Date.now();
+    const a = this.active = { target, rec, state: 'rec' };
+    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+    rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); clearInterval(a.tick); this.finish(a, new Blob(chunks, { type: rec.mimeType })); };
+    rec.start();
+    a.tick = setInterval(() => { const s = Math.round((Date.now() - t0) / 1000);
+      if (!document.getElementById(target)) return this.stop();   // its window was closed
+      this.show(null, 'rec', `Recording ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}. Press Stop when you are done.`); }, 500);
+    this.show(null, 'rec', 'Recording. Press Stop when you are done.');
+    this.load().catch(() => {});   // fetch the model while they talk
+  },
+  stop(){ if (this.active && this.active.state === 'rec') this.active.rec.stop(); },
+  async finish(a, blob){
+    a.state = 'busy'; this.show(null, 'busy', 'Writing it out on this computer…');
+    let text = '', err = null;
+    try { text = await this.transcribe(blob, (got, all) => this.show(null, 'busy', `Getting the speech reader ready, the first time only: ${got} of ${all} MB.`)); }
+    catch (e) { err = e; }
+    this.active = null;
+    const box = document.getElementById(a.target), { b } = this.els(a.target);
+    if (b) this.show(b, 'idle', err ? '' : text ? 'Added. Check it, and correct any name it misheard.' : '');
+    if (err) return Toast.show(err.message || 'The recording could not be written out.', { kind:'warn', ms:9000 });
+    if (!text) return Toast.show('Nothing was heard. Check the microphone and try again.', { kind:'warn' });
+    if (!box) return Toast.show('The recording was not used: its window was closed. ' + text, { kind:'warn', ms:12000 });
+    const at = box.selectionStart ?? box.value.length, before = box.value.slice(0, at), after = box.value.slice(at);
+    const glue = before && !/\s$/.test(before) ? (box.id === 'im-text' ? '\n' : ' ') : '';
+    box.value = before + glue + text + after;
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    box.focus(); box.selectionStart = box.selectionEnd = (before + glue + text).length;
+  },
+};
+
 /* ======================================================================
    SECTION 6. RULES
    Business-day math and the automation from migration 3: an outcome decides
@@ -4766,10 +4862,12 @@ async function openActivity(contactId, tp = null, preset = {}){
     <label class="f" id="la-fu-wrap" hidden><span>Next follow-up</span><input id="la-fu" type="date" min="${tomorrow}"></label>
     ${events.length ? `<label class="f"><span>Event</span><select id="la-ev"><option value="">None</option>${events.map(e => `<option value="${e.id}" ${ev0 === e.id ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}</select></label>` : ''}
     <label class="f span2"><span>Subject</span><input id="la-subj" type="text" value="${esc(tp ? tp.subject || '' : preset.subject || '')}"></label>
-    <label class="f span2"><span>Notes</span><textarea id="la-notes" rows="5">${esc(tp ? tp.notes || '' : preset.notes || '')}</textarea></label></div>`;
+    <label class="f span2"><span>Notes</span><textarea id="la-notes" rows="5">${esc(tp ? tp.notes || '' : preset.notes || '')}</textarea></label>
+    <div class="span2">${Voice.button('la-notes')}</div></div>`;
   const foot = `${tp ? '<button class="btn btn-danger" type="button" data-del style="margin-right:auto">Delete</button>' : ''}<button class="btn" type="button" data-cancel>Cancel</button><button class="btn btn-primary" type="button" data-ok>Save</button>`;
   const m = Modal.open({ title: (tp ? 'Edit activity for ' : 'Log activity for ') + c.full_name, body, foot, wide:true });
   const $ = id => m.querySelector('#' + id);
+  Voice.bind(m);
   let fuChosen = false;
   const fill = keep => { const type = $('la-type').value, cur = keep ?? $('la-out').value;
     $('la-out').innerHTML = outcomeOptions(type, cur && outcomeFits(cur, type) ? cur : (DEFAULT_OUTCOME[type] || cur)); };
@@ -5291,7 +5389,7 @@ Views.contacts = { title:'Contacts',
     // the box at the top: every column, or none but the pinned ones
     root.querySelector('#c-cols-all')?.addEventListener('change', e => saveCols(e.target.checked ? SHEET_COLS.map(x => x.label) : []));
     const ca = root.querySelector('#c-cols-all'); if (ca){ const boxes = [...root.querySelectorAll('[data-col]')]; ca.indeterminate = boxes.some(x => x.checked) && !boxes.every(x => x.checked); }
-    root.querySelector('#c-cols-default')?.addEventListener('click', () => { try { localStorage.removeItem(SHEET_COLS_KEY); } catch (e) { /* private window */ } render(); });
+    root.querySelector('#c-cols-default')?.addEventListener('click', () => { try { localStorage.removeItem(SHEET_COLS_KEY); } catch (e) { /* private window */ } Sheet.reset('contacts'); render(); });
     root.querySelector('#c-cols-done')?.addEventListener('click', () => { UI.openCols = false; render(); });
     root.querySelector('#c-collapse')?.addEventListener('click', () => { st.expanded.clear(); render(); });
     /* Zoom scales the whole grid, columns included, so stepping out shows more
@@ -7267,11 +7365,12 @@ Views.import = { title:'Import',
         ${st.shapeWhy ? `<div class="banner warn" style="margin-top:10px"><b>Which is it?</b> ${esc(st.shapeWhy)}</div>` : ''}
         <div class="imp-actions">
           ${String(st.text || '').trim() || (st.shots || []).length || st.sheets ? '<button class="btn" type="button" id="im-clear">Clear</button>' : ''}
+          ${Voice.button('im-text')}
           <span class="spacer"></span>
           <label class="imp-what"><span class="sr-only">What is this</span>
             <select id="im-what" title="What you are adding. Left on Work it out, the CRM decides.">${Shape.KINDS.map(k => `<option value="${k.key}" ${(st.what || 'auto') === k.key ? 'selected' : ''}>${esc(k.label)}</option>`).join('')}</select></label>
           <button class="btn btn-primary imp-go" type="button" id="im-read">Continue <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
-        <p class="muted small" style="margin-top:6px">Everything pasted here is read on this computer. Nothing is sent anywhere.</p>
+        <p class="muted small" style="margin-top:6px">Everything pasted or recorded here is read on this computer. Nothing is sent anywhere. Record and say, for example, "Met Sarah Rodgers at the Park City summit, she is keen".</p>
       </section>
       <aside class="imp-side">
         <section class="card"><div class="card-head"><h2>What you can import</h2></div><div class="card-body imp-kinds">
@@ -7464,6 +7563,7 @@ Views.import = { title:'Import',
     };
     root.querySelector('#im-what')?.addEventListener('change', e => {
       st.text = root.querySelector('#im-text').value; st.what = e.target.value; st.shapeWhy = ''; render(); });
+    Voice.bind(root);
     root.querySelector('#im-read')?.addEventListener('click', () => (st.shots || []).length ? readShots() : readAny(root.querySelector('#im-text').value));
     root.querySelector('#im-example')?.addEventListener('click', () => { root.querySelector('#im-text').value = DEMO_BATCH_CSV; read(DEMO_BATCH_CSV); });
     root.querySelector('#im-demo-replies')?.addEventListener('click', () => { const text = Replies.demo();
@@ -7846,15 +7946,6 @@ Views.settings = { title:'Settings',
           <td>${status(t)}</td>
           <td class="tm-acts">${t.is_active && !t.auth_user_id ? `<button class="btn btn-sm" type="button" data-tm-copy="${t.id}">Copy invite</button> ` : ''}${t.is_active && t.auth_user_id && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-mfa="${t.id}" title="For someone who lost their phone: they set up a new authenticator app at their next sign-in">Reset 2-step</button> ` : ''}${t.is_active && t.id !== who.id ? `<button class="btn btn-sm" type="button" data-tm-remove="${t.id}">Remove</button>` : ''}${!t.is_active ? `<button class="btn btn-sm" type="button" data-tm-restore="${t.id}">Add back</button>` : ''}</td></tr>`).join('')}
         </tbody></table></div></section>`; })() : ''}
-      <section class="card col-12" id="sheet-housekeeping"><div class="card-head"><h2>Columns and tidying up</h2></div>
-        <div class="card-body">
-          <p class="muted" style="margin-bottom:12px">Job title no longer has a column of its own on the contacts sheet. The values are still on each record; this moves them into Notes, where Jon asked for them, and it can be run more than once without writing anything twice.</p>
-          <div class="actions">
-            <button class="btn" type="button" id="hk-titles">Move job titles into Notes</button>
-            <button class="btn" type="button" id="hk-cols">Put every sheet's columns back</button>
-          </div>
-          <p class="muted small" style="margin-top:10px" id="hk-note">${(() => { const n = Repo.contacts.all().filter(c => c.title && !String(c.notes || '').includes(c.title)).length; return n ? `${fmtInt(n)} contacts have a job title that is not in their notes yet.` : 'Every job title on file is already in its contact\'s notes.'; })()}</p>
-        </div></section>
       <section class="card col-12" id="flag-rules"><div class="card-head"><h2>No cold email list</h2><button class="btn btn-sm" type="button" id="fr-add" style="margin-left:auto">Add a domain</button></div>
         <div class="card-body">
         <table class="edit fr"><colgroup><col class="fr-domain"><col class="fr-rule"><col><col class="fr-on"><col class="fr-del"></colgroup>
@@ -7933,27 +8024,6 @@ The first time, it asks you to set up a 6-digit code with an authenticator app (
       if (await Modal.confirm({ title:'Remove ' + (t.full_name || t.email), message:'They can no longer see anything in the CRM. Their past activity stays, with their name on it. You can invite them again later.', okLabel:'Remove', danger:true }))
         Store.commit('Removed from the team', st => { const x = st.team_members.find(y => y.id === t.id); if (x) x.is_active = false; });
     }));
-    root.querySelector('#hk-titles')?.addEventListener('click', async () => {
-      const todo = Repo.contacts.all().filter(c => c.title && !String(c.notes || '').includes(c.title));
-      if (!todo.length) return Toast.show('Nothing to move: every job title is already in its notes.', { kind:'ok' });
-      const ok = await Modal.confirm({ title: `Move ${todo.length} job titles into Notes`,
-        message: `Each one is added to the end of that contact's notes. The title stays on the record as well, so nothing is lost, and running this again changes nothing. Undo takes it all off.`,
-        okLabel: 'Move them' });
-      if (!ok) return;
-      Store.commit(`${todo.length} job titles moved into Notes`, st => {
-        const ids = new Set(todo.map(c => c.id));
-        st.contacts.forEach(c => { if (!ids.has(c.id) || !c.title) return;
-          c.notes = c.notes ? c.notes.trim() + ' ' + c.title : c.title; });
-      });
-      Toast.show(`${todo.length} moved.`, { kind:'ok', action:'Undo', onAction: () => { Store.undo(); render(); } });
-      render();
-    });
-    root.querySelector('#hk-cols')?.addEventListener('click', () => {
-      ['contacts', 'newsletter', 'organizations', 'touchpoints', 'partners', 'reminders', 'events', 'rfps'].forEach(Sheet.reset);
-      try { localStorage.removeItem(SHEET_COLS_KEY); } catch (e) { /* private window */ }
-      Toast.show('Every sheet is back to the columns it ships with.', { kind:'ok' });
-      render();
-    });
     root.querySelector('#fr-add').addEventListener('click', async () => {
       const out = await Modal.form({ title:'Add a domain', okLabel:'Add', fields:[
         { key:'pattern', label:'Email ending', placeholder:'utah.edu, or .edu for every school' },

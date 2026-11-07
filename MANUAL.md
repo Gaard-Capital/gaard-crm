@@ -85,7 +85,7 @@ Tabs: **People**, **Organizations**, **Partners**, **Newsletter**.
 - **Move a column**: drag the heading sideways. The first columns stay put so you never lose your place.
 - **Copy**: hover a heading for a small copy mark that copies **that one column on its own**, nothing else, which is what you want for a list of addresses. Hover a row for the same mark beside the name to copy **the whole row**. Both copy only what you can see, so a column you have hidden is left out.
 
-Widths and column order are remembered per screen on your computer. Settings > Columns and tidying up puts them all back.
+Widths and column order are remembered per screen on your computer. On Contacts, **Columns** > **Default** puts that sheet's columns, widths and order back.
 
 **The columns.** Date (the day they were added), Contact Name, First Name, Email, Organization, AUM, Notes, Correspondence, Initial Outcome, Status, Stage, Next Reach out Date, Newsletter, Source Event, Segment, State, First reached, Last touch, Touches, Channel.
 - **Initial Outcome** is one of five: No Response, Call, Responded - Interested, Responded - Not Now, Responded - Not Interested. Click it to change it, and the follow-up and the pipeline move with it. Underneath those five sit the delivery problems (bounced, out of office, wrong person), because each of those raises its own reminder.
@@ -98,7 +98,7 @@ Widths and column order are remembered per screen on your computer. Settings > C
 - the details card (name, title, phone, email, LinkedIn, how we met, newsletter, the organization's details, notes): click any value to change it;
 - **Next follow-up** and the **Opportunity** (pipeline stage, expected and funded AUM) on the right;
 - **Activity**: every email, call, meeting and reply, newest first. An email that has replies and answers shows them inside it, with a link to turn their order (newest or oldest message first). Long letters show two lines until you press **Show more**.
-- **Log activity** records a call, meeting or email by hand; the pencil on an activity edits or deletes it.
+- **Log activity** records a call, meeting or email by hand; the pencil on an activity edits or deletes it. Under Notes, **Record** lets you say the notes instead of typing them (see "Speaking instead of typing", section 7).
 - **Edit** (top) holds the name, email status, do not contact and the "in person only" flag.
 - **Status** sits above Newsletter on the details card: Active, Dormant or Dead, with a line saying whether it was worked out or set by hand. Changing it here changes the Status column on the list, and the other way round.
 - **Copy row** (top) copies this one person as a row with its headings, ready to paste into a sheet.
@@ -306,7 +306,17 @@ Use Import (next section): write **Met at** and the event's name on the first li
 
 ## 7. Importing
 
-**Import** takes: a file dropped on the box or chosen with **browse** (CSV, Excel, Word, or pictures), rows pasted from a sheet (with or without the header row), the text of client replies, or screenshots (Ctrl+V). On a phone, tap the box to choose a file or take photos.
+**Import** takes: a file dropped on the box or chosen with **browse** (CSV, Excel, Word, or pictures), rows pasted from a sheet (with or without the header row), the text of client replies, screenshots (Ctrl+V), or a sentence you say with **Record**. On a phone, tap the box to choose a file or take photos.
+
+**Speaking instead of typing (Record).** The **Record** button sits beside Continue on Import, and under Notes in **Log activity** on a contact's page.
+1. Press **Record**. The first time, the browser asks to use the microphone: choose **Allow**.
+2. Speak normally, in English. The button turns red and reads **Stop**, and the time counts up.
+3. Press **Stop**. The words appear in the box where the cursor was, after a few seconds (longer for a long recording).
+4. Read it through and correct any name it misheard, then press Continue (Import) or Save (Log activity).
+
+On Import, say it the way you would write it, for example *"Met Sarah Rodgers at the Park City summit, she is keen to talk next week."* The CRM finds Sarah's record and logs the meeting, as if you had typed the sentence.
+
+The recording is written out **on your computer**: the sound is never uploaded or kept. The very first time, the browser downloads the speech reader (about 80 MB, the message under the button shows its progress); after that it is ready at once. If the microphone was refused, click the lock beside the web address, allow the microphone, and press Record again.
 
 Three steps: **Add data, Check, Imported.**
 
@@ -386,7 +396,7 @@ The spreadsheet problem (log an email, sort or filter, move rows between tabs, a
 
 **Audit log.** The database records who changed what, when, and the old values. A wrong edit, delete or merge can be put back (ask Claude or the admin; it is read in the Supabase SQL Editor).
 
-**Privacy.** The CRM reads only the Gmail conversations it started; screenshots and card photos are read on your own device; nothing from the live database is kept in the browser.
+**Privacy.** The CRM reads only the Gmail conversations it started; screenshots, card photos and voice recordings are read on your own device; nothing from the live database is kept in the browser.
 
 ## 11. Going live with real data, and changing the CRM later
 
