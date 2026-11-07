@@ -223,7 +223,7 @@ The six reply outcomes: **Interested, Not now, Not interested, Bounced (wrong em
 3. Read the letter on the right, filled in for each person. **Type in it to change it for that person only** ("Undo my changes" puts it back).
 4. **Add my booking link**: tick it to put the line "If it is easier, pick a time here: (your booking link)" in every letter of the batch. It is off to begin with, because a link in a first cold email makes spam filters more suspicious. It is greyed out until you save a booking link in Settings.
 5. **Send a test to myself** sends the letter on screen to you first.
-6. **Send N from my Gmail** sends the letters from your own Gmail, one at a time, with your Gmail signature. Each is marked Sent or Not sent, appears in your Gmail Sent folder and is logged as an email with outcome No response, and its follow-up is scheduled.
+6. **Send N from my Gmail** first asks: *"Are you sure you want to send [the letter] to these N emails?"*, with the subject, the address it goes out from and the first names on the list. Press **Yes, send N emails** to go on, or **Cancel** (pressing Enter alone cancels, so nothing is sent by accident). Then the letters go out from your own Gmail, one at a time, with your Gmail signature; **Stop sending** halts the rest, which stay ticked. Each is marked Sent or Not sent, appears in your Gmail Sent folder and is logged as an email with outcome No response, and its follow-up is scheduled.
 
 Google asks your permission the first time (a Google window: allow the CRM to send, and to read your email settings and replies). People on the do-not-contact list, with a bounced address, or on the No cold email list are greyed out and never sent to. **Or send from your own email by hand** copies the letters instead and **Mark as sent** logs them.
 
@@ -310,8 +310,8 @@ Use Import (next section): write **Met at** and the event's name on the first li
 
 **Speaking instead of typing (Record).** The **Record** button sits beside Continue on Import, and under Notes in **Log activity** on a contact's page.
 1. Press **Record**. The first time, the browser asks to use the microphone: choose **Allow**.
-2. Speak normally, in English. The button turns red and reads **Stop**, and the time counts up.
-3. Press **Stop**. The words appear in the box where the cursor was, after a few seconds (longer for a long recording).
+2. Speak normally, in English. The button turns red and reads **Stop**, and the time counts up. The words appear in the box as you speak, a few seconds behind you (the box cannot be typed in while it records). A word may change as more of the sentence is heard.
+3. Press **Stop**. The last words are written out within a few seconds, and the box can be typed in again.
 4. Read it through and correct any name it misheard, then press Continue (Import) or Save (Log activity).
 
 On Import, say it the way you would write it, for example *"Met Sarah Rodgers at the Park City summit, she is keen to talk next week."* The CRM finds Sarah's record and logs the meeting, as if you had typed the sentence.

@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-06.4">
+<meta name="build-version" content="2026-11-06.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -653,6 +653,8 @@ table.edit.tm{width:100%;min-width:0} table.edit.tm td.tm-acts{white-space:norma
 .imp-or::before,.imp-or::after{content:'';flex:1;height:1px;background:var(--line)}
 .imp-add .im-box textarea{min-height:200px}
 .imp-actions{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.mm-sure th{white-space:nowrap;vertical-align:top;padding-right:14px;text-align:left;font-weight:600}
+.mm-sure ul{margin:0;padding-left:18px}
 .voice{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
 .voice-btn{display:inline-flex;align-items:center;gap:6px}
 .voice-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
@@ -3109,88 +3111,151 @@ const Ocr = {
    with transformers.js: nothing is uploaded. The browser's own dictation
    (SpeechRecognition) was tried and taken out because Chrome sends the audio
    to Google. The model (about 80 MB, English) is downloaded from Hugging Face
-   the first time and kept by the browser after that. */
+   the first time and kept by the browser after that.
+   The words appear while the person is still talking: the recording is read
+   again and again from the last settled point, and once that stretch passes
+   10 seconds everything up to its last phrase is settled (Whisper's own
+   timestamps say where it starts), so a long recording never makes each pass
+   slower and no word is cut in two. */
 const Voice = {
-  MODEL: 'Xenova/whisper-base.en',
-  asr: null, active: null,
-  load(onProgress){
-    return this.asr || (this.asr = (async () => {
-      const T = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1/dist/transformers.min.js');
-      T.env.allowLocalModels = false;
-      const seen = {};
-      return T.pipeline('automatic-speech-recognition', this.MODEL, { progress_callback: p => {
-        if (p.status !== 'progress' || !p.total) return;
-        seen[p.file] = [p.loaded, p.total];
-        const v = Object.values(seen), done = v.reduce((s, x) => s + x[0], 0), all = v.reduce((s, x) => s + x[1], 0);
-        onProgress && onProgress(Math.round(done / 1e6), Math.round(all / 1e6));
-      } });
-    })().catch(e => { this.asr = null; throw new Error('The speech reader could not be downloaded. Check the internet connection and try again.'); }));
+  MODEL: 'Xenova/whisper-base.en', RATE: 16000,
+  asr: null, active: null, progress: null,
+  /** Whisper runs in a worker of its own, so the page stays usable while it writes.
+      Resolves to run(samples) -> Promise of the text. */
+  load(){
+    return this.asr || (this.asr = new Promise((resolve, reject) => {
+      const src = `import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1/dist/transformers.min.js';
+        env.allowLocalModels = false;
+        let asr;
+        self.onmessage = async ({ data }) => {
+          try {
+            if (!asr) asr = pipeline('automatic-speech-recognition', '${this.MODEL}', { progress_callback: p => self.postMessage({ progress: [p.status, p.file, p.loaded, p.total] }) });
+            const run = await asr;
+            if (data.load) return self.postMessage({ ready: true });
+            const out = await run(data.x, { chunk_length_s: 30, stride_length_s: 5, return_timestamps: true });
+            self.postMessage({ id: data.id, text: String(out && out.text || ''), parts: (out && out.chunks || []).map(c => [c.timestamp[0], c.text]) });
+          } catch (e) { asr = null; self.postMessage({ id: data.id, error: String(e && e.message || e) }); }
+        };`;
+      const w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })), { type: 'module' });
+      const waiting = new Map(), seen = {}; let n = 0;
+      const fail = () => { this.asr = null; this.progress = null; w.terminate();
+        waiting.forEach(p => p.reject(new Error('The speech reader stopped. Try again.')));
+        reject(new Error('The speech reader could not be downloaded. Check the internet connection and try again.')); };
+      w.onerror = fail;
+      w.onmessage = ({ data }) => {
+        if (data.progress){ const [status, file, loaded, total] = data.progress;
+          if (status !== 'progress' || !total) return;
+          seen[file] = [loaded, total];
+          const v = Object.values(seen), done = v.reduce((s, x) => s + x[0], 0), all = v.reduce((s, x) => s + x[1], 0);
+          this.progress = done < all ? `Getting the speech reader ready, the first time only: ${Math.round(done / 1e6)} of ${Math.round(all / 1e6)} MB.` : null;
+          return; }
+        if (data.ready){ this.progress = null; return resolve(x => new Promise((res, rej) => { const id = ++n; waiting.set(id, { resolve: res, reject: rej }); w.postMessage({ id, x }); })); }
+        if (!data.id) return fail();
+        const p = waiting.get(data.id); if (!p) return; waiting.delete(data.id);
+        data.error ? p.reject(new Error('The recording could not be written out: ' + data.error)) : p.resolve(data);
+      };
+      w.postMessage({ load: true });
+    }));
   },
   /** The recording as 16 kHz mono samples, which is what Whisper reads. */
   async samples(blob){
-    const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: this.RATE });
     try { return (await ctx.decodeAudioData(await blob.arrayBuffer())).getChannelData(0); }
     finally { ctx.close(); }
   },
-  async transcribe(blob, onProgress){
-    const asr = await this.load(onProgress);
-    const out = await asr(await this.samples(blob), { chunk_length_s: 30, stride_length_s: 5 });
-    return String(out && out.text || '').replace(/\s+/g, ' ').replace(/\[(BLANK_AUDIO|MUSIC|NOISE)\]/gi, '').trim();
+  loud(x){ let s = 0; for (let i = 0; i < x.length; i++) s += x[i] * x[i]; return Math.sqrt(s / (x.length || 1)); },
+  clean(t){ return String(t || '').replace(/\[(BLANK_AUDIO|MUSIC|NOISE)\]|\((?:silence|music)\)/gi, '').replace(/\s+/g, ' ').trim(); },
+  /** { text, parts: [[start in seconds, text], ...] }. Whisper invents "Thank you." over
+      silence, so a quiet stretch is not read at all. */
+  async read(x){
+    if (x.length < this.RATE / 2 || this.loud(x) < 0.004) return { text: '', parts: [] };
+    const out = await (await this.load())(x);
+    return { text: this.clean(out.text), parts: out.parts || [] };
   },
+  join(...parts){ return parts.filter(Boolean).join(' '); },
   /** A Record button for the textarea with this id. */
   button(target){
     return `<span class="voice"><button class="btn btn-sm voice-btn" type="button" data-voice="${target}" title="Speak instead of typing. Written out on this computer; the sound is never uploaded."><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Record</span></button><span class="voice-msg muted small" role="status"></span></span>`;
   },
   /** Attaches every Record button in root. Called again after each render: a recording
-      in progress keeps going and its button shows it. */
+      in progress keeps going, its button shows it and its words stay in the box. */
   bind(root){
     root.querySelectorAll('[data-voice]').forEach(b => {
-      if (this.active && this.active.target === b.dataset.voice) this.show(b, this.active.state);
+      if (this.active && this.active.target === b.dataset.voice){ this.show(b, this.active.state); this.write(this.active); }
       b.addEventListener('click', () => this.active && this.active.target === b.dataset.voice ? this.stop() : this.start(b.dataset.voice));
     });
   },
-  els(target){ const b = document.querySelector(`[data-voice="${target}"]`); return { b, msg: b && b.parentElement.querySelector('.voice-msg') }; },
   show(b, state, note){
-    b = b || this.els(this.active && this.active.target).b; if (!b) return;
+    b = b || (this.active && document.querySelector(`[data-voice="${this.active.target}"]`)); if (!b) return;
     const msg = b.parentElement.querySelector('.voice-msg');
     b.classList.toggle('rec', state === 'rec'); b.disabled = state === 'busy';
-    b.querySelector('span').textContent = state === 'rec' ? 'Stop' : state === 'busy' ? 'Writing it out…' : 'Record';
+    b.querySelector('span').textContent = state === 'rec' ? 'Stop' : state === 'busy' ? 'Finishing…' : 'Record';
     if (msg && note != null) msg.textContent = note;
+  },
+  /** The box holds what was there, then the words so far, settled and still being heard. */
+  write(a){
+    const box = document.getElementById(a.target); if (!box) return;
+    box.readOnly = a.state !== 'done';
+    const said = this.join(a.done, a.heard), glue = said && a.before && !/\s$/.test(a.before) ? a.glue : '';
+    const v = a.before + glue + said + a.after;
+    if (box.value !== v){ box.value = v; box.dispatchEvent(new Event('input', { bubbles: true })); box.scrollTop = box.scrollHeight; }
+    if (a.state === 'done'){ box.focus(); box.selectionStart = box.selectionEnd = (a.before + glue + said).length; }
+  },
+  /** One pass over what was recorded since the last settled point. */
+  async pass(a, final){
+    let all;
+    try { all = await this.samples(new Blob(a.chunks, { type: a.rec.mimeType })); }
+    catch (e) { if (final) throw e; return; }   // a recording cut mid-frame; the next pass reads it
+    const x = all.subarray(a.from), r = await this.read(x), long = x.length > 10 * this.RATE;
+    const lastAt = r.parts.length > 1 ? Math.round(r.parts[r.parts.length - 1][0] * this.RATE) : 0;
+    if (final || (long && x.length > 25 * this.RATE && !lastAt)){ a.done = this.join(a.done, r.text); a.heard = ''; a.from = all.length; }
+    else if (long && lastAt > 0 && lastAt < x.length){
+      a.done = this.join(a.done, this.clean(r.parts.slice(0, -1).map(p => p[1]).join(' ')));
+      a.heard = this.clean(r.parts[r.parts.length - 1][1]); a.from += lastAt;
+    } else a.heard = r.text;
+    this.write(a);
+  },
+  async listen(a){
+    try { await this.load(); } catch (e) { a.err = e; return; }   // the first pass reads everything said meanwhile
+    while (a.state === 'rec'){
+      await new Promise(r => setTimeout(r, 1500));
+      if (a.state !== 'rec' || !a.chunks.length) continue;
+      try { await this.pass(a, false); } catch (e) { a.err = e; break; }
+    }
   },
   async start(target){
     if (this.active) return Toast.show('Another recording is still going. Stop it first.', { kind:'warn' });
     if (!navigator.mediaDevices || !window.MediaRecorder) return Toast.show('This browser cannot record. Use Chrome, Edge or Safari.', { kind:'warn' });
+    const box = document.getElementById(target); if (!box) return;
     let stream;
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
     catch (e) { return Toast.show('The microphone is not allowed. Click the lock next to the address bar, allow the microphone, and try again.', { kind:'warn', ms:9000 }); }
-    const rec = new MediaRecorder(stream), chunks = [], t0 = Date.now();
-    const a = this.active = { target, rec, state: 'rec' };
-    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
-    rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); clearInterval(a.tick); this.finish(a, new Blob(chunks, { type: rec.mimeType })); };
-    rec.start();
-    a.tick = setInterval(() => { const s = Math.round((Date.now() - t0) / 1000);
-      if (!document.getElementById(target)) return this.stop();   // its window was closed
-      this.show(null, 'rec', `Recording ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}. Press Stop when you are done.`); }, 500);
-    this.show(null, 'rec', 'Recording. Press Stop when you are done.');
-    this.load().catch(() => {});   // fetch the model while they talk
+    const at = box.selectionStart ?? box.value.length, rec = new MediaRecorder(stream), t0 = Date.now();
+    const a = this.active = { target, rec, chunks: [], state: 'rec', done: '', heard: '', from: 0,
+      before: box.value.slice(0, at), after: box.value.slice(at), glue: target === 'im-text' ? '\n' : ' ' };
+    rec.ondataavailable = e => e.data.size && a.chunks.push(e.data);
+    rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); clearInterval(a.tick); this.finish(a); };
+    rec.start(1000);
+    const note = () => { const s = Math.round((Date.now() - t0) / 1000);
+      return `Recording ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}. ` + (this.progress || 'The words appear as you speak. Press Stop when you are done.'); };
+    a.tick = setInterval(() => { if (!document.getElementById(target)) return this.stop();   // its window was closed
+      this.show(null, 'rec', note()); }, 500);
+    this.show(null, 'rec', note()); this.write(a);
+    a.loop = this.listen(a);
   },
-  stop(){ if (this.active && this.active.state === 'rec') this.active.rec.stop(); },
-  async finish(a, blob){
-    a.state = 'busy'; this.show(null, 'busy', 'Writing it out on this computer…');
-    let text = '', err = null;
-    try { text = await this.transcribe(blob, (got, all) => this.show(null, 'busy', `Getting the speech reader ready, the first time only: ${got} of ${all} MB.`)); }
-    catch (e) { err = e; }
-    this.active = null;
-    const box = document.getElementById(a.target), { b } = this.els(a.target);
-    if (b) this.show(b, 'idle', err ? '' : text ? 'Added. Check it, and correct any name it misheard.' : '');
+  stop(){ if (this.active && this.active.state === 'rec'){ this.active.state = 'stopping'; this.active.rec.stop(); } },
+  async finish(a){
+    a.state = 'busy'; this.show(null, 'busy', 'Writing out the last words…');
+    await a.loop;
+    let err = a.err;
+    if (!err) try { await this.pass(a, true); } catch (e) { err = e; }
+    a.state = 'done'; this.active = null;
+    const b = document.querySelector(`[data-voice="${a.target}"]`), box = document.getElementById(a.target), said = a.done;
+    if (b) this.show(b, 'idle', err ? '' : said ? 'Done. Check it, and correct any name it misheard.' : '');
+    this.write(a);
     if (err) return Toast.show(err.message || 'The recording could not be written out.', { kind:'warn', ms:9000 });
-    if (!text) return Toast.show('Nothing was heard. Check the microphone and try again.', { kind:'warn' });
-    if (!box) return Toast.show('The recording was not used: its window was closed. ' + text, { kind:'warn', ms:12000 });
-    const at = box.selectionStart ?? box.value.length, before = box.value.slice(0, at), after = box.value.slice(at);
-    const glue = before && !/\s$/.test(before) ? (box.id === 'im-text' ? '\n' : ' ') : '';
-    box.value = before + glue + text + after;
-    box.dispatchEvent(new Event('input', { bubbles: true }));
-    box.focus(); box.selectionStart = box.selectionEnd = (before + glue + text).length;
+    if (!said) return Toast.show('Nothing was heard. Check the microphone and try again.', { kind:'warn' });
+    if (!box) Toast.show('The recording was not used: its window was closed. ' + said, { kind:'warn', ms:12000 });
   },
 };
 
@@ -3872,6 +3937,31 @@ const Views = {};
 /** The signed-in person's booking page, or ''. */
 const myBookingLink = () => ((Store.state.team_members || []).find(t => t.id === Repo.settings().default_owner_id) || {}).booking_url || '';
 const Merge = {
+  /** Jon's guardrail before a batch goes out: which letter, to how many, from
+      whom, with the first names listed. Cancel has the focus, so Enter alone
+      never sends. Resolves true only on "Yes, send". */
+  confirmSend(rows, tpl, other){
+    const n = rows.length, many = `${fmtInt(n)} email${n === 1 ? '' : 's'}`;
+    const subjects = [...new Set(rows.map(r => r.subject))];
+    const shown = rows.slice(0, 8).map(r => `<li>${esc(r.contact.full_name)} <span class="muted">${esc(r.contact.email)}</span></li>`).join('');
+    const sig = Gmail.sigNote();
+    const body = `<p style="font-size:16px;margin-bottom:12px">Are you sure you want to send <b>${esc(tpl ? tpl.name : 'this letter')}</b> to these <b>${many}</b>?</p>
+      <table class="mm-sure"><tr><th>Subject</th><td>${esc(subjects.length === 1 ? subjects[0] : subjects.length + ' different subjects (edited letters)')}</td></tr>
+        <tr><th>From</th><td>${esc(Gmail.email || '')}${other ? ` <span class="muted">(not the account you signed in to the CRM with, ${esc(Live.email)})</span>` : ''}</td></tr>
+        <tr><th>To</th><td><ul>${shown}</ul>${n > 8 ? `<span class="muted">and ${fmtInt(n - 8)} more</span>` : ''}</td></tr></table>
+      ${sig ? `<p class="banner warn" style="margin-top:12px">${esc(sig)}</p>` : ''}
+      <p class="muted small" style="margin-top:12px">They go out one at a time, about a second apart; Stop sending halts the rest. An email that has gone cannot be called back. Each person is marked No response and their next follow-up is set.</p>`;
+    return new Promise(res => {
+      const m = Modal.open({ title: `Send ${many}?`, body,
+        foot: `<button class="btn" type="button" data-cancel>Cancel</button><button class="btn btn-primary" type="button" data-ok>Yes, send ${many}</button>` });
+      const done = v => { Modal.close(); res(v); };
+      m.querySelector('[data-cancel]').onclick = () => done(false);
+      m.querySelector('[data-ok]').onclick = () => done(true);
+      m.querySelector('[data-modal-x]').onclick = () => done(false);
+      document.getElementById('modal-back').onclick = e => { if (e.target.id === 'modal-back') done(false); };
+      m.querySelector('[data-cancel]').focus();
+    });
+  },
   /** Fill one template for one contact. */
   fill(text, c){
     const org = c.organization_id != null ? Repo.organizations.byId(c.organization_id) : null;
@@ -4602,6 +4692,7 @@ Views.mailmerge = { title:'Mass Email',
           ${(() => { const why = Gmail.blocker(), busy = !!st.sending;
             return `<div class="page-actions">
             <button class="btn btn-primary btn-xl" type="button" id="mm-gsend" ${chosen.length && !why && !busy ? '' : 'disabled'}>${busy ? 'Sending ' + st.sending.done + ' of ' + st.sending.total + '…' : 'Send ' + chosen.length + ' from my Gmail'}</button>
+            ${busy ? `<button class="btn btn-danger btn-xl" type="button" id="mm-gstop" ${st.sending.stop ? 'disabled' : ''}>${st.sending.stop ? 'Stopping…' : 'Stop sending'}</button>` : ''}
             <button class="btn btn-xl" type="button" id="mm-gtest" ${why || busy ? 'disabled' : ''}>Send a test to myself</button></div>
           <p class="muted small" style="margin-top:10px">${why ? esc(why) : `Each letter goes out from your own Gmail${Gmail.email ? ' (' + esc(Gmail.email) + ')' : ''}, one at a time, with the signature you set up in Gmail, and shows up in your Sent folder; replies come back to you. Every person sent to is marked <b>No response</b> and their next follow-up is set.`}</p>
           <details class="mm-manual"><summary>Or send from your own email by hand</summary>
@@ -4678,10 +4769,7 @@ Views.mailmerge = { title:'Mass Email',
       if (!Store.live) return Toast.show('This is the demo data: the addresses are made up. Use "Send a test to myself" to try it.', { kind:'warn', ms: 8000 });
       try { await Gmail.prepare(); } catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
       const other = Live.email && Gmail.email && Live.email.toLowerCase() !== Gmail.email.toLowerCase();
-      const ok = await Modal.confirm({ title: `Send ${rows.length} email${rows.length === 1 ? '' : 's'} now?`,
-        message: `They go out from ${Gmail.email}, one at a time${other ? ' (not the account you signed in to the CRM with, ' + Live.email + ')' : ''}.${Gmail.sigNote() ? ' ' + Gmail.sigNote() : ''} Each person is marked No response and their next follow-up is set.`,
-        okLabel: `Send ${rows.length}` });
-      if (!ok) return;
+      if (!await Merge.confirmSend(rows, tpl, other)) return;
       st.sendLog = st.sendLog || {}; st.sending = { done: 0, total: rows.length, queue: rows.map(r => r.contact.id), current: null }; render();
       const sent = [];
       for (const r of rows){
@@ -4689,14 +4777,17 @@ Views.mailmerge = { title:'Mass Email',
         try { r.gmail = await Gmail.send({ to: r.contact.email, subject: r.subject, text: r.body }); r.mailbox = Gmail.email.toLowerCase(); st.sendLog[r.contact.id] = 'sent'; sent.push(r); }
         catch (err){ st.sendLog[r.contact.id] = err.message; }
         st.sending.done++; st.sending.queue = st.sending.queue.filter(id => id !== r.contact.id); st.sending.current = null; render();
+        if (st.sending.stop) break;
         await new Promise(res => setTimeout(res, 1200));   // a steady pace, as a person sending would
       }
+      const stopped = st.sending.stop ? rows.length - st.sending.done : 0;
       st.sending = null;
       if (sent.length){ Merge.send(sent, tpl.name); sent.forEach(r => { st.selected.delete(r.contact.id); if (UI.contacts.sel) UI.contacts.sel.delete(r.contact.id); }); }
       const failed = rows.length - sent.length;
-      Toast.show(`Sent ${sent.length}${failed ? ', ' + failed + ' not sent (see the names marked Not sent)' : ''}`, { kind: failed ? 'warn' : 'ok', ms: 8000 });
+      Toast.show(`Sent ${sent.length}${stopped ? '. Stopped: ' + stopped + ' not sent, still ticked' : ''}${failed - stopped ? ', ' + (failed - stopped) + ' not sent (see the names marked Not sent)' : ''}`, { kind: failed ? 'warn' : 'ok', ms: 8000 });
       render();
     });
+    root.querySelector('#mm-gstop')?.addEventListener('click', () => { if (st.sending){ st.sending.stop = true; render(); } });
     root.querySelector('#mm-q')?.addEventListener('input', debounce(e => { UI.merge.q = e.target.value; render(); }, 200));
     root.querySelector('#mm-send')?.addEventListener('click', async () => {
       const rows = build(); if (!rows.length) return;
