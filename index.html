@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-06.5">
+<meta name="build-version" content="2026-11-06.6">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -3110,15 +3110,18 @@ const Ocr = {
    recorded and written out on this computer by Whisper, run in the browser
    with transformers.js: nothing is uploaded. The browser's own dictation
    (SpeechRecognition) was tried and taken out because Chrome sends the audio
-   to Google. The model (about 80 MB, English) is downloaded from Hugging Face
-   the first time and kept by the browser after that.
+   to Google; its on-device mode (processLocally) was tried on
+   6 Nov 2026 and heard speech but gave no words on the team's PC. The model is
+   Whisper tiny (English, about 40 MB, downloaded from Hugging Face the first
+   time and kept by the browser): base read names a little better but took
+   twice as long per pass, too slow for words to follow the speaker.
    The words appear while the person is still talking: the recording is read
    again and again from the last settled point, and once that stretch passes
    10 seconds everything up to its last phrase is settled (Whisper's own
    timestamps say where it starts), so a long recording never makes each pass
    slower and no word is cut in two. */
 const Voice = {
-  MODEL: 'Xenova/whisper-base.en', RATE: 16000,
+  MODEL: 'Xenova/whisper-tiny.en', RATE: 16000,
   asr: null, active: null, progress: null,
   /** Whisper runs in a worker of its own, so the page stays usable while it writes.
       Resolves to run(samples) -> Promise of the text. */
@@ -3183,6 +3186,7 @@ const Voice = {
     root.querySelectorAll('[data-voice]').forEach(b => {
       if (this.active && this.active.target === b.dataset.voice){ this.show(b, this.active.state); this.write(this.active); }
       b.addEventListener('click', () => this.active && this.active.target === b.dataset.voice ? this.stop() : this.start(b.dataset.voice));
+      ['pointerenter', 'focus'].forEach(ev => b.addEventListener(ev, () => this.load().catch(() => {}), { once: true }));   // ready before the click
     });
   },
   show(b, state, note){
@@ -3218,26 +3222,29 @@ const Voice = {
   async listen(a){
     try { await this.load(); } catch (e) { a.err = e; return; }   // the first pass reads everything said meanwhile
     while (a.state === 'rec'){
-      await new Promise(r => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, 400));
       if (a.state !== 'rec' || !a.chunks.length) continue;
       try { await this.pass(a, false); } catch (e) { a.err = e; break; }
     }
   },
+  MIC: 'The microphone is not allowed. Click the lock next to the address bar, allow the microphone, and try again.',
   async start(target){
     if (this.active) return Toast.show('Another recording is still going. Stop it first.', { kind:'warn' });
     if (!navigator.mediaDevices || !window.MediaRecorder) return Toast.show('This browser cannot record. Use Chrome, Edge or Safari.', { kind:'warn' });
     const box = document.getElementById(target); if (!box) return;
+    this.load().catch(() => {});   // the reader gets ready while the microphone is asked for
     let stream;
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-    catch (e) { return Toast.show('The microphone is not allowed. Click the lock next to the address bar, allow the microphone, and try again.', { kind:'warn', ms:9000 }); }
+    catch (e) { return Toast.show(this.MIC, { kind:'warn', ms:9000 }); }
     const at = box.selectionStart ?? box.value.length, rec = new MediaRecorder(stream), t0 = Date.now();
     const a = this.active = { target, rec, chunks: [], state: 'rec', done: '', heard: '', from: 0,
       before: box.value.slice(0, at), after: box.value.slice(at), glue: target === 'im-text' ? '\n' : ' ' };
     rec.ondataavailable = e => e.data.size && a.chunks.push(e.data);
     rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); clearInterval(a.tick); this.finish(a); };
-    rec.start(1000);
+    rec.start(500);
     const note = () => { const s = Math.round((Date.now() - t0) / 1000);
-      return `Recording ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}. ` + (this.progress || 'The words appear as you speak. Press Stop when you are done.'); };
+      return `Recording ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}. ` + (this.progress
+        || (a.done || a.heard ? 'The words follow a few seconds behind you. Press Stop when you are done.' : 'Listening… the first words show in a few seconds.')); };
     a.tick = setInterval(() => { if (!document.getElementById(target)) return this.stop();   // its window was closed
       this.show(null, 'rec', note()); }, 500);
     this.show(null, 'rec', note()); this.write(a);
@@ -3245,6 +3252,7 @@ const Voice = {
   },
   stop(){ if (this.active && this.active.state === 'rec'){ this.active.state = 'stopping'; this.active.rec.stop(); } },
   async finish(a){
+    if (a.state === 'busy' || a.state === 'done') return;
     a.state = 'busy'; this.show(null, 'busy', 'Writing out the last words…');
     await a.loop;
     let err = a.err;

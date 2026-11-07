@@ -310,13 +310,13 @@ Use Import (next section): write **Met at** and the event's name on the first li
 
 **Speaking instead of typing (Record).** The **Record** button sits beside Continue on Import, and under Notes in **Log activity** on a contact's page.
 1. Press **Record**. The first time, the browser asks to use the microphone: choose **Allow**.
-2. Speak normally, in English. The button turns red and reads **Stop**, and the time counts up. The words appear in the box as you speak, a few seconds behind you (the box cannot be typed in while it records). A word may change as more of the sentence is heard.
+2. Speak normally, in English. The button turns red and reads **Stop**, and the time counts up. The first words show after about eight seconds, then follow a few seconds behind you (the box cannot be typed in while it records). A word may change as more of the sentence is heard.
 3. Press **Stop**. The last words are written out within a few seconds, and the box can be typed in again.
 4. Read it through and correct any name it misheard, then press Continue (Import) or Save (Log activity).
 
 On Import, say it the way you would write it, for example *"Met Sarah Rodgers at the Park City summit, she is keen to talk next week."* The CRM finds Sarah's record and logs the meeting, as if you had typed the sentence.
 
-The recording is written out **on your computer**: the sound is never uploaded or kept. The very first time, the browser downloads the speech reader (about 80 MB, the message under the button shows its progress); after that it is ready at once. If the microphone was refused, click the lock beside the web address, allow the microphone, and press Record again.
+The recording is written out **on your computer**: the sound is never uploaded or kept. The very first time, the browser downloads the speech reader (about 40 MB, the message under the button shows its progress); after that it is ready at once. If the microphone was refused, click the lock beside the web address, allow the microphone, and press Record again.
 
 Three steps: **Add data, Check, Imported.**
 
