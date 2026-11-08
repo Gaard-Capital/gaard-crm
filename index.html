@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-06.6">
+<meta name="build-version" content="2026-11-08.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -7989,7 +7989,7 @@ const ClaudeLink = {
     /* claude.ai lets no other website add a connector to someone's account, so the person pastes
        the address there. One button copies it and opens claude.ai's Connectors page. */
     const m = Modal.open({ title:'Connect your Claude', wide: true, body: `
-      <p>Your Claude needs this CRM address once. It is shown only here; anyone who has it can do what your Claude can do, so keep it to yourself.</p>
+      <p>Your Claude needs this CRM address once. It is shown only here; <b>anyone who has it can do what your Claude can do</b>, so <b>keep it to yourself</b>.</p>
       <div style="display:flex;gap:8px;margin:12px 0"><input id="cl-url" readonly value="${esc(url)}" style="flex:1;min-width:0" class="mono" aria-label="Your connector address"></div>
       <p><button class="btn btn-primary" type="button" id="cl-copy">Copy it and open Claude</button></p>
       <ol style="margin:12px 0 0 18px;line-height:1.7">
