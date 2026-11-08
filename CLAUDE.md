@@ -225,6 +225,23 @@ Keep the team rules at the top of this file; they stop two people's changes over
 - **Phone width:** below 820px the sidebar becomes a strip across the top that scrolls sideways; below 640px button groups and card headings wrap and wide tables scroll inside their card, so no page is wider than a 390px phone. The Import box says "Tap to add a file, or take a photo of business cards" on a touch screen.
 - **Before real client data goes in:** see "Going live with real data" below.
 
+## Future improvements
+
+Ideas weighed with the build team in November 2026 and deliberately left for later: not decided, not built. Each is a next step Gaard can pick up when it wants to.
+
+**1. Sign in to the Claude connector with a Gaard account (OAuth 2.1) instead of a secret address.**
+- *Today:* Settings > Your Claude makes a secret connector address (`…/functions/v1/claude-connector/<key>`, db/015; only its SHA-256 is stored). Anyone holding the address can do what that person's Claude can do, until it is disconnected. There is no expiry and no read-only option.
+- *The idea:* connecting the connector in claude.ai opens a Gaard sign-in (Google with a gaard.capital account, plus the 2-step code), and Claude receives a short-lived token instead of a permanent address.
+- *What exists to build on:* claude.ai custom connectors support OAuth as the MCP specification describes it (authorization code with PKCE, dynamic client registration). Supabase has announced an OAuth 2.1 server for Supabase Auth, in beta when this was written; check its current state in the Supabase dashboard and docs before relying on it.
+- *Steps, roughly:* (1) move Google sign-in to Gaard's Workspace first (MANUAL.md section 11), since this builds on it; (2) turn on Supabase's OAuth server and register the connector; (3) add a consent page to `index.html` ("Allow Claude to use the Gaard CRM as you?"); (4) change `supabase/functions/claude-connector` to accept the signed token (checking it is an active team member) instead of the key in the address; (5) everyone, Jon's Event Finder and RFP tracker included, reconnects once; (6) remove the secret addresses (`connector_keys`).
+- *Risks:* the Supabase feature was in beta; the CRM requires the 2-step code (aal2) and the OAuth sign-in must keep that; tokens expire and must refresh without breaking Jon's automations; Jon's Event Finder calls the connector through his own claude.ai connector and needs reconnecting; a mistake in the token check opens the CRM, so it needs careful testing before the old addresses are removed.
+
+**2. A limit on how often a connector address can write.**
+- *Today:* no limit. A connector address can call `record_reply`, `record_event` and `record_rfp` as often as it likes; every write is in `audit_log`, but nothing names the connector call that made it.
+- *The idea:* count the write calls per connector address and refuse beyond a ceiling per hour with a clear message ("Too many changes this hour; try again after …"), most likely with a small `connector_calls` table (tool, time, which address) that also shows an admin who changed what through Claude.
+- *Choose the ceiling with care:* 30 per hour was suggested, but when Jon's Event Finder and RFP tracker send their catch-up (every Going or Attended event, every submitted RFP) they can pass that within the hour and would stop halfway. Something near 200 per hour, or a separate ceiling per tool, avoids that. Look at a few real weeks of the connector's use before deciding.
+- *Where:* a new numbered file in `db/` for the table, and a check at the top of the write tools in `supabase/functions/claude-connector/index.ts` (redeployed by pasting it in the dashboard). Run the SQL first, or the function fails.
+
 ## Going live with real data
 
 Until handover every row in the database is sample data. Jon loads his real data after the build team has been removed. He can follow these steps himself with Claude, or ask Tien to do them with him. Nothing here needs a developer.
