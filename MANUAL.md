@@ -308,11 +308,11 @@ Use Import (next section): write **Met at** and the event's name on the first li
 
 **Import** takes: a file dropped on the box or chosen with **browse** (CSV, Excel, Word, or pictures), rows pasted from a sheet (with or without the header row), the text of client replies, screenshots (Ctrl+V), or a sentence you say with **Record**. On a phone, tap the box to choose a file or take photos.
 
-**Speaking instead of typing (Record).** The **Record** button sits beside Continue on Import, and under Notes in **Log activity** on a contact's page.
+**Speaking instead of typing (Record).** The **Record** button sits beside Continue on Import, under Notes in **Log activity** on a contact's page, and under the answer in **Reply from my Gmail** (what you say goes in a new paragraph after the suggested answer, unless you click into the letter first: then it goes where the cursor is).
 1. Press **Record**. The first time, the browser asks to use the microphone: choose **Allow**.
 2. Speak normally, in English. The button turns red and reads **Stop**, and the time counts up. The first words show after about eight seconds, then follow a few seconds behind you (the box cannot be typed in while it records). A word may change as more of the sentence is heard.
 3. Press **Stop**. The last words are written out within a few seconds, and the box can be typed in again.
-4. Read it through and correct any name it misheard, then press Continue (Import) or Save (Log activity).
+4. Read it through and correct any name it misheard, then press Continue (Import), Save (Log activity) or Send from my Gmail (a reply).
 
 On Import, say it the way you would write it, for example *"Met Sarah Rodgers at the Park City summit, she is keen to talk next week."* The CRM finds Sarah's record and logs the meeting, as if you had typed the sentence.
 

@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-08.1">
+<meta name="build-version" content="2026-11-08.2">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -3176,15 +3176,19 @@ const Voice = {
     return { text: this.clean(out.text), parts: out.parts || [] };
   },
   join(...parts){ return parts.filter(Boolean).join(' '); },
-  /** A Record button for the textarea with this id. */
-  button(target){
-    return `<span class="voice"><button class="btn btn-sm voice-btn" type="button" data-voice="${target}" title="Speak instead of typing. Written out on this computer; the sound is never uploaded."><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Record</span></button><span class="voice-msg muted small" role="status"></span></span>`;
+  /** A Record button for the textarea with this id. glue goes between what is already
+      there and the words spoken (a letter takes a new paragraph). */
+  button(target, glue){
+    return `<span class="voice"><button class="btn btn-sm voice-btn" type="button" data-voice="${target}"${glue ? ` data-glue="${esc(glue)}"` : ''} title="Speak instead of typing. Written out on this computer; the sound is never uploaded."><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Record</span></button><span class="voice-msg muted small" role="status"></span></span>`;
   },
   /** Attaches every Record button in root. Called again after each render: a recording
       in progress keeps going, its button shows it and its words stay in the box. */
   bind(root){
     root.querySelectorAll('[data-voice]').forEach(b => {
       if (this.active && this.active.target === b.dataset.voice){ this.show(b, this.active.state); this.write(this.active); }
+      // A box nobody has clicked into (a suggested letter) takes the words at its end, not its start.
+      const box = document.getElementById(b.dataset.voice);
+      if (box) box.addEventListener('focus', () => { box.dataset.picked = '1'; }, { once: true });
       b.addEventListener('click', () => this.active && this.active.target === b.dataset.voice ? this.stop() : this.start(b.dataset.voice));
       ['pointerenter', 'focus'].forEach(ev => b.addEventListener(ev, () => this.load().catch(() => {}), { once: true }));   // ready before the click
     });
@@ -3236,9 +3240,10 @@ const Voice = {
     let stream;
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
     catch (e) { return Toast.show(this.MIC, { kind:'warn', ms:9000 }); }
-    const at = box.selectionStart ?? box.value.length, rec = new MediaRecorder(stream), t0 = Date.now();
+    const at = box.dataset.picked ? box.selectionStart ?? box.value.length : box.value.replace(/\s+$/, '').length, rec = new MediaRecorder(stream), t0 = Date.now();
+    const b = document.querySelector(`[data-voice="${target}"]`), glue = b && b.dataset.glue;
     const a = this.active = { target, rec, chunks: [], state: 'rec', done: '', heard: '', from: 0,
-      before: box.value.slice(0, at), after: box.value.slice(at), glue: target === 'im-text' ? '\n' : ' ' };
+      before: box.value.slice(0, at), after: box.value.slice(at), glue: glue || (target === 'im-text' ? '\n' : ' ') };
     rec.ondataavailable = e => e.data.size && a.chunks.push(e.data);
     rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); clearInterval(a.tick); this.finish(a); };
     rec.start(500);
@@ -3415,8 +3420,10 @@ const Modal = {
           : f.type === 'textarea' ? `<textarea id="${id}" rows="${f.rows||4}">${esc(f.value||'')}</textarea>`
           : f.type === 'file' ? `<input id="${id}" type="file" multiple>`
           : `<input id="${id}" type="${f.type||'text'}" value="${esc(f.value ?? '')}" ${f.step?`step="${f.step}"`:''} ${f.placeholder?`placeholder="${esc(f.placeholder)}"`:''}>`;
-        return `<label class="f ${f.span?'span2':''}"><span>${esc(f.label)}${f.hint?` <span class="muted">${esc(f.hint)}</span>`:''}</span>${input}</label>`; }).join('') + `</div>`;
+        return `<label class="f ${f.span?'span2':''}"><span>${esc(f.label)}${f.hint?` <span class="muted">${esc(f.hint)}</span>`:''}</span>${input}</label>`
+          + (f.voice ? `<div class="${f.span?'span2':''}">${Voice.button(id, f.voice === true ? '' : f.voice)}</div>` : ''); }).join('') + `</div>`;
       const m = Modal.open({ title, body, wide, foot:`<button class="btn" type="button" data-cancel>Cancel</button><button class="btn btn-primary" type="button" data-ok>${esc(okLabel)}</button>` });
+      Voice.bind(m);
       m.querySelector('[data-cancel]').onclick = () => { Modal.close(); res(null); };
       m.querySelector('[data-ok]').onclick = () => { const out = {}; fields.forEach(f => { const el = m.querySelector('#mf-'+f.key); out[f.key] = el ? (f.type === 'file' ? el.files : el.value) : ''; }); Modal.close(); res(out); };
     });
@@ -4307,7 +4314,7 @@ const Inbox = {
     const subject = /^re:/i.test(theirs.subject || '') ? theirs.subject : 'Re: ' + (theirs.subject || tp.subject || '');
     const out = await Modal.form({ title: preset.title || 'Reply to ' + c.full_name, wide: true, okLabel: 'Send from my Gmail', fields: [
       { key: 'subject', label: 'Subject', value: subject, span: true },
-      { key: 'body', label: 'Your answer (a suggestion: change anything before sending)', type: 'textarea', rows: 12, span: true, value: preset.body || this.suggest(tp, c) },
+      { key: 'body', label: 'Your answer (a suggestion: change anything before sending)', type: 'textarea', rows: 12, span: true, value: preset.body || this.suggest(tp, c), voice: '\n\n' },
       { key: 'files', label: 'Attach files', hint: 'optional', type: 'file', span: true } ] });
     if (!out || !out.body.trim()) return;
     try {
