@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-08.2">
+<meta name="build-version" content="2026-11-09.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -2588,6 +2588,7 @@ const Intelligence = (() => {
     return isNaN(t) || new Date(t).getFullYear() < 1900 ? null : new Date(t).toISOString().slice(0,10);
   }
 
+  const rawOrgKey = s => String(s || '').trim() ? orgKey(String(s).trim()) : '';
   /** Stage one row and check it against the book, the way process_import_batch does. */
   function analyzeRow(row, headers, mapping, ctx){
     const v = {}, extras = {};
@@ -2597,7 +2598,12 @@ const Intelligence = (() => {
 
     const contactName = (v.contact||'').trim();
     let first = (v.first_name||'').trim(), last = (v.last_name||'').trim();
-    if (!last && contactName){ const p = contactName.split(/\s+/); if (!first) first = p[0]; last = p.slice(1).join(' '); }
+    // "Contact" is the full name, "Patel, Anika", or (with a First Name column beside it) only the last name
+    if (!last && contactName){ const p = contactName.split(/\s+/);
+      if (!first){ first = p[0]; last = p.slice(1).join(' '); }
+      else if (norm(p[0]) === norm(first)) last = p.slice(1).join(' ');
+      else if (contactName.includes(',')) last = contactName.split(',')[0].trim();
+      else if (norm(contactName) !== norm(first)) last = contactName; }
     if (!first && contactName) first = contactName.split(/\s+/)[0];
     const email = emailKey(v.email), li = linkedinKey(v.linkedin);
     const aum = classifyAUM(v.aum, headers[mapping.indexOf('aum')] || 'AUM');
@@ -2616,7 +2622,10 @@ const Intelligence = (() => {
     if (li && ctx.byLinkedIn.has(li)){ const m2 = ctx.byLinkedIn.get(li); if (!match){ match = m2; why = 'Same LinkedIn URL'; }
       flags.push({ level: match === m2 ? 'info' : 'warn', code:'dup_linkedin', text:'Same LinkedIn URL as ' + m2.full_name }); }
     if (email && ctx.seenEmails.has(email)) flags.push({ level:'err', code:'dup_in_file', text:'This email appears earlier in this file' });
-    if (li && ctx.seenLinkedIn.has(li)) flags.push({ level:'warn', code:'dup_li_in_file', text:'This LinkedIn URL appears earlier in this file' });
+    // The same person twice in this list (a second email, say): asked, since the database takes a LinkedIn once
+    const twin = (li && ctx.seenLinkedIn.get(li)) || ((first || last) && rawOrgKey(v.organization) && ctx.seenNames.get(nameKey(first, last).full + '|' + rawOrgKey(v.organization)));
+    if (twin && !(email && ctx.seenEmails.has(email))) flags.push({ level:'warn', code:'dup_in_list',
+      text: `Looks like ${twin.name} on line ${twin.line} of this list (${li && ctx.seenLinkedIn.get(li) ? 'same LinkedIn' : 'same name and organization'})` });
 
     // Organization matching, suffix and punctuation insensitive
     let orgMatch = null, orgScore = 0;
@@ -2654,11 +2663,11 @@ const Intelligence = (() => {
     const status = flags.some(f => f.level === 'err') ? 'error'
       : match && why === 'Same email' ? 'existing_contact'
       : match ? 'needs_review'
-      : flags.some(f => f.code === 'org_variant') ? 'needs_review'
+      : flags.some(f => f.code === 'org_variant' || f.code === 'dup_in_list') ? 'needs_review'
       : newAtOrg ? 'new_contact_existing_org' : 'new_contact';
     const worst = flags.some(f => f.level === 'err') ? 'err' : flags.some(f => f.level === 'warn') ? 'warn' : 'ok';
     return { line: row._line, status, worst, flags, match, why, orgMatch, extras,
-      values: { contact_name: contactName || (first + ' ' + last).trim(), first_name: first, last_name: last, email, phone:(v.phone||'').trim(),
+      values: { contact_name: (first + ' ' + last).trim() || contactName, first_name: first, last_name: last, email, phone:(v.phone||'').trim(),
         linkedin_url: li, linkedin_connected_on: parseDate(v.linkedin_on), title:(v.title||'').trim(),
         state:(v.state||'').trim().toUpperCase().slice(0,2), city:(v.city||'').trim(), segment_code: segment,
         source_channel_code: channel, source_detail:(v.source||'').trim(), sourced_on: parseDate(v.sourced_on),
@@ -2676,10 +2685,13 @@ const Intelligence = (() => {
       byEmail: new Map(all.filter(c => c.email_key).map(c => [c.email_key, c])),
       byLinkedIn: new Map(all.filter(c => c.linkedin_key).map(c => [c.linkedin_key, c])),
       byOrg: Repo._conByOrg(), noOrg: all.filter(c => c.organization_id == null),
-      seenEmails: new Set(), seenLinkedIn: new Set() };
-    return parsed.rows.map(r => { const res = analyzeRow(r, parsed.headers, mapping, ctx);
-      if (res.values.email) ctx.seenEmails.add(res.values.email);
-      if (res.values.linkedin_url) ctx.seenLinkedIn.add(res.values.linkedin_url);
+      seenEmails: new Set(), seenLinkedIn: new Map(), seenNames: new Map() };
+    return parsed.rows.map(r => { const res = analyzeRow(r, parsed.headers, mapping, ctx), v = res.values;
+      const seen = { name: v.contact_name, line: res.line };
+      if (v.email) ctx.seenEmails.add(v.email);
+      if (v.linkedin_url && !ctx.seenLinkedIn.has(v.linkedin_url)) ctx.seenLinkedIn.set(v.linkedin_url, seen);
+      const nk = (v.first_name || v.last_name) && rawOrgKey(v.organization) ? nameKey(v.first_name, v.last_name).full + '|' + rawOrgKey(v.organization) : '';
+      if (nk && !ctx.seenNames.has(nk)) ctx.seenNames.set(nk, seen);
       return res; });
   }
   /* A sheet pasted with or without its header row. With one, the headers map
@@ -7343,7 +7355,7 @@ Views.import = { title:'Import',
       const problem = r => r.status === 'no_email' && !r.decided ? (r.badEmail ? `"${r.badEmail}" is not an email address. ` : 'No email in this row. ')
           + (r.match ? `Someone named ${r.match.full_name} is already on file: compare them below.` : 'Add them without one?')
         : r.nameDiffers && !r.decided ? `Same email as ${r.match.full_name} on file, but the name is different. Compare below.`
-        : (!r.decided && r.flags.find(f => ['dup_name', 'org_variant', 'dup_linkedin'].includes(f.code))
+        : (!r.decided && r.flags.find(f => ['dup_in_list', 'dup_name', 'org_variant', 'dup_linkedin'].includes(f.code))
         || r.flags.find(f => f.level === 'err') || r.flags.find(f => f.level === 'warn') || {}).text || '';
       // Rows waiting for a choice first, then new, then already on file, then left out
       const rank = r => !r.decided ? 0 : r.decision === 'import' ? 1 : r.decision === 'merge' ? (picks(r) ? 2 : 3) : 4;
@@ -7369,7 +7381,7 @@ Views.import = { title:'Import',
       const done = st.result;
       const result = (r, i) => {
         if (done && r.savedId && !Repo.contacts.byId(r.savedId)) return `<span class="imp-why">Not saved: the database refused this row</span>`;
-        if (done) return r.savedId ? `<span class="pill g-new">${r.savedAs === 'added' ? 'Added' : 'Updated'}</span>${r.savedAs === 'updated' && writes(r).length ? `<span class="sub">${esc(writes(r).join(', '))}</span>` : ''}
+        if (done) return r.savedId ? `<span class="pill g-new">${r.savedAs === 'added' ? 'Added' : 'Updated'}</span>${r.keyTaken ? `<span class="sub">Without its ${esc(r.keyTaken.map(t => t.split(' ')[0]).join(' and '))}: another contact has it (kept in Notes)</span>` : ''}${r.savedAs === 'updated' && writes(r).length ? `<span class="sub">${esc(writes(r).join(', '))}</span>` : ''}
             <a class="linkish small" style="display:block;margin-top:4px" href="${href('contact', { id: r.savedId })}">Open ${esc((Repo.contacts.byId(r.savedId) || {}).full_name || 'the contact')}</a>`
           : `<span class="muted">${r.decision === 'merge' ? 'Already on file, nothing changed' : 'Left out'}</span>`;
         if (!r.decided) return `<select data-decide="${i}" class="undecided" style="width:auto">
@@ -7383,6 +7395,20 @@ Views.import = { title:'Import',
         const p = problem(r);
         return `<span class="pill g-new">New</span>${p ? `<span class="sub imp-why">${esc(p)}</span>` : ''}${r.badEmail ? '<span class="sub">Added without an email</span>' : ''}${toggle(r, i)}`;
       };
+      // The list is saved in one go: when the database refuses it, nothing of it was saved
+      const refused = done && a.some(r => r.savedId && r.savedAs === 'added' && !Repo.contacts.byId(r.savedId));
+      const why = refused && Live.lastError && Live.lastError.at >= done.at ? Live.lastError.message : '';
+      const whyWords = /contacts_linkedin_uq/.test(why) ? 'two people would have the same LinkedIn profile'
+        : /contacts_email_uq/.test(why) ? 'two people would have the same email address'
+        : /organizations_name_state_uq/.test(why) ? 'an organization would be on file twice in the same state' : why;
+      if (refused) return `<div class="page-head"><div><h1>Not imported</h1><p>The database refused this list${whyWords ? ': ' + esc(whyWords) : ''}. It is saved as one, so nothing from it was saved. Press Import more, paste it again, and change the row it names.</p></div>
+        <div class="page-actions"><button class="btn btn-primary" type="button" id="im-again">Import more</button></div></div>
+      ${impSteps(4)}
+      <div class="table-wrap"><table class="grid imp"><thead><tr><th>Name</th><th>Email</th><th>Organization</th><th>Result</th></tr></thead><tbody>
+        ${order.map(i => { const r = a[i], v = r.values;
+          return `<tr class="imp-out"><td><b>${esc(v.contact_name || '(no name)')}</b></td><td>${esc(v.email || '')}</td>
+            <td>${esc(v.organization || '') || '<span class="muted">Individual</span>'}</td><td><span class="imp-why">Not saved</span></td></tr>`; }).join('')}
+      </tbody></table></div>`;
       if (done) return `<div class="page-head"><div><h1>Imported</h1><p>${fmtDateTime(new Date(done.at))}. ${done.contacts} added, ${done.merged} updated${done.rfps ? ', ' + done.rfps + ' RFP' + (done.rfps === 1 ? '' : 's') + ' opened' : ''}. Undo is in the message at the bottom, or on the contact's page.</p></div>
         <div class="page-actions"><button class="btn btn-done" type="button" disabled>✓ ${[done.contacts ? done.contacts + ' added' : '', done.merged ? done.merged + ' updated' : ''].filter(Boolean).join(' · ') || 'Saved'}</button>
           <button class="btn btn-primary" type="button" id="im-again">Import more</button></div></div>
@@ -7846,6 +7872,13 @@ function commitBatch(analysis, defaults){
           is_university_affiliated: false, do_not_contact: false, dnc_reason: null,
           newsletter_status: 'not_subscribed', follow_up_style: 'standard_check_in', owner_id: st.settings.default_owner_id,
           notes: v.notes || null, legacy_ref: 'Import ' + today, import_batch: batch, created_at: now };
+        // The database lets an email or a LinkedIn belong to one person only, and one refused row
+        // refuses the whole list: a person added as different, but sharing either, is added without it.
+        const taken = [];
+        if (contact.email_key && st.contacts.some(c => c.email_key === contact.email_key)){ taken.push('email ' + contact.email); contact.email = contact.email_key = null; }
+        if (contact.linkedin_key && st.contacts.some(c => c.linkedin_key && Intelligence.linkedinKey(c.linkedin_key) === Intelligence.linkedinKey(contact.linkedin_key))){
+          taken.push('LinkedIn ' + contact.linkedin_url); contact.linkedin_url = contact.linkedin_key = null; }
+        if (taken.length){ contact.notes = (contact.notes ? contact.notes + '\n' : '') + 'Not saved on this record, another contact has it: ' + taken.join(', ') + '.'; r.keyTaken = taken; }
         if (Object.keys(r.extras).length){ contact.extra_fields = { ...r.extras }; out.extras += Object.keys(r.extras).length; }
         applyFlagRules(contact, st.flag_rules);
         st.contacts.push(contact); out.contacts++; madeNew = true; r.savedAs = 'added'; r.savedId = contact.id;
@@ -8570,6 +8603,7 @@ const Live = {
       if (error) throw new Error(error.message);
       this.lastSaved = new Date();
     }).catch(err => {
+      this.lastError = { at: Date.now(), message: err.message };
       Toast.show('Not saved: ' + err.message, { kind:'warn', ms: 10000 });
       return this.reload();
     }).finally(() => { this.saving--; renderSideFoot(); });
