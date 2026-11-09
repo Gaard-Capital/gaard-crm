@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-09.5">
+<meta name="build-version" content="2026-11-09.6">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -155,8 +155,19 @@ input[type=text],input[type=email],input[type=password],input[type=number],input
 input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
 textarea{height:auto;padding:9px 11px;line-height:1.5;resize:vertical}
 select{padding-right:30px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2376867E' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-label.f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--ink-2);font-weight:500}
-label.f>span{display:flex;justify-content:space-between}
+label.f,div.f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--ink-2);font-weight:500}
+label.f>span,div.f>span{display:flex;justify-content:space-between}
+.ech-box{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:5px;min-height:36px;padding:4px 6px;border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--surface);cursor:text}
+.ech-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.ech{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 4px 0 10px;border:1px solid var(--line-strong);border-radius:var(--radius-pill);background:var(--surface-3);color:var(--ink);font-size:13px;font-weight:500}
+.ech button{width:20px;height:20px;border:none;border-radius:50%;background:none;color:var(--ink-2);font-size:15px;line-height:1;cursor:pointer;padding:0}
+.ech button:hover{background:var(--line)}
+.ech-box input.ech-in{flex:1 1 180px;height:26px;border:none;box-shadow:none;padding:0 4px;background:none}
+.ech-box input.ech-in.bad{color:var(--danger)}
+.ech-sug{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:5;background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--radius);box-shadow:var(--shadow);padding:4px;display:flex;flex-direction:column}
+.ech-sug[hidden]{display:none}
+.ech-sug button{text-align:left;border:none;background:none;padding:7px 9px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--ink)}
+.ech-sug button.on,.ech-sug button:hover{background:var(--accent-soft)}
 .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px 14px}
 .form-grid .span2{grid-column:1/-1}
 
@@ -3460,17 +3471,77 @@ const Modal = {
               return `<option value="${esc(v)}" ${String(f.value ?? '') === String(v) ? 'selected' : ''}>${esc(l)}</option>`; }).join('')}</select>`
           : f.type === 'textarea' ? `<textarea id="${id}" rows="${f.rows||4}">${esc(f.value||'')}</textarea>`
           : f.type === 'file' ? `<input id="${id}" type="file" multiple>`
+          : f.type === 'emails' ? EmailChips.html(id, f.value)
           : `<input id="${id}" type="${f.type||'text'}" value="${esc(f.value ?? '')}" ${f.step?`step="${f.step}"`:''} ${f.placeholder?`placeholder="${esc(f.placeholder)}"`:''}>`;
-        return `<label class="f ${f.span?'span2':''}"><span>${esc(f.label)}${f.hint?` <span class="muted">${esc(f.hint)}</span>`:''}</span>${input}</label>`
+        // a box of chips holds buttons, and a label would press the first one on any click inside it
+        const tag = f.type === 'emails' ? 'div' : 'label';
+        return `<${tag} class="f ${f.span?'span2':''}" data-field="${esc(f.key)}"><span>${esc(f.label)}${f.hint?` <span class="muted">${esc(f.hint)}</span>`:''}</span>${input}</${tag}>`
           + (f.voice ? `<div class="${f.span?'span2':''}">${Voice.button(id, f.voice === true ? '' : f.voice)}</div>` : ''); }).join('') + `</div>`;
       const m = Modal.open({ title, body, wide, foot:`<button class="btn" type="button" data-cancel>Cancel</button><button class="btn btn-primary" type="button" data-ok>${esc(okLabel)}</button>` });
       Voice.bind(m);
+      fields.forEach(f => {
+        if (f.type === 'emails') EmailChips.bind(m.querySelector('#mf-' + f.key), f.suggest);
+        // showIf: { key, values } shows the field only while that select holds one of the values
+        if (f.showIf){ const ctl = m.querySelector('#mf-' + f.showIf.key), box = m.querySelector(`[data-field="${f.key}"]`);
+          const upd = () => { box.style.display = f.showIf.values.includes(ctl.value) ? '' : 'none'; }; ctl.addEventListener('change', upd); upd(); }
+      });
       m.querySelector('[data-cancel]').onclick = () => { Modal.close(); res(null); };
-      m.querySelector('[data-ok]').onclick = () => { const out = {}; fields.forEach(f => { const el = m.querySelector('#mf-'+f.key); out[f.key] = el ? (f.type === 'file' ? el.files : el.value) : ''; }); Modal.close(); res(out); };
+      m.querySelector('[data-ok]').onclick = () => { const out = {}; fields.forEach(f => { const el = m.querySelector('#mf-'+f.key);
+        out[f.key] = el ? (f.type === 'file' ? el.files : f.type === 'emails' ? EmailChips.value(el) : el.value) : ''; }); Modal.close(); res(out); };
     });
   },
 };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('modal-back').hidden) Modal.close(); });
+
+/* Email addresses as chips, the way Gmail's To line works: type, Enter (or a
+   comma) makes a chip, Backspace on an empty line removes the last one, and a
+   list under the line suggests people as you type (suggest(q) gives
+   [{ name, email }]). Pasting several addresses makes a chip of each. */
+const EmailChips = {
+  ok: s => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s),
+  chip: e => `<span class="ech" data-email="${esc(e)}">${esc(e)}<button type="button" aria-label="Remove ${esc(e)}">&times;</button></span>`,
+  html(id, value){
+    const list = [...new Set(String(value || '').split(/[,;\s]+/).filter(EmailChips.ok))];
+    return `<div class="ech-box" id="${id}">${list.map(EmailChips.chip).join('')}<input type="text" class="ech-in" autocomplete="off" aria-label="Add an email" placeholder="Type a name or an email, then Enter"><div class="ech-sug" hidden></div></div>`;
+  },
+  value(box){
+    const v = [...box.querySelectorAll('.ech')].map(x => x.dataset.email), t = box.querySelector('.ech-in').value.trim();
+    if (EmailChips.ok(t) && !v.includes(t)) v.push(t);
+    return v.join(', ');
+  },
+  bind(box, suggest){
+    if (!box) return;
+    const inp = box.querySelector('.ech-in'), sug = box.querySelector('.ech-sug'); let items = [], hi = 0, moved = false;
+    const has = e => [...box.querySelectorAll('.ech')].some(x => x.dataset.email.toLowerCase() === e.toLowerCase());
+    const show = () => { const q = inp.value.trim(); items = q && suggest ? suggest(q).filter(x => !has(x.email)).slice(0, 6) : []; hi = 0; moved = false;
+      sug.hidden = !items.length;
+      sug.innerHTML = items.map((x, i) => `<button type="button" class="${i === hi ? 'on' : ''}" data-i="${i}">${x.name ? `<b>${esc(x.name)}</b> ` : ''}<span class="muted">${esc(x.email)}</span></button>`).join(''); };
+    const add = e => { e = String(e || '').trim().replace(/^<|>$/g, '').replace(/[,;]+$/, '');
+      if (!EmailChips.ok(e)){ inp.classList.toggle('bad', !!e); return false; }
+      if (!has(e)) inp.insertAdjacentHTML('beforebegin', EmailChips.chip(e));
+      inp.value = ''; inp.classList.remove('bad'); show(); return true; };
+    box.addEventListener('click', e => {
+      const x = e.target.closest('.ech button'); if (x){ x.parentElement.remove(); inp.focus(); return; }
+      const s = e.target.closest('.ech-sug button'); if (s){ add(items[Number(s.dataset.i)].email); inp.focus(); return; }
+      if (e.target === box) inp.focus(); });
+    sug.addEventListener('mousedown', e => e.preventDefault());   // a click on a suggestion keeps the typing line focused
+    inp.addEventListener('input', () => { inp.classList.remove('bad'); show(); });
+    inp.addEventListener('keydown', e => {
+      const v = inp.value.trim();
+      if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && items.length){ e.preventDefault(); moved = true;
+        hi = (hi + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length;
+        sug.querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', i === hi)); }
+      else if ((e.key === 'Enter' || e.key === ',' || e.key === ';' || (e.key === 'Tab' && v)) && v){ e.preventDefault();
+        // a whole address typed wins, unless an arrow key picked a suggestion
+        add(items.length && (moved || !EmailChips.ok(v)) ? items[hi].email : v); }
+      else if (e.key === 'Enter') e.preventDefault();
+      else if (e.key === 'Backspace' && !inp.value){ const last = [...box.querySelectorAll('.ech')].pop(); if (last) last.remove(); }
+      else if (e.key === 'Escape' && !sug.hidden){ e.stopPropagation(); sug.hidden = true; items = []; } });
+    inp.addEventListener('blur', () => { if (EmailChips.ok(inp.value.trim())) add(inp.value); sug.hidden = true; });
+    inp.addEventListener('paste', e => { const t = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[,;\s]/.test(t.trim())){ e.preventDefault(); t.split(/[,;\s]+/).forEach(x => x && add(x)); } });
+  },
+};
 
 const Tip = { el:null,
   show(html,x,y){ const t = this.el || (this.el = document.getElementById('tooltip')); t.innerHTML = html; t.hidden = false;
@@ -5834,13 +5905,16 @@ const Meeting = {
     this.calToken = r.access_token; this.calExpires = Date.now() + (Number(r.expires_in) || 3600) * 1000;
     return this.calToken;
   },
-  /** A Zoom meeting hosted by the first of these Gaard people who has a Zoom user, or null (then Google Meet). */
+  /** A Zoom meeting hosted by the first of these Gaard people who has a Zoom user: { join_url, passcode }, or { reason } why not. */
   async zoom(hosts, topic, start, minutes){
-    if (!Store.live || !hosts.length) return null;
+    if (!Store.live) return { reason: 'Zoom meetings are made in the live database only.' };
+    if (!hosts.length) return { reason: 'Nobody from Gaard is on the call.' };
+    const off = 'Zoom is not connected to the CRM yet (the zoom-meeting function in Supabase, with Gaard\'s Zoom keys).';
     try {
       const { data, error } = await (await Live.sb()).functions.invoke('zoom-meeting', { body: { hosts, topic, start: start.toISOString(), minutes } });
-      return !error && data && data.join_url ? data : null;
-    } catch (e){ return null; }
+      if (error) return { reason: /404|not found|failed to send/i.test(error.message || '') ? off : error.message };
+      return data && data.join_url ? data : { reason: (data && (data.reason || data.error)) || off };
+    } catch (e){ return { reason: off }; }
   },
   /** The event on the scheduler's calendar, sent to every guest. */
   async create({ title, start, end, guests, zoom }){
@@ -5865,11 +5939,15 @@ async function scheduleCall(c){
     { key: 'day', label: 'Day', type: 'date', value: Rules.addBusinessDays(new Date(), 2).toISOString().slice(0, 10) },
     { key: 'time', label: 'Time (Mountain)', type: 'time', value: '10:00' },
     { key: 'mins', label: 'Minutes', type: 'number', value: '30' },
-    { key: 'guests', label: 'Guests', hint: 'separated by commas; colleagues get it in their calendar too', value: [c.email, me.invite_also].filter(Boolean).join(', '), span: true },
-    { key: 'video', label: 'Meeting link', type: 'select', value: 'auto', span: true, options: [
-      { value: 'auto', label: 'Made for me: Zoom when someone from Gaard on the call has Zoom, otherwise Google Meet' },
-      { value: 'meet', label: 'Google Meet' }, { value: 'own', label: 'My own link (below)' } ] },
-    { key: 'zoom', label: 'My own link', hint: 'only with "My own link"', value: me.zoom_link || '', span: true, placeholder: 'https://…' } ] });
+    { key: 'guests', label: 'Guests', hint: 'Enter after each; colleagues get it in their calendar too', type: 'emails', value: [c.email, me.invite_also].filter(Boolean).join(', '), span: true,
+      suggest: q => { q = q.toLowerCase(); const seen = new Set();
+        return [...(Store.state.team_members || []).filter(t => t.is_active !== false), ...Store.state.contacts]
+          .filter(p => p.email && !seen.has(p.email.toLowerCase()) && seen.add(p.email.toLowerCase())
+            && (String(p.full_name || '').toLowerCase().split(/\s+/).some(w => w.startsWith(q)) || String(p.full_name || '').toLowerCase().startsWith(q) || p.email.toLowerCase().startsWith(q)))
+          .slice(0, 6).map(p => ({ name: p.full_name, email: p.email })); } },
+    { key: 'video', label: 'Meeting link', type: 'select', value: 'zoom', options: [
+      { value: 'zoom', label: 'Zoom' }, { value: 'meet', label: 'Google Meet' }, { value: 'other', label: 'Other' } ] },
+    { key: 'link', label: 'Link', hint: 'Zoom: leave empty to have one made', value: me.zoom_link || '', placeholder: 'https://…', showIf: { key: 'video', values: ['zoom', 'other'] } } ] });
   if (!out || !out.day || !out.time) return;
   const start = new Date(out.day + 'T' + out.time + ':00'), mins = Number(out.mins) || 30, end = new Date(start.getTime() + mins * 60000);
   const guests = [...new Set(String(out.guests || '').split(/[,;\s]+/).map(s => s.trim().toLowerCase()).filter(s => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s)))];
@@ -5877,19 +5955,26 @@ async function scheduleCall(c){
   // the Gaard people on the call, the scheduler first: the first with a Zoom user hosts
   const team = new Set((Store.state.team_members || []).filter(t => t.is_active !== false).map(t => String(t.email || '').toLowerCase()));
   const hosts = [...new Set([mine, ...guests.filter(g => team.has(g) || (dom && g.endsWith('@' + dom)))])].filter(Boolean);
-  let link = out.video === 'own' ? String(out.zoom || '').trim() : '', kind = link ? (/zoom\.us/i.test(link) ? 'Zoom' : 'meeting') : '', made = false;
+  let link = out.video === 'meet' ? '' : String(out.link || '').trim(), made = false;
+  let kind = out.video === 'zoom' ? 'Zoom' : out.video === 'meet' ? 'Google Meet' : 'meeting';
+  if (out.video === 'other' && !link) return Toast.show('Paste the meeting link for "Other".', { kind: 'warn' });
   if (Store.live){
     Toast.show('Making the invitation…', { ms: 4000 });
+    let zoom = link ? { join_url: link } : null;
+    if (out.video === 'zoom' && !link){
+      const z = await Meeting.zoom(hosts, out.title, start, mins);
+      if (z.join_url) zoom = z;
+      // Zoom was asked for: never a Google Meet without saying so
+      else if (await Modal.confirm({ title: 'No Zoom link', message: z.reason + ' Paste your Zoom link in the Link box instead, or make a Google Meet for this call?', okLabel: 'Make a Google Meet' })) kind = 'Google Meet';
+      else return;
+    }
     try {
-      const zoom = out.video === 'auto' ? await Meeting.zoom(hosts, out.title, start, mins) : null;
-      const ev = await Meeting.create({ title: out.title, start, end, guests: guests.filter(g => g !== mine), zoom: link ? { join_url: link } : zoom });
-      if (!link){ link = ev.link; kind = zoom ? 'Zoom' : 'Google Meet'; }
-      made = true;
+      const ev = await Meeting.create({ title: out.title, start, end, guests: guests.filter(g => g !== mine), zoom });
+      link = ev.link; made = true;
     } catch (e){ Toast.show('Google Calendar did not take the invitation (' + e.message + '). It opens filled in instead: press Save and Send.', { kind: 'warn', ms: 12000 }); }
   }
   if (!made){
     window.open(gcalLink({ title: out.title, start, end, details: link ? (kind === 'Zoom' ? 'ZOOM LINK:\n' : 'MEETING LINK:\n') + link : '', guests: guests.join(',') }), '_blank', 'noopener');
-    if (!link) kind = 'Google Meet';
   }
   let h = start.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
   const when = start.toLocaleDateString('en-US', { weekday: 'short' }) + ' (' + (start.getMonth() + 1) + '/' + start.getDate() + ') at ' + h + ':' + pad2(start.getMinutes()) + ap + ' MT';
@@ -5904,6 +5989,7 @@ async function scheduleCall(c){
       status: 'open', created_by: 'rule', assigned_to: st.settings.default_owner_id, created_at: new Date().toISOString().slice(0, 19) }); });
   if (made) Toast.show('Invitation sent with a ' + kind + ' link; it is in the calendar of everyone invited.', { kind: 'ok', ms: 8000 });
   else if (kind === 'Google Meet') Toast.show('In Google Calendar: press "Add Google Meet video conferencing", then Save and Send.', { kind: 'ok', ms: 10000 });
+  else if (!link) Toast.show('In Google Calendar: add the Zoom link (the Zoom add-on, or paste it), then Save and Send. Put the link in the email too.', { kind: 'ok', ms: 10000 });
   const thread = (Store.state.email_messages || []).filter(m => m.contact_id === c.id && m.direction === 'inbound' && m.thread_id && m.touchpoint_id)
     .sort((a, b) => String(a.sent_at).localeCompare(String(b.sent_at))).pop();
   if (Store.live && thread) return Inbox.answer(thread.touchpoint_id, { body, title: 'Confirm the call with ' + c.full_name, after });

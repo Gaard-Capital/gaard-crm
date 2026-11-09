@@ -1,7 +1,8 @@
 // zoom-meeting: make a Zoom meeting for Schedule a call. The app sends the
 // Gaard people on the call (the scheduler first); the first of them who is a
 // user in Gaard's Zoom account hosts it. When none is, or Zoom is not set up
-// here, the answer has no join_url and the app makes a Google Meet instead.
+// here, the answer has no join_url and a reason, and the app asks before
+// making a Google Meet instead.
 //
 // Setup, once (needs an admin of Gaard's Zoom account):
 // 1. marketplace.zoom.us > Develop > Build App > Server-to-Server OAuth App,
