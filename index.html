@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-09.4">
+<meta name="build-version" content="2026-11-09.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -5791,8 +5791,7 @@ Views.newsletter = { title:'Newsletter',
 
 /* ===== Jon's workflow ================================================
    What Jon's own Claude skills do, done where the data already is: the call
-   invitation and its confirmation (gaard-call-scheduler), the call brief
-   (gaard-call-brief), the onboarding checklist (gaard-onboarding-checklist),
+   invitation and its confirmation (gaard-call-scheduler), the onboarding checklist (gaard-onboarding-checklist),
    the client loyalty program (gaard-client-touchpoint) and adding an RFP from a
    screen or a log row (gaard-rfp-screening, gaard-rfp-log). Jon's house style
    holds in every letter: no em dashes, no contractions.
@@ -5814,69 +5813,101 @@ async function copyRich(html, text){
   catch (e) { await navigator.clipboard.writeText(text); }
 }
 
-/* Schedule a call: Google Calendar opens with the invitation filled in (title
-   "[Organization] - Gaard Capital", 30 minutes, the contact and whoever you
-   always invite, the Zoom link), and the confirmation email follows in Jon's
-   words, in the same Gmail conversation when there is one. */
+/* Schedule a call. The invitation is made on the scheduler's Google Calendar and
+   sent to every guest, colleagues included, so it is in everyone's calendar
+   (permission calendar.events, asked for here only). The meeting link is made
+   with it: Zoom when someone from Gaard on the call has a user in Gaard's Zoom
+   account (the zoom-meeting Edge Function tries the scheduler first, then the
+   colleagues invited), otherwise Google Meet. Title "[Organization] - Gaard
+   Capital", 30 minutes; then the confirmation email in Jon's words, in the same
+   Gmail conversation when there is one. In demo mode, or when Google refuses,
+   Google Calendar opens with the invitation filled in instead. */
+const Meeting = {
+  calToken: null, calExpires: 0,
+  async calendar(){
+    if (this.calToken && Date.now() < this.calExpires - 60000) return this.calToken;
+    await Gmail.lib();
+    const r = await new Promise((ok, no) => google.accounts.oauth2.initTokenClient({ client_id: GMAIL_CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.events openid email',
+      hint: Live.email || undefined, callback: x => x.error ? no(new Error(x.error_description || x.error)) : ok(x),
+      error_callback: e => no(new Error(e.type === 'popup_closed' ? 'The Google window was closed before giving permission.' : (e.message || 'Google did not give permission.'))) }).requestAccessToken({ prompt: '' }));
+    if (!/calendar\.events/.test(r.scope || '')) throw new Error('Google gave no permission for the calendar.');
+    this.calToken = r.access_token; this.calExpires = Date.now() + (Number(r.expires_in) || 3600) * 1000;
+    return this.calToken;
+  },
+  /** A Zoom meeting hosted by the first of these Gaard people who has a Zoom user, or null (then Google Meet). */
+  async zoom(hosts, topic, start, minutes){
+    if (!Store.live || !hosts.length) return null;
+    try {
+      const { data, error } = await (await Live.sb()).functions.invoke('zoom-meeting', { body: { hosts, topic, start: start.toISOString(), minutes } });
+      return !error && data && data.join_url ? data : null;
+    } catch (e){ return null; }
+  },
+  /** The event on the scheduler's calendar, sent to every guest. */
+  async create({ title, start, end, guests, zoom }){
+    const tok = await this.calendar(), tz = 'America/Denver';
+    const ev = { summary: title, start: { dateTime: start.toISOString(), timeZone: tz }, end: { dateTime: end.toISOString(), timeZone: tz },
+      attendees: guests.map(email => ({ email })) };
+    if (zoom){ ev.location = zoom.join_url; ev.description = (/zoom\.us/i.test(zoom.join_url) ? 'ZOOM LINK:\n' : 'MEETING LINK:\n') + zoom.join_url + (zoom.passcode ? '\nPasscode: ' + zoom.passcode : ''); }
+    else ev.conferenceData = { createRequest: { requestId: 'gaard-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8), conferenceSolutionKey: { type: 'hangoutsMeet' } } };
+    const r = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all',
+      { method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: JSON.stringify(ev) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error((j.error && j.error.message) || 'Google Calendar answered ' + r.status);
+    const meet = j.hangoutLink || (((j.conferenceData || {}).entryPoints || []).find(p => p.entryPointType === 'video') || {}).uri || '';
+    return { link: zoom ? zoom.join_url : meet, html: j.htmlLink };
+  },
+};
 async function scheduleCall(c){
   if (!c) return;
   const me = myRow(), org = Repo.contacts.organization(c.id);
-  const out = await Modal.form({ title: 'Schedule a call with ' + c.full_name, wide: true, okLabel: 'Open the invitation, then the email', fields: [
+  const out = await Modal.form({ title: 'Schedule a call with ' + c.full_name, wide: true, okLabel: 'Send the invitation, then the email', fields: [
     { key: 'title', label: 'Title', value: (org ? org.name : c.full_name) + ' - Gaard Capital', span: true },
     { key: 'day', label: 'Day', type: 'date', value: Rules.addBusinessDays(new Date(), 2).toISOString().slice(0, 10) },
     { key: 'time', label: 'Time (Mountain)', type: 'time', value: '10:00' },
     { key: 'mins', label: 'Minutes', type: 'number', value: '30' },
-    { key: 'guests', label: 'Guests', hint: 'separated by commas', value: [c.email, me.invite_also].filter(Boolean).join(', '), span: true },
-    { key: 'zoom', label: 'Zoom link', value: me.zoom_link || '', span: true, placeholder: 'https://…' } ] });
+    { key: 'guests', label: 'Guests', hint: 'separated by commas; colleagues get it in their calendar too', value: [c.email, me.invite_also].filter(Boolean).join(', '), span: true },
+    { key: 'video', label: 'Meeting link', type: 'select', value: 'auto', span: true, options: [
+      { value: 'auto', label: 'Made for me: Zoom when someone from Gaard on the call has Zoom, otherwise Google Meet' },
+      { value: 'meet', label: 'Google Meet' }, { value: 'own', label: 'My own link (below)' } ] },
+    { key: 'zoom', label: 'My own link', hint: 'only with "My own link"', value: me.zoom_link || '', span: true, placeholder: 'https://…' } ] });
   if (!out || !out.day || !out.time) return;
-  const start = new Date(out.day + 'T' + out.time + ':00'), end = new Date(start.getTime() + (Number(out.mins) || 30) * 60000);
-  window.open(gcalLink({ title: out.title, start, end, details: out.zoom ? 'ZOOM LINK:\n' + out.zoom : '', guests: out.guests }), '_blank', 'noopener');
+  const start = new Date(out.day + 'T' + out.time + ':00'), mins = Number(out.mins) || 30, end = new Date(start.getTime() + mins * 60000);
+  const guests = [...new Set(String(out.guests || '').split(/[,;\s]+/).map(s => s.trim().toLowerCase()).filter(s => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s)))];
+  const mine = String(Gmail.email || Live.email || me.email || '').toLowerCase(), dom = mine.split('@')[1];
+  // the Gaard people on the call, the scheduler first: the first with a Zoom user hosts
+  const team = new Set((Store.state.team_members || []).filter(t => t.is_active !== false).map(t => String(t.email || '').toLowerCase()));
+  const hosts = [...new Set([mine, ...guests.filter(g => team.has(g) || (dom && g.endsWith('@' + dom)))])].filter(Boolean);
+  let link = out.video === 'own' ? String(out.zoom || '').trim() : '', kind = link ? (/zoom\.us/i.test(link) ? 'Zoom' : 'meeting') : '', made = false;
+  if (Store.live){
+    Toast.show('Making the invitation…', { ms: 4000 });
+    try {
+      const zoom = out.video === 'auto' ? await Meeting.zoom(hosts, out.title, start, mins) : null;
+      const ev = await Meeting.create({ title: out.title, start, end, guests: guests.filter(g => g !== mine), zoom: link ? { join_url: link } : zoom });
+      if (!link){ link = ev.link; kind = zoom ? 'Zoom' : 'Google Meet'; }
+      made = true;
+    } catch (e){ Toast.show('Google Calendar did not take the invitation (' + e.message + '). It opens filled in instead: press Save and Send.', { kind: 'warn', ms: 12000 }); }
+  }
+  if (!made){
+    window.open(gcalLink({ title: out.title, start, end, details: link ? (kind === 'Zoom' ? 'ZOOM LINK:\n' : 'MEETING LINK:\n') + link : '', guests: guests.join(',') }), '_blank', 'noopener');
+    if (!link) kind = 'Google Meet';
+  }
   let h = start.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
   const when = start.toLocaleDateString('en-US', { weekday: 'short' }) + ' (' + (start.getMonth() + 1) + '/' + start.getDate() + ') at ' + h + ':' + pad2(start.getMinutes()) + ap + ' MT';
-  const body = 'Dear ' + firstNameOf(c) + ',\n\nI just sent over a calendar invite with a Zoom link for ' + when + '.'
-    + (out.zoom ? ' I am also including the link here for your convenience:\n' + out.zoom : '') + '\n\nLooking forward to connecting.\n\nBest,\n'
+  const body = 'Dear ' + firstNameOf(c) + ',\n\nI just sent over a calendar invite with a ' + kind + ' link for ' + when + '.'
+    + (link ? ' I am also including the link here for your convenience:\n' + link : '') + '\n\nLooking forward to connecting.\n\nBest,\n'
     + (String(Repo.teamName(Repo.settings().default_owner_id) || '').split(' ')[0] || '');
   const after = () => Store.commit('Call scheduled with ' + c.full_name, st => {
     // the call is now the next thing to do for this person: it replaces their open follow-ups
     st.reminders.filter(x => x.contact_id === c.id && (x.status === 'open' || x.status === 'snoozed') && ['post_call', 'follow_up'].includes(x.reminder_type)).forEach(x => { x.status = 'superseded'; });
     st.reminders.push({ id: Math.max(0, ...st.reminders.map(x => x.id)) + 1, reminder_type: 'post_call', contact_id: c.id, organization_id: c.organization_id ?? null,
-      due_on: out.day, title: 'Call ' + when + ': log how it went', details: 'Call scheduled: ' + out.title + ', ' + when + '.\nAfter the call, Log activity with what was agreed.',
+      due_on: out.day, title: 'Call ' + when + ': log how it went', details: 'Call scheduled: ' + out.title + ', ' + when + (link ? '. ' + kind + ': ' + link : '') + '.\nAfter the call, Log activity with what was agreed.',
       status: 'open', created_by: 'rule', assigned_to: st.settings.default_owner_id, created_at: new Date().toISOString().slice(0, 19) }); });
-  Toast.show('In Google Calendar: remove the Google Meet link if one was added, then Save and Send the invitation.', { kind: 'ok', ms: 10000 });
+  if (made) Toast.show('Invitation sent with a ' + kind + ' link; it is in the calendar of everyone invited.', { kind: 'ok', ms: 8000 });
+  else if (kind === 'Google Meet') Toast.show('In Google Calendar: press "Add Google Meet video conferencing", then Save and Send.', { kind: 'ok', ms: 10000 });
   const thread = (Store.state.email_messages || []).filter(m => m.contact_id === c.id && m.direction === 'inbound' && m.thread_id && m.touchpoint_id)
     .sort((a, b) => String(a.sent_at).localeCompare(String(b.sent_at))).pop();
   if (Store.live && thread) return Inbox.answer(thread.touchpoint_id, { body, title: 'Confirm the call with ' + c.full_name, after });
   return Inbox.compose(c, { subject: 'Call ' + when, body, title: 'Confirm the call with ' + c.full_name, outcome: 'INTERESTED', follow_up_on: out.day, after });
-}
-
-/* The call brief, laid out the way Jon keeps it: the top block from the CRM,
-   PURPOSE OF CALL and NOTES in his own words. Copied with its links. */
-async function callBrief(c){
-  if (!c) return;
-  const org = Repo.contacts.organization(c.id), people = org ? Repo.organizations.contacts(org.id) : [c];
-  const rem = Repo.contacts.reminders(c.id).find(r => r.reminder_type === 'post_call' && r.status === 'open');
-  const out = await Modal.form({ title: 'Call brief: ' + (org ? org.name : c.full_name), wide: true, okLabel: 'Copy the brief', fields: [
-    { key: 'when', label: 'Day and time', value: rem ? fmtDate(rem.due_on, { weekday: 'long', month: 'long', day: 'numeric' }) + ' · [time] MT' : 'Date and time TBD', span: true },
-    { key: 'mission', label: 'Mission', hint: 'one phrase, lowercase start', value: '', span: true, placeholder: 'to support Utah youth through mentoring, education, and scholarships' },
-    { key: 'who', label: 'On the call', hint: 'one per line, Title: Name', type: 'textarea', rows: 3, span: true, value: (c.title || 'Title') + ': ' + c.full_name },
-    { key: 'purpose', label: 'PURPOSE OF CALL', hint: 'what they want from the call', type: 'textarea', rows: 3, span: true },
-    { key: 'notes', label: 'NOTES', hint: 'background and history', type: 'textarea', rows: 4, span: true } ] });
-  if (!out) return;
-  const link = (t, u) => u ? `<a href="${esc(/^https?:/i.test(u) ? u : 'https://' + u)}">${esc(t)}</a>` : esc(t);
-  const li = name => { const p = people.find(x => String(x.full_name || '').toLowerCase() === name.trim().toLowerCase()); return p && p.linkedin_url ? p.linkedin_url : ''; };
-  const who = out.who.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const [t, ...n] = l.split(':'); const name = n.join(':').trim() || t.trim(); return { t: n.length ? t.trim() : '', name }; });
-  const head = 'Call with ' + (org ? org.name : c.full_name);
-  const html = `<p><b>${esc(head)}</b><br>${esc(out.when)}</p><p><b>Organization:</b> ${link(org ? org.name : (c.employer || ''), org && org.website)}<br><b>Mission:</b> ${esc(out.mission)}</p>`
-    + `<p><b>On the call</b><br>${who.map(w => (w.t ? esc(w.t) + ': ' : '') + link(w.name, li(w.name))).join('<br>')}</p>`
-    + `<p><b>PURPOSE OF CALL:</b><br>${esc(out.purpose).replace(/\n/g, '<br>')}</p><p><b>NOTES:</b><br>${esc(out.notes).replace(/\n/g, '<br>')}</p>`;
-  const text = [head, out.when, '', 'Organization: ' + (org ? org.name : '') + (org && org.website ? ' (' + org.website + ')' : ''), 'Mission: ' + out.mission, '', 'On the call',
-    ...who.map(w => (w.t ? w.t + ': ' : '') + w.name + (li(w.name) ? ' (' + li(w.name) + ')' : '')), '', 'PURPOSE OF CALL:', out.purpose, '', 'NOTES:', out.notes].join('\n');
-  await copyRich(html, text);
-  const jb = 'JC - JB, you have a call with ' + c.full_name + (org ? ' of ' + org.name : '') + ' on ' + out.when.replace(/\s*·\s*/, ' at ').replace(/\s+MT$/, '') + ' MT; the call brief is in the shared doc, please see page [#].';
-  const m = Modal.open({ title: 'Brief copied', body: `<p>Paste it into the shared doc. The note for JB's list:</p><textarea id="jb-note" rows="3" style="width:100%">${esc(jb)}</textarea>`,
-    foot: `<button class="btn" type="button" data-ok>Close</button><button class="btn btn-primary" type="button" id="jb-copy">Copy the note</button>` });
-  m.querySelector('[data-ok]').onclick = () => Modal.close();
-  m.querySelector('#jb-copy').onclick = () => { navigator.clipboard.writeText(m.querySelector('#jb-note').value); Toast.show('Note copied', { kind: 'ok' }); };
 }
 
 /* The firm's onboarding checklist: the fixed 21 steps, a status note on each, kept on the opportunity (db/018). */
@@ -6156,8 +6187,7 @@ Views.contact = { title:'Contact',
             <dt>Added</dt><dd>${fmtDate(c.sourced_on || dayOf(c.created_at)) || 'Unknown'}</dd>
           </dl></div></div></div></div>
       <p class="keep">${esc(c.title||'')}${org ? ` at <a href="${href('organizations/'+org.id)}">${esc(org.name)}</a>` : ' <span class="muted">Individual investor</span>'}${c.state ? ' &middot; ' + esc([c.city,c.state].filter(Boolean).join(', ')) : ''}</p></div>
-      <div class="page-actions"><button class="btn" type="button" id="c-mail">Write an email</button><button class="btn" type="button" id="c-sched">Schedule a call</button><button class="btn" type="button" id="c-brief">Call brief</button><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}
-        <button class="btn" type="button" id="c-copyone" title="Copy this contact as one row, ready to paste into a sheet">Copy row</button>
+      <div class="page-actions"><button class="btn" type="button" id="c-mail">Write an email</button><button class="btn" type="button" id="c-sched">Schedule a call</button><button class="btn" type="button" id="c-edit">Edit</button>${opp ? `<button class="btn" type="button" id="c-opp">Opportunity</button>` : ''}
         ${(() => { const why = Repo.contacts.blockingDelete(c.id);
           return `<button class="btn btn-danger" type="button" id="c-del" ${why ? 'disabled' : ''} title="${why ? esc('Cannot be deleted while it has ' + why + '. Delete the activity first.') : 'Delete this contact'}">Delete</button>`;
         })()}</div></div>
@@ -6227,7 +6257,6 @@ Views.contact = { title:'Contact',
     root.querySelector('#c-onb')?.addEventListener('click', () => { const o = Repo.contacts.opportunity(c.id); if (o) openChecklist(o.id); });
     root.querySelector('#c-mail')?.addEventListener('click', () => Inbox.compose(c));
     root.querySelector('#c-sched')?.addEventListener('click', () => scheduleCall(c));
-    root.querySelector('#c-brief')?.addEventListener('click', () => callBrief(c));
     root.querySelectorAll('[data-done]').forEach(b => b.addEventListener('click', () => Repo.reminders.complete(Number(b.dataset.done))));
     root.querySelectorAll('[data-snooze]').forEach(b => b.addEventListener('click', () => Repo.reminders.snooze(Number(b.dataset.snooze), Number(b.dataset.days))));
     root.querySelectorAll('[data-confirm]').forEach(b => b.addEventListener('click', () => Repo.touchpoints.confirmOutcome(Number(b.dataset.confirm))));
@@ -6262,11 +6291,6 @@ Views.contact = { title:'Contact',
       el.addEventListener('blur', () => { if (!live) return; const was = field === 'notes' ? (c.notes || '') : el.defaultValue ?? '';
         if (el.tagName !== 'SELECT' && el.value !== was) save(); else close(); });
     }));
-    root.querySelector('#c-copyone')?.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(mergeSheetRows([c.id]));
-        Toast.show('Copied as a row with its header, ready to paste.', { kind:'ok' }); }
-      catch (e){ Toast.show('Could not reach the clipboard.', { kind:'warn' }); }
-    });
     root.querySelector('#c-del')?.addEventListener('click', async () => {
       const why = Repo.contacts.blockingDelete(c.id);
       if (why) return Toast.show(`${c.full_name} has ${why}, so the record stays. Delete the activity first.`, { kind:'warn', ms:8000 });
