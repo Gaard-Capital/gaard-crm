@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-09.1">
+<meta name="build-version" content="2026-11-09.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -1207,6 +1207,35 @@ const REFERENCE = {
     NM:'New Mexico', MT:'Montana', OR:'Oregon', WA:'Washington', TX:'Texas', NY:'New York', FL:'Florida' },
   /* Industry norms are deliberately empty until a sourced number is entered. */
   benchmarks: [],
+};
+
+/* The words Import reads in a "who we met, where, when" line, such as
+     Met Maria Olivia at Mentor International July 2025
+     Spoke with John Smith and Ann Lee at the Park City Summit on 8/14/2026
+     Met these people at UNA Conference, last Tuesday
+     Event: Utah Nonprofits Summit (Aug 2026)
+   put on the first line of the Import box, above the people (rows or business
+   cards), or alone for people already on file. To teach it a new way of
+   saying it, add the words to the right list (lower case); nothing else
+   changes. MetLine (in the Import section) does the reading. */
+const MET_WORDS = {
+  // how the line starts, before the people: "Met Maria at ..."
+  verbs: ['met', 'meet', 'met with', 'meeting with', 'spoke with', 'spoke to', 'talked to', 'talked with', 'chatted with', 'saw', 'ran into',
+    'caught up with', 'connected with', 'sat down with', 'had coffee with', 'had lunch with', 'had dinner with', 'had a meeting with',
+    'was introduced to', 'got introduced to', 'introduced to', 'got cards from', 'got the card of', 'collected cards from', 'exchanged cards with',
+    'i met', 'we met', 'jon met', 'just met'],
+  // who, when the line does not name them: "Met these people at ..."
+  groups: ['these people', 'these folks', 'these contacts', 'these', 'the people below', 'the following people', 'the following', 'everyone below',
+    'everyone', 'everybody', 'all of them', 'all of these', 'them', 'this person', 'this group', 'the attendees', 'attendees', 'people', 'contacts', 'him', 'her'],
+  // between the people and the event: "Met Maria at ...", "Met Maria during ..."
+  joins: ['at', '@', 'during', 'at the', 'during the'],
+  // a line that names only the event: "Event: Utah Summit", "People met at Utah Summit", "Cards from Utah Summit"
+  heads: ['met at', 'meet at', 'people met at', 'contacts met at', 'people from', 'contacts from', 'cards from', 'business cards from',
+    'attendees of', 'attendees from', 'event', 'from the event', 'at the event', 'at event'],
+  // a day said in words, counted back from today
+  days: { today: 0, tonight: 0, 'this morning': 0, 'this afternoon': 0, yesterday: -1, 'last night': -1, 'last week': -7, 'the day before yesterday': -2 },
+  // how close (in days) a dated meeting must be to an event's date to be that event; otherwise it is a new event of the same name
+  same_event_within_days: 45,
 };
 
 /* ======================================================================
@@ -7216,6 +7245,100 @@ const impSteps = n => `<ol class="imp-steps" aria-label="Import steps">${['Add d
 const STATUS_LABEL = { existing_contact:'Already on file', new_contact_existing_org:'New person, organization we know', needs_review:'Needs review', new_contact:'New contact', error:'Cannot import' };
 const STATUS_PILL = { existing_contact:'g-definite', new_contact_existing_org:'g-probable', needs_review:'g-probable', new_contact:'g-new', error:'g-definite' };
 
+/* ===== Who we met, where and when ===================================
+   One line, "Met Maria Olivia at Mentor International July 2025", read with
+   the words in MET_WORDS (Section 1). No AI: every way of saying it is a
+   word in those lists, so a new one is taught by adding it there.
+   ===================================================================== */
+const MetLine = {
+  MON: 'jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?',
+  DAYS: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
+  rx: s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'),
+  alt(list){ return [...list].sort((a, b) => b.length - a.length).map(this.rx).join('|'); },
+  iso: d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'),
+  /** The date said in s, and s without it: { date: 'YYYY-MM-DD' or null, exact: false when only the month was said, text }.
+      A month alone ("July 2025") is kept as its first day. */
+  date(s, now = new Date()){
+    s = String(s || '');
+    const M = '(' + this.MON + ')\\.?', Y = "(\\d{4}|'\\d{2})";
+    const mon = m => ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(m.slice(0, 3).toLowerCase()) + 1;
+    const yr = y => y ? (y[0] === "'" ? 2000 + +y.slice(1) : y.length === 2 ? 2000 + +y : +y) : null;
+    const pats = [
+      [/\b(\d{4})-(\d{1,2})-(\d{1,2})\b/, m => [+m[1], +m[2], +m[3], true]],
+      [/\b(\d{1,2})[/.](\d{1,2})[/.](\d{4}|\d{2})\b/, m => [yr(m[3]), +m[1], +m[2], true]],
+      [new RegExp(`\\b${M}\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+${Y}(?!\\d)`, 'i'), m => [yr(m[3]), mon(m[1]), +m[2], true]],
+      [new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?${M},?\\s+${Y}(?!\\d)`, 'i'), m => [yr(m[3]), mon(m[2]), +m[1], true]],
+      [new RegExp(`\\b${M},?\\s+${Y}(?!\\d)`, 'i'), m => [yr(m[2]), mon(m[1]), 1, false]],
+      [new RegExp(`\\b${M}\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b`, 'i'), m => [null, mon(m[1]), +m[2], true]],
+      [/\b(\d{1,2})\/(\d{1,2})\b(?!\/)/, m => [null, +m[1], +m[2], true]],
+      [new RegExp(`\\bin\\s+${M}\\b`, 'i'), m => [null, mon(m[1]), 1, false]],
+    ];
+    let hit = null;
+    for (const [re, f] of pats){ const m = s.match(re); if (!m) continue;
+      let [y, mo, d, exact] = f(m);
+      if (!y){ y = now.getFullYear(); if (new Date(y, mo - 1, d) - now > 60 * 864e5) y--; }   // "Dec 3" said in January is last December
+      const dt = new Date(y, mo - 1, d);
+      if (y < 1990 || y > 2100 || dt.getMonth() !== mo - 1) continue;
+      hit = { m, date: this.iso(dt), exact }; break; }
+    if (!hit){   // today, yesterday, last week, last Tuesday
+      const words = new RegExp(`\\b(${this.alt(Object.keys(MET_WORDS.days))})\\b`, 'i'), wd = new RegExp(`\\b(last|this past|on)\\s+(${this.DAYS.join('|')})\\b`, 'i');
+      let m = s.match(words);
+      if (m){ const back = MET_WORDS.days[m[1].toLowerCase().replace(/\s+/g, ' ')] || 0; const dt = new Date(now); dt.setDate(dt.getDate() + back); hit = { m, date: this.iso(dt), exact: true }; }
+      else if ((m = s.match(wd))){ const dt = new Date(now); let back = (dt.getDay() - this.DAYS.indexOf(m[2].toLowerCase()) + 7) % 7;
+        if (!back && !/^on$/i.test(m[1])) back = 7; dt.setDate(dt.getDate() - back); hit = { m, date: this.iso(dt), exact: true }; }
+    }
+    if (!hit) return { date: null, exact: false, text: s };
+    const before = s.slice(0, hit.m.index).replace(/[\s,(–—-]*(?:\b(?:in|on|from|of|dated)\s*)?[\s,(–—-]*$/i, '');
+    const after = s.slice(hit.m.index + hit.m[0].length).replace(/^\s*\)/, '').trim();
+    return { date: hit.date, exact: hit.exact, text: (before + (after && !/^[,.;]/.test(after) ? ' ' : '') + after).trim() };
+  },
+  /** { event, date, exact, who: 'all' or [names], rest } for a line that says who was met where, or null. */
+  read(line){
+    let s = String(line || '').trim();
+    if (!s || s.length > 200 || s.includes('\t') || s.includes('\n')) return null;
+    const d = this.date(s); s = d.text.replace(/[.:;!\s]+$/, '');
+    const W = MET_WORDS;
+    const verb = s.match(new RegExp(`^(?:${this.alt(W.verbs)})\\s+(?:(.+?)\\s+)?(?:${this.alt(W.joins)})\\s+(.+)$`, 'i'));
+    const head = !verb && s.match(new RegExp(`^(?:${this.alt(W.heads)})\\b\\s*[:\\-–]?\\s*(.+)$`, 'i'));
+    if (!verb && !head) return null;
+    let event = verb ? verb[2] : head[1], rest = '';
+    const cut = event.match(/\s*(?:[,;]|\s[-–—]\s|\.\s)\s*/);   // ", she is keen" after the event's name
+    if (cut){ rest = event.slice(cut.index + cut[0].length).trim(); event = event.slice(0, cut.index); }
+    event = event.replace(/^the\s+/i, '').replace(/\s+event$/i, '').replace(/[.:;!\s]+$/, '').trim();
+    if (!event || event.length > 90) return null;
+    const groups = W.groups.map(g => g.toLowerCase()), raw = verb ? (verb[1] || '').trim() : '';
+    const names = groups.includes(raw.toLowerCase()) ? [] : raw.split(/\s*(?:,|&|\+|\band\b)\s*/i).map(x => x.trim()).filter(x => x && !groups.includes(x.toLowerCase()));
+    return { event, date: d.date, exact: d.exact, who: names.length ? names : 'all', rest };
+  },
+  /** The event on file this is, or null for a new one. With a date, only an event within
+      MET_WORDS.same_event_within_days of it: the same summit a year later is a new event. */
+  findEvent(name, date){
+    const key = s => String(s || '').toLowerCase().replace(/\b(19|20)\d{2}\b/g, ' ').replace(/^the\s+/, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const k = key(name), words = k.split(' ').filter(w => w.length > 3);
+    if (!k) return null;
+    const like = Repo.events.all().filter(e => { const ek = key(e.name); if (!ek) return false;
+      if (ek === k || ek.includes(k) || k.includes(ek)) return true;
+      const ew = ek.split(' ').filter(w => w.length > 3), shared = words.filter(w => ew.includes(w)).length;
+      return shared >= 2 && shared >= Math.ceil(Math.min(words.length, ew.length) * 0.6); });
+    const gap = e => e.start_on && date ? Math.abs(new Date(e.start_on) - new Date(date)) / 864e5 : Infinity;
+    if (date) return like.filter(e => gap(e) <= MET_WORDS.same_event_within_days).sort((a, b) => gap(a) - gap(b))[0] || null;
+    // no date said: the same name first, then the latest one already held, then the next one coming
+    const today = this.iso(new Date()), past = e => String(e.start_on || '') <= today;
+    return like.sort((a, b) => ((key(b.name) === k) - (key(a.name) === k)) || (past(b) - past(a))
+      || (past(a) ? String(b.start_on).localeCompare(String(a.start_on)) : String(a.start_on).localeCompare(String(b.start_on))))[0] || null;
+  },
+  /** The contact on file with exactly this name, or null. */
+  person(name){ const n = String(name || '').trim().toLowerCase(); return n ? Repo.contacts.all().find(c => String(c.full_name || '').trim().toLowerCase() === n) || null : null; },
+  /** Whether an activity on this day is the person's newest, the one that sets their next follow-up. */
+  latest(st, contactId, day, exceptId){ return !st.touchpoints.some(t => t.contact_id === contactId && t.id !== exceptId && String(t.touched_at).slice(0, 10) > day); },
+  /** The event a person was first met at stays their Source Event: an earlier meeting logged later takes its place. */
+  source(st, c, ev){
+    if (!ev) return;
+    const cur = c.source_event_id != null ? st.events.find(e => e.id === c.source_event_id) : null;
+    if (!cur || (ev.start_on && cur.start_on && ev.start_on < cur.start_on)) c.source_event_id = ev.id;
+  },
+};
+
 /* ===== Typed or dictated notes ======================================
    "Met Sarah Rodgers at the Jackson Hole retreat, she is keen." One line,
    and the CRM finds the record she already has, keeps the cold email that
@@ -7230,21 +7353,24 @@ const Note = {
     if (/\n\s*\n/.test(s) || s.split('\n').length > 3) return false;
     if (/^(from|to|subject|sent|date)\s*:/im.test(s)) return false;
     if (s.includes('\t') || (s.match(/@/g) || []).length > 1) return false;
-    return /\b(met|spoke|called|talked|saw|ran into|caught up|introduced)\b/i.test(s) && !!Note.read(s).contact;
+    return (/\b(met|spoke|called|talked|saw|ran into|caught up|introduced)\b/i.test(s) || !!MetLine.read(s)) && Note.read(s).contacts.length > 0;
   },
 
   /** Pull the person, the event and the mood out of one sentence. */
   read(text){
     const s = String(text || '');
     const low = s.toLowerCase();
-    /* The longest name that appears wins, so "Sarah Rodgers" beats "Sarah". */
-    let contact = null;
-    for (const c of Repo.contacts.all()){
-      const full = String(c.full_name || '').toLowerCase();
-      if (full.length > 3 && low.includes(full) && (!contact || full.length > contact.full_name.length)) contact = c;
-    }
-    let event = null;
-    for (const e of Repo.events.all()){
+    /* Everyone named, the longest names first, so "Sarah Rodgers" beats "Sarah". */
+    const named = Repo.contacts.all().map(c => [c, String(c.full_name || '').toLowerCase()]).filter(([, f]) => f.length > 3 && low.includes(f))
+      .sort((a, b) => b[1].length - a[1].length);
+    const contacts = [];
+    for (const [c, f] of named) if (!contacts.some(x => String(x.full_name).toLowerCase().includes(f))) contacts.push(c);
+    const contact = contacts[0] || null;
+    /* Where and when, read as a "Met ... at ... July 2025" line; else any event named in it. */
+    const ml = MetLine.read(s.split(/\n/)[0]), when = ml ? ml.date : MetLine.date(s).date;
+    let event = ml ? MetLine.findEvent(ml.event, ml.date) : null;
+    const newEvent = ml && !event ? ml.event : null;
+    if (!ml) for (const e of Repo.events.all()){
       const n = String(e.name || '').toLowerCase();
       if (n.length > 4 && low.includes(n)){ event = e; break; }
       /* "the Jackson Hole retreat" matches "Jackson Hole Philanthropy Retreat". */
@@ -7255,35 +7381,42 @@ const Note = {
     if (/\b(not interested|no thank|not a fit|passed|declined)\b/i.test(s)) code = 'NOT_INTERESTED';
     else if (/\b(not now|next year|circle back|check back|too early)\b/i.test(s)) code = 'NOT_NOW';
     else if (/\b(keen|excited|interested|wants|eager|enthusiastic|asked for|follow up with)\b/i.test(s)) code = 'INTERESTED';
-    else if (/\b(call|meeting|met with|sat down)\b/i.test(s) && !event) code = 'CALL_HELD';
-    else if (event) code = 'MET_AT_EVENT';
-    return { contact, event, code: code || 'MET_AT_EVENT', text: s.trim() };
+    else if (/\b(call|meeting|met with|sat down)\b/i.test(s) && !event && !newEvent) code = 'CALL_HELD';
+    else if (event || newEvent) code = 'MET_AT_EVENT';
+    return { contact, contacts, event, newEvent, date: when, code: code || 'MET_AT_EVENT', text: s.trim() };
   },
 
   /** Show what it understood, and write it only once that is confirmed. */
   async confirm(text){
     const r = Note.read(text);
-    if (!r.contact){ Toast.show('No contact on file matches a name in that note.', { kind:'warn' }); return false; }
+    if (!r.contacts.length){ Toast.show('No contact on file matches a name in that note.', { kind:'warn' }); return false; }
+    const today = new Date().toISOString().slice(0, 10), day = r.date || today, who = r.contacts.map(c => c.full_name);
+    const where = r.event ? 'At ' + r.event.name + '. ' : r.newEvent ? `At ${r.newEvent}, a new event on ${fmtDate(day)}: it is added to the Events page. ` : '';
     const ok = await Modal.confirm({
-      title: 'Log this against ' + r.contact.full_name,
-      message: `${r.event ? 'At ' + r.event.name + '. ' : ''}Outcome: ${outLabel(r.code)}. `
-        + `Everything already on the record stays as it is; this is added as one more touchpoint, and the outcome rule schedules the follow-up.`,
+      title: 'Log this against ' + (who.length > 2 ? who.length + ' people' : who.join(' and ')),
+      message: `${who.length > 2 ? who.join(', ') + '. ' : ''}${where}On ${fmtDate(day)}. Outcome: ${outLabel(r.code)}. `
+        + `Everything already on the record stays as it is; this is added as one more touchpoint, and the outcome rule schedules the follow-up when it is their newest activity.`,
       okLabel: 'Log it',
     });
     if (!ok) return false;
-    const today = new Date().toISOString().slice(0, 10);
-    Store.commit('Note logged for ' + r.contact.full_name, st => {
-      const c = st.contacts.find(x => x.id === r.contact.id); if (!c) return;
-      if (r.event && c.source_event_id == null) c.source_event_id = r.event.id;
-      const tp = { id: Math.max(0, ...st.touchpoints.map(t => t.id)) + 1, contact_id: c.id, organization_id: c.organization_id,
-        touch_type: r.event ? 'event' : 'meeting', direction:'inbound', touched_at: today + 'T12:00:00',
-        event_id: r.event ? r.event.id : null, subject: r.event ? r.event.name : 'Note', notes: r.text,
-        outcome_code: r.code, outcome_status:'confirmed', owner_id: st.settings.default_owner_id,
-        created_at: new Date().toISOString().slice(0, 19) };
-      st.touchpoints.push(tp);
-      Rules.applyOutcome(st, tp, () => {});
+    Store.commit('Note logged for ' + who.join(', '), st => {
+      let ev = r.event ? st.events.find(e => e.id === r.event.id) : null;
+      if (!ev && r.newEvent){ ev = { id: Math.max(0, ...st.events.map(x => x.id)) + 1, name: r.newEvent, event_type: 'other', format: 'in_person', hosted_by_us: false,
+        start_on: day, cost_usd: 0, owner_id: st.settings.default_owner_id, attendance: day > today ? 'going' : 'attended', created_at: new Date().toISOString().slice(0, 19) };
+        st.events.push(ev); }
+      for (const p of r.contacts){
+        const c = st.contacts.find(x => x.id === p.id); if (!c) continue;
+        MetLine.source(st, c, ev);
+        const tp = { id: Math.max(0, ...st.touchpoints.map(t => t.id)) + 1, contact_id: c.id, organization_id: c.organization_id,
+          touch_type: ev ? 'event' : 'meeting', direction:'inbound', touched_at: day + 'T12:00:00',
+          event_id: ev ? ev.id : null, subject: ev ? ev.name : 'Note', notes: r.text,
+          outcome_code: r.code, outcome_status:'confirmed', owner_id: st.settings.default_owner_id,
+          created_at: new Date().toISOString().slice(0, 19) };
+        st.touchpoints.push(tp);
+        if (MetLine.latest(st, c.id, day, tp.id)) Rules.applyOutcome(st, tp, () => {});
+      }
     });
-    Toast.show(`Logged against ${r.contact.full_name}.`, { kind:'ok', action:'Undo', onAction: () => { Store.undo(); render(); } });
+    Toast.show(`Logged against ${who.join(', ')}.`, { kind:'ok', action:'Undo', onAction: () => { Store.undo(); render(); } });
     return true;
   },
 };
@@ -7637,7 +7770,8 @@ Views.import = { title:'Import',
         const name = st.newEvent.name.trim(); if (!name) return Toast.show('Name the event first.', { kind:'warn' });
         let id = null;
         Store.commit('Event added: ' + name, s => { id = Math.max(0, ...s.events.map(x => x.id)) + 1;
-          s.events.push({ id, name, event_type: 'other', format: 'in_person', hosted_by_us: false, start_on: st.newEvent.start_on || new Date().toISOString().slice(0, 10),
+          const on = st.newEvent.start_on || new Date().toISOString().slice(0, 10);
+          s.events.push({ id, name, event_type: 'other', format: 'in_person', hosted_by_us: false, start_on: on, attendance: on > new Date().toISOString().slice(0, 10) ? 'going' : 'attended',
             cost_usd: 0, owner_id: s.settings.default_owner_id, created_at: new Date().toISOString().slice(0, 19) }); }, { silent: true });
         st.event_id = id; st.newEvent = null; }
       st.result = commitBatch(st.analysis, { ...st.defaults, kind: st.kind || 'new', event_id: st.event_id || null }); st.result.at = Date.now(); window.scrollTo(0, 0); render();
@@ -7649,12 +7783,26 @@ Views.import = { title:'Import',
       st.replies = list; st.ocrMsg = ''; st.step = 'replies'; render(); };
     const readAny = (text, fromShots) => {
       if (!fromShots){ st.fromCards = false; if ((st.readShots || []).length){ st.readShots.forEach(s => URL.revokeObjectURL(s.url)); st.readShots = []; } }
-      // "Met at Utah Nonprofits Summit" on a line of its own: these people were met there
-      const met = String(text || '').match(/^[ \t]*(?:met|meet)\s+(?:at|@)\s+(.+?)[ \t]*$/im);
-      if (met){ text = String(text).replace(met[0], '').trim();
-        const name = met[1].replace(/\s+event$/i, '').trim(), key = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-        const evs = Repo.events.all(), ev = evs.find(e => key(e.name) === key(name)) || evs.find(e => key(e.name).includes(key(name)) || key(name).includes(key(e.name)));
-        st.kind = 'event'; if (ev){ st.event_id = ev.id; st.newEvent = null; } else { st.event_id = null; st.newEvent = { name, start_on: new Date().toISOString().slice(0, 10) }; } }
+      /* "Met at Utah Nonprofits Summit" on a line of its own: these people were met there.
+         "Met Maria Olivia at Mentor International" above a card or rows says the same; alone,
+         that line is a note about somebody (Note, below). */
+      const lines = String(text || '').split('\n'), at = lines.findIndex(l => l.trim());
+      const met = at >= 0 && !(st.what && st.what !== 'auto') ? MetLine.read(lines[at]) : null;
+      if (met){
+        const below = lines.slice(at + 1).join('\n').trim();
+        if (!below){
+          if (met.who === 'all'){ Toast.show('Put the people below that line: rows from a sheet, business cards, or their names one per line.', { kind:'warn', ms:9000 }); return; }
+          // only names: people on file get the meeting logged (Note); anyone new is a row to add
+          if (met.who.every(n => MetLine.person(n))) return Note.confirm(lines[at].trim()).then(done => {
+            if (done){ st.text = ''; st.shots = []; UI.import = null; go('contacts'); } });
+          text = met.rest ? 'Name\tNotes\n' + met.who.map(n => n + '\t' + met.rest).join('\n') : 'Name\n' + met.who.join('\n');
+        } else text = below;
+        const ev = MetLine.findEvent(met.event, met.date);
+        st.kind = 'event'; if (ev){ st.event_id = ev.id; st.newEvent = null; }
+        else { st.event_id = null; st.newEvent = { name: met.event, start_on: met.date || new Date().toISOString().slice(0, 10) }; }
+        // what is below is people, whatever else it might look like: cards, or rows
+        return Shape.read(text, { fromImage: !!fromShots }).kind === 'cards' ? readCards(text) : read(text);
+      }
       if (!String(text || '').trim()){ Toast.show('Paste rows, replies, a card, a note or a screenshot first.', { kind:'warn' }); return; }
       /* What the person chose always wins. Only when it is left on "Work it
          out" does the classifier decide, and an unclear answer asks rather
@@ -7663,6 +7811,9 @@ Views.import = { title:'Import',
       const picked = st.what && st.what !== 'auto' ? st.what : null;
       const guess = Shape.read(text, { fromImage: !!fromShots });
       const kind = picked || guess.kind;
+      // a sentence about somebody (typed or recorded) is not a list, a card or an email, and is not unclear either
+      if (!picked && (kind === 'unclear' || kind === 'replies') && !fromShots && Note.looksLikeNote(text)) return Note.confirm(text).then(done => {
+        if (done){ st.text = ''; st.shots = []; UI.import = null; go('contacts'); } });
       if (kind === 'unclear'){
         st.text = text; st.shapeWhy = guess.why; render();
         Toast.show(guess.why, { kind:'warn', ms:9000 });
@@ -7900,13 +8051,16 @@ function commitBatch(analysis, defaults){
       }
       // Met at an event: the meeting itself is the first activity, and its rule schedules the follow-up
       const metAtEvent = !!event && !(v.touched_at || v.outcome_code || v.outcome_raw);
-      if (metAtEvent){
-        if (contact.source_event_id == null) contact.source_event_id = event.id;
+      // the same list imported twice logs the meeting once
+      if (metAtEvent && !st.touchpoints.some(t => t.contact_id === contact.id && t.event_id === event.id)){
+        MetLine.source(st, contact, st.events.find(e => e.id === event.id) || event);
         const tp = { id: nextId(st.touchpoints), contact_id: contact.id, organization_id: contact.organization_id, touch_type:'event', direction:'inbound',
           touched_at: (event.start_on || today) + 'T12:00:00', event_id: event.id, subject: event.name, notes: v.notes || null,
           outcome_code:'MET_AT_EVENT', outcome_status:'confirmed', owner_id: st.settings.default_owner_id, created_at: now };
         st.touchpoints.push(tp); out.touchpoints++;
-        const before = st.reminders.length; Rules.applyOutcome(st, tp, () => {}); out.reminders += Math.max(0, st.reminders.length - before);
+        // a meeting from long ago, logged after newer activity, is history: it does not reset their follow-up
+        const before = st.reminders.length; if (MetLine.latest(st, contact.id, String(tp.touched_at).slice(0, 10), tp.id)) Rules.applyOutcome(st, tp, () => {});
+        out.reminders += Math.max(0, st.reminders.length - before);
       }
 
       // The outreach the row records, and whatever the outcome triggers.
