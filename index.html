@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-09.3">
+<meta name="build-version" content="2026-11-09.4">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -7304,7 +7304,7 @@ const MetLine = {
     let event = verb ? verb[2] : head[1], rest = '';
     const cut = event.match(/\s*(?:[,;]|\s[-–—]\s|\.\s)\s*/);   // ", she is keen" after the event's name
     if (cut){ rest = event.slice(cut.index + cut[0].length).trim(); event = event.slice(0, cut.index); }
-    event = event.replace(/^the\s+/i, '').replace(/\s+event$/i, '').replace(/[.:;!\s]+$/, '').trim();
+    event = event.replace(/^(?:the|a|an|our|their)\s+/i, '').replace(/\s+event$/i, '').replace(/[.:;!\s]+$/, '').trim();
     if (!event || event.length > 90) return null;
     const groups = W.groups.map(g => g.toLowerCase()), raw = verb ? (verb[1] || '').trim() : '';
     const names = groups.includes(raw.toLowerCase()) ? [] : raw.split(/\s*(?:,|&|\+|\band\b)\s*/i).map(x => x.trim()).filter(x => x && !groups.includes(x.toLowerCase()));
@@ -7569,6 +7569,10 @@ Views.import = { title:'Import',
               <label class="f"><span>Date</span><input id="im-evdate" type="date" value="${esc(st.newEvent.start_on)}"></label>` : ''}` : ''}
           ${kind === 'new' || kind === 'event' || kind === 'newsletter' ? `<label class="f"><span>Segment, where a row does not say</span><select id="im-seg">${SEGMENTS.filter(s => s.code !== 'RET_BENEFIT' && s.code !== 'AFFILIATE').map(s => opt(s.code, s.group === s.name ? s.name : s.group + ': ' + s.name, st.defaults.segment === s.code)).join('')}</select></label>` : ''}
         </div>
+        ${kind === 'event' && st.metLine ? (st.newEvent && st.newEvent.ask
+          ? `<div class="banner warn" style="margin:14px 0 0"><span><b>${esc(st.newEvent.name)}</b> is not on the Events page. Add it as a new event on ${esc(fmtDate(st.newEvent.start_on))}?</span>
+              <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm btn-primary" type="button" id="im-ev-yes">Yes, add the event</button><button class="btn btn-sm" type="button" id="im-ev-no">No, import them without an event</button></span></div>`
+          : `<div class="banner demo" style="margin:14px 0 0"><span>Met at <b>${esc(st.newEvent ? st.newEvent.name : (Repo.events.byId(st.event_id) || {}).name || '')}</b>${st.newEvent ? ' (a new event, added when you import)' : ''}, ${esc(fmtDate(st.newEvent ? st.newEvent.start_on : (Repo.events.byId(st.event_id) || {}).start_on))}. Everyone in this list is tied to it; anyone already on file gets the meeting added to their activity.</span></div>`) : ''}
         <p class="muted small" style="margin-top:12px">Columns read: ${esc(colsRead.join(' · ') || 'none')} <button class="linkish" type="button" id="im-cols">${st.showCols ? 'Done' : 'Change'}</button></p>
         ${st.showCols ? `<div class="table-wrap auto" style="box-shadow:none;margin-top:10px"><table class="grid map"><thead><tr><th>Column</th><th>First value</th><th>Read as</th></tr></thead><tbody>
           ${st.parsed.headers.map((h, i) => `<tr><td><b>${esc(h)}</b></td><td class="muted">${esc(String((st.parsed.rows[0] || { cells: [] }).cells[i] || '').slice(0, 46))}</td>
@@ -7725,6 +7729,8 @@ Views.import = { title:'Import',
     root.querySelector('#im-event')?.addEventListener('change', e => {
       if (e.target.value === 'new'){ st.newEvent = st.newEvent || { name: '', start_on: new Date().toISOString().slice(0, 10) }; st.event_id = null; render(); return; }
       st.newEvent = null; st.event_id = Number(e.target.value); render(); });
+    root.querySelector('#im-ev-yes')?.addEventListener('click', () => { st.newEvent.ask = false; render(); });
+    root.querySelector('#im-ev-no')?.addEventListener('click', () => { st.newEvent = null; st.event_id = null; st.metLine = null; st.kind = 'new'; render(); });
     root.querySelector('#im-evname')?.addEventListener('input', e => { st.newEvent.name = e.target.value; });
     root.querySelector('#im-evdate')?.addEventListener('change', e => { st.newEvent.start_on = e.target.value; });
     root.querySelector('#im-cols')?.addEventListener('click', () => { st.showCols = !st.showCols; render(); });
@@ -7766,6 +7772,8 @@ Views.import = { title:'Import',
       r.picks = (r.picks || []).filter(k => k !== cb.value).concat(cb.checked ? [cb.value] : []); render(); }));
     root.querySelector('#im-commit')?.addEventListener('click', () => {
       // a new event named here is added first, then the people are tied to it
+      if (st.kind === 'event' && st.newEvent && st.newEvent.ask){ window.scrollTo(0, 0);
+        return Toast.show(`First say whether to add ${st.newEvent.name} as a new event.`, { kind:'warn' }); }
       if (st.kind === 'event' && st.newEvent){
         const name = st.newEvent.name.trim(); if (!name) return Toast.show('Name the event first.', { kind:'warn' });
         let id = null;
@@ -7787,7 +7795,11 @@ Views.import = { title:'Import',
          "Met Maria Olivia at Mentor International" above a card or rows says the same; alone,
          that line is a note about somebody (Note, below). */
       const lines = String(text || '').split('\n'), at = lines.findIndex(l => l.trim());
-      const met = at >= 0 && !(st.what && st.what !== 'auto') ? MetLine.read(lines[at]) : null;
+      // read whatever "What is this" says: the line is about where, the rest is the people
+      const met = at >= 0 ? MetLine.read(lines[at]) : null;
+      if (!met && st.metLine){ st.kind = 'new'; st.event_id = null; st.newEvent = null; }   // the line was taken out since the last try
+      st.metLine = met ? lines[at].trim() : null;
+      if (met && !/[A-Z]/.test(met.event)) met.event = met.event.replace(/\b[a-z]/g, ch => ch.toUpperCase());   // "mentor international" said in lower case
       if (met){
         const below = lines.slice(at + 1).join('\n').trim();
         if (!below){
@@ -7799,7 +7811,7 @@ Views.import = { title:'Import',
         } else text = below;
         const ev = MetLine.findEvent(met.event, met.date);
         st.kind = 'event'; if (ev){ st.event_id = ev.id; st.newEvent = null; }
-        else { st.event_id = null; st.newEvent = { name: met.event, start_on: met.date || new Date().toISOString().slice(0, 10) }; }
+        else { st.event_id = null; st.newEvent = { name: met.event, start_on: met.date || new Date().toISOString().slice(0, 10), ask: true }; }
         // what is below is people, whatever else it might look like: cards, or rows
         return Shape.read(text, { fromImage: !!fromShots }).kind === 'cards' ? readCards(text) : read(text);
       }
