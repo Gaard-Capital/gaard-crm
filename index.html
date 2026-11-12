@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-09.6">
+<meta name="build-version" content="2026-11-12.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -3499,6 +3499,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.
    [{ name, email }]). Pasting several addresses makes a chip of each. */
 const EmailChips = {
   ok: s => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s),
+  /** Suggestions as you type: team members first, then contacts, by a word of the name or the start of the address. */
+  people(q){ q = String(q || '').toLowerCase(); const seen = new Set();
+    return [...(Store.state.team_members || []).filter(t => t.is_active !== false), ...Store.state.contacts]
+      .filter(p => p.email && !seen.has(p.email.toLowerCase()) && seen.add(p.email.toLowerCase())
+        && (String(p.full_name || '').toLowerCase().split(/\s+/).some(w => w.startsWith(q)) || String(p.full_name || '').toLowerCase().startsWith(q) || p.email.toLowerCase().startsWith(q)))
+      .slice(0, 6).map(p => ({ name: p.full_name, email: p.email })); },
+  /** A chip line's value as a list of addresses. */
+  list: s => [...new Set(String(s || '').split(/[,;\s]+/).map(x => x.trim()).filter(EmailChips.ok))],
   chip: e => `<span class="ech" data-email="${esc(e)}">${esc(e)}<button type="button" aria-label="Remove ${esc(e)}">&times;</button></span>`,
   html(id, value){
     const list = [...new Set(String(value || '').split(/[,;\s]+/).filter(EmailChips.ok))];
@@ -4154,6 +4162,10 @@ const Merge = {
   /** Record the send: one outbound email each, which the outcome rules then pick
       up. The outcome is No response on purpose, and stays that way until a reply
       is logged against the contact. */
+  /** Whether email_messages has the bcc_emails column (db/024). In demo mode it always has; live, a row read
+      from the database must carry it (an empty table cannot tell, so the Bcc goes in the activity's notes then). */
+  bccColumn(st){ if (!Store.live) return true; const rows = (st || Store.state).email_messages || [];
+    return rows.some(m => m.external_id && Object.prototype.hasOwnProperty.call(m, 'bcc_emails')); },
   send(rows, tplName){
     let sent = 0;
     Store.commit(`Logged ${rows.length} sent email${rows.length === 1 ? '' : 's'}`, st => {
@@ -4167,11 +4179,18 @@ const Merge = {
           outcome_raw: null, owner_id: st.settings.default_owner_id, created_at: now,
           merge_template: tplName };
         if (r.follow_up_on) tp.follow_up_on = r.follow_up_on;
+        // Bcc is kept in email_messages.bcc_emails (db/024); until that file has been run it is written at the foot of the activity instead
+        const bcc = r.bcc || [], bccCol = Merge.bccColumn(st);
+        if (bcc.length && !bccCol) tp.notes = String(tp.notes || '').replace(/\s+$/, '') + '\n\n(Bcc: ' + bcc.join(', ') + ')';
         st.touchpoints.push(tp);
-        // sent from Gmail: the message and its conversation, so replies can be found later
-        if (r.gmail) st.email_messages.push({ id: Math.max(0, ...st.email_messages.map(m => m.id)) + 1, contact_id: c.id, touchpoint_id: tp.id, mailbox: r.mailbox,
-          external_id: r.gmail.id, thread_id: r.gmail.threadId, direction: 'outbound', from_email: r.mailbox, to_emails: [c.email], cc_emails: [],
-          subject: r.subject, body_text: r.body, sent_at: now, is_auto_reply: false, created_at: now });
+        // sent from Gmail: the message and its conversation, so replies can be found later; a letter written to
+        // one person (Write an email) is kept too in demo mode, so who it went to shows on the activity
+        if (r.gmail || r.logMessage){ const msg = { id: Math.max(0, ...st.email_messages.map(m => m.id)) + 1, contact_id: c.id, touchpoint_id: tp.id, mailbox: r.mailbox || null,
+          external_id: r.gmail ? r.gmail.id : null, thread_id: r.gmail ? r.gmail.threadId : null, direction: 'outbound', from_email: r.mailbox || Live.email || 'me',
+          to_emails: r.to && r.to.length ? r.to : [c.email], cc_emails: r.cc || [],
+          subject: r.subject, body_text: r.body, sent_at: now, is_auto_reply: false, created_at: now };
+          if (bccCol) msg.bcc_emails = bcc;
+          st.email_messages.push(msg); }
         Rules.applyOutcome(st, tp, () => {});
         sent++;
       }
@@ -4262,14 +4281,14 @@ const Gmail = {
       rd.onload = () => ok({ name: f.name, type: f.type || 'application/octet-stream', data: String(rd.result).split(',')[1] || '' }); rd.onerror = () => no(rd.error); rd.readAsDataURL(f); })));
   },
   /** One message in the format Gmail takes: headers, a plain and an HTML part (and any attachments), base64url. */
-  raw({ to, subject, text, bcc, replyTo, inReplyTo, references, files }){
+  raw({ to, subject, text, cc, bcc, replyTo, inReplyTo, references, files }){
     const b64 = s => btoa(unescape(encodeURIComponent(s)));
     const head = s => /^[\x20-\x7e]*$/.test(s) ? s : '=?UTF-8?B?' + b64(s) + '?=';
     const html = this.html(text), plain = this.signed(text), me = this.me || {};
     const wrap = s => b64(s).replace(/.{76}/g, m => m + '\r\n');
     const b = 'gaard-' + Math.random().toString(36).slice(2), mx = files && files.length ? 'gaard-m-' + Math.random().toString(36).slice(2) : null;
     // the sender's name as in Gmail: a bare address reads as a machine
-    const headers = [me.name && 'From: ' + (/^[\x20-\x7e]*$/.test(me.name) ? '"' + me.name.replace(/"/g, '') + '"' : head(me.name)) + ' <' + (me.email || this.email) + '>', 'To: ' + to, bcc && 'Bcc: ' + bcc, replyTo && 'Reply-To: ' + replyTo, 'Subject: ' + head(subject),
+    const headers = [me.name && 'From: ' + (/^[\x20-\x7e]*$/.test(me.name) ? '"' + me.name.replace(/"/g, '') + '"' : head(me.name)) + ' <' + (me.email || this.email) + '>', 'To: ' + to, cc && 'Cc: ' + cc, bcc && 'Bcc: ' + bcc, replyTo && 'Reply-To: ' + replyTo, 'Subject: ' + head(subject),
       inReplyTo && 'In-Reply-To: ' + inReplyTo, references && 'References: ' + references,
       'MIME-Version: 1.0', 'Content-Type: ' + (mx ? 'multipart/mixed; boundary="' + mx + '"' : 'multipart/alternative; boundary="' + b + '"')].filter(Boolean);
     const alt = ['--' + b, 'Content-Type: text/plain; charset="UTF-8"', 'Content-Transfer-Encoding: base64', '', wrap(plain),
@@ -4349,7 +4368,8 @@ const Inbox = {
             const from = (hdr('from').match(/[^\s<>"]+@[^\s<>"]+/) || [''])[0].toLowerCase();
             if (!from || from === me) continue;   // our own letters and our own answers
             const body = this.clean(this.text(msg.payload));
-            found.push({ sent, id: msg.id, thread: th.id, from, subject: hdr('subject'), body, at: new Date(Number(msg.internalDate)).toISOString().slice(0, 19),
+            const addrs = n => [...new Set((hdr(n).match(/[^\s<>",;]+@[^\s<>",;]+/g) || []).map(x => x.toLowerCase()))];
+            found.push({ sent, id: msg.id, thread: th.id, from, to: addrs('to'), cc: addrs('cc'), subject: hdr('subject'), body, at: new Date(Number(msg.internalDate)).toISOString().slice(0, 19),
               auto: /auto-replied|auto-generated/i.test(hdr('auto-submitted')) || !!hdr('x-autoreply') });
           }
         }));
@@ -4361,7 +4381,7 @@ const Inbox = {
           const tp = st.touchpoints.find(t => t.id === f.sent.touchpoint_id);
           const contactId = (tp && tp.contact_id) || f.sent.contact_id;
           st.email_messages.push({ id: ++nextMsg, contact_id: contactId, touchpoint_id: tp ? tp.id : null, mailbox: me, external_id: f.id, thread_id: f.thread,
-            direction: 'inbound', from_email: f.from, to_emails: [me], cc_emails: [], subject: f.subject, body_text: f.body, sent_at: f.at, is_auto_reply: f.auto, created_at: now });
+            direction: 'inbound', from_email: f.from, to_emails: f.to.length ? f.to : [me], cc_emails: f.cc, subject: f.subject, body_text: f.body, sent_at: f.at, is_auto_reply: f.auto, created_at: now });
           if (!tp) continue;
           const cls = f.auto ? { code: 'OUT_OF_OFFICE', sure: true } : Replies.classify(f.body);
           Object.assign(tp, { response_excerpt: f.body.slice(0, 400), responded_at: f.at, ai_suggested_outcome: cls.code || null,
@@ -4399,18 +4419,26 @@ const Inbox = {
     const tpls = Repo.templates.all();
     const p = Modal.form({ title: title || 'Email ' + c.full_name, wide: true, okLabel: Store.live ? 'Send from my Gmail' : 'Log as sent (demo)', fields: [
       ...(tpls.length && !body ? [{ key: 'tpl', label: 'Start from a template', type: 'select', value: '', span: true, options: [{ value: '', label: 'Write it myself' }, ...tpls.map(t => ({ value: String(t.id), label: t.name }))] }] : []),
+      // To, Cc and Bcc as in Gmail: chips, Enter after each, with team members and contacts suggested as you type
+      { key: 'to', label: 'To', type: 'emails', value: c.email, span: true, suggest: EmailChips.people },
+      { key: 'cc', label: 'Cc', hint: 'optional', type: 'emails', value: '', suggest: EmailChips.people },
+      { key: 'bcc', label: 'Bcc', hint: 'optional', type: 'emails', value: '', suggest: EmailChips.people },
       { key: 'subject', label: 'Subject', value: subject, span: true },
-      { key: 'body', label: 'To ' + c.email + (body ? ' (a suggestion: change anything before sending)' : ''), type: 'textarea', rows: 14, span: true, value: body },
+      { key: 'body', label: 'Letter' + (body ? ' (a suggestion: change anything before sending)' : ''), type: 'textarea', rows: 14, span: true, value: body },
       ...(Store.live ? [{ key: 'files', label: 'Attach files', hint: 'optional', type: 'file', span: true }] : []) ] });
     const sel = document.getElementById('mf-tpl');
     if (sel) sel.onchange = () => { const t = tpls.find(x => String(x.id) === sel.value); if (!t) return;
       document.getElementById('mf-subject').value = Merge.fill(t.subject, c); document.getElementById('mf-body').value = Merge.fill(t.body, c); };
     const out = await p;
     if (!out || !out.body.trim()) return;
-    const row = { contact: c, subject: out.subject, body: out.body, rfp_id, outcome, follow_up_on: follow_up_on || Rules.addBusinessDays(new Date(), 5).toISOString().slice(0, 10) };
+    const to = EmailChips.list(out.to), cc = EmailChips.list(out.cc).filter(e => !to.includes(e)), bcc = EmailChips.list(out.bcc).filter(e => !to.includes(e) && !cc.includes(e));
+    if (!to.length) return Toast.show('Not sent: there is nobody on the To line.', { kind:'warn' });
+    // the letter goes on this person's Activity, with everyone it went to (To, Cc and Bcc)
+    const row = { contact: c, subject: out.subject, body: out.body, rfp_id, outcome, to, cc, bcc, logMessage: true,
+      follow_up_on: follow_up_on || Rules.addBusinessDays(new Date(), 5).toISOString().slice(0, 10) };
     if (Store.live){
       const why = Gmail.blocker(); if (why) return Toast.show(why, { kind:'warn' });
-      try { await Gmail.prepare(); row.gmail = await Gmail.send({ to: c.email, subject: out.subject, text: out.body, files: await Gmail.files(out.files) }); row.mailbox = Gmail.email.toLowerCase(); }
+      try { await Gmail.prepare(); row.gmail = await Gmail.send({ to: to.join(', '), cc: cc.join(', '), bcc: bcc.join(', '), subject: out.subject, text: out.body, files: await Gmail.files(out.files) }); row.mailbox = Gmail.email.toLowerCase(); }
       catch (err){ return Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
     }
     Merge.send([row], null);
@@ -4424,23 +4452,33 @@ const Inbox = {
     const theirs = msgs.filter(m => m.direction === 'inbound').pop();
     if (!c || !theirs) return Toast.show('There is no Gmail reply to answer here.', { kind:'warn' });
     const subject = /^re:/i.test(theirs.subject || '') ? theirs.subject : 'Re: ' + (theirs.subject || tp.subject || '');
+    // Reply all, as Gmail offers it: everyone else on their reply stays on Cc (remove a chip to leave someone out)
+    const mine = new Set([Gmail.email, Live.email, ...msgs.filter(m => m.direction === 'outbound').map(m => m.mailbox)].filter(Boolean).map(x => String(x).toLowerCase()));
+    const others = [...new Set([...(theirs.to_emails || []), ...(theirs.cc_emails || [])].map(x => String(x).toLowerCase()))].filter(e => !mine.has(e) && e !== String(theirs.from_email).toLowerCase());
     const out = await Modal.form({ title: preset.title || 'Reply to ' + c.full_name, wide: true, okLabel: 'Send from my Gmail', fields: [
+      { key: 'to', label: 'To', type: 'emails', value: theirs.from_email, span: true, suggest: EmailChips.people },
+      { key: 'cc', label: 'Cc', hint: others.length ? 'everyone else on their reply' : 'optional', type: 'emails', value: others.join(', '), suggest: EmailChips.people },
+      { key: 'bcc', label: 'Bcc', hint: 'optional', type: 'emails', value: '', suggest: EmailChips.people },
       { key: 'subject', label: 'Subject', value: subject, span: true },
       { key: 'body', label: 'Your answer (a suggestion: change anything before sending)', type: 'textarea', rows: 12, span: true, value: preset.body || this.suggest(tp, c), voice: '\n\n' },
       { key: 'files', label: 'Attach files', hint: 'optional', type: 'file', span: true } ] });
     if (!out || !out.body.trim()) return;
+    const to = EmailChips.list(out.to), cc = EmailChips.list(out.cc).filter(e => !to.includes(e)), bcc = EmailChips.list(out.bcc).filter(e => !to.includes(e) && !cc.includes(e));
+    if (!to.length) return Toast.show('Not sent: there is nobody on the To line.', { kind:'warn' });
     try {
       await Gmail.prepare();
       const meta = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/' + encodeURIComponent(theirs.external_id) + '?format=metadata&metadataHeaders=Message-ID&metadataHeaders=References',
         { headers: { Authorization: 'Bearer ' + Gmail.token } }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
       const hv = n => (((meta.payload || {}).headers || []).find(x => x.name.toLowerCase() === n) || {}).value || '';
-      const res = await Gmail.send({ to: theirs.from_email, subject: out.subject, text: out.body, threadId: theirs.thread_id, files: await Gmail.files(out.files),
+      const res = await Gmail.send({ to: to.join(', '), cc: cc.join(', '), bcc: bcc.join(', '), subject: out.subject, text: out.body, threadId: theirs.thread_id, files: await Gmail.files(out.files),
         inReplyTo: hv('message-id'), references: [hv('references'), hv('message-id')].filter(Boolean).join(' ') });
       Store.commit('Reply sent to ' + c.full_name, st => {
-        const now = new Date().toISOString().slice(0, 19);
-        st.email_messages.push({ id: Math.max(0, ...st.email_messages.map(m => m.id)) + 1, contact_id: c.id, touchpoint_id: tp.id, mailbox: Gmail.email.toLowerCase(),
-          external_id: res.id, thread_id: res.threadId || theirs.thread_id, direction: 'outbound', from_email: Gmail.email, to_emails: [theirs.from_email], cc_emails: [],
-          subject: out.subject, body_text: out.body, sent_at: now, is_auto_reply: false, created_at: now });
+        const now = new Date().toISOString().slice(0, 19), bccCol = Merge.bccColumn(st);
+        const msg = { id: Math.max(0, ...st.email_messages.map(m => m.id)) + 1, contact_id: c.id, touchpoint_id: tp.id, mailbox: Gmail.email.toLowerCase(),
+          external_id: res.id, thread_id: res.threadId || theirs.thread_id, direction: 'outbound', from_email: Gmail.email, to_emails: to, cc_emails: cc,
+          subject: out.subject, body_text: out.body + (bcc.length && !bccCol ? '\n\n(Bcc: ' + bcc.join(', ') + ')' : ''), sent_at: now, is_auto_reply: false, created_at: now };
+        if (bccCol) msg.bcc_emails = bcc;
+        st.email_messages.push(msg);
       });
       if (preset.after) preset.after();
     } catch (err){ Toast.show('Not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
@@ -4820,7 +4858,8 @@ Views.mailmerge = { title:'Mass Email',
             return `<div class="page-actions">
             <button class="btn btn-primary btn-xl" type="button" id="mm-gsend" ${chosen.length && !why && !busy ? '' : 'disabled'}>${busy ? 'Sending ' + st.sending.done + ' of ' + st.sending.total + '…' : 'Send ' + chosen.length + ' from my Gmail'}</button>
             ${busy ? `<button class="btn btn-danger btn-xl" type="button" id="mm-gstop" ${st.sending.stop ? 'disabled' : ''}>${st.sending.stop ? 'Stopping…' : 'Stop sending'}</button>` : ''}
-            <button class="btn btn-xl" type="button" id="mm-gtest" ${why || busy ? 'disabled' : ''}>Send a test to myself</button></div>
+            <button class="btn btn-xl" type="button" id="mm-gtest" ${why || busy ? 'disabled' : ''}>Send a test to myself</button>
+            <button class="btn btn-xl" type="button" id="mm-gtest-to" ${why || busy ? 'disabled' : ''} title="The same test, to any address you type (a colleague, say)">Send a test to a custom email</button></div>
           <p class="muted small" style="margin-top:10px">${why ? esc(why) : `Each letter goes out from your own Gmail${Gmail.email ? ' (' + esc(Gmail.email) + ')' : ''}, one at a time, with the signature you set up in Gmail, and shows up in your Sent folder; replies come back to you. Every person sent to is marked <b>No response</b> and their next follow-up is set.`}</p>
           <details class="mm-manual"><summary>Or send from your own email by hand</summary>
             <div class="page-actions" style="margin-top:10px"><button class="btn" type="button" id="mm-copy-all" ${chosen.length?'':'disabled'}>Copy all ${chosen.length} into my email</button>
@@ -4881,14 +4920,27 @@ Views.mailmerge = { title:'Mass Email',
     });
     /* Send from Gmail: permission first, then one letter at a time with a short pause, each
        person marked Sent or Not sent as it goes; the ones that went are logged as No response. */
-    root.querySelector('#mm-gtest')?.addEventListener('click', async () => {
+    /* A test: the letter on screen, filled in as for the person previewed, marked [Test], sent to
+       yourself or to addresses you type. It is not logged on anyone's Activity. */
+    const sendTest = async addresses => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0], c = Repo.contacts.byId(st.previewId); if (!tpl || !c) return;
       try { await Gmail.prepare();
+        const to = addresses || [Gmail.email];
         const L = (st.edits || {})[c.id] || { subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book === true), c) };
-        await Gmail.send({ to: Gmail.email, subject: '[Test] ' + L.subject, text: L.body });
+        await Gmail.send({ to: to.join(', '), subject: '[Test] ' + L.subject, text: L.body });
         const sn = Gmail.sigNote();
-        Toast.show('Test sent to ' + Gmail.email + ', filled in as for ' + c.full_name + (sn ? '. ' + sn : ''), { kind: sn ? 'warn' : 'ok', ms: sn ? 14000 : undefined }); render();
+        Toast.show('Test sent to ' + to.join(', ') + ', filled in as for ' + c.full_name + (sn ? '. ' + sn : ''), { kind: sn ? 'warn' : 'ok', ms: sn ? 14000 : undefined }); render();
       } catch (err){ Toast.show('Test not sent: ' + err.message, { kind:'warn', ms: 9000 }); }
+    };
+    root.querySelector('#mm-gtest')?.addEventListener('click', () => sendTest());
+    root.querySelector('#mm-gtest-to')?.addEventListener('click', async () => {
+      const c = Repo.contacts.byId(st.previewId); if (!c) return;
+      const out = await Modal.form({ title: 'Send a test to a custom email', okLabel: 'Send the test', fields: [
+        { key: 'to', label: 'Send the test to', hint: 'Enter after each address', type: 'emails', value: st.testTo || '', span: true, suggest: EmailChips.people } ] });
+      if (!out) return;
+      const to = EmailChips.list(out.to); if (!to.length) return Toast.show('Type an address to send the test to.', { kind:'warn' });
+      st.testTo = to.join(', ');   // remembered for the next test
+      sendTest(to);
     });
     root.querySelector('#mm-gsend')?.addEventListener('click', async () => {
       const rows = build(); if (!rows.length) return;
@@ -5940,11 +5992,7 @@ async function scheduleCall(c){
     { key: 'time', label: 'Time (Mountain)', type: 'time', value: '10:00' },
     { key: 'mins', label: 'Minutes', type: 'number', value: '30' },
     { key: 'guests', label: 'Guests', hint: 'Enter after each; colleagues get it in their calendar too', type: 'emails', value: [c.email, me.invite_also].filter(Boolean).join(', '), span: true,
-      suggest: q => { q = q.toLowerCase(); const seen = new Set();
-        return [...(Store.state.team_members || []).filter(t => t.is_active !== false), ...Store.state.contacts]
-          .filter(p => p.email && !seen.has(p.email.toLowerCase()) && seen.add(p.email.toLowerCase())
-            && (String(p.full_name || '').toLowerCase().split(/\s+/).some(w => w.startsWith(q)) || String(p.full_name || '').toLowerCase().startsWith(q) || p.email.toLowerCase().startsWith(q)))
-          .slice(0, 6).map(p => ({ name: p.full_name, email: p.email })); } },
+      suggest: EmailChips.people },
     { key: 'video', label: 'Meeting link', type: 'select', value: 'zoom', options: [
       { value: 'zoom', label: 'Zoom' }, { value: 'meet', label: 'Google Meet' }, { value: 'other', label: 'Other' } ] },
     { key: 'link', label: 'Link', hint: 'Zoom: leave empty to have one made', value: me.zoom_link || '', placeholder: 'https://…', showIf: { key: 'video', values: ['zoom', 'other'] } } ] });
@@ -6245,15 +6293,21 @@ Views.contact = { title:'Contact',
     const asc = UI.actOrder === 'asc';
     const parts = (t, emails) => {
       const letter = emails.find(m => m.direction === 'outbound'), inbound = emails.filter(m => m.direction === 'inbound');
-      const ps = [{ key: 'l', when: t.touched_at, text: t.notes || (letter && letter.body_text) || '' }];
-      if (inbound.length) inbound.forEach(m => ps.push({ key: 'r' + m.id, when: m.sent_at, cls: 'reply', label: 'Their reply', text: m.body_text || '' }));
+      // who a message went to, shown when it is more than this person alone (To, Cc, Bcc)
+      const mineL = String(c.email || '').toLowerCase();
+      const who = m => { if (!m) return ''; const to = m.to_emails || [], cc = m.cc_emails || [], bcc = m.bcc_emails || [];
+        if (!cc.length && !bcc.length && (!to.length || (to.length === 1 && String(to[0]).toLowerCase() === mineL))) return '';
+        return [to.length && 'To ' + to.join(', '), cc.length && 'Cc ' + cc.join(', '), bcc.length && 'Bcc ' + bcc.join(', ')].filter(Boolean).join(' · '); };
+      const ps = [{ key: 'l', when: t.touched_at, text: t.notes || (letter && letter.body_text) || '', who: who(letter) }];
+      if (inbound.length) inbound.forEach(m => ps.push({ key: 'r' + m.id, when: m.sent_at, cls: 'reply',
+        label: m.from_email && String(m.from_email).toLowerCase() !== mineL ? 'Reply from ' + m.from_email : 'Their reply', text: m.body_text || '', who: (m.cc_emails || []).length ? 'Cc ' + m.cc_emails.join(', ') : '' }));
       else if (t.response_excerpt) ps.push({ key: 'r', when: t.responded_at || t.touched_at, cls: 'reply', label: 'Their reply', text: t.response_excerpt });
-      emails.filter(m => m.direction === 'outbound' && m.thread_id && m !== letter).forEach(m => ps.push({ key: 'a' + m.id, when: m.sent_at, cls: 'answer', label: 'You answered ' + fmtDate(m.sent_at, { month:'short', day:'numeric' }), text: m.body_text || '' }));
+      emails.filter(m => m.direction === 'outbound' && m.thread_id && m !== letter).forEach(m => ps.push({ key: 'a' + m.id, when: m.sent_at, cls: 'answer', label: 'You answered ' + fmtDate(m.sent_at, { month:'short', day:'numeric' }), text: m.body_text || '', who: who(m) }));
       const ordered = ps.filter(p => p.text).sort((a, b) => String(a.when).localeCompare(String(b.when)));
       const toggle = ordered.length > 1 ? `<div class="act-order"><button class="linkish small" type="button" data-order title="The order of the messages inside an activity">${asc ? 'Oldest first' : 'Newest first'} ⇅</button></div>` : '';
       return toggle + (asc ? ordered : ordered.reverse()).map(p => {
         const k = t.id + ':' + p.key, long = p.text.replace(/\s+/g, ' ').trim().length > 150, open = UI.actOpen.has(k);
-        return `<div class="act-part ${p.cls || ''}">${p.label ? `<div class="act-lab">${esc(p.label)}</div>` : ''}<div class="body${long && !open ? ' clamp2' : ''}">${esc(long && !open ? p.text.replace(/\s+/g, ' ').trim() : p.text)}</div>${long ? `<button class="linkish small" type="button" data-more="${esc(k)}">${open ? 'Show less' : 'Show more'}</button>` : ''}</div>`; }).join('');
+        return `<div class="act-part ${p.cls || ''}">${p.label ? `<div class="act-lab">${esc(p.label)}</div>` : ''}${p.who ? `<div class="muted small act-who">${esc(p.who)}</div>` : ''}<div class="body${long && !open ? ' clamp2' : ''}">${esc(long && !open ? p.text.replace(/\s+/g, ' ').trim() : p.text)}</div>${long ? `<button class="linkish small" type="button" data-more="${esc(k)}">${open ? 'Show less' : 'Show more'}</button>` : ''}</div>`; }).join('');
     };
     const entry = t => { const emails = Repo.touchpoints.emails(t.id);
       return `<div class="entry ${t.direction === 'inbound' ? 'Inbound' : 'Outbound'}${String(params.tp) === String(t.id) ? ' tp-target' : ''}" id="tp-${t.id}"><button class="tp-edit" type="button" data-edit-tp="${t.id}" aria-label="Edit or delete this activity" title="Edit or delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg></button>
