@@ -17,7 +17,7 @@ erases a teammate's work. Before making any change:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="build-version" content="2026-11-12.1">
+<meta name="build-version" content="2026-11-17.1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gaard Capital CRM</title>
 <link rel="icon" href="https://gaard.capital/wp-content/uploads/2024/04/cropped-gaard-investments-icon-32x32.png" sizes="32x32">
@@ -267,6 +267,7 @@ table.ev-list td b{display:block}
 /* ---------- Tables ---------- */
 .table-wrap{overflow:auto;max-height:calc(100vh - 290px);border-radius:var(--radius-lg);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
 .table-wrap.auto{max-height:none}
+body.drag-ticking,body.drag-ticking *{user-select:none;-webkit-user-select:none}
 table.grid{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
 table.grid th{position:sticky;top:0;z-index:2;background:var(--surface-2);color:var(--ink-3);font-weight:600;text-align:left;padding:11px 14px;white-space:nowrap;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--line);user-select:none}
 table.grid th.num{text-align:right}
@@ -343,6 +344,7 @@ table.grid th.col-h:hover .colcopy,.colcopy:focus-visible{opacity:1}
 .imp-what select{height:38px;border-radius:var(--radius-pill);padding:0 32px 0 14px}
 /* A short find box beside the count on the Mass Email list. */
 .mm-q{margin-left:auto;max-width:190px;height:34px;border-radius:var(--radius-pill);padding:0 14px;font-size:13px}
+.mm-off{color:var(--warn);font-weight:500}
 /* Fixing a row the reader got wrong, before any of it is saved. */
 .imp-res{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}
 .imp-pencil{flex:none;width:26px;height:26px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink-3);cursor:pointer;opacity:.45;transition:opacity .12s}
@@ -3855,31 +3857,60 @@ const Sheet = {
 
 /** Tick boxes in a list behave like a sheet's: press one and drag across the
     rows to set them all the same way, or Shift-click to set the range from the
-    last one pressed. apply(map of id -> checked) saves the change once. */
+    last one pressed. apply(map of id -> checked) saves the change once.
+    Dragging near the top or bottom edge of the list's scroll area (40px)
+    scrolls it, faster the closer to the edge, and keeps ticking the rows that
+    pass under the mouse; letting go stops both (Jon, 17 Nov 2026). */
 function bindDragTick(root, selector, idOf, apply){
   const boxes = [...root.querySelectorAll(selector)];
   if (!boxes.length) return;
+  const trs = boxes.map(cb => cb.closest('tr'));
   /* While dragging, the rows between the box pressed and the row under the
-     mouse take the new state; every other row goes back to how it was. So
-     dragging down to row 5 and back up to row 3 leaves rows 4 and 5 as they
-     were before. */
+     mouse take the new state (ticked, or unticked when the box pressed was
+     ticked); every other row goes back to how it was. So dragging down to
+     row 5 and back up to row 3 leaves rows 4 and 5 as they were before. */
   let drag = null;
+  const EDGE = 40, FAST = 24;   // px of edge zone; px scrolled per frame at the very edge
   const show = (cb, on) => { cb.checked = on; cb.closest('tr')?.classList.toggle('is-sel', on); };
   const spread = to => { const a = Math.min(drag.from, to), b = Math.max(drag.from, to);
     boxes.forEach((cb, k) => show(cb, k >= a && k <= b ? drag.on : drag.was[k])); };
-  const finish = () => { if (!drag) return; const was = drag.was; drag = null; document.removeEventListener('mouseup', finish);
+  // the nearest box around the list that actually scrolls up and down (the sheet, else the page)
+  const scrollerOf = el => { for (let p = el.parentElement; p && p !== document.body; p = p.parentElement){
+      const oy = getComputedStyle(p).overflowY; if ((oy === 'auto' || oy === 'scroll') && p.scrollHeight > p.clientHeight + 1) return p; }
+    return document.scrollingElement; };
+  const area = sc => sc === document.scrollingElement ? { top: 0, bottom: innerHeight } : sc.getBoundingClientRect();
+  /* The row level with the mouse, by height only (so the mouse may wander off
+     the side of the table), and never one hidden under the sticky heading. */
+  const rowAt = () => { const r = area(drag.sc), head = trs[0]?.closest('table')?.tHead;
+    const top = Math.max(r.top, head ? head.getBoundingClientRect().bottom : r.top), y = Math.min(Math.max(drag.y, top), r.bottom - 1);
+    for (let k = 0; k < trs.length; k++){ const b = trs[k].getBoundingClientRect(); if (y >= b.top && y < b.bottom) return k; }
+    return -1; };
+  const follow = () => { const k = rowAt(); if (k >= 0 && k !== drag.at){ drag.at = k; spread(k); root._lastTick = k; } };
+  const step = () => { if (!drag) return;
+    const r = area(drag.sc); let v = 0;
+    if (drag.y < r.top + EDGE) v = -Math.min(FAST, Math.ceil((r.top + EDGE - drag.y) / EDGE * FAST));
+    else if (drag.y > r.bottom - EDGE) v = Math.min(FAST, Math.ceil((drag.y - (r.bottom - EDGE)) / EDGE * FAST));
+    if (v) drag.sc.scrollTop += v;
+    follow(); drag.raf = requestAnimationFrame(step); };
+  const move = e => { if (drag){ drag.y = e.clientY; if (Math.abs(drag.y - drag.y0) > 3) drag.moved = true; } };
+  const finish = () => { if (!drag) return; const { was, raf, moved } = drag; drag = null; cancelAnimationFrame(raf);
+    document.removeEventListener('mouseup', finish); document.removeEventListener('mousemove', move); window.removeEventListener('blur', finish);
+    document.body.classList.remove('drag-ticking');
+    // letting go over another row must not open that row's contact
+    if (moved){ const eat = e => { e.stopPropagation(); e.preventDefault(); }; document.addEventListener('click', eat, true); setTimeout(() => document.removeEventListener('click', eat, true), 0); }
     const changes = new Map(); boxes.forEach((cb, k) => { if (cb.checked !== was[k]) changes.set(idOf(cb), cb.checked); });
     if (changes.size) apply(changes); };
   boxes.forEach((cb, i) => {
     cb.addEventListener('click', e => { if (e.detail) e.preventDefault(); e.stopPropagation(); });   // a mouse click is handled on press; the keyboard still toggles
     cb.addEventListener('mousedown', e => {
-      if (e.button !== 0) return; e.preventDefault(); e.stopPropagation();
+      if (e.button !== 0) return; e.preventDefault(); e.stopPropagation();   // preventDefault: no page text is selected
       const from = e.shiftKey && root._lastTick != null ? root._lastTick : i;
-      drag = { from, on: !cb.checked, was: boxes.map(x => x.checked) };
+      drag = { from, at: i, on: !cb.checked, was: boxes.map(x => x.checked), y: e.clientY, y0: e.clientY, sc: scrollerOf(cb) };
       spread(i); root._lastTick = i;
-      document.addEventListener('mouseup', finish);
+      document.body.classList.add('drag-ticking'); window.getSelection()?.removeAllRanges();
+      document.addEventListener('mouseup', finish); document.addEventListener('mousemove', move); window.addEventListener('blur', finish);
+      drag.raf = requestAnimationFrame(step);
     });
-    cb.closest('tr')?.addEventListener('mouseenter', () => { if (drag){ spread(i); root._lastTick = i; } });
   });
 }
 function bindRowNav(root){ const rows = [...root.querySelectorAll('tr.row-link')];
@@ -4087,7 +4118,7 @@ const Merge = {
       ${sig ? `<p class="banner warn" style="margin-top:12px">${esc(sig)}</p>` : ''}
       <p class="muted small" style="margin-top:12px">They go out one at a time, about a second apart; Stop sending halts the rest. An email that has gone cannot be called back. Each person is marked No response and their next follow-up is set.</p>`;
     return new Promise(res => {
-      const m = Modal.open({ title: `Send ${many}?`, body,
+      const m = Modal.open({ title: `Send to ${fmtInt(n)} ${n === 1 ? 'person' : 'people'} from your Gmail?`, body,
         foot: `<button class="btn" type="button" data-cancel>Cancel</button><button class="btn btn-primary" type="button" data-ok>Yes, send ${many}</button>` });
       const done = v => { Modal.close(); res(v); };
       m.querySelector('[data-cancel]').onclick = () => done(false);
@@ -4744,15 +4775,18 @@ Views.mailmerge = { title:'Mass Email',
        to the first-outreach list picks the cold introduction once; anything the
        person chooses after that is left alone. */
     if (st.source === 'first' && st.pickedFor !== 'first'){
-      const ft = templates.find(t => t.first); if (ft){ st.templateId = ft.id; st.selected = null; }
+      const ft = templates.find(t => t.first); if (ft) st.templateId = ft.id;
       st.pickedFor = 'first';
     } else if (st.source !== 'first' && st.pickedFor === 'first'){ st.pickedFor = null; }
     // People picked in Contacts who were never written to get the cold introduction first
     if (st.source === 'picked' && st.pickedFor !== 'picked'){
       const ids = st.picked || [];
-      if (ids.length && ids.every(id => !Repo.contacts.latestTouch().get(id))){ const ft = templates.find(t => t.first); if (ft){ st.templateId = ft.id; st.selected = null; } }
+      if (ids.length && ids.every(id => !Repo.contacts.latestTouch().get(id))){ const ft = templates.find(t => t.first); if (ft) st.templateId = ft.id; }
       st.pickedFor = 'picked';
     }
+    /* Mail merge on Contacts comes in with exactly the people ticked there,
+       ticked; every other way in starts with nobody ticked (Jon, 17 Nov 2026). */
+    if (st.preTick){ st.selected = new Set(st.preTick); st.preTick = null; }
     const tpl = Repo.templates.byId(st.templateId) || templates[0];
     if (!tpl) return `<div class="page-head"><h1>Emails to send</h1></div>${emptyState('No letters yet','Add one in Settings.')}`;
     if (st.templateId !== tpl.id) st.templateId = tpl.id;
@@ -4770,6 +4804,7 @@ Views.mailmerge = { title:'Mass Email',
     else if (st.source === 'due') candidates = Merge.due().filter(x => inScope.has(x.contact.id));
     else if (st.source === 'overdue') candidates = Merge.due().filter(x => inScope.has(x.contact.id) && Repo.reminders.bucket(x.reminder) === 'overdue');
     else candidates = Metrics.leads(f).filter(l => !l.contact.do_not_contact).map(l => ({ reminder: Repo.contacts.nextReminder(l.contact_id), contact: l.contact }));
+    const listed = candidates;   // before the letter's segment narrows it, to say why a ticked person drops out
     // A letter written for one segment narrows the lists; people picked by hand are kept, whatever their segment
     if (tpl.segment && st.source !== 'picked') candidates = candidates.filter(x => x.contact.segment_code === tpl.segment);
 
@@ -4781,8 +4816,28 @@ Views.mailmerge = { title:'Mass Email',
     const hit = r => { const c = r.contact;
       return [c.full_name, c.email, orgNameOf(c), c.state].filter(Boolean).join(' ').toLowerCase().includes(mq); };
     const shown = mq ? rows.filter(hit) : rows;
-    if (!st.selected) st.selected = new Set(sendable.map(r => r.contact.id));
+    /* Nobody is ticked until someone ticks them: opening the page, refreshing
+       it or changing the list starts at 0 (null means nobody). Changing the
+       letter keeps the ticks; a ticked person the new letter cannot go to stays
+       ticked but is not sent to, and the count says why. */
+    if (!st.selected) st.selected = new Set();
     const chosen = sendable.filter(r => st.selected.has(r.contact.id));
+    st.chosenIds = chosen.map(r => r.contact.id);   // exactly who Send, Copy all and Mark as sent act on, searched or not
+    const offNote = (() => {
+      const sendIds = new Set(sendable.map(r => r.contact.id)), rowOf = new Map(rows.map(r => [r.contact.id, r])), inList = new Set(listed.map(x => x.contact.id));
+      const off = [...st.selected].filter(id => !sendIds.has(id)); if (!off.length) return '';
+      const segs = new Map(), why = new Map(), bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
+      off.forEach(id => { const r = rowOf.get(id), c = Repo.contacts.byId(id);
+        if (r && r.blocked) bump(why, r.blocked);
+        else if (c && tpl.segment && inList.has(id)) bump(segs, segName(c.segment_code) || 'no segment');
+        else bump(why, 'no longer on this list'); });
+      const parts = [];
+      if (segs.size){ const g = [...segs].sort((a, b) => b[1] - a[1]), rest = g.slice(3).reduce((t, x) => t + x[1], 0);
+        parts.push(g.slice(0, 3).map(([k, n]) => `${n} ${n === 1 ? 'is' : 'are'} ${k}`).join(', ') + (rest ? `, ${rest} other` : '') + ` (this letter is for ${segName(tpl.segment)})`); }
+      why.forEach((n, k) => parts.push(`${n} ${n === 1 ? 'is' : 'are'} blocked (${k.charAt(0).toLowerCase() + k.slice(1)})`));
+      return ` · <span class="mm-off">${fmtInt(off.length)} can't get this letter because ${parts.join('; ')}. They stay ticked for another letter.</span>`;
+    })();
+    const shownSendable = shown.filter(r => !r.blocked);
     const preview = chosen.find(r => r.contact.id === st.previewId) || chosen[0] || sendable[0] || null;
     if (preview) st.previewId = preview.contact.id;
 
@@ -4805,7 +4860,7 @@ Views.mailmerge = { title:'Mass Email',
 
     <section class="card" style="margin-bottom:16px"><div class="card-body">
       <div class="stephead"><span class="stepnum">2</span><h2>Who gets it?</h2>
-        <span class="sub">${fmtInt(chosen.length)} of ${fmtInt(sendable.length)} ticked</span></div>
+        <span class="sub">${fmtInt(chosen.length)} of ${fmtInt(sendable.length)} ticked${offNote}</span></div>
       <div class="filters" style="margin:0 0 10px">
         <div class="btn-group">${picked.length ? srcBtn('picked','Picked in Contacts', picked.length) : ''}${srcBtn('first','First outreach', fresh.length)}${srcBtn('due','Due today', dueAll.length)}${srcBtn('overdue','Only the late ones', dueAll.filter(x => Repo.reminders.bucket(x.reminder)==='overdue').length)}${srcBtn('all','Everyone already contacted', Metrics.leads(f).length)}</div>
 </div>
@@ -4819,7 +4874,7 @@ Views.mailmerge = { title:'Mass Email',
         <input type="search" id="mm-q" class="mm-q" placeholder="Find a name" value="${esc(st.q || '')}" autocomplete="off">
         ${mq ? `<span class="sub">${fmtInt(shown.length)} of ${fmtInt(rows.length)}</span>` : ''}</div>
         <div class="table-wrap auto" style="box-shadow:none;border:none;border-radius:0;max-height:520px">
-        <table class="grid sheet" style="min-width:0"><thead><tr><th style="width:72px">${sendable.length ? `<input type="checkbox" id="mm-selall" ${chosen.length === sendable.length ? 'checked' : ''} ${st.sending ? 'disabled' : ''} aria-label="Tick or untick everyone" title="Tick or untick everyone">` : ''}</th><th>Name</th><th>Why now</th><th>Last correspondence</th></tr></thead><tbody>
+        <table class="grid sheet" style="min-width:0"><thead><tr><th style="width:72px">${shownSendable.length ? `<input type="checkbox" id="mm-selall" ${shownSendable.every(r => st.selected.has(r.contact.id)) ? 'checked' : ''} ${st.sending ? 'disabled' : ''} aria-label="Tick or untick everyone listed" title="${mq ? 'Tick or untick everyone matching the search' : 'Tick or untick everyone listed'}">` : ''}</th><th>Name</th><th>Why now</th><th>Last correspondence</th></tr></thead><tbody>
         ${shown.length ? shown.map(r => { const c = r.contact; const on = st.selected.has(c.id);
           return `<tr class="${r.blocked ? 'mm-blocked' : ''} ${on && !r.blocked ? 'is-sel' : ''} ${preview && preview.contact.id === c.id ? 'is-open' : ''}" data-preview="${c.id}">
             <td>${(() => { const log = (st.sendLog || {})[c.id], now = st.sending && st.sending.current === c.id, queued = st.sending && st.sending.queue.includes(c.id);
@@ -4873,7 +4928,7 @@ Views.mailmerge = { title:'Mass Email',
   mount(root){
     const st = UI.merge;
     bindFilters(root, render);
-    root.querySelector('#mm-tpl')?.addEventListener('change', e => { st.templateId = e.target.value; st.selected = null; st.edits = {}; render(); });
+    root.querySelector('#mm-tpl')?.addEventListener('change', e => { st.templateId = e.target.value; st.edits = {}; render(); });   // the ticks stay as they are
     /* Typing in the letter keeps the change for this person only. */
     const keep = () => { const c = Repo.contacts.byId(st.previewId); if (!c) return;
       st.edits = st.edits || {}; st.edits[c.id] = { subject: root.querySelector('#mm-subj').value, body: root.querySelector('#mm-body').value }; };
@@ -4898,11 +4953,12 @@ Views.mailmerge = { title:'Mass Email',
       if (e.target.closest('input')) return; st.previewId = Number(tr.dataset.preview); render(); }));
     const all = root.querySelector('#mm-selall');
     if (all){ const n = root.querySelectorAll('[data-pick]:checked').length; all.indeterminate = n > 0 && !all.checked;
-      all.addEventListener('change', () => { st.selected = all.checked ? null : new Set(); render(); }); }
+      // only the people listed under the search, and only those who can be sent to (the greyed have no box)
+      all.addEventListener('change', () => { root.querySelectorAll('[data-pick]').forEach(cb => { const id = Number(cb.dataset.pick); if (all.checked) st.selected.add(id); else st.selected.delete(id); }); render(); }); }
 
     const build = () => {
       const tpl = Repo.templates.byId(st.templateId) || Repo.templates.all()[0];   // the letter on screen
-      const picked = [...root.querySelectorAll('[data-pick]')].filter(cb => cb.checked).map(cb => Repo.contacts.byId(Number(cb.dataset.pick))).filter(Boolean);
+      const picked = (st.chosenIds || []).map(id => Repo.contacts.byId(id)).filter(Boolean);   // the ticked who can get this letter, also those hidden by the search
       return picked.map(c => (st.edits || {})[c.id] ? { contact: c, ...st.edits[c.id] } : { contact: c, subject: Merge.fill(tpl.subject, c), body: Merge.fill(Merge.booking(tpl.body, st.book === true), c) });
     };
     const copy = async (text, label) => {
@@ -5650,7 +5706,7 @@ Views.contacts = { title:'Contacts',
       catch (e){ Toast.show('Could not reach the clipboard.', { kind:'warn' }); }
     });
     root.querySelector('#c-merge')?.addEventListener('click', () => {
-      UI.merge.picked = [...sel]; UI.merge.source = 'picked'; UI.merge.appliedSource = 'picked'; UI.merge.selected = null; UI.merge.previewId = null; UI.merge.pickedFor = null; UI.merge.sendLog = {};
+      UI.merge.picked = [...sel]; UI.merge.source = 'picked'; UI.merge.appliedSource = 'picked'; UI.merge.selected = null; UI.merge.preTick = [...sel]; UI.merge.previewId = null; UI.merge.pickedFor = null; UI.merge.sendLog = {};
       go('mailmerge', { source:'picked' }); });
     root.querySelector('#c-cols')?.addEventListener('click', e => { e.stopPropagation(); UI.openCols = !UI.openCols; UI.openPick = null; UI.openState = false; render(); });
     const saveCols = labels => { try { localStorage.setItem(SHEET_COLS_KEY, JSON.stringify(labels)); } catch (e) { /* private window */ } render(); };
@@ -8781,7 +8837,7 @@ function route(){
   const prev = Router.current; Router.current = parseHash();
   if (prev.name !== Router.current.name || JSON.stringify(prev.params) !== JSON.stringify(Router.current.params)){
     UI.contacts.page = 0; UI.orgs.page = 0; UI.touches.page = 0; UI.rem.page = 0; document.getElementById('main').scrollTop = 0;
-    if (prev.name !== Router.current.name) UI.merge.appliedSource = null;
+    if (prev.name !== Router.current.name){ UI.merge.appliedSource = null; if (Router.current.name === 'mailmerge') UI.merge.selected = null; }   // nobody ticked on the way in
   }
   render();
 }
